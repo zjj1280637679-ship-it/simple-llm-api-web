@@ -1,10 +1,10 @@
 /** SSE framing is independent of network chunks and UTF-8 character boundaries. */
-export async function readSSE(response, { signal, onEvent, error }) {
+export async function readSSE(response, { signal, onEvent, error, onPhase }) {
   if (!response.body?.getReader) throw error('STREAM_UNSUPPORTED', '供应商没有返回可读取的流；未自动重试。');
   const type = response.headers?.get?.('content-type');
   if (type && !type.toLowerCase().includes('text/event-stream')) throw error('STREAM_UNSUPPORTED', '供应商未返回 SSE 流；未自动切换或重试。');
   const reader = response.body.getReader(), decoder = new TextDecoder();
-  let buffer = '', data = [], event = '', done = false, frameBytes = 0;
+  let buffer = '', data = [], event = '', done = false, frameBytes = 0, receivedBytes = false;
   const maxFrameBytes = 8 * 1024 * 1024, encoder = new TextEncoder();
   const budget = bytes => { if (bytes > maxFrameBytes) throw error('STREAM_FORMAT','流式数据帧过大。'); };
   const abort = () => { reader.cancel().catch(() => {}); };
@@ -42,6 +42,7 @@ export async function readSSE(response, { signal, onEvent, error }) {
     check();
     while (!done) {
       const chunk = await reader.read(); check();
+      if (chunk.value?.byteLength && !receivedBytes) { receivedBytes = true; onPhase?.('first_chunk'); }
       buffer += decoder.decode(chunk.value, {stream:!chunk.done}); drain(chunk.done);
       if (chunk.done) { if (buffer) line(buffer); line(''); break; }
     }
@@ -57,12 +58,12 @@ export async function readSSE(response, { signal, onEvent, error }) {
 }
 
 /** Build the same native assistant shape as the nonstream transport. */
-export async function collectTextStream(response, {protocol, signal, onDelta, error}) {
+export async function collectTextStream(response, {protocol, signal, onDelta, error, onPhase}) {
   const gemini = protocol === 'gemini';
   const parts = [], calls = new Map();
-  let text = '', finish = null, usage = null, refusal = '', reasoning = '', ended = false;
+  let text = '', finish = null, usage = null, refusal = '', reasoning = '', encrypted = '', ended = false;
   const metadata = {};
-  await readSSE(response, {signal,error,onEvent(data,event) {
+  await readSSE(response, {signal,error,onPhase,onEvent(data,event) {
     if (event === 'error') throw error('STREAM_ERROR','供应商在流中返回错误；部分回复未完成。');
     if (data.trim() === '[DONE]') { ended = true; return false; }
     let json;
@@ -80,6 +81,8 @@ export async function collectTextStream(response, {protocol, signal, onDelta, er
       for (const part of candidate.content?.parts || []) {
         // Preserve native boundaries/signatures, including opaque thought parts.
         parts.push(part);
+        if (typeof part.text === 'string' && part.text.length) onPhase?.(part.thought ? 'reasoning' : 'output');
+        if (part.functionCall?.name) onPhase?.('output');
         if (typeof part.text === 'string' && !part.thought) { text += part.text; onDelta?.(part.text); }
       }
     } else {
@@ -88,10 +91,19 @@ export async function collectTextStream(response, {protocol, signal, onDelta, er
       if (!choice) return;
       if (choice.finish_reason) finish = choice.finish_reason;
       const delta = choice.delta || {};
+      if (typeof delta.content === 'string' && delta.content.length) onPhase?.('output');
+      if (typeof delta.reasoning_content === 'string' && delta.reasoning_content.length) onPhase?.('reasoning');
+      // Ark emits a complete opaque block independently, often with empty text.
+      // Keep it byte-for-byte; it is neither display text nor a reasoning signal.
+      if (typeof delta.encrypted_content === 'string' && delta.encrypted_content.length) {
+        if (encrypted && encrypted !== delta.encrypted_content) throw error('STREAM_FORMAT','供应商返回了冲突的加密上下文；未保存残缺回复。');
+        encrypted = delta.encrypted_content;
+      }
       if (typeof delta.content === 'string') { text += delta.content; onDelta?.(delta.content); }
       if (typeof delta.reasoning_content === 'string') reasoning += delta.reasoning_content;
       if (typeof delta.refusal === 'string') refusal += delta.refusal;
       for (const fragment of delta.tool_calls || []) {
+        if (fragment.id || fragment.function?.name || fragment.function?.arguments) onPhase?.('output');
         if (!Number.isInteger(fragment.index) || fragment.index < 0) throw error('TOOL_FORMAT','工具调用缺少有效索引；未执行工具。');
         const call = calls.get(fragment.index) || {id:'',type:'function',function:{name:'',arguments:''}};
         if (fragment.id) call.id += fragment.id;
@@ -109,5 +121,6 @@ export async function collectTextStream(response, {protocol, signal, onDelta, er
   if (calls.size) message.tool_calls = [...calls].sort(([a],[b]) => a-b).map(([,call]) => call);
   if (refusal) message.refusal = refusal;
   if (reasoning) message.reasoning_content = reasoning;
+  if (encrypted) message.encrypted_content = encrypted;
   return {...metadata,choices:[{message,finish_reason:finish}],usage};
 }

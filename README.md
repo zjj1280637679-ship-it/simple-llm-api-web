@@ -7,7 +7,7 @@
 - **对话**：Gemini 原生、OpenAI 兼容、火山方舟普通 API。初始文本模型保留 `gemini-flash-lite-latest`；选择 Ark 后使用 `doubao-seed-2-1-lite-260915`，也可手填账号已开通的文本模型。
 - **图片**：保留 Gemini Nano Banana 2.1 的 14×3 矩阵；新增 Ark Seedream 5.0 Flash/Pro 的 8×3 矩阵（`1K / 1.5K / 2K`，默认 2K）。显示 API 实际返回的图片，可下载。
 - **配置**：两页分别保留内存中的 API 配置；无配置时先输入消息会出现配置卡片，填好后再次发送，不重复追加同一条待发送消息。
-- **模型列表**：Gemini/OpenAI 在确认目标后调用所选地址的 `/models`，Gemini 取最多 1000 条的第一页。普通 Ark 的 Bearer 模型列表契约尚未核实，因此明确使用预设/手填，不伪装拉取。
+- **模型列表**：Gemini/OpenAI 在点击拉取时应用当前填写配置，调用所选地址的 `/models`，Gemini 取最多 1000 条的第一页。普通 Ark 的 Bearer 模型列表契约尚未核实，因此明确使用预设/手填，不伪装拉取。
 - **Agent → 图片工作台**：模型的 `image_generate` 函数调用映射到受控 `image.generate` 命令。网页直接生成、Agent 工具、Node CLI 共用 `src/core.js` 的同一个 dispatcher / image generation core。每次生成前显示地址、模型、提示词与尺寸，确认后才发送。
 - **请求状态**：防重复点击，取消请求，不自动重试。已到达供应商的请求即使取消也可能计费。
 - **通讯日志**：真实 fetch 边界记录地址、方法、脱敏头、请求/响应、状态和耗时；真实网络、模拟测试明确区分，可导出 JSON。
@@ -37,7 +37,7 @@ node cli.mjs --help
 
 ## 火山方舟普通 API（文本＋图片）
 
-在任一工作区 `+ → API 设置 → 供应商` 中选择 **火山方舟 · 普通 API**。两页各自填写普通 Ark API Key 并确认目标，不会自动复制另一页的密钥。
+在任一工作区 `+ → API 设置 → 供应商` 中选择 **火山方舟 · 普通 API**。两页各自填写普通 Ark API Key，发送时应用当前目标，不会自动复制另一页的密钥。
 
 - 基础地址：`https://ark.cn-beijing.volces.com/api/v3`，**不是** `/api/plan/v3`，不使用 Agent/Coding Plan Key。
 - 文本：`/chat/completions`；预设 `doubao-seed-2-1-lite-260915`。完整保留模型工具消息及 `encrypted_content`；输出预算使用 `max_completion_tokens`，不与 `max_tokens` 同发。
@@ -67,7 +67,7 @@ node cli.mjs --help
 | 协议 | `Gemini 原生`、`OpenAI 兼容` 或 `火山方舟 · 普通 API`；供应商选择只是填写地址，不保证第三方实现所有字段。 |
 | API Key | 用户自己的密钥，仅在当前页面内存中保存。可显示/隐藏及清除，刷新或关闭页面即丢失。 |
 | 模型 ID | 文本默认 `gemini-flash-lite-latest`；图片初始为 `gemini-nano-banana-2.1`；Ark 选择后使用上面的 Lite/Flash 预设。自定义文本模型须与所选协议兼容。 |
-| 确认目标地址 | 确认密钥及请求内容要发往哪里。更改地址或协议会清除旧密钥并要求重新确认。模型列表也需要确认。 |
+| 当前目标地址 | 点击发送或拉取模型时应用当前配置；填写本身不发送。更改地址或协议清除旧密钥，删空密钥即时清除。 |
 
 两页的配置彼此独立；可在两页填同一个用户密钥，但不会自动跨页复制。API Key 不保存到 localStorage、sessionStorage、Cookie、URL、历史卡片或日志。卡片中的密钥输入框属于当前页面内存/DOM，浏览器扩展仍可能访问页面；请只使用可信浏览器与可信上游。
 
@@ -137,7 +137,7 @@ npm run build
 python3 -m http.server 8000 --directory dist
 ```
 
-构建只复制上述 14 个文件，不下载依赖、不读取环境密钥。工作流参考 [GitHub 官方 Pages 自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
+构建仅生成上述 14 个文件，为 CSS/JS 入口及全部相对模块引用加入一致的内容哈希版本；不下载依赖、不读取环境密钥。工作流参考 [GitHub 官方 Pages 自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
 CSS/JS 均使用相对路径，兼容 `https://<owner>.github.io/<repository>/`。GitHub 私有仓库的 Pages 可用性和访问范围依账号计划/组织设置而定；启用前检查站点是否会公开。**不要在页面、配置或提交中放共享 API Key。**
 
 若 GitHub 要求重新登录或 2FA，应由账号持有人完成，不能通过代码绕过。代码提交成功不等于 Pages 已部署成功。
@@ -161,7 +161,7 @@ docs/ark-api.md         官方 API 来源与版本化集成摘要
 docs/ark-model-catalog.md 当前模型目录与生命周期依据
 docs/credentials.md    密钥容器、授权消费者与静态站点边界
 .env.example           空凭据字段与非秘密参考默认值
-scripts/build.mjs       仅复制 14 个生产文件到 dist
+scripts/build.mjs       生成 14 个白名单生产文件，带内容哈希资源版本
 .github/workflows/      测试通过后发布 dist 的 Pages 工作流
 design/index.html       原始交互设计，原样保留，不作为生产入口
 design/REQUIREMENTS.md   当时的设计需求记录（保留历史语境）
@@ -184,3 +184,5 @@ VALIDATION.md           本次验证结果与尚未完成的真实环境验证
 Google 当前同时提供较新的 Interactions 协议。本 MVP 有意使用仍有官方文档的 GenerateContent 接口，不能将 Interactions 的 `response_format` 参数混入此请求。
 
 响应式与悬浮导航验证见 [布局说明](docs/floating-navigation.md)；缓存命中、末次输入与未知值语义见 [用量说明](docs/USAGE_METRICS.md)。
+
+状态动画与客户端截止、缓存版本方案详见 [请求状态说明](docs/loading-status.md)。

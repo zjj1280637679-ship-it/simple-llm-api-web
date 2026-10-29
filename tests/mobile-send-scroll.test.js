@@ -9,7 +9,7 @@ function mount(){
  const nav={contains:()=>false,getBoundingClientRect:()=>({bottom:80})};
  const composer={contains:()=>false,getBoundingClientRect:()=>({top:650})};
  const app={get scrollTop(){return y},set scrollTop(v){y=Math.max(0,Math.min(v,height-800))},get scrollHeight(){return height},clientHeight:800,contains:t=>Boolean(t.inside),classList:{contains:()=>false},querySelector:s=>s==='.top'?nav:composer,scrollBy:o=>{calls.push(o.top);app.scrollTop+=o.top;}};
- const c={app,window:{innerHeight:800},Math,Number};vm.createContext(c);vm.runInContext(code,c);
+ const c={app,recordScrollDiagnostic:()=>{},window:{innerHeight:800},Math,Number};vm.createContext(c);vm.runInContext(code,c);
  return {app,c,calls,setHeight:v=>{height=v;},field:(top,bottom)=>({inside:true,matches:()=>true,closest:()=>null,getBoundingClientRect:()=>({top,bottom})})};
 }
 test('repeated viewport focus checks after send ignore body, detached nodes and non-controls',()=>{

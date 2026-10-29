@@ -36,7 +36,7 @@ function mount({ confirm = () => true, runConversation, dispatchCommand, listMod
   const context = {
     ...core, ...logs, ...attachments, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
     renderNetworkLogs: container => { if (container) container.textContent = logs.exportNetworkLogs(); },
-    URL, Blob, Uint8Array, atob, AbortController, performance,
+    URL, Blob, Uint8Array, atob, AbortController, performance, setTimeout, clearTimeout, setInterval, clearInterval,
     runConversation: runConversation || neverFetch, listModels: listModels || neverFetch, dispatchCommand: dispatchCommand || neverFetch
   };
   vm.createContext(context);
@@ -368,7 +368,7 @@ test('pending request shows only accessible spinner and clears it on completion'
  const ui=mount({runConversation:()=>new Promise(r=>{resolve=r;})}),{d}=configure(ui);
  d.draft='offline pending';const pending=ui.click({action:'send'});
  assert.equal(d.busy,true);assert.match(ui.app.innerHTML,/class="api-spinner"/);
- assert.match(ui.app.innerHTML,/role="status" aria-label="正在加载"/);
+ assert.match(ui.app.innerHTML,/role="status" aria-label="等待响应头；可随时取消"/);
  assert.doesNotMatch(ui.app.innerHTML,/正在请求 API/);
  assert.match(ui.app.innerHTML,/data-action="cancel"/);
  resolve({text:'offline result',usage:null,messages:[]});await pending;

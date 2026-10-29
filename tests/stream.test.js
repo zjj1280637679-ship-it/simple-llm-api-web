@@ -95,3 +95,40 @@ test('SSE frame budget resets for individually bounded events in one chunk',asyn
  });
  assert.equal(count,9);
 });
+
+test('Ark opaque encrypted block survives empty tail, history and next request; logs redact it',async()=>{
+ const {clearNetworkLogs,exportNetworkLogs,getNetworkLogs}=await import('../src/logs.js');
+ clearNetworkLogs();
+ const opaque='SYNTHETIC-OPAQUE-DoNotDisplay+/==\nexact';let secondBody;const visible=[];
+ const first=await runConversation({config:config('ark'),messages,onDelta:s=>visible.push(s),fetchImpl:async()=>response([
+  o('',null,{reasoning_content:'summary'}),o('',null,{reasoning_content:'',encrypted_content:opaque}),
+  o('answer','stop'),o('',null,{encrypted_content:''}),{choices:[],usage:{total_tokens:9}},'[DONE]',
+ ])});
+ assert.equal(first.history[1].raw.encrypted_content,opaque);assert.equal(first.text,'answer');assert.equal(visible.join(''),'answer');
+ await runConversation({config:config('ark'),messages:[...first.history,{role:'user',content:'next'}],onDelta:()=>{},fetchImpl:async(url,options)=>{secondBody=JSON.parse(options.body);return response([o('next answer','stop'),'[DONE]']);}});
+ assert.equal(secondBody.messages[1].encrypted_content,opaque);
+ assert.equal(secondBody.thinking,undefined);assert.equal(secondBody.reasoning_effort,undefined);
+ const output=exportNetworkLogs()+JSON.stringify(getNetworkLogs());
+ assert.equal(output.includes('SYNTHETIC-OPAQUE'),false);assert.match(output,/REDACTED/);
+});
+test('Ark encrypted block on final finish chunk is preserved, not rendered',async()=>{
+ const visible=[];const result=await generateText({config:config('ark'),messages,onDelta:s=>visible.push(s),fetchImpl:async()=>response([o('answer'),o('','stop',{encrypted_content:'tail-opaque'}),'[DONE]'])});
+ assert.equal(result.rawAssistant.encrypted_content,'tail-opaque');assert.equal(visible.join(''),'answer');
+});
+test('stream phases reflect bytes, explicit thought and output, never encrypted-only chunks',async()=>{
+ const {collectTextStream}=await import('../src/stream.js');const phases=[],visible=[];
+ const error=(code,message)=>Object.assign(new Error(message),{code});
+ await collectTextStream(response([o('',null,{encrypted_content:'opaque'}),o('answer','stop'),'[DONE]']),{protocol:'ark',error,onDelta:s=>visible.push(s),onPhase:p=>phases.push(p)});
+ assert.deepEqual(phases,['first_chunk','output']);assert.equal(visible.join(''),'answer');
+ phases.length=0;
+ await collectTextStream(response([g([{text:'summary',thought:true}]),g([{text:'',thoughtSignature:'opaque'}]),g([{text:'answer'}],'STOP')]),{protocol:'gemini',error,onDelta:()=>{},onPhase:p=>phases.push(p)});
+ assert.deepEqual(phases,['first_chunk','reasoning','output']);
+ phases.length=0;
+ await collectTextStream(response([o('',null,{reasoning_content:'summary'}),o('',null,{tool_calls:[{index:0,id:'call',function:{name:'image_generate',arguments:'{}'}}]}),o('','tool_calls'),'[DONE]']),{protocol:'ark',error,onDelta:()=>{},onPhase:p=>phases.push(p)});
+ assert.deepEqual(phases,['first_chunk','reasoning','output']);
+});
+test('real transport and agent forward observable header and content phases in order',async()=>{
+ const phases=[];
+ await runConversation({config:config('ark'),messages,onDelta:()=>{},onPhase:p=>phases.push(p),fetchImpl:async()=>response([o('',null,{reasoning_content:'synthetic summary'}),o('answer','stop'),'[DONE]'])});
+ assert.deepEqual(phases,['waiting_headers','headers_received','first_chunk','reasoning','output']);
+});

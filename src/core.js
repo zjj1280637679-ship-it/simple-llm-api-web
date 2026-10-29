@@ -89,7 +89,7 @@ function modelId(config) {
 
 /** Network errors deliberately omit upstream bodies/URLs/causes: they can echo credentials. */
 let nextRequestId = 0;
-async function requestJSON(config, path, {body, logBody, signal, onDelta, fetchImpl = globalThis.fetch} = {}) {
+async function requestJSON(config, path, {body, logBody, signal, onDelta, onPhase, fetchImpl = globalThis.fetch} = {}) {
   const base = validateEndpoint(config);
   if (config.attachmentContext && logBody === undefined) logBody = {model:config.model, note:'附件会话派生请求；正文不写入日志'};
   checkAbort(signal);
@@ -119,6 +119,7 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, fetchI
   };
   try {
     try {
+      onPhase?.('waiting_headers');
       response = await fetchImpl(`${base}${path}`, {
         method:event.method, headers,
         ...(body === undefined ? {} : {body:JSON.stringify(body)}), signal,
@@ -134,8 +135,9 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, fetchI
       const details = {400:'请求参数或模型能力不匹配。',401:'API Key 无效或已失效。',403:'此 Key 无权访问模型或服务。',404:'API 路径或模型不存在。',408:'供应商请求超时。',429:'额度不足或请求频率受限。'};
       fail('HTTP', `API 请求失败（HTTP ${Number.isInteger(status) ? status : '错误'}）：${details[status] || (status >= 500 ? '供应商暂时不可用。' : '请检查配置和模型支持。')}`, status);
     }
+    onPhase?.('headers_received');
     let json;
-    try { json = onDelta ? await collectTextStream(response, {protocol:config.protocol,signal,onDelta,error:(code,message)=>new AppError(code,message)}) : await response.json(); } catch (error) {
+    try { json = onDelta ? await collectTextStream(response, {protocol:config.protocol,signal,onDelta,onPhase,error:(code,message)=>new AppError(code,message)}) : await response.json(); } catch (error) {
       if (onDelta && error instanceof AppError) throw error;
       if (signal?.aborted) throw cancelled();
       fail('RESPONSE', 'API 返回了无法解析的 JSON。');
@@ -152,10 +154,10 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, fetchI
   }
 }
 
-export async function listModels({config, signal, fetchImpl} = {}) {
+export async function listModels({config, signal, fetchImpl, onPhase} = {}) {
   if (config?.protocol === 'ark') fail('MODELS_UNSUPPORTED', '当前未接入火山方舟模型列表接口；请手动填写已开通的模型 ID。');
   // One documented page of up to 1000 Gemini models. Never follow a provider-supplied URL.
-  const json = await requestJSON(config, config.protocol === 'gemini' ? '/models?pageSize=1000' : '/models', {signal,fetchImpl});
+  const json = await requestJSON(config, config.protocol === 'gemini' ? '/models?pageSize=1000' : '/models', {signal,fetchImpl,onPhase});
   const models = config.protocol === 'gemini' ? json.models : json.data;
   if (!Array.isArray(models)) fail('RESPONSE', '模型列表响应格式不正确。');
   return models.filter(isRecord).map(model => config.protocol === 'gemini'
@@ -208,7 +210,7 @@ function geminiCandidate(json) {
   return candidate;
 }
 
-export async function generateText({config, messages, settings = {}, tools = [], signal, fetchImpl, onDelta} = {}) {
+export async function generateText({config, messages, settings = {}, tools = [], signal, fetchImpl, onDelta, onPhase} = {}) {
   validateEndpoint(config);
   const model = modelId(config);
   const generation = settingsBody(settings, config.protocol);
@@ -224,7 +226,7 @@ export async function generateText({config, messages, settings = {}, tools = [],
     if (tools.length) body.tools = tools.map(tool => ({type:'function',function:tool}));
   }
   if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 16 * 1024 * 1024) fail('ATTACHMENT_LIMIT','对话附件累计过大，请清空对话后重新添加。');
-  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : '/chat/completions', {body,signal,fetchImpl,onDelta, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
+  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : '/chat/completions', {body,signal,fetchImpl,onDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
   if (config.protocol === 'gemini') {
     const candidate = geminiCandidate(json);
     const rawAssistant = candidate.content;
@@ -275,7 +277,7 @@ function checkedRaster(mimeType, data) {
   if (!valid) fail('IMAGE_DATA', '供应商返回的图片内容与格式不匹配。');
   return {mimeType,data};
 }
-export async function generateImage({config, prompt, aspectRatio, imageSize, signal, fetchImpl} = {}) {
+export async function generateImage({config, prompt, aspectRatio, imageSize, signal, fetchImpl, onPhase} = {}) {
   validateEndpoint(config);
   const model = modelId(config);
   let options;
@@ -286,7 +288,7 @@ export async function generateImage({config, prompt, aspectRatio, imageSize, sig
     fail('PROMPT', '图片提示词应为 1–30000 个字符。');
   if (config.protocol === 'ark') {
     const json = await requestJSON(config,'/images/generations',{
-      body:{model,prompt:prompt.trim(),size:options.size,response_format:'b64_json',output_format:'png'},signal,fetchImpl,
+      body:{model,prompt:prompt.trim(),size:options.size,response_format:'b64_json',output_format:'png'},signal,fetchImpl,onPhase,
     });
     if (!Array.isArray(json.data) || !json.data.length) fail('NO_IMAGE','供应商没有返回图片；此次请求可能仍计费，请检查模型、额度或响应。');
     const images = json.data.map(item => {
@@ -301,7 +303,7 @@ export async function generateImage({config, prompt, aspectRatio, imageSize, sig
     return {images,text:'',usage:usageFrom(json,config.protocol),...options,model};
   }
   const json = await requestJSON(config, `/models/${model}:generateContent`, {
-    body:{contents:[{role:'user',parts:[{text:prompt.trim()}]}],generationConfig:{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:options.aspectRatio,imageSize:options.imageSize}}},signal,fetchImpl,
+    body:{contents:[{role:'user',parts:[{text:prompt.trim()}]}],generationConfig:{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:options.aspectRatio,imageSize:options.imageSize}}},signal,fetchImpl,onPhase,
   });
   const candidate = geminiCandidate(json);
   const parts = candidate.content.parts;
@@ -319,7 +321,7 @@ export async function dispatchCommand(command, context = {}) {
     fail('COMMAND_ARGS', '图片命令参数不正确；不接受地址、密钥、模型或任意代码。');
   if (context.confirmed !== true) fail('CONFIRMATION', '图片调用尚未获得用户确认；未发送请求。');
   checkAbort(context.signal);
-  return generateImage({config:context.imageConfig,...args,signal:context.signal,fetchImpl:context.fetchImpl});
+  return generateImage({config:context.imageConfig,...args,signal:context.signal,fetchImpl:context.fetchImpl,onPhase:context.onPhase});
 }
 
 /** Supply a compact non-secret result summary here, never image bytes or configuration. */

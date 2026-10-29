@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>响应式离线验收台</title>
 <style>body{margin:12px;font:14px/1.5 system-ui;background:#eee;color:#222}button,select{font:inherit;margin:4px;padding:6px}nav{display:flex;flex-wrap:wrap;align-items:center}iframe{display:block;background:white;border:1px solid #999;box-sizing:content-box}pre{white-space:pre-wrap;overflow-wrap:anywhere}.viewport{overflow:auto;max-width:100%}</style>
 <h1>响应式离线验收台</h1><p>独立测试页，仅加载同源真实应用。不会填密钥或发送 API。长内容按钮会添加明确标记的合成显示数据；重新加载清空。200% 是字体压力测试，不冒称浏览器缩放。</p>
-<nav><label>CSS 宽度<select id="width"><option>320</option><option>375</option><option>430</option><option>768</option><option>1280</option></select></label><label>高度<select id="height"><option>800</option><option>568</option><option>400</option></select></label><label>字体<select id="font"><option value="1">100%</option><option value="2">200%</option></select></label><button id="reload">重新加载</button><button id="api">API 设置</button><button id="model">模型设置</button><button id="chat">对话页</button><button id="image">图片页</button><button id="logs">日志页</button><button id="matrix">图片矩阵</button><button id="fixture">插入长内容</button><button id="long-chat">生成离线长对话</button><button id="send-scroll">发送滚动压力（合成）</button><button id="pending">离线加载指示</button><button id="pending-end">清除加载指示</button><button id="measure">测量</button></nav>
+<nav><label>CSS 宽度<select id="width"><option>320</option><option>375</option><option>430</option><option>768</option><option>1280</option></select></label><label>高度<select id="height"><option>800</option><option>568</option><option>400</option></select></label><label>字体<select id="font"><option value="1">100%</option><option value="2">200%</option></select></label><button id="reload">重新加载</button><button id="api">API 设置</button><button id="model">模型设置</button><button id="chat">对话页</button><button id="image">图片页</button><button id="logs">日志页</button><button id="matrix">图片矩阵</button><button id="fixture">插入长内容</button><button id="long-chat">生成离线长对话</button><button id="stale-focus">旧焦点/截图事件压力</button><button id="send-scroll">发送滚动压力（合成）</button><button id="pending">离线加载指示</button><button id="pending-end">清除加载指示</button><button id="measure">测量</button></nav>
 <pre id="report" aria-live="polite">等待加载</pre><div class="viewport"><iframe id="view" title="真实应用测试视口" src="../../index.html" width="320" height="800"></iframe></div>
 <script>
 const view=document.querySelector('#view'),report=document.querySelector('#report'),long='合成压力测试LongUnbrokenModelIdentifier0123456789'.repeat(5);
@@ -32,6 +32,19 @@ document.querySelector('#fixture').onclick=()=>{const d=doc();let target=d.query
   }
   font();measure();
  }catch(e){report.textContent='离线夹具失败：'+e.message;}finally{w.fetch=blocked;}
+};
+document.querySelector('#stale-focus').onclick=async()=>{
+ const d=doc(),w=view.contentWindow;
+ try{
+  await document.querySelector('#long-chat').onclick();
+  const input=d.querySelector('[data-key="key"]'),app=d.querySelector('#app');
+  input.focus({preventScroll:true});app.scrollTop=app.scrollHeight;
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  const before=app.scrollTop;
+  for(let i=0;i<30;i++){w.dispatchEvent(new w.Event('blur'));w.visualViewport?.dispatchEvent(new w.Event('resize'));w.visualViewport?.dispatchEvent(new w.Event('scroll'));d.dispatchEvent(new w.Event('visibilitychange'));}
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  report.textContent=JSON.stringify({scope:'Synthetic screenshot-like events, not physical iOS screenshot',before,after:app.scrollTop,delta:app.scrollTop-before,focusTag:d.activeElement?.tagName,focusId:d.activeElement?.id,diagnostics:w.__llmScrollDiagnostics?.().slice(-8)},null,2);
+ }catch(e){report.textContent='旧焦点夹具失败：'+e.message;}
 };
 document.querySelector('#send-scroll').onclick=async()=>{
  const d=doc(),w=view.contentWindow;let resolve;

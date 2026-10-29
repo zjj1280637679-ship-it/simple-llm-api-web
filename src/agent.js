@@ -64,7 +64,7 @@ function imageSummary(result) {
  */
 export async function runConversation({
   config, imageConfig, messages, settings = {}, signal,
-  confirmTool, onToolResult, onHistory, fetchImpl, onDelta, onResponse,
+  confirmTool, onToolResult, onHistory, fetchImpl, onDelta, onResponse, onPhase,
 }) {
   const history = messages.map(message => ({ ...message }));
   const toolResults = [];
@@ -83,7 +83,7 @@ export async function runConversation({
     for (;;) {
       stopped(signal);
       const response = await generateText({
-        config, messages: history, settings, tools, signal, fetchImpl,
+        config, messages: history, settings, tools, signal, fetchImpl, onPhase,
         onDelta: onDelta ? delta => onDelta(delta, {round}) : undefined,
       });
       stopped(signal);
@@ -126,7 +126,7 @@ export async function runConversation({
             } else {
               const result = await dispatchCommand(
                 { command: invocation.command, args: invocation.args },
-                { imageConfig: {...imageConfig, attachmentContext: history.some(message => message.attachments?.length)}, confirmed: true, signal, fetchImpl },
+                { imageConfig: {...imageConfig, attachmentContext: history.some(message => message.attachments?.length)}, confirmed: true, signal, fetchImpl, onPhase },
               );
               summary = imageSummary(result);
               completed.set(fingerprint, summary);

@@ -17,11 +17,24 @@ async function walk(url, prefix = '') {
   return result.sort();
 }
 
-test('Pages build includes only allowlisted production files and exact source bytes', async () => {
+test('Pages build includes only allowlisted production files and versioned resource references', async () => {
   await exec(process.execPath, ['scripts/build.mjs'], { cwd: fileURLToPath(root) });
   const expected = ['.nojekyll', 'index.html', 'src/agent.js', 'src/app.js', 'src/attachments.js', 'src/core.js', 'src/icons.js', 'src/image-capabilities.js', 'src/logs.js', 'src/session-webmcp.js', 'src/session.js', 'src/stream.js', 'src/styles.css', 'src/usage.js'];
   assert.deepEqual(await walk(new URL('dist/', root)), expected);
-  for (const file of expected) assert.deepEqual(await readFile(new URL(`dist/${file}`, root)), await readFile(new URL(file, root)));
+  const first = new Map();
+  let version;
+  for (const file of expected) {
+    const built = await readFile(new URL(`dist/${file}`,root),'utf8'), source=await readFile(new URL(file,root),'utf8');
+    first.set(file,built);
+    assert.equal(built.replace(/\?v=[a-f0-9]{20}/g,''),source);
+    for (const match of built.matchAll(/\?v=([a-f0-9]{20})/g)) { version ??= match[1]; assert.equal(match[1],version); }
+  }
+  assert.ok(version);
+  const entry=first.get('index.html');
+  assert.match(entry,/app\.js\?v=[a-f0-9]{20}/);
+  assert.match(entry,/styles\.css\?v=[a-f0-9]{20}/);
+  await exec(process.execPath,['scripts/build.mjs'],{cwd:fileURLToPath(root)});
+  for(const [file,content] of first) assert.equal(await readFile(new URL(`dist/${file}`,root),'utf8'),content);
 });
 
 test('Pages workflow publishes dist rather than the repository root', async () => {
@@ -40,7 +53,8 @@ test('all relative production module imports exist inside the deployment artifac
     for (const match of source.matchAll(/(?:from|import)\s*['"](\.[^'"]+)['"]/g)) {
       const imported = new URL(match[1], url);
       assert.equal(imported.href.startsWith(new URL('dist/', root).href), true);
-      await readFile(imported);
+      assert.match(imported.search,/^\?v=[a-f0-9]{20}$/);
+      imported.search=''; await readFile(imported);
     }
   }
 });

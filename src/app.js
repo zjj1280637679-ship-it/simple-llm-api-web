@@ -8,6 +8,19 @@ import { createPageSession } from './session.js';
 import { registerPageSessionTools } from './session-webmcp.js';
 
 const app = document.getElementById('app');
+// Optional read-only diagnostics: geometry and node identity only, never content.
+const scrollDiagnostics = [];
+function recordScrollDiagnostic(reason, delta = 0) {
+  const visual = window.visualViewport, active = document.activeElement;
+  scrollDiagnostics.push({at:Date.now(),reason,delta,top:Number(app.scrollTop)||0,
+    height:Number(app.scrollHeight)||0,viewport:Number(app.clientHeight)||0,
+    visualHeight:visual?.height ?? null,visualTop:visual?.offsetTop ?? null,
+    focusTag:active?.tagName || null,focusId:active?.id?.slice(0,64) || null});
+  if (scrollDiagnostics.length > 80) scrollDiagnostics.shift();
+}
+window.__llmScrollDiagnostics = () => scrollDiagnostics.map(entry => ({...entry}));
+app.addEventListener('scroll', () => recordScrollDiagnostic('app-scroll'), {passive:true});
+
 // Measure the real floating groups, including wrapping and font changes.
 // If the combined overlays crowd the readable viewport, use normal flow.
 let navigationObserver;
@@ -64,7 +77,11 @@ function captureScrollGeometry() {
 }
 function restoreScrollGeometry(position) {
   if (!position) return;
-  app.scrollTop = position.bottom ? app.scrollHeight : position.top;
+  const next = position.bottom ? Math.max(0, app.scrollHeight - app.clientHeight) : position.top;
+  if (Math.abs(app.scrollTop - next) > 1) {
+    recordScrollDiagnostic('geometry-write', next - app.scrollTop);
+    app.scrollTop = next;
+  }
 }
 function protectFloatingFocus(target) {
   // During rerender/keyboard dismissal focus can fall to body. It is not a
@@ -76,8 +93,8 @@ function protectFloatingFocus(target) {
   const rect = target.getBoundingClientRect();
   const floor = nav && !app.classList.contains('navigation-in-flow') ? nav.getBoundingClientRect().bottom + 12 : 0;
   const ceiling = composer && !app.classList.contains('composer-in-flow') ? composer.getBoundingClientRect().top - 12 : window.innerHeight;
-  if (rect.top < floor) app.scrollBy({ top: rect.top - floor, behavior: 'instant' });
-  else if (rect.bottom > ceiling) app.scrollBy({ top: rect.bottom - ceiling, behavior: 'instant' });
+  if (rect.top < floor) { recordScrollDiagnostic('explicit-focus', rect.top - floor); app.scrollBy({ top: rect.top - floor, behavior: 'instant' }); }
+  else if (rect.bottom > ceiling) { recordScrollDiagnostic('explicit-focus', rect.bottom - ceiling); app.scrollBy({ top: rect.bottom - ceiling, behavior: 'instant' }); }
 }
 function syncFloatingNavigation() {
   syncSettingFields();
@@ -114,10 +131,33 @@ function syncFloatingNavigation() {
   }
 }
 window.addEventListener('resize', syncFloatingNavigation);
-const refreshVisualViewport = () => { syncFloatingNavigation(); protectFloatingFocus(document.activeElement); };
+// Viewport/chrome/screenshot events are geometry changes, not a request to
+// reveal whatever old control happens to remain focused.
+const refreshVisualViewport = () => { recordScrollDiagnostic('viewport'); syncFloatingNavigation(); };
 window.visualViewport?.addEventListener('resize', refreshVisualViewport);
 window.visualViewport?.addEventListener('scroll', refreshVisualViewport);
-app.addEventListener('focusin', event => protectFloatingFocus(event.target));
+const focusableSelector = 'input,textarea,select,button,a[href],summary,[tabindex],[contenteditable="true"]';
+let focusIntent = null;
+document.addEventListener('pointerdown', event => {
+  if (event.isTrusted === false) return;
+  const target = event.target.closest?.(focusableSelector);
+  focusIntent = target && app.contains?.(target) ? {target, at:Date.now()} : null;
+}, true);
+document.addEventListener('keydown', event => {
+  if (event.isTrusted !== false && event.key === 'Tab') focusIntent = {target:null, at:Date.now()};
+}, true);
+window.addEventListener('blur', () => { focusIntent = null; recordScrollDiagnostic('window-blur'); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') focusIntent = null;
+  recordScrollDiagnostic('visibility');
+});
+app.addEventListener('focusin', event => {
+  const intent = focusIntent; focusIntent = null;
+  recordScrollDiagnostic('focusin');
+  if (!intent || Date.now() - intent.at > 1000 || (intent.target && intent.target !== event.target)) return;
+  if (document.visibilityState === 'hidden' || document.hasFocus?.() === false) return;
+  protectFloatingFocus(event.target);
+});
 // Native Popover supplies the top layer when available; a fixed portal is
 // the compatibility path. Both paths are outside the measured composer.
 let floatingMenuObserver;
@@ -384,7 +424,7 @@ function render(scrollEnd = false) {
   const focusIdentity = captureControlFocus();
   if (page === 'logs') { renderLogsPage(); restoreViewPosition(scrollEnd); restoreControlFocus(focusIdentity); return; }
   const d = get();
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="api-loading" role="status" aria-label="正在加载"><span class="api-spinner" aria-hidden="true"></span><span class="sr-only">正在加载</span></div></div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message">'+loadingMarkup(d)+'</div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
   mountFloatingMenu();
   syncFloatingNavigation();
   positionFloatingMenu();
@@ -400,6 +440,45 @@ function paintStream(d, message) {
   node.querySelector('.reply-text').textContent = message.text;
   node.querySelector('.assistant-label').textContent = message.incomplete ? '未完成 · 未加入上下文' : message.streaming ? '正在回复…' : '模型回复';
   if (follow) app.scrollTop = app.scrollHeight;
+}
+// These phases describe observed transport evidence, never inferred private thinking.
+const REQUEST_DEADLINE_MS = 30 * 60 * 1000;
+function loadingPresentation(d, now = Date.now()) {
+  const phase = d.requestPhase || 'waiting_headers';
+  const active = phase === 'reasoning' || phase === 'output';
+  const waited = Math.max(0, (now - (d.requestPhaseAt || now)) / 1000);
+  const label = ({waiting_headers:'等待响应头',headers_received:'已收到响应头，等待回复',first_chunk:'已收到数据，等待回复',reasoning:'已收到模型思考信号',output:'正在接收输出'})[phase] || '等待回复';
+  return {phase, active, slow:!active && waited >= 15, long:!active && waited >= 45,
+    duration:active ? Math.max(.35,.8-Math.min(waited,20)*.0225) : Math.min(3,.8+waited/25),
+    label:label + (!active && waited>=45 ? '；等待较久，尚未判定失败，可取消' : '；可随时取消')};
+}
+function loadingMarkup(d) {
+  const x=loadingPresentation(d);
+  return `<div class="api-loading" data-phase="${x.phase}" data-active="${x.active}" data-slow="${x.slow}" data-long="${x.long}" title="${esc(x.label)}" style="--loading-speed:${x.duration}s" role="status" aria-label="${esc(x.label)}"><span class="api-spinner" aria-hidden="true"></span><span class="api-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span><span class="sr-only">${esc(x.label)}</span></div>`;
+}
+function paintLoading(d, announce=false) {
+  if (get() !== d) return;
+  const node=app.querySelector('.api-loading'); if(!node) return;
+  const x=loadingPresentation(d);
+  node.dataset.phase=x.phase;node.dataset.active=String(x.active);node.dataset.slow=String(x.slow);node.dataset.long=String(x.long);
+  node.style.setProperty('--loading-speed', x.duration+'s');node.title=x.label;
+  if(announce){node.setAttribute('aria-label',x.label);const live=node.querySelector('.sr-only');if(live)live.textContent=x.label;}
+}
+function requestPhase(d, phase) {
+  if(!d.busy || !['waiting_headers','headers_received','first_chunk','reasoning','output'].includes(phase))return;
+  if(phase==='first_chunk' && ['reasoning','output'].includes(d.requestPhase))return;
+  if(d.requestPhase===phase)return;
+  d.requestPhase=phase;d.requestPhaseAt=Date.now();paintLoading(d,true);
+}
+function beginLoading(d) {
+  d.requestPhase='waiting_headers';d.requestPhaseAt=Date.now();d.requestTimedOut=false;
+  const controller=d.controller;
+  const tick=setInterval(()=>paintLoading(d),1000);
+  const deadline=setTimeout(()=>{d.requestTimedOut=true;controller.abort();},REQUEST_DEADLINE_MS);
+  return ()=>{clearInterval(tick);clearTimeout(deadline);};
+}
+function requestError(d,error) {
+  return d.requestTimedOut ? new AppError('CLIENT_TIMEOUT','客户端等待已达 30 分钟，已停止等待；供应商可能已经计费。可检查日志后手动重试，未自动重试。') : error;
 }
 function applyCurrentTarget(d, report = text => status(d, text, 'error')) {
   try { d.api.trustedTarget = canonicalEndpoint(d.api.url); return true; }
@@ -450,12 +529,12 @@ async function pullModels(card) {
   if (!d.api.key.trim()) { modelListStatus(d, card, '请先填写 API Key；尚未发送模型列表请求。'); return; }
   card.modelListStatus = '';
   if (!applyCurrentTarget(d, text => { card.modelListStatus = text; })) { modelListStatus(d, card, card.modelListStatus || '地址无效，未发送模型列表请求。'); return; }
-  d.busy = true; d.controller = new AbortController(); render();
+  d.busy = true; d.controller = new AbortController(); const stopLoading=beginLoading(d); render();
   try {
-    card.models = await listModels({ config: { ...d.api }, signal: d.controller.signal });
+    card.models = await listModels({ config: { ...d.api }, signal: d.controller.signal, onPhase:phase=>requestPhase(d,phase) });
     if (get() === d) subMenu = `models:${card.id}`;
-  } catch (e) { card.modelListStatus = errorText(e); }
-  finally { d.busy = false; d.controller = null; if (get() === d) { render(); if (subMenu === `models:${card.id}`) focusFloatingMenu(); } }
+  } catch (e) { card.modelListStatus = errorText(requestError(d,e)); }
+  finally { stopLoading(); d.busy = false; d.controller = null; if (get() === d) { render(); if (subMenu === `models:${card.id}`) focusFloatingMenu(); } }
 }
 async function send() {
   const d = get(); if (!d) return { status: 'not-sent', reason: 'select-workspace' };
@@ -474,16 +553,18 @@ async function send() {
   const config = { ...d.api }, args = { prompt: text, aspectRatio: d.aspectRatio, imageSize: d.imageSize };
   if (requestPage === 'image' && !approveImage({ target: canonicalEndpoint(config.url), model: config.model, args })) { render(true); return { status: 'declined' }; }
   d.busy = true; d.controller = new AbortController(); d.draft = ''; d.attachments = []; d.attachmentError = ''; d.lastUsage = null; d.elapsed = null;
+  const stopLoading=beginLoading(d);
   const started = performance.now(); let checkpointed = false;
   const streamedReplies = new Map();
   render(true);
   try {
     if (requestPage === 'image') {
-      const result = await dispatchCommand({ command: 'image.generate', args }, { imageConfig: config, signal: d.controller.signal, confirmed: true });
+      const result = await dispatchCommand({ command: 'image.generate', args }, { imageConfig: config, signal: d.controller.signal, confirmed: true, onPhase:phase=>requestPhase(d,phase) });
       appendImages(d, result, args); d.lastUsage = result.usage;
     } else {
       const result = await runConversation({
         config, imageConfig: configuredImageSnapshot(), messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
+        onPhase:phase=>requestPhase(d,phase),
         onDelta: (delta, {round}) => {
           if (!delta) return;
           let reply = streamedReplies.get(round);
@@ -508,14 +589,15 @@ async function send() {
     d.pendingTextId = null;
     return { status: 'completed', messageCount: d.messages.length };
   } catch (e) {
+    e=requestError(d,e);
     for (const reply of streamedReplies.values()) {
       if (reply.streaming) { reply.streaming = false; reply.incomplete = true; paintStream(d,reply); }
     }
-    status(d, errorText(e), 'error', false);
+    status(d, errorText(e), e?.code === 'CANCELLED' ? 'status' : 'error', false);
     if (!checkpointed) { d.draft = text; d.attachments = attachments; }
     else { d.pendingTextId = null; status(d, '已保留本轮工具上下文。你可以继续对话；已完成的图片不会自动重做。', 'status', false); }
     return { status: e?.code === 'CANCELLED' ? 'cancelled' : 'failed', code: e instanceof AppError ? e.code : 'REQUEST_FAILED' };
-  } finally { d.busy = false; d.controller = null; d.elapsed = (performance.now() - started) / 1000; if (get() === d) render(); }
+  } finally { stopLoading(); d.busy = false; d.controller = null; d.elapsed = (performance.now() - started) / 1000; if (get() === d) render(); }
 }
 app.addEventListener('click', async e => {
   const el = e.target.closest('[data-action]');

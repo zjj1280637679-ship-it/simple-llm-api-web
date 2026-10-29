@@ -8,7 +8,7 @@ function mount(height=60,viewport=800){
  const classes=new Set(),styles={},events={};let disconnected=0,observed=0,scroll=0;
  const nav={getBoundingClientRect:()=>({height,bottom:height+10}),contains:()=>false};
  const app={contains:()=>true,querySelector:selector=>selector==='.top'?nav:null,classList:{toggle:(c,v)=>v?classes.add(c):classes.delete(c),contains:c=>classes.has(c)},style:{setProperty:(k,v)=>styles[k]=v},addEventListener:(k,v)=>events[k]=v,scrollBy:o=>scroll+=o.top};
- const context={app,window:{innerHeight:viewport,addEventListener:()=>{}},ResizeObserver:class{observe(){observed++}disconnect(){disconnected++}},Math};
+ const context={app,recordScrollDiagnostic:()=>{},document:{activeElement:null,addEventListener:(k,v)=>events['doc-'+k]=v},window:{innerHeight:viewport,addEventListener:()=>{}},ResizeObserver:class{observe(){observed++}disconnect(){disconnected++}},Math};
  vm.createContext(context);vm.runInContext(layout+'\nsyncFloatingNavigation();',context);
  return {context,styles,classes,events,stats:()=>({disconnected,observed,scroll})};
 }
@@ -20,7 +20,7 @@ test('oversized navigation falls back to normal flow rather than covering conten
  const m=mount(200,400);assert.ok(m.classes.has('navigation-in-flow'));assert.equal(m.styles['--navigation-clearance'],'0px');
 });
 test('keyboard focus under fixed navigation scrolls back into view',()=>{
- const m=mount();m.events.focusin({target:{matches:()=>true,getBoundingClientRect:()=>({top:20})}});assert.equal(m.stats().scroll,-62);
+ const m=mount();m.events['doc-keydown']({key:'Tab',isTrusted:true});m.events['doc-keydown']({key:'Tab',isTrusted:true});m.events.focusin({target:{matches:()=>true,getBoundingClientRect:()=>({top:20})}});assert.equal(m.stats().scroll,-62);
 });
 test('top navigation has no configuration badge while validation remains',()=>{
  assert.doesNotMatch(source,/class="top-right"|API 未配置|apiStatusMarkup|class="date"|未选择模型/);
@@ -47,13 +47,13 @@ function mountComposer({height=800,composerHeight=160,visual=null}={}){
  const nav={getBoundingClientRect:()=>({height:60,top:10,bottom:70}),contains:()=>false};
  const composer={getBoundingClientRect:()=>({height:composerHeight,top:height-composerHeight-10-parseFloat(styles['--keyboard-inset']||0)}),contains:()=>false};
  const app={contains:()=>true,querySelector:s=>s==='.top'?nav:s==='.composer-area'?composer:null,classList:{toggle:(c,v)=>v?classes.add(c):classes.delete(c),contains:c=>classes.has(c)},style:{setProperty:(k,v)=>styles[k]=v},addEventListener:(k,v)=>events[k]=v,scrollBy:o=>scroll+=o.top};
- const context={app,window:{innerHeight:height,visualViewport:visual,addEventListener:()=>{}},document:{activeElement:null},ResizeObserver:class{observe(el){observed.push(el)}disconnect(){}},Math};
+ const context={app,recordScrollDiagnostic:()=>{},document:{activeElement:null,addEventListener:(k,v)=>events['doc-'+k]=v},window:{innerHeight:height,visualViewport:visual,addEventListener:()=>{}},document:{activeElement:null,addEventListener:(k,v)=>events['doc-'+k]=v},ResizeObserver:class{observe(el){observed.push(el)}disconnect(){}},Math};
  vm.createContext(context);vm.runInContext(layout+'\nsyncFloatingNavigation();',context);
  return {context,styles,classes,observed,events,scroll:()=>scroll};
 }
 test('floating composer reserves measured bottom space and observes both overlays',()=>{
  const m=mountComposer();assert.equal(m.styles['--composer-clearance'],'182px');assert.equal(m.observed.length,2);
- m.events.focusin({target:{matches:()=>true,getBoundingClientRect:()=>({top:650,bottom:680})}});assert.equal(m.scroll(),62);
+ m.events['doc-keydown']({key:'Tab',isTrusted:true});m.events.focusin({target:{matches:()=>true,getBoundingClientRect:()=>({top:650,bottom:680})}});assert.equal(m.scroll(),62);
 });
 test('combined overlay pressure sends long composer into flow and removes spacer',()=>{
  const m=mountComposer({height:400,composerHeight:260});assert.ok(m.classes.has('composer-in-flow'));assert.equal(m.styles['--composer-clearance'],'0px');
