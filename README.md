@@ -89,7 +89,7 @@ node cli.mjs --help
 
 ## 通讯日志与网页会话控制
 
-「日志」页面保留最多 100 条内存记录，可展开查看或导出。日志在 fetch 调用前后生成：网络失败记录为未取得响应。当前 `source` 根据 global/injected fetch 判断；替换全局 fetch、注入真实 transport 时不可靠，不能作为真实验收证据。已登记凭据及已识别敏感字段按规则脱敏，图片数据省略，大文本截断；这不保证识别任意秘密。HTTP 错误体暂不读取/保存，保留状态和带不确定性的解释。导出仍可能包含私人对话。
+「日志」页面保留最多 100 条内存记录，可展开查看或导出。日志在 fetch 调用前后生成：网络失败记录为未取得响应。当前 `source` 根据 global/injected fetch 判断；替换全局 fetch、注入真实 transport 时不可靠，不能作为真实验收证据。已登记凭据及已识别敏感字段按规则脱敏，图片数据省略，大文本截断；这不保证识别任意秘密。HTTP 错误体最多读取 8 KiB、等待 1.2 秒；只保留脱敏后的 message/code/type/request_id，并标为上游说明、未独立核实。宿主可通过 declareTransport 绑定传输来源声明；声明本身也不是实网证明。导出仍可能包含私人对话。
 
 七个网页命令为 `session.state / session.logs / page.navigate / settings.update / draft.set / request.send / request.cancel`，操作当前已连接的真实页面内存状态。状态不返回密钥；MVP 不提供 endpoint/Key/trust setter。每次工具发送都需要网页内用户确认，图片生成确认仍保留。
 
@@ -133,7 +133,7 @@ node cli.mjs image.generate --protocol ark \
 3. `.github/workflows/pages.yml` 会先执行语法检查与合成测试，再运行 `npm run build`，仅发布 `dist/` 白名单产物。
 4. 等待 **build + deploy** 成功，再打开实际站点检查。若设置完成前初次运行失败，可从 Actions 手动重新运行。
 
-生产文件清单由 `scripts/build.mjs` 定义，`tests/build.test.js` 检查产物与相对依赖。本次增加两个独立模块后为 18 个文件；开发规格、宿主、测试与文档不进入站点产物。
+生产文件清单由 `scripts/build.mjs` 定义，`tests/build.test.js` 检查产物与相对依赖。当前为 30 个文件；开发规格、宿主、测试与文档不进入站点产物。
 
 ```sh
 npm run build
@@ -149,7 +149,13 @@ CSS/JS 均使用相对路径，兼容 `https://<owner>.github.io/<repository>/`�
 
 ```text
 index.html              生产入口（真实 transport，无模拟回复）
-src/app.js              全屏滚动、悬浮导航、内存配置及费用确认
+src/app.js              浏览器启动入口
+src/workbench.js        显式 ready/dispose 的工作区组合
+src/canvas-geometry.js  视口、焦点、菜单和诊断订阅的独立所有者
+src/view-position.js    各标签阅读位置与过期回调隔离
+src/request-lifecycle.js 请求阶段、计时与取消生命周期
+src/workspace-storage.js 先水合后写入、日志与快照协调
+src/image-delivery.js   解码、实际尺寸、下载保留和 URL 释放
 src/usage.js            可追溯用量归一化与缓存/末次输入指标
 src/attachments.js      本地附件校验、预览与协议部件转换
 src/core.js             Gemini/OpenAI/Ark 文本、图片核心、typed command dispatcher
@@ -163,10 +169,10 @@ cli.mjs                 Node CLI（同一 dispatcher）
 web-cli.mjs             真实页面命令 CLI（需要授权浏览器宿主）
 cli-mcp-transport.mjs    可选标准 MCP 传输，不自动安装或连接
 docs/ark-api.md         官方 API 来源与版本化集成摘要
-docs/ark-model-catalog.md 当前模型目录与生命周期依据
+docs/ark-model-catalog.md 带日期的历史模型目录与复核条件
 docs/credentials.md    密钥容器、授权消费者与静态站点边界
 .env.example           空凭据字段与非秘密参考默认值
-scripts/build.mjs       生成 18 个白名单生产文件，带内容哈希资源版本
+scripts/build.mjs       生成 30 个白名单生产文件，带内容哈希资源版本
 development/hosts/      独立最简测试宿主与可追溯本机报告
 .github/workflows/      测试通过后发布 dist 的 Pages 工作流
 design/index.html       原始交互设计，原样保留，不作为生产入口
@@ -198,3 +204,5 @@ VALIDATION.md           本次验证结果与尚未完成的真实环境验证
 ## 本机刷新恢复
 
 对话、草稿、附件、模型设置和独立指标自动保存到当前网站路径的 IndexedDB；API Key/目标确认与通讯日志不保存。失败/配额不足/多标签页冲突会明确提示，不会静默删附件或覆盖其他标签页。+ 菜单可查看状态、导出和恢复本地备份。浏览器清理、无痕结束或系统回收空间仍可能丢失数据，详见 [本机持久化说明](docs/LOCAL_PERSISTENCE.md)。
+
+当前开发态库与维护规则见 [模块图书馆](module-library/README.md)，状态归属见 [组合说明](docs/WORKBENCH_MODULES.md)。运行 `npm run hosts` 检查全部 14 个独立宿主；`npm run review:sources` 输出资料复核状态，不据此宣称模型可用。

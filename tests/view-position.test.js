@@ -1,10 +1,10 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
+import {createViewPosition} from '../src/view-position.js';
 import {readFile} from 'node:fs/promises';
-const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
-const code=source.slice(source.indexOf('const viewPositions ='),source.indexOf('function render(scrollEnd'));
-function setup(){const frames=[],app={scrollTop:0,scrollHeight:3000,clientHeight:800};const c={recordScrollDiagnostic:()=>{},app,page:'chat',Map,Math,Number,requestAnimationFrame:fn=>frames.push(fn)};vm.createContext(c);vm.runInContext(code,c);return {app,c,frames};}
+const source=uiSource;
+function setup(){const frames=[],app={scrollTop:0,scrollHeight:3000,clientHeight:800};const c={recordScrollDiagnostic:()=>{},app,page:'chat',Map,Math,Number,requestAnimationFrame:fn=>frames.push(fn)};Object.assign(c,createViewPosition({...c,getPage:()=>c.page}));return {app,c,frames};}
 test('each tab restores independent reading position rather than the short-page clamped offset',()=>{
  const {app,c}=setup();c.restoreViewPosition();app.scrollTop=735;c.rememberViewPosition();
  c.page='image';app.scrollHeight=800;app.scrollTop=0;c.restoreViewPosition();assert.equal(app.scrollTop,0);

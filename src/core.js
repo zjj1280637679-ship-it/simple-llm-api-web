@@ -1,9 +1,11 @@
+import { describeTransport } from './transport-evidence.js';
+import { readErrorDiagnostic } from './error-diagnostic.js';
 import { reasoningBody, isDeepSeekChatEndpoint } from './reasoning.js';
 import { collectTextStream } from './stream.js';
 import { attachmentParts, attachmentMetadata } from './attachments.js';
 import { usageFrom, createTextTiming, visibleOutputTokens, replyMetricsSnapshot } from './usage.js';
-import { getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
-import { recordNetwork, setLogSecrets } from './logs.js';
+import { getImageCapabilities, normalizeImageOptions, getImageTool, GEMINI_CAPABILITY } from './image-capabilities.js';
+import { recordNetwork, setLogSecrets, sanitizeLogValue } from './logs.js';
 export { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, ARK_SIZE_LIMITS, getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
 
 // Memory-only observer for the exact credential used at the transport boundary.
@@ -17,21 +19,12 @@ export const DEFAULT_TEXT_MODEL = 'gemini-flash-lite-latest';
 export const IMAGE_MODEL = 'gemini-nano-banana-2.1';
 export const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta';
 export const ARK_TEXT_MODEL = 'doubao-seed-2-1-lite-260915';
-// Google GenerateContent table, verified 2026-10-28. 2K/4K are 2x/4x each dimension.
-export const aspectRatios = Object.freeze([
-  {ratio:'1:1',pixels:[1024,1024]}, {ratio:'1:4',pixels:[512,2048]},
-  {ratio:'1:8',pixels:[384,3072]}, {ratio:'2:3',pixels:[848,1264]},
-  {ratio:'3:2',pixels:[1264,848]}, {ratio:'3:4',pixels:[896,1200]},
-  {ratio:'4:1',pixels:[2048,512]}, {ratio:'4:3',pixels:[1200,896]},
-  {ratio:'4:5',pixels:[928,1152]}, {ratio:'5:4',pixels:[1152,928]},
-  {ratio:'8:1',pixels:[3072,384]}, {ratio:'9:16',pixels:[768,1376]},
-  {ratio:'16:9',pixels:[1376,768]}, {ratio:'21:9',pixels:[1584,672]},
-]);
-export const imageSizes = Object.freeze(['1K','2K','4K']);
-export function imagePixels(ratio, size) {
-  const entry = aspectRatios.find(item => item.ratio === ratio);
-  const scale = {'1K':1,'2K':2,'4K':4}[size];
-  return entry && scale ? entry.pixels.map(value => value * scale).join('×') : '';
+// Compatibility API derived from the single capability table.
+export const aspectRatios = Object.freeze(GEMINI_CAPABILITY.ratios.map(({ratio,pixelsBySize}) =>
+  Object.freeze({ratio,pixels:pixelsBySize['1K']})));
+export const imageSizes = GEMINI_CAPABILITY.sizes;
+export function imagePixels(ratio,size) {
+  return GEMINI_CAPABILITY.ratios.find(item=>item.ratio===ratio)?.pixelsBySize[size]?.join('×') || '';
 }
 
 export class AppError extends Error {
@@ -95,8 +88,8 @@ function modelId(config) {
   return id;
 }
 
-/** Current diagnostics omit upstream error bodies/causes because they may echo keys.
- * This sacrifices detail; a bounded, redacted diagnostic adapter is a separate option.
+/** Error diagnostics select bounded JSON fields and redact registered credentials.
+ * The upstream message remains an unverified report, not a root-cause diagnosis.
  */
 let nextRequestId = 0;
 async function requestJSON(config, path, {body, logBody, signal, onDelta, onReasoningDelta, onPhase, fetchImpl = globalThis.fetch} = {}) {
@@ -116,7 +109,7 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, onReas
   const event = {
     requestId:`request-${started}-${++nextRequestId}`, startedAt:new Date(started).toISOString(),
     method:body === undefined ? 'GET' : 'POST', endpoint:`${base}${path}`, provider:config.protocol,
-    source:fetchImpl === globalThis.fetch ? 'network' : 'mock', requestPayload:logBody ?? body,
+    source:fetchImpl === globalThis.fetch ? 'network' : 'mock', transport:describeTransport(fetchImpl), requestPayload:logBody ?? body,
     requestHeaders:{Accept:headers.Accept,...(body === undefined ? {} : {'Content-Type':'application/json'}),[config.protocol === 'gemini' ? 'x-goog-api-key' : config.protocol === 'anthropic' ? 'x-api-key' : 'Authorization']:'[REDACTED]'},
   };
   // Diagnostic failures must never affect a request, and credentials never enter log headers.
@@ -149,7 +142,11 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, onReas
     if (!response.ok) {
       const status = response.status;
       const details = {400:'可能与请求参数或模型配置有关。',401:'鉴权未通过，请核对凭据及目标。',403:'请求被拒绝，请核对访问条件。',404:'未找到请求资源，请核对路径及模型。',408:'服务返回请求超时。',429:'可能与请求频率、配额或容量有关。'};
-      fail('HTTP', `API 请求失败（HTTP ${Number.isInteger(status) ? status : '错误'}）：${details[status] || (status >= 500 ? '服务端返回错误。' : '请检查配置与服务状态。')} 具体原因尚未核实。`, status);
+      const diagnostic=await readErrorDiagnostic(response,{sanitize:value=>sanitizeLogValue(value),signal});
+      checkAbort(signal);
+      record({status,responsePayload:diagnostic,responseHeaders:responseHeaders()});
+      const reported=typeof diagnostic?.fields?.message==='string' ? ` 上游说明（未独立核实）：${diagnostic.fields.message}` : '';
+      fail('HTTP', `API 请求失败（HTTP ${Number.isInteger(status) ? status : '错误'}）：${details[status] || (status >= 500 ? '服务端返回错误。' : '请检查配置与服务状态。')} 具体原因尚未核实。${reported}`, status);
     }
     onPhase?.('headers_received');
     let json;

@@ -1,14 +1,14 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
+import {createCanvasGeometry} from '../src/canvas-geometry.js';
 import {readFile} from 'node:fs/promises';
-const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
+const source=uiSource;
 const css=await readFile(new URL('../src/styles.css',import.meta.url),'utf8');
-const code=source.slice(source.indexOf('function resizeDraft('),source.indexOf('function protectFloatingFocus('));
 function measure(height,{viewport=800,line=21}={}) {
  const field={matches:()=>true,style:{},scrollHeight:height,value:'输入中\nsecond line',selectionStart:2,selectionEnd:3};
  const context={app:{querySelector:()=>field},window:{innerHeight:viewport},getComputedStyle:()=>({lineHeight:String(line),paddingTop:'10',paddingBottom:'10'}),Math,parseFloat};
- vm.createContext(context);vm.runInContext(code,context);context.resizeDraft(field);return {field,context};
+ Object.assign(context,createCanvasGeometry(context));context.resizeDraft(field);return {field,context};
 }
 test('idle draft is compact and multi-line draft grows then shrinks without rewriting text or selection',()=>{
  const {field,context}=measure(41);assert.equal(field.style.height,'44px');

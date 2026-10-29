@@ -70,7 +70,7 @@ export function getReasoningTemplates(config={}) {
  // An unrecognised gateway may explicitly select a vendor template. A known vendor never inherits another vendor's recommendation.
  const result=verified.length ? verified.map(copy) : manual.map(copy);
  // verifiedModel is retained for caller compatibility; its scope is catalogMatch only.
- return result.map(t=>({...t,catalogMatch:verified.length>0,verifiedModel:verified.length>0,evidence:{kind:verified.length ? 'dated-local-profile' : 'manual-schema',liveVerified:false},...(t.choices ? {values:t.choices.map(value=>({value,label:value}))} : {}),
+ return result.map(t=>({...t,catalogMatch:verified.length>0,verifiedModel:verified.length>0,evidence:{kind:verified.length ? 'dated-local-profile' : 'manual-schema',liveVerified:false,recordedAt:'2026-10-29',reviewAfter:'2026-11-28',sourceSnapshot:null},...(t.choices ? {values:t.choices.map(value=>({value,label:value}))} : {}),
   note:!verified.length ? '手选模板：当前模型能力未核验，选择后才发送；服务端可能拒绝不支持的参数。' : t.kind==='number' ? '仅在应用后发送预算；-1（如支持）为动态，0（如支持）为关闭。' : '仅发送选中的请求档位；不是服务端实际思考程度证明。'}));
 }
 export function getRecommendedReasoningTemplate(config={}) {

@@ -97,7 +97,7 @@ export async function runConversation({
       pendingCalls = [...calls];
       if (!calls.length) {
         checkpoint();
-        return { text: response.text || '', history, usage: response.usage, metrics: response.metrics, toolResults };
+        return { text: response.text || '', history, usage: response.usage, metrics: response.metrics, completion: response.completion, toolResults };
       }
       toolRounds += 1;
       toolCallCount += calls.length;
@@ -140,7 +140,17 @@ export async function runConversation({
               history.push(makeToolResult(config, call, summary));
               pendingCalls.shift();
               if (!pendingCalls.length) checkpoint();
-              await onToolResult?.(event);
+              const receipt=await onToolResult?.(event);
+              if(receipt?.stage==='stored' && receipt.checks?.delivered==='workspace') {
+                summary={...summary,stage:'stored',message:'候选图片已存入工作区；解码与尺寸检查见 checks，未据此判断用户目标满足。',checks:{
+                  ...summary.checks,delivered:'workspace',
+                  decoded:['passed','failed'].includes(receipt.checks.decoded)?receipt.checks.decoded:'unknown',
+                  dimensions:['matched','mismatch'].includes(receipt.checks.dimensions)?receipt.checks.dimensions:'unknown'
+                }};
+                completed.set(fingerprint,summary);
+                history[history.length-1]=makeToolResult(config,call,summary);
+                if(!pendingCalls.length)checkpoint();
+              }
               continue;
             }
           }

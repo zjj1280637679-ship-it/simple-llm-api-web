@@ -73,7 +73,7 @@ export function snapshotWorkspace({data,page,nextId,views={},secrets:archivedSec
         delete out.metrics;
         if(m.streaming)out.incomplete=true;
         if(m.type==='card'){out.values=m.kind==='api'?safeApi(m.values):pick(m.values,modelKeys);}
-        if(m.images)out.images=m.images.map(im=>pick(im,['data','mimeType','extension','failed']));
+        if(m.images)out.images=m.images.map(im=>pick(im,['data','mimeType','extension','failed','width','height','checks']));
         return out;
       })
     };

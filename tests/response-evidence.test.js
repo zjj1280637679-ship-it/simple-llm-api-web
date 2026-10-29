@@ -48,3 +48,8 @@ test('full Chat endpoint is not suffixed twice; base endpoint still gets the ope
 test('HTTP status is observed evidence; a suggested cause is not presented as a diagnosis', async () => {
   await assert.rejects(generateText({config:config('openai'),messages,fetchImpl:async()=>new Response('',{status:429})}), error=>error.status===429 && /具体原因尚未核实/.test(error.message));
 });
+
+test('conversation result retains unknown protocol completion instead of silently upgrading it',async()=>{
+ const result=await runConversation({config:config('openai'),messages,fetchImpl:async()=>Response.json(payload('openai',undefined))});
+ assert.equal(result.completion.status,'unknown');
+});

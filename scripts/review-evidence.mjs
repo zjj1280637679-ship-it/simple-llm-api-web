@@ -18,7 +18,7 @@ async function walk(directory) {
   return found;
 }
 export async function inputHashes() {
-  const paths=['package.json','index.html','.nojekyll'];
+  const paths=['package.json','index.html','.nojekyll','module-library/catalog.json','docs/evidence/source-claims.json','docs/ark-model-catalog.json'];
   for(const directory of ['src/','tests/','scripts/','development/hosts/','docs/contracts/','.github/workflows/'])paths.push(...await walk(directory));
   return Object.fromEntries(await Promise.all(paths.sort().map(async path=>[path,
     createHash('sha256').update(await readFile(new URL(path,root))).digest('hex')])));

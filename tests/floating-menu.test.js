@@ -1,10 +1,10 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
+import {createCanvasGeometry} from '../src/canvas-geometry.js';
 import {readFile} from 'node:fs/promises';
-const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
-const geometry=source.slice(source.indexOf('function floatingMenuBounds('),source.indexOf('function positionFloatingMenu('));
-const context={Math};vm.createContext(context);vm.runInContext(geometry,context);
+const source=uiSource;
+const context=createCanvasGeometry({});
 for(const [name,anchor,height,viewport] of [
  ['above normal input',{top:650,bottom:688},120,{top:0,height:800}],
  ['long matrix on short screen',{top:260,bottom:298},2000,{top:0,height:400}],

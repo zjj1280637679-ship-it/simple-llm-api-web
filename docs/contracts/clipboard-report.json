@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "R-011",
+    "version": "0.1.0",
+    "createdAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "kind": "relation",
+    "goal": "clipboard-report.declared-effect",
+    "source": "src/clipboard-report.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-R-011",
+    "version": "0.1.0",
+    "createdAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "entry": "development/hosts/clipboard-report.mjs",
+    "moduleId": "R-011",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+    "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+  ],
+  "observations": [
+    "{staleViewUntouched:true}"
+  ],
+  "tests": [
+    "tests/development-hosts.test.js",
+    "tests/owned-effects.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+    "Single default browser host; input/source identities are recorded by the host runner."
+  ]
+}

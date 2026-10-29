@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {readFileSync} from 'node:fs';
+import {readFileSync,readdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 
-for (const slug of ['native-json','provider-identity']) {
+for (const slug of readdirSync(new URL('../docs/contracts/',import.meta.url)).filter(name=>name.endsWith('.json')).map(name=>name.slice(0,-5))) {
   test(`${slug} host exercises the production module and identifies exact source/host revisions`, () => {
     const root=new URL('../',import.meta.url);
     const output=execFileSync(process.execPath,[new URL(`development/hosts/${slug}.mjs`,root).pathname],{encoding:'utf8',timeout:10000});

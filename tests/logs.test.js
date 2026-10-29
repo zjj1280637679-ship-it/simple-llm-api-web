@@ -5,9 +5,9 @@ import { setLogSecrets, updateActiveLogSecrets, recordNetwork, getNetworkLogs, c
 test('credentials redacted in headers, queries, echoed prompts, errors and encoded key', () => {
   clearNetworkLogs();
   setLogSecrets(['secret-ONE+/']);
-  recordNetwork({ source: 'network', endpoint: 'https://example.com/a?key=unknown&X-Amz-Signature=another&safe=yes', requestHeaders: {Authorization:'Bearer secret-ONE+/', 'x-goog-api-key':'secret-ONE+/'}, requestPayload:{ prompt:'echo secret-ONE+/ or secret-ONE%2B%2F', password:'pw'}, responsePayload:'secret-ONE+/', error:new Error('echo secret-ONE+/') });
+  recordNetwork({ source: 'network', endpoint: 'https://example.com/a?key=unregistered-query-secret&X-Amz-Signature=another&safe=yes', requestHeaders: {Authorization:'Bearer secret-ONE+/', 'x-goog-api-key':'secret-ONE+/'}, requestPayload:{ prompt:'echo secret-ONE+/ or secret-ONE%2B%2F', password:'pw'}, responsePayload:'secret-ONE+/', error:new Error('echo secret-ONE+/') });
   const output = exportNetworkLogs();
-  for (const value of ['secret-ONE+/', 'secret-ONE%2B%2F', 'unknown', 'another', '"pw"']) assert.equal(output.includes(value), false, value);
+  for (const value of ['secret-ONE+/', 'secret-ONE%2B%2F', 'unregistered-query-secret', 'another', '"pw"']) assert.equal(output.includes(value), false, value);
   assert.match(output, /REDACTED/);
   assert.match(output, /safe=yes/);
 });

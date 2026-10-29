@@ -48,13 +48,18 @@ export function pageSessionTools(session) {
 export async function registerPageSessionTools(session, context = globalThis.document?.modelContext ?? globalThis.navigator?.modelContext) {
   if (typeof context?.registerTool !== 'function') return { available: false, registered: [] };
   const registered = [];
+  let active=true;
+  const dispose=()=>{
+    if(!active)return;active=false;
+    for(const name of registered)try{Promise.resolve(context.unregisterTool?.(name)).catch(()=>{});}catch{}
+  };
   try {
     for (const tool of pageSessionTools(session)) {
-      await context.registerTool(tool); registered.push(tool.name);
+      await context.registerTool({...tool,execute:args=>active?tool.execute(args):{ok:false,error:'SESSION_CLOSED'}}); registered.push(tool.name);
     }
-    return { available: true, registered };
+    return { available: true, registered, dispose };
   } catch {
     // Unsupported experimental browser implementations must not break the UI.
-    return { available: true, registered, error: 'WEBMCP_REGISTRATION_FAILED' };
+    return { available: true, registered, dispose, error: 'WEBMCP_REGISTRATION_FAILED' };
   }
 }

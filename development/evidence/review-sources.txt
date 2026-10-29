@@ -1,0 +1,103 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> simple-llm-api-web@0.2.0 review:sources
+> node scripts/review-sources.mjs
+
+{
+  "today": "2026-10-29",
+  "mode": "advisory",
+  "records": [
+    {
+      "id": "reasoning-templates",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "image-presets",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-27",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "doubao-seed-2-1-lite-260915",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "doubao-seed-2-0-mini-260428",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "doubao-seedream-5-0-flash-260915",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "doubao-seedance-2-0-mini-260615",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "doubao-seedance-2-5-260628",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "doubao-embedding-vision-251215",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "hyper3d-gen2-260112",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "doubao-seed3d-2-0-260328",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "seed-tts-2.0",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "volc.seedasr.auc",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "volc.bigasr.auc_turbo",
+      "review": "scheduled",
+      "reviewAfter": "2026-11-28",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    }
+  ],
+  "scope": "References and review dates do not verify claims; missing receipts remain unknown."
+}

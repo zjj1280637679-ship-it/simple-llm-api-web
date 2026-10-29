@@ -278,3 +278,13 @@ test('Ark ordinary text remains tool-free without image configuration', async ()
   assert.equal(result.text, '普通文本');
   assert.equal(requests[0].body.tools, undefined);
 });
+
+test('tool loop checkpoints the host receipt separately from reception without inferring goal success',async()=>{
+ const result=await runConversation({config,imageConfig,messages,
+  fetchImpl:sequence([gemini([call()]),imageResponse(),reply('receipt inspected')]),confirmTool:async()=>true,
+  onToolResult:async()=>({stage:'stored',checks:{decoded:'passed',dimensions:'mismatch',delivered:'workspace',goalSatisfied:'passed'}})
+ });
+ const receipt=result.history[2].raw.parts[0].functionResponse.response;
+ assert.equal(receipt.stage,'stored');assert.equal(receipt.checks.decoded,'passed');assert.equal(receipt.checks.dimensions,'mismatch');
+ assert.equal(receipt.checks.goalSatisfied,'unknown');assert.equal(result.completion.status,'complete');
+});

@@ -71,7 +71,8 @@ test('cancel can execute while an approved send is pending', async () => {
 
 test('WebMCP partial registration failure is observable without leaking errors', async () => {
   const result=await registerPageSessionTools({}, {registerTool:()=>{throw new Error('secret');}});
-  assert.deepEqual(result,{available:true,registered:[],error:'WEBMCP_REGISTRATION_FAILED'});
+  const {dispose,...metadata}=result;assert.equal(typeof dispose,'function');dispose();
+  assert.deepEqual(metadata,{available:true,registered:[],error:'WEBMCP_REGISTRATION_FAILED'});
 });
 
 test('app-shaped send failures are semantic failures and CLI exits nonzero with diagnostics', async () => {

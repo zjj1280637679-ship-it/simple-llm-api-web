@@ -103,6 +103,7 @@ export function recordNetwork(event = {}) {
   const clean = sanitizeLogValue({
     requestId: event.requestId || `local-${++sequence}`,
     source: event.source === 'network' ? 'network' : event.source === 'mock' ? 'mock' : 'unknown',
+    transport: event.transport ?? {kind:'unknown',basis:'no-host-declaration',verified:false},
     provider: event.provider ?? null,
     startedAt: event.startedAt ?? null,
     durationMs: event.durationMs ?? null,

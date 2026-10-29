@@ -2,7 +2,7 @@
 export const ARK_ENDPOINT = 'https://ark.cn-beijing.volces.com/api/v3';
 export const ARK_FLASH_MODEL = 'doubao-seedream-5-0-flash-260915';
 export const ARK_PRO_MODEL = 'doubao-seedream-5-0-pro-260628';
-const GEMINI_MODEL = 'gemini-nano-banana-2.1';
+export const GEMINI_MODEL = 'gemini-nano-banana-2.1';
 const GEMINI_PIXELS = [
   ['1:1',[1024,1024]],['1:4',[512,2048]],['1:8',[384,3072]],['2:3',[848,1264]],
   ['3:2',[1264,848]],['3:4',[896,1200]],['4:1',[2048,512]],['4:3',[1200,896]],
@@ -38,17 +38,17 @@ function oneKPreset(ratio) {
   const pixels = [Math.round(Math.sqrt(1024 ** 2 * proportion) / 16) * 16, Math.round(Math.sqrt(1024 ** 2 / proportion) / 16) * 16];
   return validateArkPixels(pixels);
 }
-const GEMINI = deepFreeze({
+export const GEMINI_CAPABILITY = deepFreeze({
   id:GEMINI_MODEL,label:'Nano Banana 2.1',protocol:'gemini',
   sizes:['1K','2K','4K'],defaultSize:'1K',defaultRatio:'1:1',
-  presetSource:'official',presetSources:{'1K':'official','2K':'official','4K':'official'},presetNotes:'Google 官方比例与分辨率参考尺寸',
+  presetSource:'official',presetSources:{'1K':'official','2K':'official','4K':'official'},presetNotes:'本地收录的 Google 比例与尺寸参考；实际返回尺寸会单独检查，当前账号可用性以请求结果为准。',
   ratios:GEMINI_PIXELS.map(([ratio,pixels]) => ({ratio,pixelsBySize:Object.fromEntries([['1K',1],['2K',2],['4K',4]].map(([size,scale]) => [size,pixels.map(value => value * scale)]))})),
 });
 function arkCapability(model, label) {
   return deepFreeze({
     id:model,label,protocol:'ark',sizes:['1K','1.5K','2K'],defaultSize:'2K',defaultRatio:'1:1',
     presetSource:'mixed',presetSources:{'1K':'app-preset','1.5K':'official-reference','2K':'official-reference'},
-    presetNotes:'1K 为应用预设；1.5K / 2K 为官方参考尺寸。比例可能因像素取整略有差异。',
+    presetNotes:'1K 为应用预设；1.5K / 2K 为本地收录的参考尺寸。实际尺寸单独检查；比例可能因像素取整略有差异。',
     ratios:ARK_REFERENCE.map(([ratio,oneHalfK,twoK]) => ({ratio,pixelsBySize:{'1K':oneKPreset(ratio),'1.5K':validateArkPixels(oneHalfK),'2K':validateArkPixels(twoK)}})),
   });
 }
@@ -59,7 +59,7 @@ const ARK = new Map([
 
 export function getImageCapabilities(config) {
   const model = typeof config?.model === 'string' ? config.model.trim() : '';
-  if (config?.protocol === 'gemini' && model.replace(/^models\//,'') === GEMINI_MODEL) return GEMINI;
+  if (config?.protocol === 'gemini' && model.replace(/^models\//,'') === GEMINI_MODEL) return GEMINI_CAPABILITY;
   if (config?.protocol === 'ark') return ARK.get(model) || null;
   return null;
 }
