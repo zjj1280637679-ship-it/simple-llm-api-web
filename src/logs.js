@@ -95,7 +95,7 @@ export function sanitizeLogValue(value, { includeActive = true, preserveRootKeys
   return walk(value);
 }
 
-/** Called by the transport at the real fetch boundary, never by demo rendering. */
+/** Called at the fetch boundary. source is a caller/transport label, not proof of network provenance. */
 export function recordNetwork(event = {}) {
   setLogSecrets(event.secrets || []);
   const prior = event.requestId && entries.find(entry => entry.requestId === event.requestId);
@@ -140,7 +140,7 @@ export function renderNetworkLogs(container) {
   const doc = container.ownerDocument;
   container.replaceChildren();
   const note = doc.createElement('p');
-  note.textContent = '真实网络通讯与模拟记录分别标注。仅保存在当前页面内存，最多 100 条；密钥已脱敏，大内容会截断。导出仍可能包含私人对话，请谨慎分享。';
+  note.textContent = '来源标签表示所选传输方式，不单独证明真实网络调用。仅保存在当前页面内存，最多 100 条；已登记密钥按规则脱敏，大内容截断。导出仍可能包含私人对话，请检查后再分享。';
   container.append(note);
   if (!entries.length) {
     const empty = doc.createElement('p');
@@ -150,7 +150,7 @@ export function renderNetworkLogs(container) {
   for (const entry of getNetworkLogs().reverse()) {
     const details = doc.createElement('details');
     const summary = doc.createElement('summary');
-    const origin = { network: '真实网络', mock: '模拟 / 测试', unknown: '来源未验证' }[entry.source];
+    const origin = { network: '默认传输 · 来源未核验', mock: '注入传输 · 按宿主判断来源', unknown: '来源未验证' }[entry.source];
     summary.textContent = `${origin} · ${entry.method || '—'} ${entry.endpoint || '—'} · ${entry.status ?? '—'} · ${entry.durationMs ?? '—'} ms`;
     const pre = doc.createElement('pre');
     pre.textContent = JSON.stringify(entry, null, 2);

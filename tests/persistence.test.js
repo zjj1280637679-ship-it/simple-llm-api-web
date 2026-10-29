@@ -88,3 +88,28 @@ test('credential collision in native history fails visibly instead of changing a
 test('actual submitted short credential ambiguity fails closed, without a length heuristic',()=>{
  const f=fixture();f.secrets=['s'];assert.throws(()=>snapshotWorkspace(f),{code:'CREDENTIAL_COLLISION'});
 });
+
+test('snapshot and import preserve native business property names, independently of envelope filtering', () => {
+ const f=fixture();
+ const raw=JSON.parse('{"role":"model","parts":[{"functionCall":{"name":"inspect","args":{"constructor":"domain","__proto__":{"value":1},"prototype":2,"apiKey":"field-name-example","authorization":"schema-value"}}}]}');
+ f.data.chat.history=[{role:'assistant',content:'',raw}];
+ const saved=snapshotWorkspace(f);
+ assert.deepEqual(saved.workspaces.chat.history[0].raw,raw);
+ assert.deepEqual(restoreWorkspace(JSON.parse(JSON.stringify(saved)),makePage).data.chat.history[0].raw,raw);
+ assert.equal(Object.prototype.value,undefined);
+});
+
+test('a submitted credential in a native property name also blocks persistence without mutation', () => {
+ const f=fixture(), key='submitted-key-sentinel';f.secrets=[key];
+ f.data.chat.history=[{role:'assistant',raw:{[key]:'ordinary value'}}];
+ assert.throws(()=>snapshotWorkspace(f),{code:'CREDENTIAL_COLLISION'});
+ assert.equal(f.data.chat.history[0].raw[key],'ordinary value');
+});
+
+test('unsupported native values fail saving/import instead of silently rewriting context', () => {
+ const f=fixture();f.data.chat.history=[{role:'assistant',raw:{value:undefined}}];
+ assert.throws(()=>snapshotWorkspace(f),{code:'NATIVE_JSON'});
+ const saved=snapshotWorkspace(fixture());
+ saved.workspaces.chat.history=[{role:'assistant',raw:{value:Infinity}}];
+ assert.throws(()=>migrateSnapshot(saved),{code:'NATIVE_JSON'});
+});

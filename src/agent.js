@@ -46,7 +46,9 @@ function imageInvocation(call, imageConfig) {
 function imageSummary(result) {
   return {
     ok: true,
-    message: '图片 API 已返回文件，已交给界面显示；请勿重复生成同一图片。',
+    message: '图片 API 已返回候选文件，待宿主交付；此结果尚未证明解码成功、尺寸达标或用户满意。若需再次生成，按宿主的再次调用授权流程处理。',
+    stage: 'received',
+    checks: { rasterSignature: 'matched', decoded: 'unknown', delivered: 'unknown', goalSatisfied: 'unknown' },
     text: result.text || '',
     imageCount: result.images.length,
     images: result.images.map(image => ({ mimeType: image.mimeType })),
@@ -107,7 +109,7 @@ export async function runConversation({
         stopped(signal);
         let summary;
         if (call.name !== 'image_generate') {
-          summary = { ok: false, code: 'UNKNOWN_TOOL', message: '只允许 image_generate，不支持 shell 或其他命令。' };
+          summary = { ok: false, code: 'UNKNOWN_TOOL', message: '当前会话仅注册 image_generate；此命令尚未接入，未执行。' };
         } else if (toolRounds > MAX_TOOL_ROUNDS) {
           summary = { ok: false, code: 'TOOL_LIMIT', message: '本轮图片工具调用已达上限。请等待用户新指令。' };
         } else {

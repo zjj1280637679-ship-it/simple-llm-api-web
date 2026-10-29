@@ -54,8 +54,9 @@ export function canonicalEndpoint(value) {
   if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash)
     fail('ENDPOINT', 'API 地址必须使用 HTTPS，且不能含用户名、密码、查询参数或片段。');
   const host = url.hostname.toLowerCase().replace(/\.$/, '');
-  // Deliberately disallow all IP literals and local/private naming. This does not perform DNS
-  // resolution: a user must still trust the public hostname they explicitly approve.
+  // Current public-web transport profile excludes IP/local names. A local-model
+  // host needs its own network/credential policy; this is not a product-wide ban.
+  // No DNS resolution or ownership verification is performed here.
   if (!host.includes('.') || host.includes(':') || /^\d+(?:\.\d+){3}$/.test(host) ||
       /(?:^|\.)(?:localhost|local|internal|home|lan|invalid|test)$/.test(host))
     fail('ENDPOINT', '仅支持公开域名的 HTTPS 地址；不支持 IP、内网或本机地址。');
@@ -94,7 +95,9 @@ function modelId(config) {
   return id;
 }
 
-/** Network errors deliberately omit upstream bodies/URLs/causes: they can echo credentials. */
+/** Current diagnostics omit upstream error bodies/causes because they may echo keys.
+ * This sacrifices detail; a bounded, redacted diagnostic adapter is a separate option.
+ */
 let nextRequestId = 0;
 async function requestJSON(config, path, {body, logBody, signal, onDelta, onReasoningDelta, onPhase, fetchImpl = globalThis.fetch} = {}) {
   const base = validateEndpoint(config);
@@ -145,8 +148,8 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, onReas
     checkAbort(signal);
     if (!response.ok) {
       const status = response.status;
-      const details = {400:'请求参数或模型能力不匹配。',401:'API Key 无效或已失效。',403:'此 Key 无权访问模型或服务。',404:'API 路径或模型不存在。',408:'供应商请求超时。',429:'额度不足或请求频率受限。'};
-      fail('HTTP', `API 请求失败（HTTP ${Number.isInteger(status) ? status : '错误'}）：${details[status] || (status >= 500 ? '供应商暂时不可用。' : '请检查配置和模型支持。')}`, status);
+      const details = {400:'可能与请求参数或模型配置有关。',401:'鉴权未通过，请核对凭据及目标。',403:'请求被拒绝，请核对访问条件。',404:'未找到请求资源，请核对路径及模型。',408:'服务返回请求超时。',429:'可能与请求频率、配额或容量有关。'};
+      fail('HTTP', `API 请求失败（HTTP ${Number.isInteger(status) ? status : '错误'}）：${details[status] || (status >= 500 ? '服务端返回错误。' : '请检查配置与服务状态。')} 具体原因尚未核实。`, status);
     }
     onPhase?.('headers_received');
     let json;
@@ -229,6 +232,17 @@ function geminiCandidate(json) {
   return candidate;
 }
 
+function textCompletion(reason, protocol, refusal = false) {
+  if (refusal) fail('BLOCKED', '供应商返回了拒绝标记；未执行工具或提交为完整回复。');
+  // Missing metadata remains unknown for existing compatible JSON endpoints.
+  // An explicit failure/truncation cannot become success merely because text parses.
+  if (reason === undefined || reason === null || reason === '') return {status:'unknown',reason:null};
+  const accepted = protocol === 'gemini' ? ['STOP'] : protocol === 'anthropic'
+    ? ['end_turn','stop_sequence'] : ['stop','tool_calls','function_call'];
+  if (!accepted.includes(reason)) fail('RESPONSE_INCOMPLETE', '供应商返回了未完整结束或当前未识别的结束标记；未执行工具或提交为完整回复。');
+  return {status:'complete',reason};
+}
+
 export async function generateText({config, messages, settings = {}, tools = [], signal, fetchImpl, onDelta, onReasoningDelta, onPhase, now} = {}) {
   validateEndpoint(config);
   const timing = createTextTiming(now);
@@ -259,17 +273,19 @@ export async function generateText({config, messages, settings = {}, tools = [],
   if (thinkingControls.generationConfig) body.generationConfig = {...body.generationConfig,...thinkingControls.generationConfig};
   else Object.assign(body,thinkingControls);
   if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 16 * 1024 * 1024) fail('ATTACHMENT_LIMIT','对话附件累计过大，请清空对话后重新添加。');
-  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : '/chat/completions', {body,signal,fetchImpl,onDelta:observedDelta,onReasoningDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
+  const chatPath = new URL(config.url).pathname.replace(/\/+$/, '').endsWith('/chat/completions') ? '' : '/chat/completions';
+  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : chatPath, {body,signal,fetchImpl,onDelta:observedDelta,onReasoningDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
   const complete = response => ({...response, metrics:replyMetricsSnapshot(response.usage, timing.snapshot(), visibleOutputTokens(json,config.protocol,{thinking:body.thinking}))});
   if (config.protocol === 'gemini') {
     const candidate = geminiCandidate(json);
+    const completion = textCompletion(candidate.finishReason, 'gemini', Boolean(json.promptFeedback?.blockReason));
     const rawAssistant = candidate.content;
     const toolCalls = rawAssistant.parts.filter(part => part.functionCall).map(part => ({
       id:part.functionCall.id || '',name:part.functionCall.name,args:part.functionCall.args || {},
     }));
     const text = rawAssistant.parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join('');
     if (!text && !toolCalls.length) fail('EMPTY','模型没有返回文本或工具调用。');
-    return complete({text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:candidate.finishReason || null});
+    return complete({text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:candidate.finishReason || null,completion});
   }
   if (config.protocol === 'anthropic') {
     if (json.role !== 'assistant' || !Array.isArray(json.content)) fail('RESPONSE','Anthropic 响应格式不正确。');
@@ -277,11 +293,12 @@ export async function generateText({config, messages, settings = {}, tools = [],
     if (!['end_turn','stop_sequence'].includes(json.stop_reason)) fail('STREAM_INCOMPLETE','Anthropic 回复未完整结束；未加入历史。');
     const text = json.content.filter(block => block.type === 'text').map(block => block.text || '').join('');
     if (!text) fail('EMPTY','模型没有返回文本。');
-    return complete({text,toolCalls:[],rawAssistant:{role:'assistant',content:json.content},usage:usageFrom(json,'anthropic'),finishReason:json.stop_reason});
+    return complete({text,toolCalls:[],rawAssistant:{role:'assistant',content:json.content},usage:usageFrom(json,'anthropic'),finishReason:json.stop_reason,completion:textCompletion(json.stop_reason,'anthropic')});
   }
   const choice = json.choices?.[0];
   const rawAssistant = choice?.message;
   if (!isRecord(rawAssistant)) fail('EMPTY','供应商没有返回对话消息。');
+  const completion = textCompletion(choice.finish_reason, config.protocol, Boolean(rawAssistant.refusal));
   const text = typeof rawAssistant.content === 'string' ? rawAssistant.content : '';
   const toolCalls = (Array.isArray(rawAssistant.tool_calls) ? rawAssistant.tool_calls : []).map(call => {
     if (call.type !== 'function' || !isRecord(call.function)) fail('TOOL_FORMAT','模型返回了不支持的工具调用格式。');
@@ -293,12 +310,12 @@ export async function generateText({config, messages, settings = {}, tools = [],
     if (rawAssistant.refusal || choice.finish_reason === 'content_filter') fail('BLOCKED','供应商未返回内容，可能受安全策略限制。');
     fail('EMPTY','模型没有返回文本或工具调用。');
   }
-  return complete({text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:choice.finish_reason || null});
+  return complete({text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:choice.finish_reason || null,completion});
 }
 
 export const IMAGE_TOOL = Object.freeze({
   name:'image_generate',
-  description:'Generate one image in the image workbench. The user must approve each paid call. Use only when an image is requested. No shell or other commands are available.',
+  description:'Generate one image in the configured image workbench when it serves the requested task. This host obtains approval for each call that may consume API quota. Other commands are not registered in this host.',
   parameters:{type:'object',properties:{
     prompt:{type:'string',description:'Complete description of the image to generate.'},
     aspectRatio:{type:'string',enum:aspectRatios.map(item => item.ratio)},

@@ -30,7 +30,7 @@ export function validateArkPixels(pixels) {
     invalid('IMAGE_OPTIONS','图片尺寸必须是正整数宽高。');
   const [width,height] = pixels, area = width * height, ratio = width / height;
   if (area < ARK_SIZE_LIMITS.minArea || area > ARK_SIZE_LIMITS.maxArea || ratio < ARK_SIZE_LIMITS.minRatio || ratio > ARK_SIZE_LIMITS.maxRatio)
-    invalid('IMAGE_OPTIONS','图片尺寸超出火山方舟当前模型的像素面积或长宽比范围。');
+    invalid('IMAGE_OPTIONS','图片尺寸超出当前登记的方舟像素面积或长宽比范围。');
   return pixels;
 }
 function oneKPreset(ratio) {
@@ -66,11 +66,11 @@ export function getImageCapabilities(config) {
 
 export function normalizeImageOptions(config, options = {}) {
   const capability = getImageCapabilities(config);
-  if (!capability) invalid('IMAGE_MODEL','此协议或模型尚未配置已验证的图片能力。');
+  if (!capability) invalid('IMAGE_MODEL','当前应用尚未配置此协议或模型的图片参数；这不代表供应商不具备图片能力。');
   const aspectRatio = options.aspectRatio ?? capability.defaultRatio;
   const imageSize = options.imageSize ?? capability.defaultSize;
   const entry = capability.ratios.find(item => item.ratio === aspectRatio);
-  if (!entry || !capability.sizes.includes(imageSize)) invalid('IMAGE_OPTIONS','图片比例或分辨率不受当前模型支持。');
+  if (!entry || !capability.sizes.includes(imageSize)) invalid('IMAGE_OPTIONS','当前应用预设未收录此图片比例或分辨率；请核对目标模型后补充适配。');
   const pixels = [...entry.pixelsBySize[imageSize]];
   if (capability.protocol === 'ark') validateArkPixels(pixels);
   return {aspectRatio,imageSize,pixels,...(capability.protocol === 'ark' ? {size:pixels.join('x')} : {})};
@@ -81,7 +81,7 @@ export function getImageTool(config) {
   if (!capability) return null;
   return {
     name:'image_generate',
-    description:`Generate one image in the image workbench using ${capability.label}. User approval is required for each paid call. Omitted ratio/size defaults to ${capability.defaultRatio}/${capability.defaultSize}. No shell or other commands are available.`,
+    description:`Generate one image in the configured workbench using ${capability.label}. This host obtains approval for each call that may consume API quota. Omitted ratio/size defaults to ${capability.defaultRatio}/${capability.defaultSize}. Other commands are not registered in this host.`,
     parameters:{type:'object',properties:{
       prompt:{type:'string',description:'Complete description of the image to generate.'},
       aspectRatio:{type:'string',enum:capability.ratios.map(item => item.ratio)},

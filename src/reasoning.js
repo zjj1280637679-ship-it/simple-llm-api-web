@@ -1,4 +1,7 @@
-// Verified provider contracts, not a model quality ranking. No selection => no fields.
+import { identifyProvider } from './provider-identity.js';
+
+// Dated local request profiles. Catalog matches do not establish live model support.
+// No selection means omitted controls, preserving the provider's default behavior.
 const levels=['low','medium','high'];
 const templates=[
  {id:'deepseek-effort',label:'DeepSeek 思考强度',provider:'deepseek',protocol:'openai',choices:['none','low','high','max']},
@@ -12,16 +15,13 @@ const templates=[
  {id:'anthropic-effort',label:'Anthropic 自适应思考',protocol:'anthropic',choices:[...levels,'xhigh','max']},
  {id:'anthropic-budget',label:'Anthropic 手动思考预算',protocol:'anthropic',kind:'number',min:1024,max:1000000}
 ];
-const hosts={'generativelanguage.googleapis.com':'gemini','api.openai.com':'openai','ark.cn-beijing.volces.com':'ark','api.anthropic.com':'anthropic','api.deepseek.com':'deepseek','open.bigmodel.cn':'zhipu'};
 const copy=t=>({...t,...(t.choices?{choices:[...t.choices]}:{}),...(t.specialValues?{specialValues:[...t.specialValues]}:{})});
 function identity(config) {
- try {const u=new URL(config.url);return u.protocol==='https:' ? hosts[u.hostname] || null : null;} catch {return null;}
+ return identifyProvider(config).provider;
 }
 function canonicalVendor(config,provider) {
- try {const u=new URL(config.url);if(u.port||u.username||u.password||u.search||u.hash)return false;
- const path=u.pathname.replace(/\/+$/,'');
- return provider==='deepseek' ? ['', '/v1','/chat/completions','/v1/chat/completions'].includes(path) : provider==='zhipu' ? ['/api/paas/v4','/api/paas/v4/chat/completions'].includes(path) : true;
- } catch {return false;}
+ const match = identifyProvider(config);
+ return match.provider === provider && match.profileMatched;
 }
 export function isDeepSeekChatEndpoint(config={}) {return config.protocol==='openai' && identity(config)==='deepseek' && canonicalVendor(config,'deepseek');}
 const named=(id,overrides={})=>({...copy(templates.find(t=>t.id===id)),...overrides});
@@ -69,13 +69,14 @@ export function getReasoningTemplates(config={}) {
  const manual=templates.filter(t=>t.protocol===config.protocol && (!provider || (t.provider||t.protocol)===provider));
  // An unrecognised gateway may explicitly select a vendor template. A known vendor never inherits another vendor's recommendation.
  const result=verified.length ? verified.map(copy) : manual.map(copy);
- return result.map(t=>({...t,verifiedModel:verified.length>0,...(t.choices ? {values:t.choices.map(value=>({value,label:value}))} : {}),
+ // verifiedModel is retained for caller compatibility; its scope is catalogMatch only.
+ return result.map(t=>({...t,catalogMatch:verified.length>0,verifiedModel:verified.length>0,evidence:{kind:verified.length ? 'dated-local-profile' : 'manual-schema',liveVerified:false},...(t.choices ? {values:t.choices.map(value=>({value,label:value}))} : {}),
   note:!verified.length ? '手选模板：当前模型能力未核验，选择后才发送；服务端可能拒绝不支持的参数。' : t.kind==='number' ? '仅在应用后发送预算；-1（如支持）为动态，0（如支持）为关闭。' : '仅发送选中的请求档位；不是服务端实际思考程度证明。'}));
 }
 export function getRecommendedReasoningTemplate(config={}) {
  return identity(config) ? official(config)[0]?.id || null : null;
 }
-export function isOfficialReasoningEndpoint(config={}) {return Boolean(identity(config));}
+export function isOfficialReasoningEndpoint(config={}) {return identifyProvider(config).profileMatched;}
 function fail(message) {const e=new Error(message);e.code='REASONING_SETTINGS';throw e;}
 /** Returns ONLY selected request controls. Caller merges generationConfig separately. */
 export function reasoningBody(config={},selection,settings={}) {
@@ -89,14 +90,14 @@ export function reasoningBody(config={},selection,settings={}) {
   if(typeof v!=='number' && !(typeof v==='string' && /^-?\d+$/.test(v))) fail('思考预算必须为整数。');
   v=Number(v);
   if(!Number.isSafeInteger(v) || (!t.specialValues?.includes(v) && (v<t.min||v>t.max))) fail('思考预算超出此模板范围。');
- } else if(!t.choices.includes(v)) fail('此模型不支持所选思考档位。');
+ } else if(!t.choices.includes(v)) fail('当前本地模板未收录所选思考档位；这不代表模型一定不支持，请核对对应模型与接口规则。');
  if(t.id==='gemini-level') return {generationConfig:{thinkingConfig:{thinkingLevel:v}}};
  if(t.id==='gemini-budget') return {generationConfig:{thinkingConfig:{thinkingBudget:v}}};
  if(t.id==='deepseek-thinking'||t.id==='zhipu-thinking') return {thinking:{type:v}};
  if(t.id==='openai-effort'||t.id==='ark-effort'||t.id==='deepseek-effort'||t.id==='zhipu-effort') return {reasoning_effort:v};
  if(t.id.startsWith('anthropic-')) {
-  if(settings.temperature!==undefined && settings.temperature!=='' && Number(settings.temperature)!==1) fail('启用此 Anthropic 思考模板时请将温度留空或设为 1。');
-  if(settings.topP!==undefined && settings.topP!=='') fail('启用此 Anthropic 思考模板时请先将 Top P 留空。');
+  if(settings.temperature!==undefined && settings.temperature!=='' && Number(settings.temperature)!==1) fail('当前 Anthropic 思考模板仅接纳温度留空或 1；这是本地适配范围，请核对目标模型与 API 版本。');
+  if(settings.topP!==undefined && settings.topP!=='') fail('当前 Anthropic 思考模板尚未接入 Top P 组合；请留空，或先补充该模型与 API 版本的适配。');
   if(t.id==='anthropic-effort') return {thinking:{type:'adaptive'},output_config:{effort:v}};
   const output=Number(settings.maxOutputTokens??settings.output??4096)||4096;
   if(v>=output) fail('Anthropic 思考预算必须小于最大输出 Token；请先提高输出上限。');

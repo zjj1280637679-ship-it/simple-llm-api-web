@@ -23,3 +23,7 @@ Serve the repository and visit `tests/browser/streaming.html`. It intercepts all
 - https://docs.volcengine.com/docs/ark/chat-api?lang=zh
 
 Synthetic tests establish application behavior only. This change does not claim live provider/model/CORS acceptance.
+
+## JSON completion alignment (2026-10-30)
+
+Nonstream Gemini/OpenAI/Ark now also reject explicit truncated, blocked or unrecognized finish reasons before tool execution/history commit; a refusal is honored even with accompanying text. Compatible JSON endpoints that omit finish metadata retain the prior return path with `completion.status: "unknown"`, not a completed-response guarantee. Normal stop is protocol completion, not proof of task quality. Text Chat URLs already ending in `/chat/completions` are no longer suffixed twice.

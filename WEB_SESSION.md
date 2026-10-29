@@ -1,8 +1,9 @@
 # Live-page agent interface (MVP)
 
 This interface operates on **one live webpage's in-memory state**, unlike
-`cli.mjs`, which calls a provider independently. Reloading the webpage discards
-its session. No listener, localhost service, browser-debugging port, credentials
+`cli.mjs`, which calls a provider independently. Reloading creates a new live session;
+saved conversations/settings may restore under the local persistence policy, while
+keys, request controllers and approvals do not. No listener, localhost service, browser-debugging port, credentials
 store, arbitrary JavaScript evaluation or shell tool is introduced.
 
 ## Working browser path: WebMCP
@@ -24,14 +25,17 @@ Settings allow only `model`, `output`, `temperature`, `topP`, `aspectRatio`, and
 protocol, key and trust must be configured through the normal UI. A transport
 cannot supply `confirmed:true` to bypass consent. Sending requires a fresh
 page-side confirmation; existing image-generation confirmations also apply.
-Never automatically accept those dialogs on behalf of the user.
+The current adapter does not supply a dialog-acceptance capability. A future
+delegated-authorization route needs its own bounded authorization contract and
+tests; this implementation is not a universal ban on user-authorized automation.
 
 WebMCP is experimental, not supported in all browsers. The implementation checks
 `document.modelContext` then the legacy `navigator.modelContext`. Unsupported
 browsers retain the normal UI but do not gain remote control. Browser agents
-must use their authorized WebMCP tool discovery/calling interface and select the
-correct tab. Do not emulate WebMCP by injecting arbitrary scripts or enabling
-an unauthenticated remote-debugging listener.
+use their authorized WebMCP tool discovery/calling interface and select the
+correct tab. Other authorized browser transports are separate candidates with
+their own target/credential/command boundaries; they are not evidence that this
+WebMCP path was exercised.
 
 Official API references (checked 2026-10-29):
 - https://developer.chrome.com/docs/modern-web-guidance/guides/webmcp/agentic-javascript-tools
