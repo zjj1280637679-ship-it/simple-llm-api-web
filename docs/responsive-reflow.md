@@ -1,6 +1,6 @@
 # 内容驱动的响应式重排
 
-版本：0.1.0；更新时间：2026-10-29T11:48:00Z。
+版本：0.1.1；更新时间：2026-10-29T11:58:00Z。
 
 目标是让界面随可用宽度和内容长度自然换行，而非按设备名称锁死尺寸。术语为 responsive layout / reflow；具体策略包括 Flexbox wrap、可收缩子项、内容驱动 Grid 和 overflow-wrap。
 
@@ -9,7 +9,7 @@
 - 页眉、导航、状态、操作按钮组、底部指标和日志操作允许换行，内容不靠省略号藏掉。
 - 表单行空间不足时按钮换行；二列参数按可用宽度重排。只读说明使用可换行 output。
 - 供应商名、长模型名、矩阵尺寸与说明可断行；矩阵按钮高度随内容增长。
-- 图片弹层相对输入容器对齐，短视口时转文档流，保留内部纵向滚动。
+- 图片参数与工具菜单展开为文档流面板，内容自然占位；矩阵保留内部纵向滚动。
 - 原生密码/数字/API地址/模型ID输入仍保留单行编辑语义，可在输入框内横向移动光标。原生 select 仍用于选择，完整选中协议另有可换行说明。没有为了“全换行”给密钥添加副本或改变请求值。
 
 这只是当前生产网页的布局策略，不要求采用模块库的任何候选。协议、密钥保存、请求和工具确认逻辑未调整。
@@ -41,3 +41,15 @@
 ## 2026-10-29T11:54Z · CUA finding and correction
 
 Real CUA preview at 320 × 800 with synthetic long content and 200% text found no horizontal overflow, but the wrapped composer squeezed history to 42px. The history now reserves `min(18rem,45dvh)` and the outer shell scrolls when needed. This changes layout only; short-screen document-flow rules remain in effect. Correction requires a fresh browser check; the prior no-horizontal-overflow result is not sufficient acceptance.
+
+## 补充研究：先判断可用空间，不把断点当目标
+
+- [W3C C34](https://www.w3.org/WAI/WCAG21/Techniques/css/C34) 说明固定或粘性区域在横屏、放大时可能占据大部分屏幕，空间不足时解除固定可恢复内容可见性和键盘焦点可达性。这是建议技术，并非唯一合规实现。这里虽采用 flex 固定视口而非 sticky，同样需要验证剩余正文空间。
+- [Chrome CSS Layouts and Responsive Design](https://developer.chrome.com/docs/modern-web-guidance/guides/css/css-layout) 推荐内容驱动的内在尺寸、弹性及网格布局。选用自然换行与最小可读空间，让布局适应真实内容，而不是只针对设备名称补丁。
+- [MDN position-try-fallbacks](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position-try-fallbacks) 提供 anchor 定位的备选位置，可在溢出时尝试另一侧；文档标记为2026年新近可用，旧浏览器可能不支持。若未来采用，应先检查目标浏览器并保留普通文档流兜底，不能把新定位能力作为默认硬前提。
+
+验收目标是内容、操作及焦点实际可达；“横向溢出为零”只是一个指标。若菜单顶部超出滚动容器，优先考虑自然占位面板，或有兼容兜底的空间感知定位；再多的高度断点也不能替代内容压力测试。
+
+## 2026-10-29T11:59Z · 菜单真实回归
+
+主代理 CUA 复验确认历史区恢复288px；但800px高、200%字体及长footer时，图片菜单在768/1280宽的顶部坐标分别为-10.094/-11.094px。由此将图片和同类工具菜单都改为正常文档流面板，保留矩阵45dvh内部滚动，避免向上绝对定位造成顶部不可达。此修复不改变菜单按钮、选择事件或API请求。最终菜单修复仍须真实浏览器复验。

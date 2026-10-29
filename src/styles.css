@@ -68,3 +68,8 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 .block-value{display:block;width:100%;min-height:47px;border:1px solid var(--line2);border-radius:12px;background:var(--soft);padding:10px 13px;color:var(--fg);white-space:normal;overflow-wrap:anywhere}
 
 .field-reading{font-size:12px;color:var(--muted);white-space:normal;overflow-wrap:anywhere;margin-top:6px}
+
+/* Menus occupy normal flow: long labels cannot place their top above the scrollport. */
+.menu-wrap{max-width:100%}
+.size-menu,.plus-menu{position:static;margin-top:10px;max-width:100%;max-height:none}
+.matrix-scroll{max-height:45dvh;min-height:7rem}
