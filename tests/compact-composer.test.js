@@ -28,3 +28,8 @@ test('capsule keeps 44px controls, separate metrics, dynamic resize and unchange
  assert.match(source,/!e\.shiftKey && !e\.isComposing/);
  assert.match(source,/class="compose-metrics"/);
 });
+test('loading status includes real visually hidden text for live-region announcements',()=>{
+ assert.match(source,/<span class="sr-only">正在加载<\/span>/);
+ assert.match(css,/\.sr-only\{position:absolute/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.api-spinner\{animation:none/);
+});
