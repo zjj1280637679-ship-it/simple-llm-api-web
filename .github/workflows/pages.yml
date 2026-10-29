@@ -25,6 +25,10 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - run: npm run check
+      - run: npm run review:health
+      - run: npm run review:evidence
+      - run: npm run review:sources
+      - run: npm run hosts
       - run: npm test
       - run: npm run build
       - uses: actions/configure-pages@v5

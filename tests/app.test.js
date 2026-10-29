@@ -1,3 +1,4 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -12,7 +13,7 @@ test('production uses local modules and defensive browser policy', async () => {
   assert.doesNotMatch(html, /<script[^>]*>\s*[^<\s]/);
 });
 test('production has no simulated result or persistent key storage', async () => {
-  const app = await read('src/app.js');
+  const app = await Promise.resolve(uiSource);
   assert.doesNotMatch(app, /sessionStorage|document\.cookie|eval\(|new Function\(/);
   assert.doesNotMatch(app, /已收到你的消息|sample-art|抽象城市夜景/);
   assert.match(app, /dispatchCommand/);
@@ -24,7 +25,7 @@ test('production has no simulated result or persistent key storage', async () =>
   assert.match(app, /if \(d\.busy \|\| d\.attachmentReading/);
 });
 test('production starts with no pre-filled user or model history', async () => {
-  assert.match(await read('src/app.js'), /messages: \[\], history: \[\]/);
+  assert.match(await Promise.resolve(uiSource), /messages: \[\], history: \[\]/);
 });
 test('design baseline remains separate from production', async () => {
   const design = await read('design/index.html');

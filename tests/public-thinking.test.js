@@ -1,6 +1,8 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
+import {createStreamPainter} from '../src/stream-painter.js';
+import {reasoningContentMarkup} from '../src/view-markup.js';
 import {readFile} from 'node:fs/promises';
 import {generateText} from '../src/core.js';
 import {runConversation} from '../src/agent.js';
@@ -32,20 +34,20 @@ test('cancelling public reasoning does not checkpoint partial history',async()=>
  await assert.rejects(runConversation({config:config('ark'),messages,signal:controller.signal,onDelta:()=>{},onReasoningDelta:(x,{round})=>{observed+=x;assert.equal(round,0);controller.abort()},onHistory:()=>checkpoints++,fetchImpl:async()=>response([o({reasoning_content:'partial'}),o({content:'answer'},'stop'),'[DONE]'])}),{code:'CANCELLED'});
  assert.equal(observed,'partial');assert.equal(checkpoints,0);
 });
-const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
+const source=uiSource;
 test('incremental paint keeps existing collapsed reasoning DOM and reader position',()=>{
  const text={textContent:''},summary={textContent:''},answer={textContent:''},label={textContent:''};
  const details={open:false,querySelector:s=>s==='summary'?summary:text};let inserted=0;
  const node={querySelector:s=>({'.reasoning-content':details,'.reply-text':answer,'.assistant-label':label}[s])};
  const d={};const app={scrollTop:20,scrollHeight:1000,clientHeight:400,querySelector:()=>node};
- const ctx={app,get:()=>d,saveLocal(){},recordScrollDiagnostic(){},render(){throw Error('rerender')},messageMarkup(){inserted++;return ''}};vm.createContext(ctx);
- vm.runInContext(source.slice(source.indexOf('function paintStream'),source.indexOf('// These phases')),ctx);
+ const ctx={app,get:()=>d,saveLocal(){},recordScrollDiagnostic(){},render(){throw Error('rerender')},messageMarkup(){inserted++;return ''}};
+ ctx.paintStream=createStreamPainter(ctx);
  ctx.paintStream(d,{id:1,text:'answer',reasoningText:'public delta',incomplete:true});
  assert.equal(text.textContent,'public delta');assert.match(summary.textContent,/未完成/);assert.equal(details.open,false);assert.equal(app.scrollTop,20);assert.equal(inserted,0);
 });
 test('reasoning markup is escaped, optional and model-backed for collapse restoration',()=>{
- const ctx={esc:s=>s.replaceAll('<','&lt;')};vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('function reasoningContentMarkup'),source.indexOf('function messageMarkup')),ctx);
+ const ctx={reasoningContentMarkup};
  assert.equal(ctx.reasoningContentMarkup({id:1,text:'body'}),'');
- const markup=ctx.reasoningContentMarkup({id:1,reasoningText:'<script>opaque?',reasoningOpen:false});assert.match(markup,/&lt;script>/);assert.doesNotMatch(markup,/<script>| open/);
+ const markup=ctx.reasoningContentMarkup({id:1,reasoningText:'<script>opaque?',reasoningOpen:false});assert.match(markup,/&lt;script&gt;/);assert.doesNotMatch(markup,/<script>| open/);
  assert.match(source,/message.reasoningOpen = details.open; saveLocal\(\)/);
 });

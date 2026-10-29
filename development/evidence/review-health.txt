@@ -1,0 +1,431 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> simple-llm-api-web@0.2.0 review:health
+> node scripts/review-health.mjs
+
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-29T20:20:14.425Z",
+  "mode": "advisory",
+  "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
+  "modules": [
+    {
+      "path": "src/agent.js",
+      "bytes": 8761,
+      "lines": 182,
+      "maxLineCharacters": 168,
+      "relativeImports": [
+        "src/core.js"
+      ],
+      "sha256": "e4ee8dbc6e0590006262ec27d9d0c25d44d1badaba58e6ea94f93ed60b2950c4"
+    },
+    {
+      "path": "src/app.js",
+      "bytes": 369,
+      "lines": 9,
+      "maxLineCharacters": 79,
+      "relativeImports": [
+        "src/workbench.js"
+      ],
+      "sha256": "79effcea74a04414a454ed3425b71a98c35e55be6ba43aae7c8eb08fa6f8264d"
+    },
+    {
+      "path": "src/attachments.js",
+      "bytes": 4383,
+      "lines": 54,
+      "maxLineCharacters": 235,
+      "relativeImports": [],
+      "sha256": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef"
+    },
+    {
+      "path": "src/canvas-geometry.js",
+      "bytes": 18148,
+      "lines": 292,
+      "maxLineCharacters": 396,
+      "relativeImports": [
+        "src/lifecycle.js"
+      ],
+      "sha256": "1a5403248a4f1f9fb04e904e82b09440574aebf9a8e87fdc4069ea078e64335d"
+    },
+    {
+      "path": "src/clipboard-report.js",
+      "bytes": 719,
+      "lines": 16,
+      "maxLineCharacters": 100,
+      "relativeImports": [],
+      "sha256": "8b130db8e9eac87b38d1bff87d0932a31c618631d725da8ec97fa0d59ca6d6ba"
+    },
+    {
+      "path": "src/core.js",
+      "bytes": 28348,
+      "lines": 392,
+      "maxLineCharacters": 476,
+      "relativeImports": [
+        "src/attachments.js",
+        "src/error-diagnostic.js",
+        "src/image-capabilities.js",
+        "src/logs.js",
+        "src/reasoning.js",
+        "src/stream.js",
+        "src/transport-evidence.js",
+        "src/usage.js"
+      ],
+      "sha256": "6ef655ebf37e05f0df7e2eee652d7072d6779c37e2a433fc90ed2bed3c1fffe4"
+    },
+    {
+      "path": "src/error-diagnostic.js",
+      "bytes": 1742,
+      "lines": 35,
+      "maxLineCharacters": 140,
+      "relativeImports": [],
+      "sha256": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9"
+    },
+    {
+      "path": "src/icons.js",
+      "bytes": 879,
+      "lines": 1,
+      "maxLineCharacters": 878,
+      "relativeImports": [],
+      "sha256": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3"
+    },
+    {
+      "path": "src/image-capabilities.js",
+      "bytes": 5782,
+      "lines": 91,
+      "maxLineCharacters": 294,
+      "relativeImports": [],
+      "sha256": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225"
+    },
+    {
+      "path": "src/image-delivery.js",
+      "bytes": 2579,
+      "lines": 48,
+      "maxLineCharacters": 186,
+      "relativeImports": [],
+      "sha256": "a5f701263a20e43e562eaa2374312809f9c23c1bf43d0237a8372df411317631"
+    },
+    {
+      "path": "src/lifecycle.js",
+      "bytes": 798,
+      "lines": 26,
+      "maxLineCharacters": 81,
+      "relativeImports": [],
+      "sha256": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5"
+    },
+    {
+      "path": "src/logs.js",
+      "bytes": 9157,
+      "lines": 161,
+      "maxLineCharacters": 281,
+      "relativeImports": [],
+      "sha256": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97"
+    },
+    {
+      "path": "src/native-json.js",
+      "bytes": 1924,
+      "lines": 46,
+      "maxLineCharacters": 112,
+      "relativeImports": [],
+      "sha256": "7e7712f5b28be628b4eaa218089b821e2c773d81f28b1abb02efa851a679f75f"
+    },
+    {
+      "path": "src/persistence.js",
+      "bytes": 17726,
+      "lines": 239,
+      "maxLineCharacters": 371,
+      "relativeImports": [
+        "src/native-json.js"
+      ],
+      "sha256": "fc680e5697c1c7a901cd9a94b7f9b5eb45cd2a07658edb1765b48b055e7aa13b"
+    },
+    {
+      "path": "src/provider-identity.js",
+      "bytes": 1390,
+      "lines": 23,
+      "maxLineCharacters": 132,
+      "relativeImports": [],
+      "sha256": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884"
+    },
+    {
+      "path": "src/reasoning.js",
+      "bytes": 10665,
+      "lines": 135,
+      "maxLineCharacters": 329,
+      "relativeImports": [
+        "src/provider-identity.js"
+      ],
+      "sha256": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff"
+    },
+    {
+      "path": "src/request-lifecycle.js",
+      "bytes": 3853,
+      "lines": 59,
+      "maxLineCharacters": 373,
+      "relativeImports": [
+        "src/core.js"
+      ],
+      "sha256": "ad78902faf056c5b3f740cafef2862ea64409eaebaa17dd7f3c6b9560685e7fd"
+    },
+    {
+      "path": "src/session-webmcp.js",
+      "bytes": 3952,
+      "lines": 65,
+      "maxLineCharacters": 162,
+      "relativeImports": [
+        "src/session.js"
+      ],
+      "sha256": "132374f5df6e13b4f71f5a7f3879e269caff97985ccbfa53fc2df22d3ca26d93"
+    },
+    {
+      "path": "src/session.js",
+      "bytes": 4423,
+      "lines": 76,
+      "maxLineCharacters": 152,
+      "relativeImports": [],
+      "sha256": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153"
+    },
+    {
+      "path": "src/stream-painter.js",
+      "bytes": 1994,
+      "lines": 34,
+      "maxLineCharacters": 212,
+      "relativeImports": [
+        "src/usage.js",
+        "src/view-markup.js"
+      ],
+      "sha256": "ab24d9fe6ba79c4f8f4d3b2cb9527f0ea8b54f6f99ab780e0d80bd13fc8cc055"
+    },
+    {
+      "path": "src/stream.js",
+      "bytes": 11910,
+      "lines": 185,
+      "maxLineCharacters": 170,
+      "relativeImports": [],
+      "sha256": "4e6a7d9d938bdcd1b1208b39eba9eb559c19ccada432cf9dffdd07bbc05c3805"
+    },
+    {
+      "path": "src/transport-evidence.js",
+      "bytes": 766,
+      "lines": 11,
+      "maxLineCharacters": 174,
+      "relativeImports": [],
+      "sha256": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a"
+    },
+    {
+      "path": "src/usage.js",
+      "bytes": 6867,
+      "lines": 90,
+      "maxLineCharacters": 353,
+      "relativeImports": [],
+      "sha256": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f"
+    },
+    {
+      "path": "src/view-markup.js",
+      "bytes": 851,
+      "lines": 13,
+      "maxLineCharacters": 300,
+      "relativeImports": [],
+      "sha256": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e"
+    },
+    {
+      "path": "src/view-position.js",
+      "bytes": 2473,
+      "lines": 41,
+      "maxLineCharacters": 206,
+      "relativeImports": [],
+      "sha256": "a0bbecc1f19b97f6d99480a11a538936cf23e3c27d4726641101e59055457711"
+    },
+    {
+      "path": "src/workbench.js",
+      "bytes": 63968,
+      "lines": 844,
+      "maxLineCharacters": 687,
+      "relativeImports": [
+        "src/agent.js",
+        "src/attachments.js",
+        "src/canvas-geometry.js",
+        "src/clipboard-report.js",
+        "src/core.js",
+        "src/icons.js",
+        "src/image-delivery.js",
+        "src/lifecycle.js",
+        "src/logs.js",
+        "src/persistence.js",
+        "src/reasoning.js",
+        "src/request-lifecycle.js",
+        "src/session-webmcp.js",
+        "src/session.js",
+        "src/stream-painter.js",
+        "src/usage.js",
+        "src/view-markup.js",
+        "src/view-position.js",
+        "src/workspace-storage.js"
+      ],
+      "sha256": "9e0d5613c2a12200d6ece539ff3bce68b310857d33a2064c019f64fa13161bc3"
+    },
+    {
+      "path": "src/workspace-storage.js",
+      "bytes": 1449,
+      "lines": 35,
+      "maxLineCharacters": 142,
+      "relativeImports": [],
+      "sha256": "261e138eabebb078bc966f1d01ba4a2bf8c84dafb81d82924c089ff43a18a5ee"
+    }
+  ],
+  "cards": [
+    {
+      "path": "docs/contracts/canvas-geometry.json",
+      "module": "R-007",
+      "host": "H-R-007",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/clipboard-report.json",
+      "module": "R-011",
+      "host": "H-R-011",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/error-diagnostic.json",
+      "module": "F-008",
+      "host": "H-F-008",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/image-delivery.json",
+      "module": "F-007",
+      "host": "H-F-007",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/lifecycle.json",
+      "module": "R-006",
+      "host": "H-R-006",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/native-json.json",
+      "module": "F-006",
+      "host": "H-F-006",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/provider-identity.json",
+      "module": "R-005",
+      "host": "H-R-005",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/request-lifecycle.json",
+      "module": "R-009",
+      "host": "H-R-009",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/stream-painter.json",
+      "module": "R-012",
+      "host": "H-R-012",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/transport-evidence.json",
+      "module": "R-013",
+      "host": "H-R-013",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/view-markup.json",
+      "module": "F-009",
+      "host": "H-F-009",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/view-position.json",
+      "module": "R-008",
+      "host": "H-R-008",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/workbench.json",
+      "module": "C-002",
+      "host": "H-C-002",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/workspace-storage.json",
+      "module": "R-010",
+      "host": "H-R-010",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    }
+  ]
+}

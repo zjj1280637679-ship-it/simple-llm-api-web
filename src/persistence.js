@@ -1,4 +1,8 @@
-/** Local workspace snapshots only. Never receives logs, request headers or credentials. */
+import { copyNativeJSON } from './native-json.js';
+
+/** Project local snapshots from workspace state. API/card allowlists exclude credentials;
+ * submitted secrets are supplied separately for collision checks, never persisted.
+ */
 export const SCHEMA_VERSION = 1;
 export const MAX_SNAPSHOT_BYTES = 48 * 1024 * 1024;
 const pick = (value, keys) => Object.fromEntries(keys.filter(k => value?.[k] !== undefined).map(k => [k, value[k]]));
@@ -13,6 +17,21 @@ function clean(value, secrets = []) {
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).filter(([k,v]) => !forbidden.test(k) && v !== undefined && typeof v !== 'function').map(([k,v]) => [k,clean(v,secrets)]));
   return null;
 }
+// Envelope filtering and native protocol data have different responsibilities.
+// Ordinary business keys inside raw (including "apiKey") are not credential evidence.
+function copySnapshot(value) {
+  const workspaces = Object.fromEntries(['chat','image'].map(name => {
+    const workspace = value.workspaces[name];
+    const history = workspace.history.map(message => {
+      const {raw, ...envelope} = message;
+      const copied = clean(envelope);
+      if (raw !== undefined) copied.raw = copyNativeJSON(raw);
+      return copied;
+    });
+    return [name, {...clean({...workspace, history:[]}), history}];
+  }));
+  return {...clean({...value, workspaces:{}}), workspaces};
+}
 function safeApi(api) {
   const out = pick(api,apiKeys);
   try { const u = new URL(out.url); if (u.username || u.password || u.search || u.hash || u.protocol !== 'https:') out.url = ''; } catch { out.url = ''; }
@@ -23,7 +42,10 @@ function safeApi(api) {
 // either a credential or a corrupted context. Editing prefixes are not secrets.
 function protectImmutable(value,secrets) {
   if(typeof value==='string' && secrets.some(secret=>value.includes(secret)))throw Object.assign(new Error('Credential in immutable content'),{code:'CREDENTIAL_COLLISION'});
-  if(value&&typeof value==='object')for(const child of Object.values(value))protectImmutable(child,secrets);
+  if(value&&typeof value==='object')for(const [key,child] of Object.entries(value)){
+    protectImmutable(key,secrets);
+    protectImmutable(child,secrets);
+  }
 }
 function protectWorkspace(value,secrets) {
   const {workspaces,...metadata}=value;protectImmutable(metadata,secrets);
@@ -51,13 +73,13 @@ export function snapshotWorkspace({data,page,nextId,views={},secrets:archivedSec
         delete out.metrics;
         if(m.streaming)out.incomplete=true;
         if(m.type==='card'){out.values=m.kind==='api'?safeApi(m.values):pick(m.values,modelKeys);}
-        if(m.images)out.images=m.images.map(im=>pick(im,['data','mimeType','extension','failed']));
+        if(m.images)out.images=m.images.map(im=>pick(im,['data','mimeType','extension','failed','width','height','checks']));
         return out;
       })
     };
     metrics[name]={lastUsage:d.lastUsage,lastMetrics:d.lastMetrics,messages:Object.fromEntries(d.messages.filter(m=>m.metrics).map(m=>[m.id,m.metrics]))};
   }
-  const result=protectWorkspace(clean({schema:SCHEMA_VERSION,page,nextId,views,workspaces,metrics}),secrets);
+  const result=protectWorkspace(copySnapshot({schema:SCHEMA_VERSION,page,nextId,views,workspaces,metrics}),secrets);
   if(new TextEncoder().encode(JSON.stringify(result)).byteLength>MAX_SNAPSHOT_BYTES)throw Object.assign(new Error('Snapshot too large'),{code:'SIZE_LIMIT'});
   return result;
 }
@@ -88,7 +110,7 @@ export function migrateSnapshot(value) {
     }
   }
   if(value.views!==undefined&&(!object(value.views)||!Object.values(value.views).every(v=>object(v)&&Number.isFinite(v.top)&&v.top>=0&&typeof v.bottom==='boolean')))invalid();
-  return clean(value);
+  return copySnapshot(value);
 }
 export function restoreWorkspace(snapshot,makePage) {
   const s=migrateSnapshot(snapshot),data={};let maximum=Object.values(s.workspaces).reduce((max,d)=>d.messages.reduce((n,m)=>Math.max(n,m.id),max),0);

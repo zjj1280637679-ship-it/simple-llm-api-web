@@ -1,0 +1,584 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> simple-llm-api-web@0.2.0 hosts
+> node scripts/run-hosts.mjs
+
+{
+  "status": "PASS",
+  "scope": "Independent local hosts; no provider live calls or complete formal proof",
+  "results": [
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-007",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "relation",
+        "goal": "canvas-geometry.declared-effect",
+        "source": "src/canvas-geometry.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-007",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/canvas-geometry.mjs",
+        "moduleId": "R-007",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:14.443Z",
+      "finishedAt": "2026-10-29T20:20:14.447Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "boundedMenu": true,
+        "diagnosticsReleased": true
+      },
+      "hashes": {
+        "development/hosts/canvas-geometry.mjs": "a255b7f0f4d4f213dddca2b8f3a1e34a1f48a2a42c5d2b706f72d72478617e39",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/canvas-geometry.json": "fbf7790b1439d4a9a1b787e9d453e881482c14b0677a59cc8e145a2d05c9804e",
+        "src/canvas-geometry.js": "1a5403248a4f1f9fb04e904e82b09440574aebf9a8e87fdc4069ea078e64335d",
+        "src/lifecycle.js": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-011",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "relation",
+        "goal": "clipboard-report.declared-effect",
+        "source": "src/clipboard-report.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-011",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/clipboard-report.mjs",
+        "moduleId": "R-011",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:14.524Z",
+      "finishedAt": "2026-10-29T20:20:14.527Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "staleViewUntouched": true
+      },
+      "hashes": {
+        "development/hosts/clipboard-report.mjs": "44432d37f865545c3916f528eac41546e957cedfd51505619fb0ce20be9e9194",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/clipboard-report.json": "61d9618b2db9f79d54788f52ac7c25c330fbdeaf2c55dac7f45e74db1a223db9",
+        "src/clipboard-report.js": "8b130db8e9eac87b38d1bff87d0932a31c618631d725da8ec97fa0d59ca6d6ba"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-008",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "function",
+        "goal": "error-diagnostic.declared-effect",
+        "source": "src/error-diagnostic.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-008",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/error-diagnostic.mjs",
+        "moduleId": "F-008",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:14.603Z",
+      "finishedAt": "2026-10-29T20:20:14.611Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "boundedFields": true,
+        "reportNotDiagnosis": true
+      },
+      "hashes": {
+        "development/hosts/error-diagnostic.mjs": "472106a60b2fa9a1b5506273db13c70e478e8a7a3caec4c7d237d8d2e33eb996",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/error-diagnostic.json": "8e3f546b86a1bc8bb74431af89d860d777efa17e317dee43ce824c2d3173a0b0",
+        "src/error-diagnostic.js": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-007",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "function",
+        "goal": "image-delivery.declared-effect",
+        "source": "src/image-delivery.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-007",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/image-delivery.mjs",
+        "moduleId": "F-007",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:14.712Z",
+      "finishedAt": "2026-10-29T20:20:14.716Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "syntheticDecoder": true,
+        "dimensionMismatchRetained": true,
+        "objectURLReleased": true
+      },
+      "hashes": {
+        "development/hosts/image-delivery.mjs": "6e7c2d4f0338e430cdae8fcd609aa682bf9a9350ac09e039e2897f843b376523",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/image-delivery.json": "cd60400839e98ae77770e83b23b9c6bf53ba8fe870878fc5fe84e1e824c8ea10",
+        "src/image-delivery.js": "a5f701263a20e43e562eaa2374312809f9c23c1bf43d0237a8372df411317631"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-006",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "relation",
+        "goal": "lifecycle.declared-effect",
+        "source": "src/lifecycle.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-006",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/lifecycle.mjs",
+        "moduleId": "R-006",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:14.795Z",
+      "finishedAt": "2026-10-29T20:20:14.800Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "releasedOnce": true,
+        "lateRegistrationReleased": true
+      },
+      "hashes": {
+        "development/hosts/lifecycle.mjs": "1fad99f8cc20e835b2376dc1c37729d0ccc02f0f83fa48df475a1b8286c7b2e9",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/lifecycle.json": "81b8b0cab1ed8a793d2a0ff6f32c41a546dc2a92cf7d12a0bd8356171c2e2d93",
+        "src/lifecycle.js": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-006",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T19:15:54.000Z",
+        "updatedAt": "2026-10-29T19:15:54.000Z",
+        "kind": "function",
+        "goal": "native-context.copy-without-semantic-filtering",
+        "source": "src/native-json.js",
+        "lifecycle": "candidate"
+      },
+      "host": {
+        "id": "H-F-006",
+        "version": "0.1.1",
+        "createdAt": "2026-10-29T19:15:54.000Z",
+        "updatedAt": "2026-10-29T20:18:57.630Z",
+        "entry": "development/hosts/native-json.mjs",
+        "moduleId": "F-006",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:14.893Z",
+      "finishedAt": "2026-10-29T20:20:14.899Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "businessKeysPreserved": true,
+        "inputUnchanged": true,
+        "prototypeUnchanged": true,
+        "cycleRejected": true
+      },
+      "hashes": {
+        "development/hosts/native-json.mjs": "5b4b8aa8545776f613495516f8ef000c61f60148a817f82439535cc221f431f1",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/native-json.json": "7e07d3efef35be143ffa1a5bca8e49b347ce347d9eaf5b679d4bb8ef1e41b328",
+        "src/native-json.js": "7e7712f5b28be628b4eaa218089b821e2c773d81f28b1abb02efa851a679f75f"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-005",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T19:15:54.000Z",
+        "updatedAt": "2026-10-29T19:15:54.000Z",
+        "kind": "relation",
+        "goal": "provider-profile.match-in-declared-context",
+        "source": "src/provider-identity.js",
+        "lifecycle": "candidate"
+      },
+      "host": {
+        "id": "H-R-005",
+        "version": "0.1.1",
+        "createdAt": "2026-10-29T19:15:54.000Z",
+        "updatedAt": "2026-10-29T20:18:57.630Z",
+        "entry": "development/hosts/provider-identity.mjs",
+        "moduleId": "R-005",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:14.991Z",
+      "finishedAt": "2026-10-29T20:20:14.998Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "declaredPathMatched": true,
+        "otherPathUnverified": true,
+        "wrongProtocolUnmatched": true,
+        "inputUnchanged": true
+      },
+      "hashes": {
+        "development/hosts/provider-identity.mjs": "49730a8dbb8c3288204ecd0b02e5b6f07cbdb0ae5c54f779d4a5e3c824a33283",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/provider-identity.json": "2784ca0276f4e9572825f17b221262abaf8d2ec63ad48900af5fdf07df6eb98a",
+        "src/provider-identity.js": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-009",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "relation",
+        "goal": "request-lifecycle.declared-effect",
+        "source": "src/request-lifecycle.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-009",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/request-lifecycle.mjs",
+        "moduleId": "R-009",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:15.090Z",
+      "finishedAt": "2026-10-29T20:20:15.097Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "timersReleased": true,
+        "requestAborted": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/request-lifecycle.mjs": "13d754032c0caf9dc878a097bf2bf1768bdb21d9178a966674dff7d067135035",
+        "docs/contracts/request-lifecycle.json": "f4cab3ef37bef0f6912c215bf4c4ae1d72f535365cb338459eb34e6421e2b583",
+        "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
+        "src/core.js": "6ef655ebf37e05f0df7e2eee652d7072d6779c37e2a433fc90ed2bed3c1fffe4",
+        "src/error-diagnostic.js": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9",
+        "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
+        "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
+        "src/provider-identity.js": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884",
+        "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
+        "src/request-lifecycle.js": "ad78902faf056c5b3f740cafef2862ea64409eaebaa17dd7f3c6b9560685e7fd",
+        "src/stream.js": "4e6a7d9d938bdcd1b1208b39eba9eb559c19ccada432cf9dffdd07bbc05c3805",
+        "src/transport-evidence.js": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a",
+        "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-012",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "relation",
+        "goal": "stream-painter.declared-effect",
+        "source": "src/stream-painter.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-012",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/stream-painter.mjs",
+        "moduleId": "R-012",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:15.187Z",
+      "finishedAt": "2026-10-29T20:20:15.193Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "incrementalText": true,
+        "readingPreserved": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/stream-painter.mjs": "007cc784f9fd48298493beb35283a0a8949f2000fac2a65af8a925bee453101e",
+        "docs/contracts/stream-painter.json": "5f59565f43d2faab7a6aaed9af72cb960df354c6f70b2a04b9756aaa52c2460b",
+        "src/stream-painter.js": "ab24d9fe6ba79c4f8f4d3b2cb9527f0ea8b54f6f99ab780e0d80bd13fc8cc055",
+        "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
+        "src/view-markup.js": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-013",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "relation",
+        "goal": "transport-evidence.declared-effect",
+        "source": "src/transport-evidence.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-013",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/transport-evidence.mjs",
+        "moduleId": "R-013",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:15.279Z",
+      "finishedAt": "2026-10-29T20:20:15.282Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "functionBoundDeclaration": true,
+        "noVerificationPromotion": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/transport-evidence.mjs": "234f5a10d11d4cea6831e92ab0f7709c6fc956cd7474e8b411243c31980f0217",
+        "docs/contracts/transport-evidence.json": "eb5341642acd501fa9d5265c307223db829137d44d7c41860cb9553554f87331",
+        "src/transport-evidence.js": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-009",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "function",
+        "goal": "view-markup.declared-effect",
+        "source": "src/view-markup.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-009",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/view-markup.mjs",
+        "moduleId": "F-009",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:15.361Z",
+      "finishedAt": "2026-10-29T20:20:15.369Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "escapedContent": true,
+        "selectedTab": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/view-markup.mjs": "f3d91523bf103b05aca2cb256a964f1f6ab94aef62146a78ce11f6016f459164",
+        "docs/contracts/view-markup.json": "f58bebd23f3b9f953df909a5e7b617beb228a5a45f73c933757253ca39def613",
+        "src/view-markup.js": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-008",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "relation",
+        "goal": "view-position.declared-effect",
+        "source": "src/view-position.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-008",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/view-position.mjs",
+        "moduleId": "R-008",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:15.446Z",
+      "finishedAt": "2026-10-29T20:20:15.449Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "independentReadingPositions": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/view-position.mjs": "23ae5f6a1b72057d186f1c29522919c8fbcc9207389b0720c330b50a6cc740ff",
+        "docs/contracts/view-position.json": "207487582a4feb6082218b2817936f830dc85664ac32e6c0d1be4809a91db1c1",
+        "src/view-position.js": "a0bbecc1f19b97f6d99480a11a538936cf23e3c27d4726641101e59055457711"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "C-002",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "composition",
+        "goal": "workbench.declared-effect",
+        "source": "src/workbench.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-C-002",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/workbench.mjs",
+        "moduleId": "C-002",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:15.544Z",
+      "finishedAt": "2026-10-29T20:20:15.567Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "fullInitialization": true,
+        "sessionAfterReady": true,
+        "disposedSessionInert": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
+        "docs/contracts/workbench.json": "f1183652569b7670dc18b84a7b268a2697a0e5eaab93a27a8a5ba88ed096eeba",
+        "src/agent.js": "e4ee8dbc6e0590006262ec27d9d0c25d44d1badaba58e6ea94f93ed60b2950c4",
+        "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
+        "src/canvas-geometry.js": "1a5403248a4f1f9fb04e904e82b09440574aebf9a8e87fdc4069ea078e64335d",
+        "src/clipboard-report.js": "8b130db8e9eac87b38d1bff87d0932a31c618631d725da8ec97fa0d59ca6d6ba",
+        "src/core.js": "6ef655ebf37e05f0df7e2eee652d7072d6779c37e2a433fc90ed2bed3c1fffe4",
+        "src/error-diagnostic.js": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9",
+        "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
+        "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
+        "src/image-delivery.js": "a5f701263a20e43e562eaa2374312809f9c23c1bf43d0237a8372df411317631",
+        "src/lifecycle.js": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5",
+        "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
+        "src/native-json.js": "7e7712f5b28be628b4eaa218089b821e2c773d81f28b1abb02efa851a679f75f",
+        "src/persistence.js": "fc680e5697c1c7a901cd9a94b7f9b5eb45cd2a07658edb1765b48b055e7aa13b",
+        "src/provider-identity.js": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884",
+        "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
+        "src/request-lifecycle.js": "ad78902faf056c5b3f740cafef2862ea64409eaebaa17dd7f3c6b9560685e7fd",
+        "src/session-webmcp.js": "132374f5df6e13b4f71f5a7f3879e269caff97985ccbfa53fc2df22d3ca26d93",
+        "src/session.js": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153",
+        "src/stream-painter.js": "ab24d9fe6ba79c4f8f4d3b2cb9527f0ea8b54f6f99ab780e0d80bd13fc8cc055",
+        "src/stream.js": "4e6a7d9d938bdcd1b1208b39eba9eb559c19ccada432cf9dffdd07bbc05c3805",
+        "src/transport-evidence.js": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a",
+        "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
+        "src/view-markup.js": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e",
+        "src/view-position.js": "a0bbecc1f19b97f6d99480a11a538936cf23e3c27d4726641101e59055457711",
+        "src/workbench.js": "9e0d5613c2a12200d6ece539ff3bce68b310857d33a2064c019f64fa13161bc3",
+        "src/workspace-storage.js": "261e138eabebb078bc966f1d01ba4a2bf8c84dafb81d82924c089ff43a18a5ee"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-010",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "kind": "relation",
+        "goal": "workspace-storage.declared-effect",
+        "source": "src/workspace-storage.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-010",
+        "version": "0.1.0",
+        "createdAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "entry": "development/hosts/workspace-storage.mjs",
+        "moduleId": "R-010",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-29T20:20:15.658Z",
+      "finishedAt": "2026-10-29T20:20:15.661Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "hydrationBeforeWrites": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/workspace-storage.mjs": "f607184fc6fd962467f0cfd6cae81a81d5b1f382aa90defc1e75f8bfccac092e",
+        "docs/contracts/workspace-storage.json": "cde744ead3c52144b110777eb4c77c78414690537ca9db778a43380a31c7c0a0",
+        "src/workspace-storage.js": "261e138eabebb078bc966f1d01ba4a2bf8c84dafb81d82924c089ff43a18a5ee"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    }
+  ]
+}

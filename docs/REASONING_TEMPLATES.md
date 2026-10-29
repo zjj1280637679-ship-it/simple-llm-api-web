@@ -1,11 +1,14 @@
 # Opt-in reasoning templates
-Verified 2026-10-29. Default is **unspecified**: do not emit thinking, reasoning_effort,
+Local profile snapshot dated 2026-10-29; endpoint evidence scope corrected 2026-10-30.
+Default is **unspecified**: do not emit thinking, reasoning_effort,
 reasoning, output_config, or generationConfig.thinkingConfig. This is not “disable
 thinking”; provider/model defaults remain in effect. No real API test performed.
 
 UI integration: settings.reasoning={template:id,value}. getReasoningTemplates(config)
 returns id,label,protocol, choices + values[{value,label}] for enums, or kind:number,
-min,max,specialValues for budgets. verifiedModel distinguishes curated matches.
+min,max,specialValues for budgets. catalogMatch distinguishes curated matches;
+legacy verifiedModel is a compatibility alias, not a live-verification flag.
+evidence.kind identifies the local profile/manual schema and liveVerified remains false.
 getRecommendedReasoningTemplate returns id only for exact official-host/model matches.
 Unknown/rolling/latest aliases and proxies permit explicit manual selection, with
 no automatic template/value. A template is a request schema, not a guarantee that an
@@ -13,7 +16,7 @@ unknown model supports it. Format-incompatible templates fail before transport.
 
 Current protocols: Gemini generateContent, OpenAI Chat Completions (NOT Responses),
 Ark ordinary Chat, Anthropic Messages API version 2023-06-01. No service-plan route.
-The curated matrix is intentionally a conservative verified subset, not exhaustive;
+The curated matrix is a dated local subset, not an exhaustive capability boundary;
 add newer model entries after checking their vendor documentation.
 Gemini 2.5 uses budgets (special -1 dynamic, zero only where supported); documented
 3.x Flash/Flash-Lite and 4 Argon use levels. Minimal is not guaranteed zero reasoning.
@@ -23,7 +26,10 @@ Anthropic adaptive template emits thinking:type adaptive plus output_config.effo
 manual emits thinking:type enabled plus budget_tokens. 4.5 is manual, supported
 4.6+ adaptive; unknown endpoints are explicitly manual choice. Manual budget must
 be less than max output (default Messages cap4096); never silently raise spend.
-These thought templates constrain incompatible sampling settings locally. They do not
+These thought templates apply the current local sampling profile. In particular,
+omitting Anthropic topP is an implementation choice: some legacy model/API-version
+combinations permit it. This profile does not claim all such combinations are invalid.
+They do not
 enable summaries or tools or change stream/signature/history behavior.
 
 References:

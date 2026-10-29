@@ -19,7 +19,10 @@
     },
     "volc_speech_api_key": {
       "secret_env": "VOLC_SPEECH_API_KEY",
-      "headers": ["X-Api-Key: <secret>", "X-Api-Resource-Id: <resource_id>"],
+      "headers": [
+        "X-Api-Key: <secret>",
+        "X-Api-Resource-Id: <resource_id>"
+      ],
       "base_url": "https://openspeech.bytedance.com",
       "no_implicit_ark_key_fallback": true,
       "note": "Explicit IAM cross-product permission can permit reuse of the same key value; do not infer permission or send Ark Bearer headers.",
@@ -38,8 +41,17 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "currently_recommended_no_retirement_notice_found",
       "docs_url": "https://docs.volcengine.com/docs/ark/model-list?lang=zh&redirect=1",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
-      "experiment": "Short summary with thinking disabled and max_completion_tokens 256; reuse for image/audio/video understanding later."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "Short summary with thinking disabled and max_completion_tokens 256; reuse for image/audio/video understanding later.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://docs.volcengine.com/docs/ark/model-list?lang=zh&redirect=1",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "doubao-seed-2-0-mini-260428",
@@ -52,8 +64,17 @@
       "lifecycle_status": "lts",
       "earliest_retirement_date": "2027-04-30",
       "docs_url": "https://ark.volcengine.com/region:cn-beijing/docs/lts-mechanism",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
-      "experiment": "Short classification/summary; thinking disabled, max_completion_tokens 256, standard service tier."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "Short classification/summary; thinking disabled, max_completion_tokens 256, standard service tier.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://ark.volcengine.com/region:cn-beijing/docs/lts-mechanism",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "doubao-seedream-5-0-flash-260915",
@@ -65,8 +86,17 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "currently_recommended_no_retirement_notice_found",
       "docs_url": "https://ark.volcengine.com/region:cn-beijing/docs/seedream-5-0-pro",
-      "verificationStatus": "official_docs_verified; prior_project_evidence_http_200_2048_png; not_retested_here",
-      "experiment": "One 2K PNG; watermark true; no sequential_image_generation, streaming, search, or layer decomposition."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "One 2K PNG; watermark true; no sequential_image_generation, streaming, search, or layer decomposition.",
+      "historical_verification_report": "official_docs_verified; prior_project_evidence_http_200_2048_png; not_retested_here",
+      "evidence": {
+        "source_url": "https://ark.volcengine.com/region:cn-beijing/docs/seedream-5-0-pro",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "doubao-seedance-2-0-mini-260615",
@@ -81,8 +111,17 @@
       "lifecycle_status": "current_tutorial_and_official_migration_target",
       "docs_url": "https://docs.volcengine.com/docs/ark/seedance-2-0?lang=zh",
       "activation_docs_url": "https://ark.volcengine.com/region:cn-beijing/docs/seedance-model-activation-usage-and-refund",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
-      "experiment": "480p, 16:9, 5 seconds, text only, generate_audio false; never auto-activate paid service or duplicate task submission."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "480p, 16:9, 5 seconds, text only, generate_audio false; never auto-activate paid service or duplicate task submission.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://docs.volcengine.com/docs/ark/seedance-2-0?lang=zh",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "doubao-seedance-2-5-260628",
@@ -94,8 +133,17 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "current_public_api_model",
       "docs_url": "https://ark.volcengine.com/region:cn-beijing/docs/create-video-generation-task-api",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
-      "experiment": "Only when evaluating longer narrative or advanced editing; obtain a separate cost budget."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "Only when evaluating longer narrative or advanced editing; obtain a separate cost budget.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://ark.volcengine.com/region:cn-beijing/docs/create-video-generation-task-api",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "doubao-embedding-vision-251215",
@@ -107,9 +155,18 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "current_tutorial_and_official_migration_target",
       "docs_url": "https://ark.volcengine.com/region:cn-beijing/docs/multimodal-vectorization-api",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
+      "verificationStatus": "historical_report_requires_contextual_recheck",
       "experiment": "Two short same-type texts, dimensions 1024, encoding_format float; dense only; identical STS instructions on both inputs.",
-      "experiment_instructions": "Target_modality: text.\nInstruction:Retrieve semantically similar text\nQuery:"
+      "experiment_instructions": "Target_modality: text.\nInstruction:Retrieve semantically similar text\nQuery:",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://ark.volcengine.com/region:cn-beijing/docs/multimodal-vectorization-api",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "hyper3d-gen2-260112",
@@ -123,8 +180,17 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "current_api_model_no_retirement_notice_found",
       "docs_url": "https://docs.volcengine.com/docs/ark/shadoweye-create-3d-generation-task-api?lang=zh",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
-      "experiment": "Simple object text-to-3D with default GLB and no advanced parameters; read content.file_url."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "Simple object text-to-3D with default GLB and no advanced parameters; read content.file_url.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://docs.volcengine.com/docs/ark/shadoweye-create-3d-generation-task-api?lang=zh",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "doubao-seed3d-2-0-260328",
@@ -136,8 +202,17 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "current_api_model_no_retirement_notice_found",
       "docs_url": "https://ark.volcengine.com/region:cn-beijing/docs/create-3d-generation-task-api",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
-      "experiment": "One owned object image, GLB, subdivision_level low; not a text-only generator."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "One owned object image, GLB, subdivision_level low; not a text-only generator.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://ark.volcengine.com/region:cn-beijing/docs/create-3d-generation-task-api",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "seed-tts-2.0",
@@ -149,8 +224,17 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "listed_current_speech_service_no_retirement_marker",
       "docs_url": "https://docs.volcengine.com/docs/DoubaoVoice/unidirectional-streaming-text-to-speech-http?lang=zh",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
-      "experiment": "20-50 Chinese characters, preset zh_female_vv_uranus_bigtts, MP3 24000 Hz; separate chunked-audio adapter required."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "20-50 Chinese characters, preset zh_female_vv_uranus_bigtts, MP3 24000 Hz; separate chunked-audio adapter required.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://docs.volcengine.com/docs/DoubaoVoice/unidirectional-streaming-text-to-speech-http?lang=zh",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "volc.seedasr.auc",
@@ -164,8 +248,17 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "current_recommended_v2_for_new_users",
       "docs_url": "https://docs.volcengine.com/docs/DoubaoVoice/task-submission-http-1?lang=en",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research",
-      "experiment": "10-30 seconds of owned audio; request.model_name bigmodel; use returned task_id as query X-Api-Request-Id and query until terminal state."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "10-30 seconds of owned audio; request.model_name bigmodel; use returned task_id as query X-Api-Request-Id and query until terminal state.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research",
+      "evidence": {
+        "source_url": "https://docs.volcengine.com/docs/DoubaoVoice/task-submission-http-1?lang=en",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     },
     {
       "id": "volc.bigasr.auc_turbo",
@@ -177,8 +270,30 @@
       "lifecycle_checked_at": "2026-10-29",
       "lifecycle_status": "listed_current_speech_service_no_retirement_marker",
       "docs_url": "https://docs.volcengine.com/docs/doubao-voice/large-model-recording-file-lite-recognition-api?lang=en",
-      "verificationStatus": "official_docs_verified_not_live_tested_in_this_research; price_mapping_uncertain",
-      "experiment": "10 seconds; audio.url or audio.data; inspect X-Api-Status-Code; do not assume standard V2 price."
+      "verificationStatus": "historical_report_requires_contextual_recheck",
+      "experiment": "10 seconds; audio.url or audio.data; inspect X-Api-Status-Code; do not assume standard V2 price.",
+      "historical_verification_report": "official_docs_verified_not_live_tested_in_this_research; price_mapping_uncertain",
+      "evidence": {
+        "source_url": "https://docs.volcengine.com/docs/doubao-voice/large-model-recording-file-lite-recognition-api?lang=en",
+        "source_snapshot": null,
+        "observed_at": "2026-10-29",
+        "live_run": null,
+        "review_after": "2026-11-28",
+        "claim_scope": "catalog metadata; not implementation or account availability"
+      }
     }
-  ]
+  ],
+  "evidence_policy": {
+    "status": "historical-research-assertions",
+    "review_after": "2026-11-28",
+    "source_snapshots_available": false,
+    "live_retested_in_this_update": false,
+    "interpretation": "verificationStatus/lifecycle_status 下述旧字段是带日期的研究报告；不是当前可用性、账号权限、定价或适配能力的证明。缺少原始快照不升级为已核验。",
+    "review_triggers": [
+      "provider/API version change",
+      "model removal or unexpected response",
+      "pricing-sensitive decision",
+      "review_after reached"
+    ]
+  }
 }

@@ -54,6 +54,7 @@ export function createPageSession(handlers) {
     version: 1,
     commands: Object.freeze(Object.keys(SESSION_COMMANDS)),
     async execute(input) {
+      if(handlers.isActive?.()===false)return {ok:false,error:'SESSION_CLOSED'};
       const { command, args } = validateSessionCommand(input);
       const handler = handlers[SESSION_COMMANDS[command]];
       if (typeof handler !== 'function') return { ok: false, error: 'UNSUPPORTED_SESSION_COMMAND' };
@@ -63,6 +64,7 @@ export function createPageSession(handlers) {
         if (command === 'request.send' && (typeof handlers.confirmSend !== 'function' || !await handlers.confirmSend())) {
           return { ok: false, error: 'CONFIRMATION_REQUIRED' };
         }
+        if(handlers.isActive?.()===false)return {ok:false,error:'SESSION_CLOSED'};
         const result = await handler(args);
         return sessionCommandResult(command, result);
       } catch {

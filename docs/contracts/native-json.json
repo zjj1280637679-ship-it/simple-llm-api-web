@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-006",
+    "version": "0.1.0",
+    "createdAt": "2026-10-29T19:15:54.000Z",
+    "updatedAt": "2026-10-29T19:15:54.000Z",
+    "kind": "function",
+    "goal": "native-context.copy-without-semantic-filtering",
+    "source": "src/native-json.js",
+    "lifecycle": "candidate"
+  },
+  "host": {
+    "id": "H-F-006",
+    "version": "0.1.1",
+    "createdAt": "2026-10-29T19:15:54.000Z",
+    "updatedAt": "2026-10-29T20:18:57.630Z",
+    "entry": "development/hosts/native-json.mjs",
+    "moduleId": "F-006",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Finite plain JSON, dense arrays, no Proxy or concurrent mutation",
+    "Depth <= 64, visited nodes <= 100000 per copy",
+    "Caller enforces total snapshot byte budget and submitted-credential collision policy"
+  ],
+  "observations": [
+    "Own business property names and primitive values survive",
+    "Copied branches share no mutable input references",
+    "Unsupported input fails without returning a modified context"
+  ],
+  "tests": [
+    "tests/native-json.test.js",
+    "tests/persistence.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Full F/C/H/Q remain UNKNOWN; local host observations and transitive input fingerprints are separate evidence."
+  ]
+}

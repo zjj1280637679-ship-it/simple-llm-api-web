@@ -1,5 +1,7 @@
 # 供应商与接口格式分离的思考模板
 
+本页保留 2026-10-29 的分阶段设计记录；当前 UI 以末节 family / 强度分层为准。规则匹配属于本地目录证据，新增 catalogMatch / liveVerified 的语义见 [模板说明](REASONING_TEMPLATES.md)，不等于已验收目标账号。
+
 核验时间：2026-10-29T17:04Z。OpenAI-compatible 是请求格式，不表示供应商是 OpenAI。
 
 ## DeepSeek 官方 Chat
@@ -14,7 +16,7 @@
 - `deepseek-effort`：none、low、high、max，映射请求 `reasoning_effort`。none 关闭，其余开启相应强度。
 - `deepseek-thinking`：enabled、disabled，映射 `thinking.type`。只切换模式，不指定强度。
 - API 还兼容部分档位别名，但界面展示实际档位，避免 medium 误导为独立强度。
-- 模板只能选择一个，不同时发相互冲突的开关和强度。
+- 当前 UI 每次选择一个模板，避免未定义的开关/强度优先关系；如需同时控制，应先明确该模型的组合语义再扩展。
 - 未设置保持供应商默认，**不补写开关或强度**。
 - 未识别模型保留 DeepSeek 手选模板并标注未核验。旧 deepseek-chat / deepseek-reasoner 不自动重写、不作为现役模型推荐。
 

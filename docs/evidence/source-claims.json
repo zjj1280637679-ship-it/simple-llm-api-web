@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "policy": "Missing snapshots/receipts stay unknown. Review dates prompt reassessment; they do not establish support or ban usage.",
+  "records": [
+    {
+      "id": "reasoning-templates",
+      "path": "docs/REASONING_TEMPLATES.md",
+      "recordedAt": "2026-10-29",
+      "reviewAfter": "2026-11-28",
+      "sources": [
+        "https://platform.claude.com/docs/en/build-with-claude/thinking",
+        "https://api-docs.deepseek.com/api/create-chat-completion/"
+      ],
+      "sourceSnapshot": null,
+      "liveRun": null,
+      "status": "reference-only"
+    },
+    {
+      "id": "image-presets",
+      "path": "src/image-capabilities.js",
+      "recordedAt": "2026-10-28",
+      "reviewAfter": "2026-11-27",
+      "sources": [
+        "https://ai.google.dev/gemini-api/docs/image-generation",
+        "https://ark.volcengine.com/region:cn-beijing/docs/seedream-5-0-pro"
+      ],
+      "sourceSnapshot": null,
+      "liveRun": null,
+      "status": "historical-local-profile"
+    }
+  ]
+}

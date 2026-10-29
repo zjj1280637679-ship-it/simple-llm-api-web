@@ -1,8 +1,9 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const css=await readFile(new URL('../src/styles.css',import.meta.url),'utf8');
-const app=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
+const app=uiSource;
 test('reflow policy explicitly lets constrained text and action groups wrap',()=>{
  const rules=css.slice(css.indexOf('/* Content-driven reflow:'));
  for(const selector of ['.top{height:auto','.tabs{display:flex;flex-wrap:wrap','.fieldrow{flex-wrap:wrap','.compose-metrics{flex-wrap:wrap','.matrix-pixels,.size-dim{white-space:normal'])assert.ok(rules.includes(selector),selector);

@@ -1,9 +1,10 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
+import {createRequestLifecycle} from '../src/request-lifecycle.js';
+import {createStreamPainter} from '../src/stream-painter.js';
 import {readFile} from 'node:fs/promises';
-const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
-const code=source.slice(source.indexOf('const REQUEST_DEADLINE_MS'),source.indexOf('function applyCurrentTarget'));
+const source=uiSource;
 function setup(){
  const timers=new Map();let id=0,announcements=0;
  const node={dataset:{},style:{setProperty(){}},setAttribute(){announcements++},querySelector:()=>({textContent:''})};
@@ -11,7 +12,7 @@ function setup(){
  const c={Date,Math,AppError:class extends Error{constructor(code,message){super(message);this.code=code}},get:()=>d,app:{querySelector:()=>node},esc:s=>s,
  setInterval:(fn,ms)=>{timers.set(++id,{fn,ms});return id},setTimeout:(fn,ms)=>{timers.set(++id,{fn,ms});return id},
  clearInterval:id=>timers.delete(id),clearTimeout:id=>timers.delete(id)};
- vm.createContext(c);vm.runInContext(code,c);
+ Object.assign(c,createRequestLifecycle({...c,clock:c}));
  return {c,d,timers,node,announcements:()=>announcements};
 }
 test('elapsed waiting changes only delay indication, never infers thinking or failure',()=>{
@@ -49,18 +50,17 @@ test('fixed CSS timeline changes playback rate once per stage without per-tick d
  const spinner={dataset:{},getAnimations:()=>[animation]};
  const d={busy:true,requestPhase:'waiting_headers',requestPhaseAt:Date.now()};
  const node={dataset:{},style:{setProperty(){assert.fail('must not change duration')}},setAttribute(){},querySelector:s=>s==='.api-spinner'?spinner:{textContent:''}};
- const c={Date,Math,get:()=>d,app:{querySelector:()=>node},esc:s=>s};vm.createContext(c);vm.runInContext(code,c);
+ const c={Date,Math,get:()=>d,app:{querySelector:()=>node},esc:s=>s};Object.assign(c,createRequestLifecycle({...c,clock:c}));
  for(let i=0;i<30;i++)c.paintLoading(d);
  assert.deepEqual(calls,[.64]);assert.equal(animation.currentTime,1234);
  d.requestPhase='output';c.paintLoading(d);c.paintLoading(d);
  assert.deepEqual(calls,[.64,1.6]);assert.equal(animation.currentTime,1234);
 });
 test('first streaming delta inserts reply beside the existing spinner, subsequent deltas only paint text',()=>{
- const paint=source.slice(source.indexOf('function paintStream('),source.indexOf('// These phases describe'));
  let reply=null,renders=0,inserts=0;const text={},label={};
  const spinner={closest:()=>({insertAdjacentHTML(){inserts++;reply={querySelector:s=>s==='.reply-text'?text:label}}})};
  const app={scrollHeight:1000,clientHeight:500,scrollTop:500,querySelector:s=>s==='.api-loading'?spinner:reply};
- const d={};const c={recordScrollDiagnostic:()=>{},get:()=>d,app,render:()=>renders++,messageMarkup:()=>'<div></div>'};vm.createContext(c);vm.runInContext('function saveLocal(){}\n'+paint,c);
+ const d={};const c={recordScrollDiagnostic:()=>{},get:()=>d,app,render:()=>renders++,messageMarkup:()=>'<div></div>'};c.paintStream=createStreamPainter({...c,saveLocal(){}});
  for(let i=0;i<20;i++)c.paintStream(d,{id:1,text:'chunk'+i,streaming:true});
  assert.equal(renders,0);assert.equal(inserts,1);assert.equal(app.querySelector('.api-loading'),spinner);assert.equal(text.textContent,'chunk19');
 });

@@ -1,15 +1,21 @@
 {
   "name": "simple-llm-api-web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/reasoning.js && node --check src/stream.js && node --check src/attachments.js && node --check src/usage.js && node --check src/persistence.js && node --check src/app.js && node --check src/core.js && node --check src/agent.js && node --check src/image-capabilities.js && node --check src/logs.js && node --check src/session.js && node --check src/session-webmcp.js && node --check cli.mjs && node --check web-cli.mjs && node --check cli-mcp-transport.mjs && node --check scripts/build.mjs",
+    "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8000",
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "host:native-json": "node development/hosts/native-json.mjs",
+    "host:provider-identity": "node development/hosts/provider-identity.mjs",
+    "review:health": "node scripts/review-health.mjs",
+    "review:evidence": "node scripts/review-evidence.mjs",
+    "hosts": "node scripts/run-hosts.mjs",
+    "review:sources": "node scripts/review-sources.mjs"
   }
 }

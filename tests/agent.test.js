@@ -39,10 +39,25 @@ function sequence(responses, requests = []) {
   assert.equal(requests[2].body.contents[1].parts[0].thoughtSignature, 'opaque-signature');
   assert.equal(requests[2].body.contents[2].parts[0].functionResponse.id, 'call-1');
   assert.equal(requests[2].body.contents[2].parts[0].functionResponse.response.imageCount, 1);
+  const effect = requests[2].body.contents[2].parts[0].functionResponse.response;
+  assert.equal(effect.stage, 'received');
+  assert.deepEqual(effect.checks, {rasterSignature:'matched',decoded:'unknown',delivered:'unknown',goalSatisfied:'unknown'});
   assert.equal(JSON.stringify(requests[2].body).includes(png), false);
   assert.equal(events[0].result.images[0].data, png);
   assert.equal(result.history.length, 4);
   assert.equal(checkpoints.at(-1).length, 4);
+});
+
+test('host delivery failure cannot retrospectively claim that a received image was displayed', async () => {
+  let history;
+  await assert.rejects(runConversation({config,imageConfig,messages,
+    fetchImpl:sequence([gemini([call()]),imageResponse()]),confirmTool:async()=>true,
+    onHistory:value=>{history=value;},onToolResult:()=>{throw new Error('synthetic host delivery failed');}
+  }),/synthetic host delivery failed/);
+  const result=history.at(-1).raw.parts[0].functionResponse.response;
+  assert.equal(result.stage,'received');
+  assert.equal(result.checks.delivered,'unknown');
+  assert.doesNotMatch(result.message,/已交给界面显示/);
 });
 
 test('OpenAI function calls round-trip through the same Gemini image dispatcher', async () => {
@@ -59,7 +74,7 @@ test('OpenAI function calls round-trip through the same Gemini image dispatcher'
   assert.equal(requests[2].options.headers.Authorization, `Bearer ${openai.key}`);
 });
 
-test('duplicate identical calls are confirmed and charged only once', async () => {
+test('current deduplication policy confirms and dispatches identical tool requests once', async () => {
   const requests = []; let confirmations = 0;
   const result = await runConversation({ config, imageConfig, messages,
     confirmTool: async () => { confirmations += 1; return true; },
@@ -262,4 +277,14 @@ test('Ark ordinary text remains tool-free without image configuration', async ()
   });
   assert.equal(result.text, '普通文本');
   assert.equal(requests[0].body.tools, undefined);
+});
+
+test('tool loop checkpoints the host receipt separately from reception without inferring goal success',async()=>{
+ const result=await runConversation({config,imageConfig,messages,
+  fetchImpl:sequence([gemini([call()]),imageResponse(),reply('receipt inspected')]),confirmTool:async()=>true,
+  onToolResult:async()=>({stage:'stored',checks:{decoded:'passed',dimensions:'mismatch',delivered:'workspace',goalSatisfied:'passed'}})
+ });
+ const receipt=result.history[2].raw.parts[0].functionResponse.response;
+ assert.equal(receipt.stage,'stored');assert.equal(receipt.checks.decoded,'passed');assert.equal(receipt.checks.dimensions,'mismatch');
+ assert.equal(receipt.checks.goalSatisfied,'unknown');assert.equal(result.completion.status,'complete');
 });

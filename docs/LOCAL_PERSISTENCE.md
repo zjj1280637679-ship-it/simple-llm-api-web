@@ -1,6 +1,6 @@
 # Local workspace persistence
 
-Local IndexedDB, schema version 1, database scoped to this app's pathname (not the query/cache-buster). There was no prior persistent format to migrate: unsupported future/corrupt snapshots fail closed and are never overwritten. No cloud upload or extra package dependency.
+Local IndexedDB, schema version 1, database scoped to this app's pathname (not the query/cache-buster). There was no prior persistent format to migrate: unsupported future/corrupt snapshots are not used to overwrite the last committed copy. No cloud upload or extra package dependency. This document combines current behavior and dated repair history; current scoped validation is indexed in [VALIDATION](../VALIDATION.md).
 
 Saved: both workspaces' drafts, prepared attachment bytes/metadata, visible messages, native model history (including thought signatures, tool responses and opaque native thinking blocks), model/family settings, independent reply/last-request metrics, selected page and per-page reading position. Generated image bytes are retained, not expired object URLs. Pending streams restore as incomplete and requests are not reissued. Native history only contains the engine's committed checkpoints.
 
@@ -42,3 +42,7 @@ No arbitrary key-length threshold is used. All submitted complete credentials ar
 Regression tests exercise the production input handler character-by-character (`s`, `sk`, `sk-`, complete key), including a standalone `s` signature and a longer `sk-` opaque value; URL/history/attachment bytes remain unchanged. Additional cases cover arbitrary delimiters, longest-first overlapping complete credentials, replacement/clearing after submission, and native-content collisions failing without mutation.
 
 A save-error generation latch prevents an older asynchronous commit from replacing a newer collision/size-limit warning with “saved”; a subsequent valid retry can clear the warning.
+
+## Native property-name integrity (2026-10-30)
+
+Review of `05b78784` found that the generic envelope cleaner still deleted ordinary `constructor`, `__proto__`, `apiKey` and similar keys inside native raw messages, contradicting the preservation goal above. Native raw now passes through the independent F-006 bounded JSON copier in both snapshot creation and import. Envelope/config allowlists remain separate. A known submitted credential appearing in either a native value or property name rejects the new snapshot; a field name alone does not classify its value as secret. Non-JSON data fails explicitly. This preserves JSON data semantics, not arbitrary JavaScript objects or original wire bytes. Earlier removed fields cannot be reconstructed without an intact source/backup.

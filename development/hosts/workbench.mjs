@@ -1,0 +1,6 @@
+import assert from 'node:assert/strict';
+import {createWorkbench} from '../../src/workbench.js';
+import {report} from './report.mjs';
+await report('workbench',async()=>{
+  let load,closed=0;const events=new Map();const app={innerHTML:'',querySelector:()=>null,addEventListener:(k,v)=>events.set(k,v),removeEventListener:(k,v)=>{if(events.get(k)===v)events.delete(k);}};const document={getElementById:()=>app,activeElement:null};const window={};const host=createWorkbench({document,window,services:{registerTools:()=>({available:false}),createStore:()=>({load:()=>new Promise(r=>load=r),journal(){},schedule(){},close:()=>closed++})}});assert.equal(window.llmWorkbench,undefined);assert.match(app.innerHTML,/恢复本机数据/);load(null);await host.ready;assert.match(app.innerHTML,/id="draft"/);assert.ok(window.llmWorkbench);await host.session.execute({command:'draft.set',args:{text:'host input'}});assert.equal(host.data.chat.draft,'host input');host.dispose();assert.equal(window.llmWorkbench,undefined);assert.equal(closed,1);assert.equal((await host.session.execute({command:'draft.set',args:{text:'late'}})).error,'SESSION_CLOSED');return {fullInitialization:true,sessionAfterReady:true,disposedSessionInert:true};
+});

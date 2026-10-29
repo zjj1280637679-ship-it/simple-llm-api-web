@@ -1,15 +1,15 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
+import {createCanvasGeometry} from '../src/canvas-geometry.js';
 import {readFile} from 'node:fs/promises';
-const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
-const code=source.slice(source.indexOf('function captureScrollGeometry('),source.indexOf('function syncFloatingNavigation('));
+const source=uiSource;
 function mount(){
  let y=2600,height=3400;const calls=[];
  const nav={contains:()=>false,getBoundingClientRect:()=>({bottom:80})};
  const composer={contains:()=>false,getBoundingClientRect:()=>({top:650})};
  const app={get scrollTop(){return y},set scrollTop(v){y=Math.max(0,Math.min(v,height-800))},get scrollHeight(){return height},clientHeight:800,contains:t=>Boolean(t.inside),classList:{contains:()=>false},querySelector:s=>s==='.top'?nav:composer,scrollBy:o=>{calls.push(o.top);app.scrollTop+=o.top;}};
- const c={app,recordScrollDiagnostic:()=>{},window:{innerHeight:800},Math,Number};vm.createContext(c);vm.runInContext(code,c);
+ const c={app,recordScrollDiagnostic:()=>{},window:{innerHeight:800},Math,Number};Object.assign(c,createCanvasGeometry(c));
  return {app,c,calls,setHeight:v=>{height=v;},field:(top,bottom)=>({inside:true,matches:()=>true,closest:()=>null,getBoundingClientRect:()=>({top,bottom})})};
 }
 test('repeated viewport focus checks after send ignore body, detached nodes and non-controls',()=>{

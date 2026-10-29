@@ -1,9 +1,10 @@
+import {uiSource} from './support/ui-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import vm from 'node:vm';
+import {createCanvasGeometry} from '../src/canvas-geometry.js';
 import {canonicalEndpoint,generateText} from '../src/core.js';
-const app=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
+const app=uiSource;
 const css=await readFile(new URL('../src/styles.css',import.meta.url),'utf8');
 test('configuration strings use soft-wrapped labelled textareas, keys stay single-line',()=>{
  for(const key of ['url','model']){
@@ -18,9 +19,8 @@ test('configuration strings use soft-wrapped labelled textareas, keys stay singl
  assert.match(css,/\.fieldrow>\.setting-text\{[^}]*overflow-wrap:anywhere/);
 });
 test('autosizing expands and shrinks without writing value or selection',()=>{
- const fn=app.slice(app.indexOf('function resizeSettingField('),app.indexOf('function syncSettingFields('));
  const ctx={getComputedStyle:()=>({borderTopWidth:'1px',borderBottomWidth:'1px'})};
- vm.createContext(ctx);vm.runInContext(fn+';this.resize=resizeSettingField',ctx);
+ ctx.resize=createCanvasGeometry(ctx).resizeSettingField;
  const field={matches:()=>true,style:{},scrollHeight:86,value:'https://example.com/'+ 'long'.repeat(20),selectionStart:4,selectionEnd:8};
  const original=field.value;
  ctx.resize(field);assert.equal(field.style.height,'88px');
