@@ -23,7 +23,7 @@ test('unit: exports and immutability of constants', () => {
   assert(SUBSET_KEYWORDS.includes('$ref'));
   assert(SUBSET_KEYWORDS.includes('$defs'));
 
-  assert.deepEqual([...GEMINI_UNSUPPORTED_KEYWORDS], ['$ref', '$defs', 'anyOf', 'oneOf', 'allOf']);
+  assert.deepEqual([...GEMINI_UNSUPPORTED_KEYWORDS], ['$ref', '$defs', 'oneOf', 'allOf', 'additionalProperties']);
   assert.deepEqual(
     [...ALLOWED_TYPES],
     ['object', 'string', 'number', 'integer', 'boolean', 'array', 'null'],
@@ -156,7 +156,8 @@ test('property: valid subset schema passes through buildStructuredOutputFields l
         items: { type: 'string' },
       },
     },
-    required: ['title'],
+    required: ['title', 'count', 'items'],
+    additionalProperties: false,
   };
 
   const expectedNormalized = normalizeSchema(schema);
@@ -167,8 +168,10 @@ test('property: valid subset schema passes through buildStructuredOutputFields l
   const arkOut = buildStructuredOutputFields('ark', { schema });
   assert.deepEqual(arkOut.response_format.json_schema.schema, expectedNormalized);
 
-  const geminiOut = buildStructuredOutputFields('gemini', { schema });
-  assert.deepEqual(geminiOut.generationConfig.responseSchema, expectedNormalized);
+  const { additionalProperties, ...geminiInput } = schema;
+  const geminiOut = buildStructuredOutputFields('gemini', { schema: geminiInput });
+  assert.equal(geminiOut.generationConfig.responseSchema.type, 'OBJECT');
+  assert.equal(geminiOut.generationConfig.responseSchema.properties.items.items.type, 'STRING');
 });
 
 test('property: normalizeSchema does not mutate input object', () => {
@@ -427,8 +430,7 @@ test('unit: validateSchemaSubset enforces gemini protocol restrictions', () => {
       },
     },
   }, 'gemini');
-  assert.equal(geminiAnyOf.ok, false);
-  assert(geminiAnyOf.errors.some(e => e.includes('Keyword "anyOf"') && e.includes('not supported by gemini protocol')));
+  assert.equal(geminiAnyOf.ok, true);
 
   const geminiRef = validateSchemaSubset({
     type: 'object',
@@ -480,8 +482,7 @@ test('unit: validateSchemaSubset accepts comprehensive valid schemas', () => {
       },
       home: { $ref: '#/$defs/Address' },
       notes: {
-        type: 'string',
-        nullable: true,
+        anyOf: [{ type: 'string' }, { type: 'null' }],
         title: 'Notes',
         description: 'Optional user notes',
       },
@@ -546,6 +547,8 @@ test('unit: buildStructuredOutputFields handles defaults, strict flags, and prot
     properties: {
       greeting: { type: 'string' },
     },
+    required: ['greeting'],
+    additionalProperties: false,
   };
 
   // OpenAI defaults
@@ -576,15 +579,16 @@ test('unit: buildStructuredOutputFields handles defaults, strict flags, and prot
   assert.equal(arkOut.response_format.json_schema.strict, true);
 
   // Gemini returns generationConfig without name or strict
+  const { additionalProperties, ...geminiInput } = schema;
   const geminiOut = buildStructuredOutputFields('gemini', {
-    schema,
+    schema: geminiInput,
     name: 'should_be_ignored',
     strict: false,
   });
   assert.deepEqual(geminiOut, {
     generationConfig: {
       responseMimeType: 'application/json',
-      responseSchema: normalizeSchema(schema),
+      responseSchema: { type: 'OBJECT', properties: { greeting: { type: 'STRING' } }, required: ['greeting'] },
     },
   });
   assert.equal(geminiOut.response_format, undefined);
@@ -594,10 +598,7 @@ test('unit: buildStructuredOutputFields handles defaults, strict flags, and prot
   assert.deepEqual(buildStructuredOutputFields(null, { schema }), {});
 
   // Omitted parameters default safely
-  const bareOpenAi = buildStructuredOutputFields('openai');
-  assert.equal(bareOpenAi.response_format.json_schema.name, 'structured_output');
-  assert.equal(bareOpenAi.response_format.json_schema.strict, true);
-  assert.equal(bareOpenAi.response_format.json_schema.schema, undefined);
+  assert.throws(() => buildStructuredOutputFields('openai'), /JSON data/);
 });
 
 test('unit: parseStructuredResult extracts text and parses valid JSON', () => {

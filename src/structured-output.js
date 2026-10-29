@@ -29,9 +29,9 @@ export const SUBSET_KEYWORDS = Object.freeze([
 export const GEMINI_UNSUPPORTED_KEYWORDS = Object.freeze([
   '$ref',
   '$defs',
-  'anyOf',
   'oneOf',
   'allOf',
+  'additionalProperties',
 ]);
 
 export const ALLOWED_TYPES = Object.freeze([
@@ -47,24 +47,58 @@ export const ALLOWED_TYPES = Object.freeze([
 const SUBSET_KEYWORD_SET = new Set(SUBSET_KEYWORDS);
 const ALLOWED_TYPES_SET = new Set(ALLOWED_TYPES);
 
-const isPlainObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const isPlainObject = value => value !== null && typeof value === 'object' &&
+  (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+const setOwn = (target, key, value) => Object.defineProperty(target, key,
+  { value, enumerable: true, writable: true, configurable: true });
+
+// JSON-data boundary. Repeated aliases are safe; only active recursion is a cycle.
+// Bounds protect this recursive implementation, not a provider's schema quota.
+function assertJsonData(value, active = new WeakSet(), state = { count: 0 }, depth = 0) {
+  if (++state.count > 100000 || depth > 100) throw new TypeError('JSON data exceeds local traversal bounds');
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
+  if (typeof value === 'number' && Number.isFinite(value)) return;
+  if (typeof value !== 'object' || (!Array.isArray(value) && !isPlainObject(value)))
+    throw new TypeError('Expected finite, plain JSON data');
+  if (active.has(value)) throw new TypeError('Circular JSON data');
+  if (Object.getOwnPropertySymbols(value).length) throw new TypeError('Symbol keys are not JSON data');
+  if (Array.isArray(value) && value.length > 100000) throw new TypeError('JSON data exceeds local traversal bounds');
+  for (const key of Object.getOwnPropertyNames(value)) {
+    if (Array.isArray(value) && key === 'length') continue;
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor.enumerable || !('value' in descriptor)) throw new TypeError('Non-JSON property descriptor');
+    if (Array.isArray(value) && (!/^(0|[1-9][0-9]*)$/.test(key) || Number(key) >= value.length)) throw new TypeError('Extra array properties are not JSON data');
+  }
+  active.add(value);
+  const keys = Array.isArray(value) ? Array.from({ length: value.length }, (_, i) => String(i)) : Object.keys(value);
+  for (const key of keys) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !('value' in descriptor)) throw new TypeError('Sparse arrays/accessors are not JSON data');
+    assertJsonData(descriptor.value, active, state, depth + 1);
+  }
+  active.delete(value);
+}
+
 
 function deepCopyAndSort(value, seen = new WeakSet()) {
   if (value === null || typeof value !== 'object') {
     return value;
   }
   if (seen.has(value)) {
-    return Array.isArray(value) ? [] : {};
+    throw new TypeError('Circular JSON data');
   }
   seen.add(value);
   if (Array.isArray(value)) {
-    return value.map(item => deepCopyAndSort(item, seen));
+    const result = value.map(item => deepCopyAndSort(item, seen));
+    seen.delete(value);
+    return result;
   }
   const result = {};
   const keys = Object.keys(value).sort();
   for (const key of keys) {
-    result[key] = deepCopyAndSort(value[key], seen);
+    setOwn(result, key, deepCopyAndSort(value[key], seen));
   }
+  seen.delete(value);
   return result;
 }
 
@@ -72,12 +106,17 @@ function deepCopyAndSort(value, seen = new WeakSet()) {
  * Recursively normalizes a JSON schema by lexicographically sorting object keys
  * and stripping keywords outside the supported subset.
  */
-export function normalizeSchema(schema, seen = new WeakSet()) {
+export function normalizeSchema(schema) {
+  assertJsonData(schema);
+  return normalizeNode(schema, new WeakSet());
+}
+
+function normalizeNode(schema, seen) {
   if (!isPlainObject(schema)) {
     return deepCopyAndSort(schema);
   }
   if (seen.has(schema)) {
-    return {};
+    throw new TypeError('Circular JSON data');
   }
   seen.add(schema);
 
@@ -89,33 +128,33 @@ export function normalizeSchema(schema, seen = new WeakSet()) {
       const normProps = {};
       const propKeys = Object.keys(value).sort();
       for (const propKey of propKeys) {
-        normProps[propKey] = normalizeSchema(value[propKey], seen);
+        setOwn(normProps, propKey, normalizeNode(value[propKey], seen));
       }
       result.properties = normProps;
     } else if (key === '$defs' && isPlainObject(value)) {
       const normDefs = {};
       const defKeys = Object.keys(value).sort();
       for (const defKey of defKeys) {
-        normDefs[defKey] = normalizeSchema(value[defKey], seen);
+        setOwn(normDefs, defKey, normalizeNode(value[defKey], seen));
       }
       result.$defs = normDefs;
     } else if (key === 'items') {
       if (Array.isArray(value)) {
-        result.items = value.map(item => normalizeSchema(item, seen));
+        result.items = value.map(item => normalizeNode(item, seen));
       } else if (isPlainObject(value)) {
-        result.items = normalizeSchema(value, seen);
+        result.items = normalizeNode(value, seen);
       } else {
         result.items = deepCopyAndSort(value, seen);
       }
     } else if (key === 'additionalProperties') {
       if (isPlainObject(value)) {
-        result.additionalProperties = normalizeSchema(value, seen);
+        result.additionalProperties = normalizeNode(value, seen);
       } else {
         result.additionalProperties = deepCopyAndSort(value, seen);
       }
     } else if (key === 'anyOf' || key === 'oneOf' || key === 'allOf') {
       if (Array.isArray(value)) {
-        result[key] = value.map(item => normalizeSchema(item, seen));
+        result[key] = value.map(item => normalizeNode(item, seen));
       } else {
         result[key] = deepCopyAndSort(value, seen);
       }
@@ -123,14 +162,16 @@ export function normalizeSchema(schema, seen = new WeakSet()) {
       result[key] = deepCopyAndSort(value, seen);
     }
   }
+  seen.delete(schema);
   return result;
 }
 
 /**
  * Validates that a schema adheres to the supported JSON Schema subset for the target protocol.
  */
-export function validateSchemaSubset(schema, protocol) {
+export function validateSchemaSubset(schema, protocol, { strict = false } = {}) {
   const errors = [];
+  try { assertJsonData(schema); } catch (error) { return { ok: false, errors: [error.message] }; }
   if (protocol !== 'gemini' && protocol !== 'openai' && protocol !== 'ark') {
     errors.push(`Unsupported protocol: "${protocol}". Expected "gemini", "openai", or "ark".`);
   }
@@ -172,6 +213,21 @@ export function validateSchemaSubset(schema, protocol) {
       }
     }
 
+    if (protocol === 'openai') {
+      for (const key of ['oneOf', 'allOf', 'nullable', 'default']) {
+        if (Object.hasOwn(node, key)) errors.push(`Keyword "${key}" at ${path} is outside this OpenAI candidate profile.`);
+      }
+      if (strict && (node.type === 'object' || Object.hasOwn(node, 'properties'))) {
+        if (node.additionalProperties !== false) errors.push(`OpenAI strict requires additionalProperties:false at ${path}.`);
+        const names = isPlainObject(node.properties) ? Object.keys(node.properties) : [];
+        if (!Array.isArray(node.required) || names.some(key => !node.required.includes(key)))
+          errors.push(`OpenAI strict requires every property in required at ${path}.`);
+      }
+      if (path === '$' && Object.hasOwn(node, 'anyOf')) errors.push('OpenAI root anyOf is not supported.');
+    }
+    if (protocol === 'ark' && Object.hasOwn(node, 'nullable'))
+      errors.push(`Keyword "nullable" at ${path} has no verified Ark support; use a null union.`);
+
     // Type validation
     if ('type' in node && node.type !== undefined) {
       if (typeof node.type !== 'string' || !ALLOWED_TYPES_SET.has(node.type)) {
@@ -200,6 +256,7 @@ export function validateSchemaSubset(schema, protocol) {
       if (!Array.isArray(node.required)) {
         errors.push(`"required" at ${path}.required must be an array of strings.`);
       } else {
+        if (new Set(node.required).size !== node.required.length) errors.push(`Duplicate required entries at ${path}.`);
         const declaredKeys = isPlainObject(node.properties) ? new Set(Object.keys(node.properties)) : new Set();
         for (let i = 0; i < node.required.length; i++) {
           const item = node.required[i];
@@ -236,12 +293,15 @@ export function validateSchemaSubset(schema, protocol) {
       }
     }
 
+    if (protocol === 'gemini' && Array.isArray(node.enum) && node.enum.some(value => typeof value !== 'string'))
+      errors.push(`Gemini responseSchema enum must contain strings at ${path}.`);
+
     // $ref validation
     if ('$ref' in node && node.$ref !== undefined) {
       if (typeof node.$ref !== 'string') {
         errors.push(`"$ref" at ${path}.$ref must be a string.`);
       } else {
-        const match = /^#\/\$defs\/([^/#]+)$/.exec(node.$ref);
+        const match = /^#\/\$defs\/([^/#~%]+)$/.exec(node.$ref);
         if (!match) {
           errors.push(`"$ref" at ${path}.$ref must follow format "#/$defs/<name>".`);
         } else {
@@ -272,8 +332,8 @@ export function validateSchemaSubset(schema, protocol) {
     // Combinators validation (anyOf, oneOf, allOf)
     for (const comb of ['anyOf', 'oneOf', 'allOf']) {
       if (comb in node && node[comb] !== undefined) {
-        if (!Array.isArray(node[comb])) {
-          errors.push(`"${comb}" at ${path}.${comb} must be an array of schemas.`);
+        if (!Array.isArray(node[comb]) || node[comb].length === 0) {
+          errors.push(`"${comb}" at ${path}.${comb} must be a non-empty array of schemas.`);
         } else {
           for (let i = 0; i < node[comb].length; i++) {
             const subSchema = node[comb][i];
@@ -311,6 +371,9 @@ export function validateSchemaSubset(schema, protocol) {
         }
       }
     }
+    for (const [min, max] of [['minimum', 'maximum'], ['minLength', 'maxLength'], ['minItems', 'maxItems']]) {
+      if (typeof node[min] === 'number' && typeof node[max] === 'number' && node[min] > node[max]) errors.push(`Contradictory ${min}/${max} at ${path}.`);
+    }
     for (const strKey of ['pattern', 'format', 'title', 'description']) {
       if (strKey in node && node[strKey] !== undefined) {
         if (typeof node[strKey] !== 'string') {
@@ -342,13 +405,18 @@ export function buildStructuredOutputFields(protocol, {schema, name, strict} = {
   if (protocol !== 'openai' && protocol !== 'ark' && protocol !== 'gemini') {
     return {};
   }
+  const validation = validateSchemaSubset(schema, protocol, { strict: strict !== false });
+  if (!validation.ok) throw new TypeError(validation.errors.join('\n'));
+  if (name !== undefined && (typeof name !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(name)))
+    throw new TypeError('Schema name must contain 1–64 letters, digits, underscores or hyphens');
+  if (strict !== undefined && typeof strict !== 'boolean') throw new TypeError('strict must be boolean');
   const normalized = normalizeSchema(schema);
   if (protocol === 'gemini') {
     // Gemini does not support name or strict parameters; only responseMimeType and responseSchema.
     return {
       generationConfig: {
         responseMimeType: 'application/json',
-        responseSchema: normalized,
+        responseSchema: geminiSchema(normalized),
       },
     };
   }
@@ -362,6 +430,23 @@ export function buildStructuredOutputFields(protocol, {schema, name, strict} = {
       },
     },
   };
+}
+
+
+// responseSchema is the Gemini OpenAPI Schema message, not responseJsonSchema.
+function geminiSchema(node) {
+  const out = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'type') setOwn(out, key, value.toUpperCase());
+    else if (key === 'properties') {
+      const properties = {};
+      for (const [name, child] of Object.entries(value)) setOwn(properties, name, geminiSchema(child));
+      setOwn(out, key, properties);
+    } else if (key === 'items') setOwn(out, key, geminiSchema(value));
+    else if (key === 'anyOf') setOwn(out, key, value.map(geminiSchema));
+    else setOwn(out, key, value);
+  }
+  return out;
 }
 
 /**
@@ -378,6 +463,8 @@ export function parseStructuredResult(protocol, responseJson) {
   let text;
   if (protocol === 'gemini') {
     const candidate = responseJson.candidates?.[0];
+    if (candidate?.finishReason !== undefined && candidate.finishReason !== 'STOP')
+      return { ok: false, error: 'incomplete or blocked response' };
     const parts = candidate?.content?.parts;
     if (!Array.isArray(parts)) {
       return { ok: false, error: 'no text payload' };
@@ -390,6 +477,9 @@ export function parseStructuredResult(protocol, responseJson) {
     // Both 'openai' and 'ark' use the OpenAI chat completions format
     const choice = responseJson.choices?.[0];
     const message = choice?.message;
+    if (message?.refusal) return { ok: false, error: 'model refusal' };
+    if (choice?.finish_reason !== undefined && choice.finish_reason !== 'stop')
+      return { ok: false, error: 'incomplete or blocked response' };
     if (!isPlainObject(message) || typeof message.content !== 'string') {
       return { ok: false, error: 'no text payload' };
     }
