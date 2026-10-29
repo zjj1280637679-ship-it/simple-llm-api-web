@@ -174,6 +174,14 @@ export async function validateTestResources(registry, root = ROOT) {
         Date.parse(manifest.updatedAt) < Date.parse(manifest.createdAt) ||
         manifest.evidenceType !== 'SIMULATED' || manifest.realApiCalled !== false)
       throw Error('Invalid test resource manifest: ' + entry.id);
+    if (['configurationApiVersion','configurationSchemaVersion','configurationEntry'].some(key=>Object.hasOwn(manifest,key))) {
+      if (!stableVersion.test(manifest.configurationApiVersion) || manifest.configurationSchemaVersion !== '1.0.0' ||
+          typeof manifest.configurationEntry !== 'string' || !manifest.configurationEntry.endsWith('.mjs'))
+        throw Error('Invalid configuration API contract');
+      const base = dirname(entry.manifest);
+      const target = relative(root, inside(resolve(root, base), manifest.configurationEntry)).split(sep).join('/');
+      await regular(root, target);
+    }
     if (!Array.isArray(manifest.fixtures) || !manifest.fixtures.length ||
         !Array.isArray(manifest.scenarios) || !manifest.scenarios.length) throw Error('Missing resource fixtures or scenarios');
     const fixtures = new Map(), scenarios = new Set();
@@ -324,7 +332,7 @@ export async function inputHashes(root = ROOT) {
   }
   // Deliberately conservative: changes anywhere in these inputs stale the local batch.
   for (const name of ['src','tests','module-library','package.json','scripts/build.mjs',
-    'scripts/module-library.mjs','scripts/module-host.mjs','cli.mjs','web-cli.mjs','cli-mcp-transport.mjs',
+    'scripts/module-library.mjs','scripts/module-host.mjs','scripts/gemini-simulator.mjs','cli.mjs','web-cli.mjs','cli-mcp-transport.mjs',
     'README.md','VALIDATION.md','WEB_SESSION.md','design/REQUIREMENTS.md']) await walk(name);
   // Follow literal local ESM imports, including files newly added outside src/.
   const visited = new Set();

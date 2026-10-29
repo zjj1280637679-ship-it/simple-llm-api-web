@@ -82,7 +82,11 @@ export function createSimulatorCore({fixture, revision, parameters = {}, clock =
       let settled=false,timer;
       const finish=(kind,value)=>{
         if (settled) return;
-        settled=true; pending--; if(timer!==undefined) scheduler.clearTimeout(timer);
+        settled=true; pending--;
+        if(timer!==undefined) {
+          try { scheduler.clearTimeout(timer); }
+          catch { kind='delivery-error'; value=new SimulatorError('SIMULATOR_CONFIGURATION',['scheduler.cleanup']); }
+        }
         request.signal?.removeEventListener('abort',abort); cleanups.delete(dispose);
         event(sequence,kind,kind==='response'?{status:response.status}:{});
         if (kind==='response') resolve(value); else reject(value);

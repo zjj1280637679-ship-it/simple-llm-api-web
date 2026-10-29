@@ -186,3 +186,29 @@ Google 当前同时提供较新的 Interactions 协议。本 MVP 有意使用仍
 [模块目录与借用指南](module-library/README.md)将功能、关系和组合分别收录。首批六个独立入口复用唯一生产实现，附契约、条件、测试和已知限制。`npm run modules:list` 可按目标/类型/标签查找，`npm run modules:check` 检查证据指纹，`npm run modules:verify` 复现局部实验。修改后先评审，再用 `npm run modules:record` 刷新通过的本地证据；它不会将 F/C/H/Q 自动升级为通过。
 
 该目录不进入 Pages 的 11 文件运行产物。历史真实 Ark 图片成功保留具体场景范围，不转写为所有构件完整准入。
+
+### 可调 Gemini 模拟后台（开发态 v0.2）
+
+已提供**本地配置 API + CLI**，不是在线服务器或网页管理界面。可改输出预设、预设匹配/成功/模拟缓存命中率、延迟、非流式生成速度；可重置运行状态、恢复默认或历史配置。所有响应为 `SIMULATED`，不使用真实 Key、不连接 Google、不进入 Pages 产物。
+
+```sh
+# 创建/恢复 text.ok 预设；每次修改追加新版本和 UTC 时间，旧版本不覆盖
+npm run simulator -- restore --profile demo --scenario text.ok
+# 设置请求提示词、固定返回文本、人工 usage、延迟和生成速度
+npm run simulator -- set --profile demo --json '{"parameters":{"prompt":"你好"},"output":{"presets":[{"id":"default","matchPrompt":null,"text":"这是可调的模拟回复。","usage":{"promptTokenCount":10,"candidatesTokenCount":40,"totalTokenCount":50}}]},"timing":{"latencyMs":150,"tokensPerSecond":20},"seed":42}'
+# 分开设置三个概率（0~1），seed + sample-index 决定可回放的抽样
+npm run simulator -- set --profile demo --json '{"probabilities":{"presetHit":0.8,"success":0.95,"cacheHit":0.3}}'
+npm run simulator -- replay --profile demo --sample-index 7
+npm run simulator -- reset --profile demo        # 新建空运行实例，不改配置、不影响其他运行
+npm run simulator -- show --profile demo
+npm run simulator -- history --profile demo
+npm run simulator -- restore --profile demo --revision 1  # 将旧配置另存成新版本
+npm run simulator -- save --profile demo --file /tmp/gemini-demo-export.json
+npm run simulator -- load --profile another --file /tmp/gemini-demo-export.json
+```
+
+- 默认历史在已忽略的 `output/gemini-simulator-profiles/`；`--dir` 可指定外部目录。导出目标必须不存在，避免覆盖。
+- 每次运行固定启动时的配置版本/hash/seed/sampleIndex；运行中改设置只影响之后启动的实例。
+- 这里“命中”暂拆为**选定预设匹配率、HTTP 成功比例、模拟缓存命中率**三个独立控制，不代表真实模型/缓存命中。详细匹配、回退和错误规则见[配置契约](module-library/test-resources/gemini-native/CONFIGURATION.md)。
+- 当前是非流式 JSON：上例成功回复耗时模型为 `150 + 40/20×1000 = 2150 ms`，不是逐 token/SSE。CLI 回放用虚拟时钟直接展示该逻辑耗时，不让终端实际等待；API 可显式注入真实计时器。
+- `replay` 是 fixture 传输预览，明确输出 `adapterVerified:false`；实际生产适配器兼容由测试另行验证。管理界面、HTTP 服务和流式输出尚未实现。

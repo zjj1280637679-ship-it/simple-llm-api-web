@@ -1,12 +1,12 @@
 {
   "resourceId": "TR-GEMINI-001",
-  "resourceVersion": "0.1.0",
+  "resourceVersion": "0.2.0",
   "schemaVersion": "1.0.0",
   "createdAt": "2026-10-29T07:41:45.598Z",
-  "updatedAt": "2026-10-29T07:52:40.473Z",
-  "builtAt": "2026-10-29T07:52:40.473Z",
+  "updatedAt": "2026-10-29T08:18:05.932Z",
+  "builtAt": "2026-10-29T08:18:05.932Z",
   "simulatorId": "gemini-rest-simulator",
-  "simulatorVersion": "0.1.0",
+  "simulatorVersion": "0.2.0",
   "fixtureSchemaVersion": "1.0.0",
   "fixtureSetVersion": "1.0.0",
   "protocolSnapshot": "gemini-developer-v1beta-generateContent@2026-10-29",
@@ -297,5 +297,8 @@
   "limits": [
     "Synthetic local protocol subset only; never a real API verification.",
     "No network fallback, streaming, server cancellation, model quality or account availability verification."
-  ]
+  ],
+  "configurationApiVersion": "0.2.0",
+  "configurationSchemaVersion": "1.0.0",
+  "configurationEntry": "configuration.mjs"
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — 2026-10-29 (configuration candidate)
+
+- Add local editable profile API/CLI, versioned UTC/hash-linked append-only snapshots, isolated pinned runtimes, reset and preset/historical restore.
+- Editable text presets/match/fallback/error, scoped usage/HTTP overrides, separate seeded hit/success/synthetic-cache controls and explicit sample index.
+- Explicit latency versus non-streaming generation-duration speed; no SSE, HTTP server, manager UI or real cache implied.
+- Keep all 17 fixture bytes/scenario versions unchanged and original fixture API compatible; resource lock bumps to 0.2.0, H-F-002 to 0.2.1.
+- Timer cleanup exceptions settle and latch instead of leaving active work stuck. Production modules/src/Pages stay unchanged.
+
 ## 0.1.0 — 2026-10-29 (initial candidate)
 
 - M0 strict fixture oracle, zero-network injected transport, original Gemini adapter and H-F-002 resource-locked evidence.

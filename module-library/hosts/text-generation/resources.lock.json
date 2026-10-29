@@ -3,7 +3,7 @@
   "resources": [
     {
       "resourceId": "TR-GEMINI-001",
-      "resourceVersion": "0.1.0",
+      "resourceVersion": "0.2.0",
       "scenarioId": "text.ok",
       "scenarioVersion": "1.0.0",
       "fixtureSetVersion": "1.0.0",

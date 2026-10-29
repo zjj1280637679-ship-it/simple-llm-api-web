@@ -1,6 +1,10 @@
 # TR-GEMINI-001 · Gemini native REST simulator
 
-**Resource 0.1.0 · SIMULATED · no real API calls.** Versions and UTC millisecond creation/update times are authoritative in [manifest.json](manifest.json). This is a reusable test resource, not a new F/R/C module or a seventh host. Target protocol: Gemini Developer API `v1beta`, `generateContent`, JSON camelCase; not Vertex or Interactions.
+**Resource 0.2.0 · SIMULATED · no real API calls.** Versions and UTC millisecond creation/update times are authoritative in [manifest.json](manifest.json). This is a reusable test resource, not a new F/R/C module or a seventh host. Target protocol: Gemini Developer API `v1beta`, `generateContent`, JSON camelCase; not Vertex or Interactions.
+
+## Editable profiles (new in 0.2.0)
+
+[Configuration API / CLI contract](CONFIGURATION.md): editable text presets, exact preset matching/fallback, separate seeded success/preset/cache rates, latency and non-streaming token-rate duration; immutable UTC/hash-linked history, runtime reset and preset/historical restore. `npm run simulator -- help` shows management commands. This is a local reusable backend layer, not an HTTP service or browser UI.
 
 ## Run
 
@@ -25,7 +29,7 @@ const evidence = sim.assertComplete();
 
 ## Closed request contract
 
-- Every step has its own literal method, exact URL/query, exact normalized headers, and structural JSON body. Fixture oracles do **not** import production request builders. Only the declared `prompt` parameter is bindable in text scenarios; all responses stay fixed.
+- Every step has its own literal method, exact URL/query, exact normalized headers, and structural JSON body. Fixture oracles do **not** import production request builders. Only the declared `prompt` parameter is bindable in text scenarios; the original fixture API keeps responses fixed. The opt-in [configuration API](CONFIGURATION.md) derives scoped editable responses without changing fixture bytes.
 - Only `SIMULATOR_ONLY_NOT_A_REAL_KEY` is accepted. Key-in-query, Authorization, unknown URLs, extra calls and body/header mismatches fail closed; there is no real fetch reference or fallback. The resource never overrides global fetch. Tests/hosts alone install a fail-on-use network guard.
 - Contract mistakes throw `SIMULATOR_REQUEST_MISMATCH`, do not consume the expected step, and permanently latch an assertion failure even if a caller later sends the correct request. Diffs contain field names, not submitted values, prompt text, URLs or keys.
 - Intentional HTTP errors are separate registered scenarios and **resolve** native `Response` objects with a synthetic Google-style error envelope. Network failure rejects. The production adapter intentionally maps transport exceptions to `NETWORK`, so inspect the simulator's failure latch to distinguish harness errors.

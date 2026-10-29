@@ -72,7 +72,7 @@
       "id": "F-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z",
+      "updatedAt": "2026-10-29T08:16:42.420Z",
       "kind": "function",
       "title": "文本请求与协议适配",
       "goal": "text.request-response",
@@ -92,7 +92,8 @@
         "tests/core.test.js",
         "tests/module-library.test.js",
         "tests/module-hosts.test.js",
-        "tests/gemini-simulator.test.js"
+        "tests/gemini-simulator.test.js",
+        "tests/gemini-configuration.test.js"
       ],
       "gates": {
         "F": {
@@ -130,7 +131,7 @@
       "dependencies": [],
       "host": {
         "id": "H-F-002",
-        "version": "0.2.0"
+        "version": "0.2.1"
       }
     },
     {

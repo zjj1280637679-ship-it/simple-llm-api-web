@@ -37,8 +37,10 @@ npm run modules:host -- F-002
 
 宿主通过只支持以上判据；不自动使 F/C/H/Q 通过。测试宿主、夹具、观测或判据改变后，需要更新宿主时间与必要版本并重新验证。
 
-## Gemini 共享模拟资源（H-F-002 0.2.0）
+## Gemini 共享模拟资源（H-F-002 0.2.1）
 
-默认 synthetic 模式现借用 `TR-GEMINI-001@0.1.0 / text.ok@1.0.0`，不再使用 always-200 的 Ark 文本夹具。方法、URL、headers、body 和 dummy key 全部严格匹配，再由原 Gemini 适配器解析固定回复。资源锁在 `resources.lock.json`；报告包含 `SIMULATED`、资源/场景/fixture 版本、哈希、UTC 起止时间、零真实网络调用及断言事件。
+默认 synthetic 模式现借用 `TR-GEMINI-001@0.2.0 / text.ok@1.0.0`，不再使用 always-200 的 Ark 文本夹具。方法、URL、headers、body 和 dummy key 全部严格匹配，再由原 Gemini 适配器解析固定回复。资源锁在 `resources.lock.json`；报告包含 `SIMULATED`、资源/场景/fixture 版本、哈希、UTC 起止时间、零真实网络调用及断言事件。
 
 `--prompt` 只绑定 fixture 明确声明的 prompt 参数，不改变固定响应。`--live` 仍是原有 Ark 路径；本次未运行。完整范围与不覆盖项见 [共享资源说明](../../test-resources/gemini-native/README.md)。
+
+可调配置使用独立 `npm run simulator -- ...` / `configuration.mjs`，不隐式改变此宿主的固定场景与成功判据；详见[配置契约](../../test-resources/gemini-native/CONFIGURATION.md)。

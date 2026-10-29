@@ -354,3 +354,17 @@ test('resource assets pin valid revision metadata and exact bytes',async ()=>{
     await assert.rejects(validateTestResources(f.registry,f.root),/asset hash mismatch/);
   } finally {await rm(f.root,{recursive:true,force:true});}
 });
+
+test('configuration capability manifest pins a valid API/schema and a contained module entry',async()=>{
+  const f=await resourceFixture();
+  try {
+    await writeFile(join(f.root,f.path,'configuration.mjs'),'export const version="0.2.0";');
+    const manifest={...f.manifest,configurationApiVersion:'0.2.0',configurationSchemaVersion:'1.0.0',configurationEntry:'configuration.mjs'};
+    const write=value=>writeFile(join(f.root,f.path,'manifest.json'),JSON.stringify(value));
+    await write(manifest);await validateTestResources(f.registry,f.root);
+    for(const patch of [{configurationApiVersion:'bad'},{configurationSchemaVersion:'99.0.0'},
+      {configurationEntry:'../outside.mjs'},{configurationEntry:'missing.mjs'},{configurationEntry:4}]) {
+      await write({...manifest,...patch});await assert.rejects(validateTestResources(f.registry,f.root));
+    }
+  }finally{await rm(f.root,{recursive:true,force:true});}
+});
