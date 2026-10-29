@@ -7,7 +7,8 @@ import { generateImage } from '../module-library/functions/image-generation/inde
 import { dispatchCommand } from '../module-library/relations/image-command/index.js';
 import { createPageSession } from '../module-library/relations/page-session/index.js';
 import { runConversation } from '../module-library/compositions/agent-image-turn/index.js';
-import { validateCatalog, selectModules, evidenceState, moduleRevisions } from '../scripts/module-library.mjs';
+import { validateCatalog, selectModules, evidenceState, moduleRevisions, validateDependencies,
+  validateRecipe, validateRevisionTransition } from '../scripts/module-library.mjs';
 
 const url = 'https://audit.example.com/v1';
 const config = {protocol:'openai',url,trustedTarget:url,key:'synthetic-library-key',model:'synthetic-model'};
@@ -111,7 +112,7 @@ test('module cards require a stable three-part version', async () => {
     const copy = structuredClone(catalog); copy.modules[0].version = version;
     await assert.rejects(validateCatalog(copy), /Invalid module version/);
   }
-  const copy = structuredClone(catalog); copy.modules[0].version = '2.10.3';
+  const copy = structuredClone(catalog); copy.modules.find(m=>m.id==='R-002').version = '2.10.3';
   await validateCatalog(copy);
 });
 
@@ -137,4 +138,76 @@ test('verification binds the exact module version and timestamps, not just its I
   }
   const legacy = {...record,schemaVersion:1};
   assert.equal(evidenceState(legacy,hashes,catalog.modules),'STALE');
+});
+
+const recipe = JSON.parse(await readFile(new URL('../module-library/recipes/agent-image-turn.json',import.meta.url),'utf8'));
+const scenario = JSON.parse(await readFile(new URL('../module-library/scenarios/workbench-v1.json',import.meta.url),'utf8'));
+
+test('maintenance cards reject unknown states and invalid replacement pointers', () => {
+  validateDependencies(catalog.modules);
+  const bad = structuredClone(catalog.modules);
+  bad[0].lifecycle.state = 'verified-everywhere';
+  assert.throws(()=>validateDependencies(bad),/Invalid lifecycle/);
+  bad[0].lifecycle.state = 'deprecated';
+  bad[0].lifecycle.replacement = {id:bad[0].id,version:bad[0].version};
+  assert.throws(()=>validateDependencies(bad),/Invalid replacement/);
+});
+
+test('dependencies are pinned and cannot be missing, duplicated or circular', () => {
+  for (const deps of [[{id:'F-999',version:'0.1.0'}],[{id:'F-001',version:'99.0.0'}],
+    [{id:'F-001',version:'0.1.0'},{id:'F-001',version:'0.1.0'}]]) {
+    const copy = structuredClone(catalog.modules);
+    copy.find(m=>m.id==='F-003').dependencies = deps;
+    assert.throws(()=>validateDependencies(copy),/Invalid pinned dependency/);
+  }
+  const cyclic = structuredClone(catalog.modules);
+  cyclic.find(m=>m.id==='F-001').dependencies = [{id:'C-001',version:'0.1.0'}];
+  assert.throws(()=>validateDependencies(cyclic),/Dependency cycle/);
+});
+
+test('recipe pins the implementation and the complete dependency closure', () => {
+  validateRecipe(recipe,catalog,scenario);
+  const mismatch = structuredClone(recipe); mismatch.versions['F-001'] = '0.2.0';
+  assert.throws(()=>validateRecipe(mismatch,catalog,scenario),/Recipe version mismatch/);
+  const incomplete = structuredClone(recipe);
+  incomplete.members = incomplete.members.filter(id=>id!=='F-003');
+  delete incomplete.versions['F-003'];
+  assert.throws(()=>validateRecipe(incomplete,catalog,scenario),/Incomplete recipe dependency closure/);
+});
+
+test('quarantine propagates to consumers while allowing historical wiring to be retained', () => {
+  const copy = structuredClone(catalog);
+  copy.modules.find(m=>m.id==='F-003').lifecycle.state = 'quarantined';
+  assert.throws(()=>validateDependencies(copy.modules),/Unavailable dependency/);
+  for (const id of ['R-001','C-001']) copy.modules.find(m=>m.id===id).lifecycle.state = 'quarantined';
+  validateDependencies(copy.modules);
+  assert.throws(()=>validateRecipe(recipe,copy,scenario),/Unavailable recipe member/);
+  validateRecipe({...recipe,status:'quarantined'},copy,scenario);
+  const archived = structuredClone(copy); archived.modules.find(m=>m.id==='F-003').lifecycle.state = 'archived';
+  validateDependencies(archived.modules);
+  validateRecipe({...recipe,status:'archived'},archived,scenario);
+});
+
+test('revision transitions preserve creation, monotonic versions and update time', () => {
+  const old = {moduleRevisions:moduleRevisions(catalog.modules)};
+  validateRevisionTransition(old,catalog.modules);
+  for (const [field,value,pattern] of [
+    ['createdAt','2020-01-01T00:00:00.000Z',/Creation timestamp/],
+    ['updatedAt','2020-01-01T00:00:00.000Z',/Update timestamp/],
+    ['version','0.0.9',/version moved backwards/],
+    ['version','0.2.0',/newer timestamp/]]) {
+    const copy = structuredClone(catalog.modules); copy[0][field] = value;
+    assert.throws(()=>validateRevisionTransition(old,copy),pattern);
+  }
+  assert.throws(()=>validateRevisionTransition(old,catalog.modules.slice(1)),/Retain archived/);
+  const upgraded = structuredClone(catalog.modules);
+  upgraded[0].version = '10.0.0';
+  upgraded[0].updatedAt = new Date(Date.parse(upgraded[0].updatedAt)+1000).toISOString();
+  validateRevisionTransition(old,upgraded);
+});
+
+test('maintenance lifecycle is independently searchable from verification', () => {
+  assert.equal(selectModules(catalog,{lifecycle:'candidate'}).length,6);
+  assert.equal(selectModules(catalog,{lifecycle:'archived'}).length,0);
+  assert.throws(()=>selectModules(catalog,{lifecycle:'PASS'}),/Unknown lifecycle/);
 });

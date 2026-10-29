@@ -15,6 +15,87 @@ const utcTimestamp = value => typeof value === 'string' && Number.isFinite(Date.
   new Date(value).toISOString() === value;
 export const moduleRevisions = modules => modules.map(({id, version, createdAt, updatedAt}) =>
   ({id, version, createdAt, updatedAt}));
+export const LIFECYCLES = ['candidate','maintained','quarantined','deprecated','archived'];
+const unavailable = state => ['quarantined','archived'].includes(state);
+
+export function validateDependencies(modules) {
+  const byId = new Map(modules.map(m => [m.id,m]));
+  for (const m of modules) {
+    const life = m.lifecycle;
+    if (!life || !LIFECYCLES.includes(life.state) || typeof life.reason !== 'string' || !life.reason.trim() ||
+        !Object.hasOwn(life,'replacement')) throw Error('Invalid lifecycle: ' + m.id);
+    if (life.replacement !== null) {
+      const target = byId.get(life.replacement?.id);
+      if (!target || target.id === m.id || target.version !== life.replacement.version)
+        throw Error('Invalid replacement: ' + m.id);
+      // A replacement pointer is a migration candidate, not equivalence evidence.
+    }
+    if (!Array.isArray(m.dependencies)) throw Error('Missing dependencies: ' + m.id);
+    const seen = new Set();
+    for (const dep of m.dependencies) {
+      const target = byId.get(dep?.id);
+      if (!target || target.id === m.id || seen.has(dep.id) || target.version !== dep.version)
+        throw Error('Invalid pinned dependency: ' + m.id);
+      seen.add(dep.id);
+      if (!unavailable(life.state) && unavailable(target.lifecycle?.state))
+        throw Error('Unavailable dependency: ' + m.id + ' -> ' + dep.id);
+    }
+  }
+  const visiting = new Set(), visited = new Set();
+  function visit(id) {
+    if (visiting.has(id)) throw Error('Dependency cycle: ' + id);
+    if (visited.has(id)) return;
+    visiting.add(id);
+    for (const dep of byId.get(id).dependencies) visit(dep.id);
+    visiting.delete(id); visited.add(id);
+  }
+  for (const id of byId.keys()) visit(id);
+}
+
+export function validateRecipe(recipe, catalog, scenario) {
+  const byId = new Map(catalog.modules.map(m => [m.id,m]));
+  if (!['candidate','maintained','quarantined','deprecated','archived'].includes(recipe.status))
+    throw Error('Invalid recipe status');
+  if (recipe.scenario !== scenario.id || !byId.has(recipe.implementation) ||
+      !Array.isArray(recipe.members) || !recipe.members.every(id => byId.has(id)))
+    throw Error('Dangling recipe reference');
+  if (byId.get(recipe.implementation).kind !== 'composition') throw Error('Recipe implementation must be a composition');
+  const members = new Set([recipe.implementation,...recipe.members]);
+  if (members.size !== recipe.members.length + 1) throw Error('Duplicate recipe member');
+  if (!recipe.versions || Object.keys(recipe.versions).length !== members.size ||
+      [...members].some(id => recipe.versions[id] !== byId.get(id).version))
+    throw Error('Recipe version mismatch');
+  for (const id of members) {
+    const m = byId.get(id);
+    if (!unavailable(recipe.status) && unavailable(m.lifecycle.state)) throw Error('Unavailable recipe member: ' + id);
+    if (m.dependencies.some(dep => !members.has(dep.id))) throw Error('Incomplete recipe dependency closure: ' + id);
+  }
+  if (!Array.isArray(recipe.relations)) throw Error('Missing recipe relations');
+  for (const edge of recipe.relations) {
+    if (![edge.owner,edge.from,edge.to].every(id => members.has(id)) || !edge.effect)
+      throw Error('Invalid relation ownership');
+  }
+}
+
+export function validateRevisionTransition(record, modules) {
+  if (!record?.moduleRevisions) return; // Bootstrap / schema migration; never invent prior history.
+  if (!Array.isArray(record.moduleRevisions)) throw Error('Invalid recorded revisions');
+  const current = new Map(modules.map(m => [m.id,m]));
+  for (const old of record.moduleRevisions) {
+    const next = current.get(old.id);
+    if (!next) throw Error('Retain archived module card instead of deleting: ' + old.id);
+    if (!stableVersion.test(old.version) || !utcTimestamp(old.createdAt) || !utcTimestamp(old.updatedAt))
+      throw Error('Invalid recorded revision: ' + old.id);
+    if (next.createdAt !== old.createdAt) throw Error('Creation timestamp is immutable: ' + old.id);
+    if (Date.parse(next.updatedAt) < Date.parse(old.updatedAt)) throw Error('Update timestamp moved backwards: ' + old.id);
+    const a = old.version.split('.').map(BigInt), b = next.version.split('.').map(BigInt);
+    let order = 0;
+    for (let i = 0; i < 3 && !order; i++) order = b[i] > a[i] ? 1 : b[i] < a[i] ? -1 : 0;
+    if (order < 0) throw Error('Module version moved backwards: ' + old.id);
+    if (order > 0 && Date.parse(next.updatedAt) <= Date.parse(old.updatedAt))
+      throw Error('Version upgrade needs a newer timestamp: ' + old.id);
+  }
+}
 function inside(root, name) {
   if (typeof name !== 'string' || !name || name.includes('\\')) throw Error('Invalid repository path');
   const path = resolve(root, name), rel = relative(root, path);
@@ -35,7 +116,8 @@ async function regular(root, name) {
 const json = async (root, name) => JSON.parse(await readFile(await regular(root, name), 'utf8'));
 
 export async function validateCatalog(catalog, root = ROOT) {
-  if (catalog.schemaVersion !== 2 || !Array.isArray(catalog.modules) || !catalog.modules.length) throw Error('Invalid catalogue');
+  if (catalog.schemaVersion !== 3 || !Array.isArray(catalog.modules) || !catalog.modules.length) throw Error('Invalid catalogue');
+  await regular(root, catalog.maintenancePolicy);
   const ids = new Set(), entries = new Set();
   for (const m of catalog.modules) {
     if (!/^[FRC]-\d{3}$/.test(m.id) || ids.has(m.id)) throw Error('Invalid or duplicate module ID');
@@ -58,19 +140,17 @@ export async function validateCatalog(catalog, root = ROOT) {
   }
   const scenario = await json(root, catalog.scenario);
   if (!scenario.id || !scenario.status) throw Error('Invalid scenario');
+  validateDependencies(catalog.modules);
   const recipe = await json(root, 'module-library/recipes/agent-image-turn.json');
-  if (recipe.scenario !== scenario.id || !ids.has(recipe.implementation) || !recipe.members.every(id => ids.has(id))) throw Error('Dangling recipe reference');
-  if (catalog.modules.find(m => m.id === recipe.implementation)?.kind !== 'composition') throw Error('Recipe implementation must be a composition');
-  const members = new Set([recipe.implementation, ...recipe.members]);
-  for (const edge of recipe.relations) {
-    if (![edge.owner,edge.from,edge.to].every(id => members.has(id)) || !edge.effect) throw Error('Invalid relation ownership');
-  }
+  validateRecipe(recipe, catalog, scenario);
   return catalog;
 }
 
-export function selectModules(catalog, {kind, tag, query} = {}) {
+export function selectModules(catalog, {kind, tag, query, lifecycle} = {}) {
   if (kind && !TYPES[kind]) throw Error('Unknown kind: ' + kind);
+  if (lifecycle && !LIFECYCLES.includes(lifecycle)) throw Error('Unknown lifecycle: ' + lifecycle);
   return catalog.modules.filter(m => (!kind || m.kind === kind) && (!tag || m.tags.includes(tag)) &&
+    (!lifecycle || m.lifecycle.state === lifecycle) &&
     (!query || [m.id,m.version,m.title,m.goal,...m.tags].join(' ').toLowerCase().includes(query.toLowerCase())));
 }
 
@@ -144,13 +224,14 @@ export async function main(args = process.argv.slice(2), root = ROOT) {
   if (!['list','check','verify','record'].includes(command)) throw Error('Use list | check | verify | record');
   const filters = {};
   for (let i = 1; i < args.length; i += 2) {
-    const key = {'--kind':'kind','--tag':'tag','--query':'query'}[args[i]];
+    const key = {'--kind':'kind','--tag':'tag','--query':'query','--lifecycle':'lifecycle'}[args[i]];
     if (command !== 'list' || !key || !args[i+1]) throw Error('Invalid filter');
     filters[key] = args[i+1];
   }
   const catalog = await validateCatalog(await json(root, CATALOG), root);
   const hashes = await inputHashes(root);
   let record = await loadRecord(root);
+  validateRevisionTransition(record, catalog.modules);
   if (['verify','record'].includes(command)) {
     const result = await runLocal(catalog, root);
     const after = await inputHashes(root);
@@ -168,7 +249,7 @@ export async function main(args = process.argv.slice(2), root = ROOT) {
     for (const m of selectModules(catalog, filters)) {
       const gates = ['F','C','H','Q'].map(k=>k+':'+m.gates[k].status).join(' ');
       const shanghai = stamp => new Date(stamp).toLocaleString('zh-CN', {timeZone:'Asia/Shanghai',hour12:false});
-      console.log(m.id + '@' + m.version + ' | ' + m.kind + ' | ' + m.title + ' | local:' + local + ' | ' + gates +
+      console.log(m.id + '@' + m.version + ' | ' + m.kind + ' | ' + m.title + ' | ' + m.lifecycle.state + ' | local:' + local + ' | ' + gates +
         '\n  创建：' + shanghai(m.createdAt) + ' | 更新：' + shanghai(m.updatedAt) + '（北京时间）' +
         '\n  ' + m.entry);
     }

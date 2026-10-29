@@ -2,6 +2,8 @@
 
 按**效果目标**收藏功能、关系和组合，供开发态检索、实验和组合。单一源码继续留在 src/；每册 index.js 是明确的借用入口，不复制算法，也不冒充不同实现。
 
+日常操作遵循 [维护规则](MAINTENANCE.md)：入库、升版、依赖与配方、证据失效、隔离、弃用和归档。维护状态独立于验证等级。
+
 ## 分类目录
 
 | ID / 类别 | 构件契约 | 局部实验范围 |
@@ -33,11 +35,12 @@ npm run modules:list
 npm run modules:list -- --kind relation
 npm run modules:list -- --tag image
 npm run modules:list -- --query image-options.normalize
+npm run modules:list -- --lifecycle candidate
 npm run modules:check
 npm run modules:verify
 ```
 
-- list：按类型、标签、目标或名称检索，逐项展示局部证据和 F/C/H/Q。
+- list：按类型、标签、目标、名称或维护状态检索，逐项展示版本、时间、局部证据和 F/C/H/Q。
 - check：检查登记、文件、配方引用、证据指纹，不运行 API。
 - verify：重跑登记的本地测试并检查证据匹配，不写记录。
 - record：评审变更后运行 `npm run modules:record`；测试通过且期间输入未变，才刷新本地证据。失败不覆盖旧记录。
@@ -71,7 +74,7 @@ const options = normalizeImageOptions({
 
 首批六个模块沿用契约已有的 0.1.0。创建时间取首次入库提交的时间；此次补充版本管理字段，更新时间取本次编辑时间。时间以 UTC ISO 8601（含毫秒、以 Z 结尾）保存，列表按北京时间显示。模板时间为 null，新增模块时需填写真实时间，可用 JavaScript 的 new Date().toISOString() 取得。
 
-版本策略：不兼容的接口或效果契约变化升主版本；兼容新增能力升次版本；兼容修正升修订号。纯登记说明或验证记录更新可以不升实现版本，但修改模块卡或契约时更新 updatedAt。只重跑测试不改 createdAt / updatedAt，只产生新的证据 recordedAt。
+版本策略及维护状态以 [维护规则](MAINTENANCE.md) 为准。升级保留 createdAt，版本和 updatedAt 不倒退；只重跑测试只产生新的证据 recordedAt。依赖与配方固定准确版本，更新依赖后重新验收使用者。
 
 验证记录的 moduleRevisions 逐项绑定 ID、版本、创建及更新时间，同时保留源码指纹。旧版本的 PASS 不会自动传给新版本；任一绑定变化会显示 STALE。旧版本和时间可通过 Git 历史追溯，record 不自动改版本、时间或四项准入状态。
 

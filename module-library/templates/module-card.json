@@ -42,5 +42,11 @@
     "encoding": null,
     "minCandidates": null,
     "minDistance": null
-  }
+  },
+  "lifecycle": {
+    "state": "candidate",
+    "reason": "填写维护理由与当前验收边界",
+    "replacement": null
+  },
+  "dependencies": []
 }
