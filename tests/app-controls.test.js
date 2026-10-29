@@ -364,3 +364,24 @@ for (const [index, name, url] of [
     assert.equal(d.api.model, ''); assert.equal(ui.matrixSupported(d), false);
   });
 }
+
+test('pending request shows only accessible spinner and clears it on completion',async()=>{
+ let resolve;
+ const ui=mount({runConversation:()=>new Promise(r=>{resolve=r;})}),{d}=configure(ui);
+ d.draft='offline pending';const pending=ui.click({action:'send'});
+ assert.equal(d.busy,true);assert.match(ui.app.innerHTML,/class="api-spinner"/);
+ assert.match(ui.app.innerHTML,/role="status" aria-label="正在加载"/);
+ assert.doesNotMatch(ui.app.innerHTML,/正在请求 API/);
+ assert.match(ui.app.innerHTML,/data-action="cancel"/);
+ resolve({text:'offline result',usage:null,messages:[]});await pending;
+ assert.equal(d.busy,false);assert.doesNotMatch(ui.app.innerHTML,/class="api-spinner"/);
+});
+
+test('cancelled and failed requests clear spinner but preserve error feedback',async()=>{
+ const ui=mount({runConversation:({signal})=>new Promise((resolve,reject)=>signal.addEventListener('abort',()=>reject(new core.AppError('CANCELLED','离线取消'))))}),{d}=configure(ui);
+ d.draft='offline cancel';const pending=ui.click({action:'send'});await ui.click({action:'cancel'});await pending;
+ assert.equal(d.busy,false);assert.doesNotMatch(ui.app.innerHTML,/class="api-spinner"/);assert.match(ui.app.innerHTML,/离线取消/);
+ const failed=mount({runConversation:async()=>{throw new core.AppError('TEST','离线错误');}}),state=configure(failed).d;
+ state.draft='offline failure';await failed.click({action:'send'});
+ assert.equal(state.busy,false);assert.doesNotMatch(failed.app.innerHTML,/class="api-spinner"/);assert.match(failed.app.innerHTML,/离线错误/);
+});
