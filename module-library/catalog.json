@@ -7,7 +7,7 @@
       "id": "F-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "function",
       "title": "图片能力与参数映射",
       "goal": "image-options.normalize",
@@ -27,7 +27,8 @@
       "tests": [
         "tests/image-capabilities.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -65,14 +66,14 @@
       "dependencies": [],
       "host": {
         "id": "H-F-001",
-        "version": "0.1.0"
+        "version": "0.1.1"
       }
     },
     {
       "id": "F-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "function",
       "title": "文本请求与协议适配",
       "goal": "text.request-response",
@@ -91,7 +92,13 @@
       "tests": [
         "tests/core.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/gemini-simulator.test.js",
+        "tests/gemini-configuration.test.js",
+        "tests/ark-simulator.test.js",
+        "tests/ark-configuration.test.js",
+        "tests/ark-hosts-live.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -129,14 +136,14 @@
       "dependencies": [],
       "host": {
         "id": "H-F-002",
-        "version": "0.1.0"
+        "version": "0.3.0"
       }
     },
     {
       "id": "F-003",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "function",
       "title": "图片请求与响应提取",
       "goal": "image.request-response",
@@ -154,7 +161,11 @@
       "tests": [
         "tests/core.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/ark-simulator.test.js",
+        "tests/ark-configuration.test.js",
+        "tests/ark-hosts-live.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -197,14 +208,14 @@
       ],
       "host": {
         "id": "H-F-003",
-        "version": "0.1.0"
+        "version": "0.2.0"
       }
     },
     {
       "id": "R-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "relation",
       "title": "图片命令到执行器的关系",
       "goal": "image-command.dispatch",
@@ -222,7 +233,8 @@
         "tests/core.test.js",
         "tests/cli.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -265,14 +277,14 @@
       ],
       "host": {
         "id": "H-R-001",
-        "version": "0.1.0"
+        "version": "0.1.1"
       }
     },
     {
       "id": "R-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "relation",
       "title": "网页命令到页面处理器的关系",
       "goal": "page-command.route",
@@ -293,7 +305,8 @@
         "tests/session.test.js",
         "tests/app-controls.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -331,14 +344,14 @@
       "dependencies": [],
       "host": {
         "id": "H-R-002",
-        "version": "0.1.0"
+        "version": "0.1.1"
       }
     },
     {
       "id": "C-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "composition",
       "title": "对话 Agent 调图片并继续对话",
       "goal": "conversation.image-turn",
@@ -356,7 +369,8 @@
       "tests": [
         "tests/agent.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -407,10 +421,287 @@
       ],
       "host": {
         "id": "H-C-001",
+        "version": "0.1.1"
+      }
+    },
+    {
+      "id": "F-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "kind": "function",
+      "title": "fixture 参数绑定与请求契约",
+      "goal": "fixture.request-contract",
+      "tags": [
+        "simulator",
+        "shared-engine",
+        "pure"
+      ],
+      "entry": "module-library/functions/fixture-contract/index.js",
+      "exports": [
+        "bindFixtureSteps",
+        "assertFixtureRequest",
+        "SimulatorError",
+        "DUMMY_KEY"
+      ],
+      "contract": "module-library/functions/fixture-contract/CONTRACT.md",
+      "tests": [
+        "tests/shared-fixture-contract.test.js",
+        "tests/module-library.test.js",
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
+      ],
+      "gates": {
+        "F": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "C": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "H": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "Q": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        }
+      },
+      "alternatives": {
+        "pool": null,
+        "encoding": null,
+        "minCandidates": null,
+        "minDistance": null
+      },
+      "lifecycle": {
+        "state": "candidate",
+        "reason": "共享引擎普通构件的首版边界；局部实验不提升完整准入",
+        "replacement": null
+      },
+      "dependencies": [],
+      "host": {
+        "id": "H-F-004",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "id": "F-005",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "kind": "function",
+      "title": "有界 PNG 结构检查",
+      "goal": "png.inspect-bounded",
+      "tags": [
+        "simulator",
+        "shared-engine",
+        "pure"
+      ],
+      "entry": "module-library/functions/png-inspection/index.mjs",
+      "exports": [
+        "inspectPng"
+      ],
+      "contract": "module-library/functions/png-inspection/CONTRACT.md",
+      "tests": [
+        "tests/shared-png-inspection.test.js",
+        "tests/module-library.test.js",
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js",
+        "tests/ark-simulator.test.js",
+        "tests/ark-configuration.test.js",
+        "tests/ark-hosts-live.test.js"
+      ],
+      "gates": {
+        "F": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "C": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "H": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "Q": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        }
+      },
+      "alternatives": {
+        "pool": null,
+        "encoding": null,
+        "minCandidates": null,
+        "minDistance": null
+      },
+      "lifecycle": {
+        "state": "candidate",
+        "reason": "共享引擎普通构件的首版边界；局部实验不提升完整准入",
+        "replacement": null
+      },
+      "dependencies": [],
+      "host": {
+        "id": "H-F-005",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "id": "R-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "kind": "relation",
+      "title": "模拟请求有序生命周期",
+      "goal": "simulator.ordered-session",
+      "tags": [
+        "simulator",
+        "shared-engine",
+        "stateful"
+      ],
+      "entry": "module-library/relations/simulator-session/index.js",
+      "exports": [
+        "createSimulatorCore"
+      ],
+      "contract": "module-library/relations/simulator-session/CONTRACT.md",
+      "tests": [
+        "tests/shared-simulator-session.test.js",
+        "tests/module-library.test.js",
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js",
+        "tests/gemini-simulator.test.js",
+        "tests/ark-simulator.test.js"
+      ],
+      "gates": {
+        "F": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "C": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "H": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "Q": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        }
+      },
+      "alternatives": {
+        "pool": null,
+        "encoding": null,
+        "minCandidates": null,
+        "minDistance": null
+      },
+      "lifecycle": {
+        "state": "candidate",
+        "reason": "共享引擎普通构件的首版边界；局部实验不提升完整准入",
+        "replacement": null
+      },
+      "dependencies": [
+        {
+          "id": "F-004",
+          "version": "0.1.0"
+        }
+      ],
+      "host": {
+        "id": "H-R-003",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "id": "R-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "kind": "relation",
+      "title": "模拟配置修订与历史关系",
+      "goal": "simulator.profile-history",
+      "tags": [
+        "simulator",
+        "shared-engine",
+        "stateful"
+      ],
+      "entry": "module-library/relations/configuration-profile/index.mjs",
+      "exports": [
+        "createConfigurationApi"
+      ],
+      "contract": "module-library/relations/configuration-profile/CONTRACT.md",
+      "tests": [
+        "tests/shared-configuration-profile.test.js",
+        "tests/module-library.test.js",
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js",
+        "tests/gemini-configuration.test.js",
+        "tests/ark-configuration.test.js"
+      ],
+      "gates": {
+        "F": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "C": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "H": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        },
+        "Q": {
+          "status": "UNKNOWN",
+          "evidence": [],
+          "reason": "仅有局部独立样本与回归验证，尚无完整准入证据"
+        }
+      },
+      "alternatives": {
+        "pool": null,
+        "encoding": null,
+        "minCandidates": null,
+        "minDistance": null
+      },
+      "lifecycle": {
+        "state": "candidate",
+        "reason": "共享引擎普通构件的首版边界；局部实验不提升完整准入",
+        "replacement": null
+      },
+      "dependencies": [
+        {
+          "id": "F-004",
+          "version": "0.1.0"
+        },
+        {
+          "id": "R-003",
+          "version": "0.1.0"
+        }
+      ],
+      "host": {
+        "id": "H-R-004",
         "version": "0.1.0"
       }
     }
   ],
   "maintenancePolicy": "module-library/MAINTENANCE.md",
-  "hostRegistry": "module-library/hosts/catalog.json"
+  "hostRegistry": "module-library/hosts/catalog.json",
+  "testResourceRegistry": "module-library/test-resources/catalog.json"
 }

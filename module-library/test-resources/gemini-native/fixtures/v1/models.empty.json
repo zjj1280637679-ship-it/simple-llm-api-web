@@ -1,0 +1,29 @@
+{
+  "id": "models.empty",
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T07:45:27.398Z",
+  "updatedAt": "2026-10-29T07:45:27.398Z",
+  "sourceRefs": [
+    "https://ai.google.dev/api/generate-content",
+    "https://ai.google.dev/api/models"
+  ],
+  "intent": "Synthetic protocol subset; no claim about real provider behavior or availability.",
+  "steps": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000",
+        "headers": {
+          "accept": "application/json",
+          "x-goog-api-key": "SIMULATOR_ONLY_NOT_A_REAL_KEY"
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "models": []
+        }
+      }
+    }
+  ]
+}

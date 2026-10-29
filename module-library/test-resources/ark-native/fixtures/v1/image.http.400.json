@@ -1,0 +1,57 @@
+{
+  "id": "image.http.400",
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T08:26:00.000Z",
+  "updatedAt": "2026-10-29T08:26:00.000Z",
+  "sourceRefs": [
+    "https://docs.volcengine.com/docs/ark/base-url-and-authentication?lang=zh",
+    "https://docs.volcengine.com/docs/ark/image-generation-api?lang=zh&redirect=1",
+    "https://docs.volcengine.com/docs/ark/error-codes?lang=en"
+  ],
+  "intent": "SIMULATED. Intentional image-route HTTP error; synthetic request oracle remains independently valid.",
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "default": "Draw one blue cup on a white background."
+    },
+    "model": {
+      "type": "string",
+      "default": "doubao-seedream-5-0-flash-260915"
+    }
+  },
+  "steps": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://ark.cn-beijing.volces.com/api/v3/images/generations",
+        "headers": {
+          "accept": "application/json",
+          "authorization": "Bearer SIMULATOR_ONLY_NOT_A_REAL_KEY",
+          "content-type": "application/json"
+        },
+        "body": {
+          "model": {
+            "$parameter": "model"
+          },
+          "prompt": {
+            "$parameter": "prompt"
+          },
+          "size": "1536x1536",
+          "response_format": "b64_json",
+          "output_format": "png"
+        }
+      },
+      "response": {
+        "status": 400,
+        "json": {
+          "error": {
+            "type": "BadRequest",
+            "code": "InvalidParameter",
+            "message": "SIMULATED image request rejected.",
+            "param": "size"
+          }
+        }
+      }
+    }
+  ]
+}

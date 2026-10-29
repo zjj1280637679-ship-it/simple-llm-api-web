@@ -6,7 +6,7 @@ import { ROOT, validateHosts } from './module-library.mjs';
 
 export async function main(args=process.argv.slice(2)) {
   if (!args.length || args[0]==='--help') {
-    console.log('npm run modules:host -- MODULE_ID [--live] [--prompt TEXT] [--out DIRECTORY]');
+    console.log('npm run modules:host -- MODULE_ID [--simulator ark|gemini --profile ID --dir DIRECTORY --revision N --sample-index N] [--live --live-plan FILE] [--prompt TEXT] [--out DIRECTORY]');
     return 0;
   }
   const catalog=JSON.parse(await readFile(resolve(ROOT,'module-library/catalog.json'),'utf8'));

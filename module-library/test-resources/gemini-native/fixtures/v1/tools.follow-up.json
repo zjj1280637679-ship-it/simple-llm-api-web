@@ -1,0 +1,193 @@
+{
+  "id": "tools.follow-up",
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T07:45:27.398Z",
+  "updatedAt": "2026-10-29T07:45:27.398Z",
+  "sourceRefs": [
+    "https://ai.google.dev/api/generate-content",
+    "https://ai.google.dev/api/models"
+  ],
+  "intent": "Native adapter + makeToolResult roundtrip, opaque signature and id retained. Only explicit pure sim_add stub is run by test; simulator executes no tool.",
+  "steps": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/sim-gemini-text-v1:generateContent",
+        "headers": {
+          "accept": "application/json",
+          "content-type": "application/json",
+          "x-goog-api-key": "SIMULATOR_ONLY_NOT_A_REAL_KEY"
+        },
+        "body": {
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "Add two and three."
+                }
+              ]
+            }
+          ],
+          "generationConfig": {},
+          "tools": [
+            {
+              "functionDeclarations": [
+                {
+                  "name": "sim_add",
+                  "description": "Add two numbers in the local test allowlist.",
+                  "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                      "a": {
+                        "type": "NUMBER"
+                      },
+                      "b": {
+                        "type": "NUMBER"
+                      }
+                    },
+                    "required": [
+                      "a",
+                      "b"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "text": "SIMULATED internal thought",
+                    "thought": true
+                  },
+                  {
+                    "functionCall": {
+                      "name": "sim_add",
+                      "args": {
+                        "a": 2,
+                        "b": 3
+                      },
+                      "id": "SIMULATED-call-1"
+                    },
+                    "thoughtSignature": "U0lNVUxBVEVELXNpZ25hdHVyZQ=="
+                  }
+                ]
+              },
+              "finishReason": "STOP"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/sim-gemini-text-v1:generateContent",
+        "headers": {
+          "accept": "application/json",
+          "content-type": "application/json",
+          "x-goog-api-key": "SIMULATOR_ONLY_NOT_A_REAL_KEY"
+        },
+        "body": {
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "Add two and three."
+                }
+              ]
+            },
+            {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "SIMULATED internal thought",
+                  "thought": true
+                },
+                {
+                  "functionCall": {
+                    "name": "sim_add",
+                    "args": {
+                      "a": 2,
+                      "b": 3
+                    },
+                    "id": "SIMULATED-call-1"
+                  },
+                  "thoughtSignature": "U0lNVUxBVEVELXNpZ25hdHVyZQ=="
+                }
+              ]
+            },
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "functionResponse": {
+                    "name": "sim_add",
+                    "response": {
+                      "value": 5
+                    },
+                    "id": "SIMULATED-call-1"
+                  }
+                }
+              ]
+            }
+          ],
+          "generationConfig": {},
+          "tools": [
+            {
+              "functionDeclarations": [
+                {
+                  "name": "sim_add",
+                  "description": "Add two numbers in the local test allowlist.",
+                  "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                      "a": {
+                        "type": "NUMBER"
+                      },
+                      "b": {
+                        "type": "NUMBER"
+                      }
+                    },
+                    "required": [
+                      "a",
+                      "b"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "text": "SIMULATED sum: 5."
+                  }
+                ]
+              },
+              "finishReason": "STOP"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

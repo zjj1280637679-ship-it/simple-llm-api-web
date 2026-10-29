@@ -3,9 +3,9 @@
   "hosts": [
     {
       "id": "H-F-001",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "F-001",
         "version": "0.1.0"
@@ -36,9 +36,9 @@
     },
     {
       "id": "H-F-002",
-      "version": "0.1.0",
+      "version": "0.3.0",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T08:35:09.175Z",
       "module": {
         "id": "F-002",
         "version": "0.1.0"
@@ -53,28 +53,32 @@
       ],
       "requires": [
         "Node.js 20+ 与仓库源码",
-        "真实模式需要可用 Ark 文本 API 条件和 ARK_API_KEY"
+        "真实模式需要可用 Ark 文本 API 条件和 ARK_API_KEY",
+        "真实模式须独立单次批准计划；模拟模式不读真实密钥"
       ],
       "supplies": [
-        "最小单轮用户消息",
-        "受控 fetch 或真实传输",
-        "非空文本结果观察"
+        "严格独立 Gemini 或 Ark 共享模拟资源",
+        "可配置且固定版本快照",
+        "单轮文本观察；默认关闭的 bounded Ark live probe"
       ],
       "criteria": [
-        "合成模式实际运行适配器并检查输入映射",
-        "真实模式收到非空模型文本"
+        "默认 Gemini 兼容；显式 Ark 验证原适配器契约",
+        "配置历史与资源版本独立绑定",
+        "真实探针仅报告独立传输结果，adapterVerified=false"
       ],
       "limits": [
-        "合成回复不是真实模型能力证据",
-        "只覆盖单轮文本，参数与模型范围由具体实验决定"
+        "SIMULATED 不是模型/账户/CORS能力证据",
+        "非流式；每个文本模拟场景独立验证",
+        "真实费用限制只是预检估算，不是平台硬封顶"
       ],
-      "minimality": "去掉对话 UI、长期会话和 Agent，只保留单请求和文本输出。"
+      "minimality": "去掉对话 UI、长期会话和 Agent，只保留单请求和文本输出。",
+      "resourceLock": "module-library/hosts/text-generation/resources.lock.json"
     },
     {
       "id": "H-F-003",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T08:35:09.175Z",
       "module": {
         "id": "F-003",
         "version": "0.1.0"
@@ -89,29 +93,32 @@
       ],
       "requires": [
         "Node.js 20+ 与可写目录",
-        "真实模式需要 Ark 图片 API 及额度"
+        "真实模式需要 Ark 图片 API 及额度",
+        "真实模式须独立单次批准计划；模拟模式不读真实密钥"
       ],
       "supplies": [
         "单条图片提示词",
         "受控响应或真实传输",
-        "字节落盘和读回"
+        "字节落盘和读回",
+        "显式 Ark 独立严格1536x1536合成PNG及可配置图片预设"
       ],
       "criteria": [
         "收到图片字节",
         "文件写入后读回字节一致"
       ],
       "limits": [
-        "默认响应是 1x1 PNG 夹具",
-        "请求为 2048x2048 不代表实际文件尺寸",
-        "不完整解码，不验收内容拟合度；真实模式未在本次执行"
+        "默认兼容旧1x1PNG夹具；显式Ark默认1536x1536纯色PNG",
+        "图片预设可换成其他已校验尺寸，不能把请求尺寸当成实测输出尺寸",
+        "不验收内容质量；真实模式须单独授权且不是适配器验收"
       ],
-      "minimality": "不需要图片页，只保留提示词、传输和可检查的返回文件。"
+      "minimality": "不需要图片页，只保留提示词、传输和可检查的返回文件。",
+      "resourceLock": "module-library/hosts/image-generation/resources.lock.json"
     },
     {
       "id": "H-R-001",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "R-001",
         "version": "0.1.0"
@@ -145,9 +152,9 @@
     },
     {
       "id": "H-R-002",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "R-002",
         "version": "0.1.0"
@@ -178,9 +185,9 @@
     },
     {
       "id": "H-C-001",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "C-001",
         "version": "0.1.0"
@@ -214,6 +221,135 @@
         "不验收图片内容或尺寸"
       ],
       "minimality": "去掉聊天 UI，保留实现组合效果必须的工具往返、回调和结果交付。"
+    },
+    {
+      "id": "H-F-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "F-004",
+        "version": "0.1.0"
+      },
+      "goal": "fixture.request-contract",
+      "entry": "module-library/hosts/fixture-contract/run.mjs",
+      "instructions": "module-library/hosts/fixture-contract/README.md",
+      "defaultMode": "local",
+      "modes": [
+        "local"
+      ],
+      "requires": [
+        "有限可信 JSON fixture、string 参数和 Headers"
+      ],
+      "supplies": [
+        "单步参数化请求与错配输入"
+      ],
+      "criteria": [
+        "绑定不修改 fixture",
+        "完全匹配成功；错配字段脱敏并拒绝未知参数"
+      ],
+      "limits": [
+        "不承担请求归一化、排队或外部 API 语义"
+      ],
+      "minimality": "仅函数、JSON 输入、Headers 与断言，无模拟运行时、文件或网络。"
+    },
+    {
+      "id": "H-F-005",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "F-005",
+        "version": "0.1.0"
+      },
+      "goal": "png.inspect-bounded",
+      "entry": "module-library/hosts/png-inspection/run.mjs",
+      "instructions": "module-library/hosts/png-inspection/README.md",
+      "defaultMode": "local",
+      "modes": [
+        "local"
+      ],
+      "requires": [
+        "Node.js Buffer 与 node:zlib，可信正整数上界"
+      ],
+      "supplies": [
+        "单个内嵌 PNG 及损坏/超界反例"
+      ],
+      "criteria": [
+        "返回 1x1 尺寸及解码字节",
+        "CRC 损坏与字节上界被拒绝"
+      ],
+      "limits": [
+        "仅受限非隔行结构验证，不证明完整 PNG 规范或内容质量"
+      ],
+      "minimality": "仅单张字节样本、检查函数与反例，不依赖供应商、文件或 UI。"
+    },
+    {
+      "id": "H-R-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "R-003",
+        "version": "0.1.0"
+      },
+      "goal": "simulator.ordered-session",
+      "entry": "module-library/hosts/simulator-session/run.mjs",
+      "instructions": "module-library/hosts/simulator-session/README.md",
+      "defaultMode": "synthetic",
+      "modes": [
+        "synthetic"
+      ],
+      "requires": [
+        "Browser/Node Fetch 原语、可信 fixture",
+        "显式无同步回调虚拟 scheduler；clock 只读"
+      ],
+      "supplies": [
+        "两步请求脚本与手动虚拟时间",
+        "取消、处置和观察断言"
+      ],
+      "criteria": [
+        "按接纳次序消耗；第二响应完成时第一仍 pending",
+        "abort/dispose 清理 pending，隔离实例状态"
+      ],
+      "limits": [
+        "不是真实 HTTP 服务器；不保证生产 API 或恶意 fixture 安全"
+      ],
+      "minimality": "仅请求脚本、虚拟调度与生命周期观察，无供应商适配器或生产应用。"
+    },
+    {
+      "id": "H-R-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "R-004",
+        "version": "0.1.0"
+      },
+      "goal": "simulator.profile-history",
+      "entry": "module-library/hosts/configuration-profile/run.mjs",
+      "instructions": "module-library/hosts/configuration-profile/README.md",
+      "defaultMode": "synthetic",
+      "modes": [
+        "synthetic"
+      ],
+      "requires": [
+        "Node.js crypto/fs/path",
+        "可信私有 adapter、返回新对象的 getFixture、稳定 getManifest"
+      ],
+      "supplies": [
+        "单个本地协议 adapter 与 fixture",
+        "临时配置目录与固定快照执行"
+      ],
+      "criteria": [
+        "追加哈希链接历史、restore 为新修订",
+        "固定快照/reset 不受后续 profile 修改影响"
+      ],
+      "limits": [
+        "本机 append-only 不是签名或恶意并发文件系统安全",
+        "不声称所有供应商或真实 API 可用"
+      ],
+      "minimality": "只提供配置关系需要的私有 adapter、单步 fixture、临时存储和执行承接。"
     }
   ]
 }

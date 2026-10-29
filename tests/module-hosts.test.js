@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { requiredTestFiles, bindTestResults, testResultsDigest, testCommands, summarizeTestResults } from '../scripts/module-test-results.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdtemp, rm } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
@@ -24,7 +25,17 @@ for (const host of registry.hosts) {
       assert.equal(result.host.updatedAt,host.updatedAt);
       assert(Number.isFinite(Date.parse(result.verifiedAt)));
       if (host.module.id==='F-001') assert.equal(result.observed.options.size,'2048x2048');
-      if (host.module.id==='F-002') assert.equal(result.observed.text,'Host text reply.');
+      if (host.module.id==='F-002') {
+        assert.equal(result.observed.text,'Host text reply.');
+        assert.equal(result.evidenceType,'SIMULATED'); assert.equal(result.realApiCalled,false);
+        assert.equal(result.observed.realNetworkRequests,0);
+        assert.equal(result.resourceRevisions[0].resourceId,'TR-GEMINI-001');
+        assert.equal(result.resourceRevisions[0].scenarioId,'text.ok');
+        assert.match(result.resourceRevisions[0].fixtureSha256,/^[a-f0-9]{64}$/);
+        assert.equal(new Date(result.runStartedAt).toISOString(),result.runStartedAt);
+        assert.equal(new Date(result.runFinishedAt).toISOString(),result.runFinishedAt);
+        assert(Date.parse(result.runFinishedAt)>=Date.parse(result.runStartedAt));
+      }
       if (host.module.id==='R-001') {
         assert.equal(result.observed.unconfirmedRequests,0);
         assert.equal(result.observed.confirmedEffect,true);
@@ -37,6 +48,22 @@ for (const host of registry.hosts) {
         assert.equal(result.observed.deliveredImages,1);
         assert.equal(result.observed.toolHistoryMatched,true);
         assert(result.observed.checkpoints>0);
+      }
+      if (host.module.id==='F-004') {
+        assert.equal(result.observed.fixtureUnchanged,true);assert.equal(result.observed.exactMatchAccepted,true);
+        assert.deepEqual(result.observed.mismatchFields,['url','body']);assert.equal(result.observed.valuesRedacted,true);
+      }
+      if (host.module.id==='F-005') {
+        assert.equal(result.observed.crcMismatchRejected,true);assert.equal(result.observed.byteLimitRejected,true);
+      }
+      if (host.module.id==='R-003') {
+        assert.deepEqual(result.observed.matchedOrder,[1,2]);assert.equal(result.observed.secondResponseWhileFirstPending,true);
+        assert.equal(result.observed.remainingTimers,0);assert.equal(result.observed.isolatedDisposed,true);
+      }
+      if (host.module.id==='R-004') {
+        assert.deepEqual(result.observed.revisions.map(value=>value.revision),[1,2,3]);
+        assert.equal(result.observed.parentChainVerified,true);assert.equal(result.observed.pinnedRevision,1);
+        assert.equal(result.observed.historicalRevision,2);assert.equal(result.observed.independentReset,true);
       }
       for (const file of result.observed.files || []) {
         const data=await readFile(file.path);
@@ -82,11 +109,19 @@ test('every module must bind an existing versioned host with explicit scope',asy
 
 test('host changes stale evidence and preserve host creation/version history',()=>{
   const hashes={'fixture':'same'};
-  const record={schemaVersion:3,kind:'local-tests',status:'PASS',
+  // Synthetic binding fixture; real runner coverage is exercised separately.
+  const results=requiredTestFiles(catalog.modules).map(file=>({file,status:'PASS',completed:true,exitCode:0,
+    stats:{tests:1,pass:1,fail:0,cancelled:0,skipped:0,todo:0,suites:0},
+    suiteFailures:0,wrappers:0,outputSha256:'b'.repeat(64)}));
+  for(const result of results) hashes[result.file]='a'.repeat(64);
+  const testResults=bindTestResults(catalog.modules,results,hashes);
+  const record={schemaVersion:5,kind:'local-tests',status:'PASS',
+    testResults,testResultsSha256:testResultsDigest(testResults),
+    stats:summarizeTestResults(results),commands:testCommands(catalog.modules),
     moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),
     hostRevisions:hostRevisions(registry.hosts),fileHashes:hashes};
   assert.equal(evidenceState(record,hashes,catalog.modules,registry.hosts),'PASS');
-  for(const [field,value] of [['version','0.1.1'],['updatedAt','2027-01-01T00:00:00.000Z']]) {
+  for(const [field,value] of [['version','99.0.0'],['updatedAt','2027-01-01T00:00:00.000Z']]) {
     const changed=structuredClone(registry.hosts);changed[0][field]=value;
     assert.equal(evidenceState(record,hashes,catalog.modules,changed),'STALE');
   }

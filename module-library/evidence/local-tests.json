@@ -1,64 +1,97 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 5,
   "kind": "local-tests",
   "status": "PASS",
-  "recordedAt": "2026-10-29T07:07:07.725Z",
+  "recordedAt": "2026-10-29T11:09:59.553Z",
   "baseCommit": "ce707d3815dce9e33cec372389b0437e465cbc62",
   "node": "v24.22.1",
   "platform": "linux",
   "scope": "Local execution and synthetic network only; no automatic F/C/H/Q promotion.",
+  "evidenceTypes": [
+    "LOCAL",
+    "SIMULATED"
+  ],
+  "realApiCalled": false,
   "moduleIds": [
     "F-001",
     "F-002",
     "F-003",
     "R-001",
     "R-002",
-    "C-001"
+    "C-001",
+    "F-004",
+    "F-005",
+    "R-003",
+    "R-004"
   ],
   "moduleRevisions": [
     {
       "id": "F-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "F-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "F-003",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "R-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "R-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "C-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:04:49.518Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
+    },
+    {
+      "id": "F-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z"
+    },
+    {
+      "id": "F-005",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z"
+    },
+    {
+      "id": "R-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z"
+    },
+    {
+      "id": "R-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z"
     }
   ],
   "hostRevisions": [
     {
       "id": "H-F-001",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "F-001",
         "version": "0.1.0"
@@ -67,31 +100,33 @@
     },
     {
       "id": "H-F-002",
-      "version": "0.1.0",
+      "version": "0.3.0",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T08:35:09.175Z",
       "module": {
         "id": "F-002",
         "version": "0.1.0"
       },
-      "mode": "synthetic"
+      "mode": "synthetic",
+      "resourceLock": "module-library/hosts/text-generation/resources.lock.json"
     },
     {
       "id": "H-F-003",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T08:35:09.175Z",
       "module": {
         "id": "F-003",
         "version": "0.1.0"
       },
-      "mode": "synthetic"
+      "mode": "synthetic",
+      "resourceLock": "module-library/hosts/image-generation/resources.lock.json"
     },
     {
       "id": "H-R-001",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "R-001",
         "version": "0.1.0"
@@ -100,9 +135,9 @@
     },
     {
       "id": "H-R-002",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "R-002",
         "version": "0.1.0"
@@ -111,85 +146,984 @@
     },
     {
       "id": "H-C-001",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "createdAt": "2026-10-29T06:59:24.112Z",
-      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "C-001",
         "version": "0.1.0"
       },
       "mode": "synthetic"
+    },
+    {
+      "id": "H-F-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "F-004",
+        "version": "0.1.0"
+      },
+      "mode": "local"
+    },
+    {
+      "id": "H-F-005",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "F-005",
+        "version": "0.1.0"
+      },
+      "mode": "local"
+    },
+    {
+      "id": "H-R-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "R-003",
+        "version": "0.1.0"
+      },
+      "mode": "synthetic"
+    },
+    {
+      "id": "H-R-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "R-004",
+        "version": "0.1.0"
+      },
+      "mode": "synthetic"
     }
   ],
-  "args": [
-    "--test",
-    "--test-reporter=tap",
-    "tests/agent.test.js",
-    "tests/app-controls.test.js",
-    "tests/cli.test.js",
-    "tests/core.test.js",
-    "tests/image-capabilities.test.js",
-    "tests/module-hosts.test.js",
-    "tests/module-library.test.js",
-    "tests/session.test.js"
+  "resourceRevisions": [
+    {
+      "resourceId": "TR-GEMINI-001",
+      "resourceVersion": "0.2.0",
+      "scenarioId": "text.ok",
+      "scenarioVersion": "1.0.0",
+      "fixtureSetVersion": "1.0.0",
+      "fixtureSha256": "e48c95cc42508290cc16c9e6cf06f3076c2afc7994a46b826211ab493d371d64",
+      "protocolSnapshot": "gemini-developer-v1beta-generateContent@2026-10-29",
+      "hostId": "H-F-002",
+      "createdAt": "2026-10-29T07:41:45.598Z",
+      "updatedAt": "2026-10-29T08:18:05.932Z",
+      "manifestSha256": "2b2d12e24a89ca90e9a2c3d6326a020f732a151fb14c8be8b7676c73a047fea0",
+      "lockSha256": "f57867c37b4a69eac363bf8d0aff63b2dbba5f33edbad87a556a9c893f10b13f"
+    },
+    {
+      "resourceId": "TR-ARK-001",
+      "resourceVersion": "0.1.0",
+      "scenarioId": "text.ok",
+      "scenarioVersion": "1.0.0",
+      "fixtureSetVersion": "1.0.0",
+      "fixtureSha256": "c0f2df59c92420a0e9c6e955f96cf4d3a1c0cfe7fe37cb066d70599b2a44a4fe",
+      "protocolSnapshot": "ark-ordinary-v3-chat-images@2026-10-29",
+      "hostId": "H-F-002",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z",
+      "manifestSha256": "6115a2aaf1dbb42397202e2e1225b33c98b0cf222583a99ffaed76383cb6fd3a",
+      "lockSha256": "f57867c37b4a69eac363bf8d0aff63b2dbba5f33edbad87a556a9c893f10b13f"
+    },
+    {
+      "resourceId": "TR-ARK-001",
+      "resourceVersion": "0.1.0",
+      "scenarioId": "image.output",
+      "scenarioVersion": "1.0.0",
+      "fixtureSetVersion": "1.0.0",
+      "fixtureSha256": "91d012c08d44896df22943f6fa5f62b03acf915a0beff82c5c48bcac6d94e217",
+      "protocolSnapshot": "ark-ordinary-v3-chat-images@2026-10-29",
+      "hostId": "H-F-003",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z",
+      "manifestSha256": "6115a2aaf1dbb42397202e2e1225b33c98b0cf222583a99ffaed76383cb6fd3a",
+      "lockSha256": "b864c67d43551e613f91b3f787b06ec7a41346dec904d754b037f992cfca639c"
+    }
+  ],
+  "commands": [
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/agent.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/app-controls.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/ark-configuration.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/ark-hosts-live.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/ark-simulator.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/cli.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/core.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/gemini-configuration.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/gemini-simulator.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/image-capabilities.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/module-hosts.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/module-library.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/module-test-results.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/session.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/shared-configuration-profile.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/shared-fixture-contract.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/shared-png-inspection.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/shared-simulator-session.test.js"
+    ]
   ],
   "stats": {
-    "tests": 118,
-    "pass": 118,
+    "tests": 276,
+    "pass": 276,
     "fail": 0,
-    "skipped": 0,
     "cancelled": 0,
-    "todo": 0
+    "skipped": 0,
+    "todo": 0,
+    "suites": 0
   },
-  "outputSha256": "391563a1207cf0684b23c3fa57da08d44c9b66c1c2c1c86cba001d9b8c37a6ce",
+  "runnerEnvironment": {
+    "NODE_OPTIONS": "cleared",
+    "NODE_TEST_CONTEXT": "cleared"
+  },
+  "runStartedAt": "2026-10-29T11:09:41.738Z",
+  "runFinishedAt": "2026-10-29T11:09:59.464Z",
+  "testResults": {
+    "schemaVersion": 1,
+    "runner": "node:test",
+    "files": [
+      {
+        "file": "tests/agent.test.js",
+        "moduleIds": [
+          "C-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "4090f81ce6b25c2ba30186300efbc04a3a25ae494ca7a9ba6102411da4bd65fd",
+        "result": {
+          "file": "tests/agent.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 19,
+            "pass": 19,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "c99e12e11cefb115e8e2a080fcf8cb23c2f2c0dd004966e3232d4b287d734e4e",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/app-controls.test.js",
+        "moduleIds": [
+          "R-002"
+        ],
+        "status": "PASS",
+        "sourceSha256": "d2ea264736c7666548880ef029f80b9a8d2ea07199919eb97771f3f362f81950",
+        "result": {
+          "file": "tests/app-controls.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 18,
+            "pass": 18,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "7f75a91ef53817bc16e0fcc199db772999b557b40b7ee6df4cbe5b5de39abfc0",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/ark-configuration.test.js",
+        "moduleIds": [
+          "F-002",
+          "F-003",
+          "F-005",
+          "R-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "53023dd142782eebe786d82582a7ab0ef16b6cacb36cb8c23f234687eefa218e",
+        "result": {
+          "file": "tests/ark-configuration.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 11,
+            "pass": 11,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "f98dfef41ad02bddbcc97954a2b8590fe00d808fbe36fa85187c4496fdc3a850",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/ark-hosts-live.test.js",
+        "moduleIds": [
+          "F-002",
+          "F-003",
+          "F-005"
+        ],
+        "status": "PASS",
+        "sourceSha256": "b0e32c037830b8a99f2f1bb509ce768264a7db81ac19bdc272808118cef4f722",
+        "result": {
+          "file": "tests/ark-hosts-live.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "e87b387bda411587faa6a59198bcd09cdc2bf85949f47fd6bef91ab2fbec1f2a",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/ark-simulator.test.js",
+        "moduleIds": [
+          "F-002",
+          "F-003",
+          "F-005",
+          "R-003"
+        ],
+        "status": "PASS",
+        "sourceSha256": "2f4d0fcf16a563da98e3379da7384ae6bc6fbd9446e918573cf4d93e6a65797c",
+        "result": {
+          "file": "tests/ark-simulator.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 25,
+            "pass": 25,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "07b8079cdc070dfd3572ba1a64d7b5dabf858dc3ca2808d8157a8be0e8dfc5f1",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/cli.test.js",
+        "moduleIds": [
+          "R-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "d43964c5373f6c4aee239f72751865576aa3a079cf0f19ed0a0691c7cf9ea413",
+        "result": {
+          "file": "tests/cli.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 13,
+            "pass": 13,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "0fa578ca280e3a8c242b29fcd953be8c2e26ce69876d06503eb189b8de2bedb7",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/core.test.js",
+        "moduleIds": [
+          "F-002",
+          "F-003",
+          "R-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "e184653a461a04fe8795350ad62ef313111f07aeebd130698d21e967bd9f9aab",
+        "result": {
+          "file": "tests/core.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 25,
+            "pass": 25,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "cc278262e1491df2de41a260972c20a22d78fabc080ca7a718395b1f111b12d6",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/gemini-configuration.test.js",
+        "moduleIds": [
+          "F-002",
+          "R-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "384e854d6ccb5dee79cc0ecb5a866f9355723bd110e48bf7ff0368d7f0a59782",
+        "result": {
+          "file": "tests/gemini-configuration.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 19,
+            "pass": 19,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "2b139555ea15490ab8d8325e7e9156bfdd17d7c92c71a232b0f4fa81e2c4551c",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/gemini-simulator.test.js",
+        "moduleIds": [
+          "F-002",
+          "R-003"
+        ],
+        "status": "PASS",
+        "sourceSha256": "a94753481e683654302afbda95451ffa73e0c1fdef25d41fc3d95bb9fe7f1cde",
+        "result": {
+          "file": "tests/gemini-simulator.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 33,
+            "pass": 33,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "246167721a120f8c487d10a9ae1f73aea24454ec51dda92747342a845aa67856",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/image-capabilities.test.js",
+        "moduleIds": [
+          "F-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
+        "result": {
+          "file": "tests/image-capabilities.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 5,
+            "pass": 5,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "d4874042f7a1769a2fd9b5a8bf43ee798d154996be69d30e60c8e119a61cbd75",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/module-hosts.test.js",
+        "moduleIds": [
+          "F-001",
+          "F-002",
+          "F-003",
+          "R-001",
+          "R-002",
+          "C-001",
+          "F-004",
+          "F-005",
+          "R-003",
+          "R-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "23bf006de5a6adab485f7d2fa512acdb0037641ded6928e3827ff5c0f7f00764",
+        "result": {
+          "file": "tests/module-hosts.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 14,
+            "pass": 14,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "0a654ff005b88409d50e066149699293ace3556e62b2df86da965079693b5d1d",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/module-library.test.js",
+        "moduleIds": [
+          "F-001",
+          "F-002",
+          "F-003",
+          "R-001",
+          "R-002",
+          "C-001",
+          "F-004",
+          "F-005",
+          "R-003",
+          "R-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "00a51d14c079d613efe2563e820ddf17519219340d22b9a69f2680b20cb37153",
+        "result": {
+          "file": "tests/module-library.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 25,
+            "pass": 25,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "f65a21261b8b13d5548857983c2e8142ad90328a1b7c98b561bc83a1600e8b93",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/module-test-results.test.js",
+        "moduleIds": [
+          "F-001",
+          "F-002",
+          "F-003",
+          "R-001",
+          "R-002",
+          "C-001",
+          "F-004",
+          "F-005",
+          "R-003",
+          "R-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "a88e2384eeeef728eeb2c279283e2abc02a3c17ad3beb6c3337a63cd1c095850",
+        "result": {
+          "file": "tests/module-test-results.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 20,
+            "pass": 20,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "7996e64189c2a45e1c7ad099189c2bed44853858d6f81f7760c45449e363ec02",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/session.test.js",
+        "moduleIds": [
+          "R-002"
+        ],
+        "status": "PASS",
+        "sourceSha256": "0fbe9dc987ca488bff6b9c482c3c11d004da4608a303ef66d8c037cf93a58a8c",
+        "result": {
+          "file": "tests/session.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 10,
+            "pass": 10,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "3cd7a345e44d1aa35182a4e6590cb477a7c13607224504e1c3a2ae0af7559cb1",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/shared-configuration-profile.test.js",
+        "moduleIds": [
+          "R-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "fe7d1ee65c464b2583a4b2b340ad85c9bd32398166456785f8922ba2d2aaa0cc",
+        "result": {
+          "file": "tests/shared-configuration-profile.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 8,
+            "pass": 8,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "66b3ab4e1d3ff4541638d6ef188eb166a248a84392e07816f2579cbab1e441f6",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/shared-fixture-contract.test.js",
+        "moduleIds": [
+          "F-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "76b4cf87c4548a303eb3004645b75a377339638930c5bf3bee25b861e8ea1d7f",
+        "result": {
+          "file": "tests/shared-fixture-contract.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "ba3e55c40aaafcce0bf762242cbd75852f5684917c06891ffbc1c686f99af68a",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/shared-png-inspection.test.js",
+        "moduleIds": [
+          "F-005"
+        ],
+        "status": "PASS",
+        "sourceSha256": "227e53ddf9bba9ba6137aeec2dfc1836531499f9cb59d7e065848c53d77658a5",
+        "result": {
+          "file": "tests/shared-png-inspection.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "d156c126389037dc1e6d48722051cec870d11bdb109428467d8c3f6ab4eae36c",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/shared-simulator-session.test.js",
+        "moduleIds": [
+          "R-003"
+        ],
+        "status": "PASS",
+        "sourceSha256": "f679b2330556e9ced2214a48ecb22bb20d8547bfc7346e05b4a362ebaa03326f",
+        "result": {
+          "file": "tests/shared-simulator-session.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "5c4dc30ceacc6b2bf7db11246e46e727b358aae9ed8d0add7c1b853f53bc1066",
+          "status": "PASS"
+        }
+      }
+    ],
+    "modules": [
+      {
+        "id": "F-001",
+        "version": "0.1.0",
+        "files": [
+          "tests/image-capabilities.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "F-002",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-configuration.test.js",
+          "tests/ark-hosts-live.test.js",
+          "tests/ark-simulator.test.js",
+          "tests/core.test.js",
+          "tests/gemini-configuration.test.js",
+          "tests/gemini-simulator.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "F-003",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-configuration.test.js",
+          "tests/ark-hosts-live.test.js",
+          "tests/ark-simulator.test.js",
+          "tests/core.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "R-001",
+        "version": "0.1.0",
+        "files": [
+          "tests/cli.test.js",
+          "tests/core.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "R-002",
+        "version": "0.1.0",
+        "files": [
+          "tests/app-controls.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/session.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "C-001",
+        "version": "0.1.0",
+        "files": [
+          "tests/agent.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "F-004",
+        "version": "0.1.0",
+        "files": [
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/shared-fixture-contract.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "F-005",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-configuration.test.js",
+          "tests/ark-hosts-live.test.js",
+          "tests/ark-simulator.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/shared-png-inspection.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "R-003",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-simulator.test.js",
+          "tests/gemini-simulator.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/shared-simulator-session.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "R-004",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-configuration.test.js",
+          "tests/gemini-configuration.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/shared-configuration-profile.test.js"
+        ],
+        "status": "PASS"
+      }
+    ]
+  },
+  "testResultsSha256": "19f522a3c8836837de5be3c35e1a02c40e8ae85da7f36e9981248ad8ca5f0bec",
   "fileHashes": {
-    "README.md": "178889a2d552e89aa881b936049d80ba42765de8e96a6c4042ba1977adb1377c",
+    "README.md": "e2edc511b0c78c9858d621c7af55d41a3bd291b59217d4ca1b2a663092c11895",
     "VALIDATION.md": "9340daf3bdc4338b1e2b3958bbc536afd317d9fc7f442f7aee49385679fd4c4f",
     "WEB_SESSION.md": "1de60f964a9f5ac763008c6a9cc8bf3aef4432edff16c762a6ba26675bb5323d",
     "cli-mcp-transport.mjs": "4b8c4df1385c3198f34338585ff8e408fdf82c8056ce80823d91b397868c5afa",
     "cli.mjs": "a66cc071aa4a3ade199590faa75f568d811c1b2c9ea7b0594b7394275866ad8c",
     "design/REQUIREMENTS.md": "e5db97d741f4232d2c8cb4343c7173213198b3daf4baf4aef1294e7639ea054d",
-    "module-library/MAINTENANCE.md": "b999c1c221dc5aa67f5cc21e6eb9f2c84d3ffb0dfa803be735e27ea88519aa22",
-    "module-library/README.md": "4a4258a2cc650ad725a1c6505078895f132d592f432519a71dbf8a2ead04297b",
-    "module-library/catalog.json": "2f103cdf632b2e92f42db43402da7ece1d3e1f13027ea599eb1bab1e8aa939a6",
+    "module-library/BORROWING.md": "e78239b5fa77e3fc329fced771f47765d607c7ccd7a700528f96d16096be4455",
+    "module-library/MAINTENANCE.md": "bef8043fc9583f6c3bd843f4a65119fb1e3145f92e7b7ccfedb30140b8a7ff33",
+    "module-library/README.md": "ab0433dd2e6532e94f49f26adf843e48d8418e88fa7ec506e1888a764256d795",
+    "module-library/catalog.json": "c34ccdb1c37576523420b3752997b7c2efbd7e32074622668b4fd5edf273e268",
     "module-library/compositions/agent-image-turn/CONTRACT.md": "c68e0382984d081ba1a56be4a1df3b6103e57a400ab636b27c9a080a27eaafe2",
     "module-library/compositions/agent-image-turn/index.js": "e6d6ea4850a974edaa8a1e78857fda2bb2f97e9e2d98b375646a344466e38ee1",
+    "module-library/evidence/ark-simulator.json": "5745403257fe8b111a32dde6bea51337da5f1d6c7cfa6ed386c895075d78f28f",
+    "module-library/evidence/gemini-simulator.json": "79beeff11a6d4a8de8f1570fa9ad9ae30d828e4d7ee57aa6d8ca413c4edea496",
     "module-library/evidence/reported-ark-image.json": "da46f894b34c2f25ab41e76fe2f38060a60ffbec5eb8329ec60630486f4d7ae4",
     "module-library/experiments/README.md": "6ef35120cc0a2f9b953f83982c36fbf7c4f9be63357f5390bc6f2354f7c01995",
+    "module-library/functions/fixture-contract/CONTRACT.md": "46bdb54d5fe3a3fbb3aed992fdd201f706ea62e4bd21c1935c4015b4d88e3b8d",
+    "module-library/functions/fixture-contract/index.js": "16b38898c4a0558ec555ceddfbc02e434525ec2327080c908e9dcb4df16a4b16",
     "module-library/functions/image-generation/CONTRACT.md": "622f8cb0bf1618954b29a4d86283a251f896ab374b4ee8d5d4cab29f08387992",
     "module-library/functions/image-generation/index.js": "55be48ecbbc3b0fe879a48c3d49147c468417f58bfca3c71c2b3374ded0b1702",
     "module-library/functions/image-options/CONTRACT.md": "2ebfe7b82d0e733b8aefcfea171ce18b6ded6d1a67074873b3a249767039d068",
     "module-library/functions/image-options/index.js": "f27bf9fbfbc95d9303b3070e52f779eb95f16793924677278c4180ae06dc9060",
+    "module-library/functions/png-inspection/CONTRACT.md": "fa429c57388bf266929a7020f2a304919683837b7bcbffca622c163b24dc0e29",
+    "module-library/functions/png-inspection/index.mjs": "ac13fb5e8d6a0077a5312f0ba168c7ecf51496a3e02097995f7bbf5d3f1074cf",
     "module-library/functions/text-generation/CONTRACT.md": "04a12eae39a2792a03a276a949b04dbfa761bf47b907699f3472f3b4722c6b8e",
     "module-library/functions/text-generation/index.js": "c4ab527758c6a8e5c5ded962189083bb41a98dd98129b4cbec49e6e4255a2c99",
-    "module-library/hosts/README.md": "8620a5e17d38c73c3e08926dd079fd8e6c2f16d0a90983a130ec9598817d6fa9",
+    "module-library/hosts/README.md": "035b4d386854ad392378534386204bcc545e877c497271cb6e984a24d8c155e4",
     "module-library/hosts/agent-image-turn/README.md": "240a3dc68a85139749f35f27adf4bb6bc7aa0c12186fc84790f9c08bf3dc7983",
     "module-library/hosts/agent-image-turn/run.mjs": "182a2bd6652c0d3eb89a224e4a464417515b7a65a14889164046e9e152076d69",
-    "module-library/hosts/catalog.json": "ec21b7a93d52320cf28f5a551794afa29401cead891ce9ee457c9d7db5da6e64",
+    "module-library/hosts/catalog.json": "2fbe5a91554247df299068fe1e7ef8596806ddcb3b1729c78ce424167b77f719",
+    "module-library/hosts/configuration-profile/README.md": "55f69ae4a52db66631a9a9386def159330ef4830b1229c5bba7fff638dc0c6a9",
+    "module-library/hosts/configuration-profile/fixture.mjs": "3c606eadfba8dfdbc66ddf3e90fbed00dd6379d834bf352b696e925687346706",
+    "module-library/hosts/configuration-profile/run.mjs": "a218b99c668572617c3f32f57af662394b7881ea258edefe244be28491e82715",
+    "module-library/hosts/fixture-contract/README.md": "a286877ba2508fe3e82b0e778f2bc0e333f1e2b53b604b4e34d35cbadd8a68b9",
+    "module-library/hosts/fixture-contract/run.mjs": "67f29047c84d917476c61dba0c1359e91f38ce3b46cfdd3c5068a5794e8e2e6b",
     "module-library/hosts/image-command/README.md": "ba0559fcfd534f1b8eb9a522b7e665b2683902148128a734e5740f9b52ac9ba1",
     "module-library/hosts/image-command/run.mjs": "b456f5947506986e0bc496fa548468260f3430e0b5daee76204cbe375b43c296",
-    "module-library/hosts/image-generation/README.md": "a3812921885411cfc96de9a384ed30c86e299701bd64f8f7b822bedb7e493982",
-    "module-library/hosts/image-generation/run.mjs": "09e0a148cc44a2cec4e59bc34ff0edf7e2625da3da4709aba5340192bec9103e",
+    "module-library/hosts/image-generation/README.md": "b998718fd17cbd038315324e3288b8e0406ac16021cb7fc092a27fc37b8b7a09",
+    "module-library/hosts/image-generation/resources.lock.json": "b864c67d43551e613f91b3f787b06ec7a41346dec904d754b037f992cfca639c",
+    "module-library/hosts/image-generation/run.mjs": "574ed1c7da34fd2cc882f30abac80b00cf1201052d756b72a0f1bb76fab4bcc7",
     "module-library/hosts/image-options/README.md": "8350776d89d449b32bdfe5bcda8fa0d801564f23bbfda734bfecb2bfeaac363a",
     "module-library/hosts/image-options/run.mjs": "9f991422ca4bf335433a86719046c908862dd48e14ccbc7ac869636f15d71eaf",
     "module-library/hosts/page-session/README.md": "cbc9fc46661122e892317c5dea310de926080643458a866d4d04277aee69a428",
     "module-library/hosts/page-session/run.mjs": "d381f2bda274d8398f907f70cf17753cda846b98628af214179b460f8b22c860",
-    "module-library/hosts/support.mjs": "1fbaafdd16c27ec1578b0af401f442256d902dd94b6b86dfb662764fb24ec4b7",
-    "module-library/hosts/text-generation/README.md": "840a4fbf5c92ab4e7d43ecb09521010abe9f6371fa8b087667ef727dcc505d88",
-    "module-library/hosts/text-generation/run.mjs": "9662afe59c18af20287f0532606ab69bd7571096be370560b22501282b63612a",
+    "module-library/hosts/png-inspection/README.md": "0b106c64b694c7aad084b53961ae80e4ac8339cceed8a13ed8d0af7800e23df6",
+    "module-library/hosts/png-inspection/run.mjs": "48f9687b398d304677d62bbfef829c98c73eb55f6b72137104d450db913cad13",
+    "module-library/hosts/simulator-session/README.md": "f44d52982a2288ead82b937d9d5572d8d2660667aa050e3d6e43bcf27c7dd5ef",
+    "module-library/hosts/simulator-session/run.mjs": "ed91c12cf57134593a3f1e2d10fc58f9f7cd96ec8c30f2a55ddee061788a4d6b",
+    "module-library/hosts/support.mjs": "b4adeee6df6bb59965bf46715c22cda29d25f157bf5662b0ebe28ccbb43d9f7f",
+    "module-library/hosts/text-generation/README.md": "017bdbcbbccfdb56593f921894b29d929f99250727a7c5f4f84427c15ec37191",
+    "module-library/hosts/text-generation/resources.lock.json": "f57867c37b4a69eac363bf8d0aff63b2dbba5f33edbad87a556a9c893f10b13f",
+    "module-library/hosts/text-generation/run.mjs": "164b04b290985a4f9630137c300f3bd6fd0df586eb9663481a8d5450bf1265c6",
     "module-library/recipes/agent-image-turn.json": "6ce4477e23ab95ed09ef6b307e250472425fc98a33cd68b5714ee7775b27ea6f",
+    "module-library/relations/configuration-profile/CONTRACT.md": "b443377690391a05389ea21da286962beab9595748a0fb85a7ebca97e526a0d7",
+    "module-library/relations/configuration-profile/index.mjs": "88178c4923e26b27fbb7725663141fceb24f50eab74fe631b9a5abeae77bf4d3",
     "module-library/relations/image-command/CONTRACT.md": "ac8f14a15cb0b33bb2c16f2cf6d3da2146085c057bf87c548afb8e0cc3d69910",
     "module-library/relations/image-command/index.js": "baef4013a0c332fcd740e053e0ae2d28c4f2e357cbb6cdd87fe56d05c9e300b7",
     "module-library/relations/page-session/CONTRACT.md": "97a1838e0e000327f02a21ee4a9a37830d93f0f29d824d9682edb3c3e3e1a5a4",
     "module-library/relations/page-session/index.js": "1f207e5bdadd35257c966f532ab1f927c8f510df44c0331feb1f02e93f45f0fc",
+    "module-library/relations/simulator-session/CONTRACT.md": "7209a1175e2dd3cf95754dc411272c089d05a5d1d272338df0eed9558b2fbc01",
+    "module-library/relations/simulator-session/index.js": "c3ad6cc5ae264283c25515746eb0580b71f07ea7bdf31bc5f62ed5c7b872a49c",
     "module-library/scenarios/workbench-v1.json": "9bad506dc0457788acd400169a4a344886603c270723c11111ea03400f368b90",
-    "module-library/templates/CONTRACT.md": "31dc8662a39e995e5cc01ed0b5187423448739562e52db74549b1346628f3830",
-    "module-library/templates/host-card.json": "a3ee8be86a8c7dfd5e79a5a279a43547a6332ee6fc78f2caa64f616b2c487c5f",
+    "module-library/templates/CONTRACT.md": "a9e91eb248fe126da866ad8c1ad5271dbe6beb419f949e8f474612e7cee58762",
+    "module-library/templates/host-card.json": "ec498292c8f06c76c46ec9621f724ef40f87e6f1ccb6580a8f581ec21939ef5a",
     "module-library/templates/module-card.json": "18a1c8dec98af682ff124a82acd2d6b41afc4004af5cd2889b25c51b9ac87c07",
-    "package.json": "a388006a0f6f1565306c9a3f21d597c7b723572412b1cf1900543ba8ce4236fe",
+    "module-library/test-resources/README.md": "55eab20f51564b13395a917a2413c9e0de228474fcc540a82ee59d85f5fcfdd1",
+    "module-library/test-resources/ark-native/CONFIGURATION.md": "2632c772cc069fed6bee81ffc7bb68c33ed943ddb85f3a1eb496092f14ed6a6e",
+    "module-library/test-resources/ark-native/LIVE.md": "38119303261f4e5bb026f1e82f0dbe04a0ac863da3cd706469d2b16a0cfa9b46",
+    "module-library/test-resources/ark-native/README.md": "58d63039039ad3d151bb543e363fb635847a3cf3e91fe598e5561dcff7bdf371",
+    "module-library/test-resources/ark-native/assets/solid-blue-1536.png": "5a25d47978e87f6e6d5a72d8688d18ea6ea50b82d2add5729b04ec5fc092ba43",
+    "module-library/test-resources/ark-native/configuration.mjs": "5f017abc20d863df56b6f7aca80ec650fefb5a1a4c9e0f02d0b9657f626f7adc",
+    "module-library/test-resources/ark-native/fixtures/v1/http.400.json": "122ebaf6b43d79a173423ec171522c81574d624ea4f4a4406967559418100430",
+    "module-library/test-resources/ark-native/fixtures/v1/http.401.json": "dcb4f0aec2f1d5bfc624bf8632c4fa8e987cfecc3d5212ed836213360bd0fd10",
+    "module-library/test-resources/ark-native/fixtures/v1/http.403.json": "fea22c012832fa5d6811f5b6d3db7d58cca3f095c8f60619572700c80dd87477",
+    "module-library/test-resources/ark-native/fixtures/v1/http.404.json": "7df1b3f42864faa8f84520d89db80764d66c6f9b22d4dac07254414e13948ddf",
+    "module-library/test-resources/ark-native/fixtures/v1/http.429.json": "250bba6bc3eacad293c641167f66fb988a7f46af26000dcce6c7ce2b248d0f7e",
+    "module-library/test-resources/ark-native/fixtures/v1/http.500.json": "18490d8dfa65c5f5dbc65ddc131ca00b4c2b5eeaa257b17de8d86954c8f930a4",
+    "module-library/test-resources/ark-native/fixtures/v1/http.503.json": "52477e5b39724aed977f1a59f6e8f32b895c78d523b6621e00f53cdfefdaa016",
+    "module-library/test-resources/ark-native/fixtures/v1/image.http.400.json": "2765fb4d6a5eea399faae243370ce07f4a09b778d49c47482be7840b71ac47d1",
+    "module-library/test-resources/ark-native/fixtures/v1/image.output.json": "91d012c08d44896df22943f6fa5f62b03acf915a0beff82c5c48bcac6d94e217",
+    "module-library/test-resources/ark-native/fixtures/v1/robust.invalid-json.json": "9421f9380d213c860998db30332207667aa36a76ea0a909cc36588bdb4d604d3",
+    "module-library/test-resources/ark-native/fixtures/v1/text.empty.json": "c897764785a603d84dcffe467936c4a62d211f27fc489060054082647dc6a64f",
+    "module-library/test-resources/ark-native/fixtures/v1/text.encrypted-follow-up.json": "0e69aab54f19ff980ec76f202dd486487604f88ca4c8373f0f9c99902cd1e456",
+    "module-library/test-resources/ark-native/fixtures/v1/text.ok.json": "c0f2df59c92420a0e9c6e955f96cf4d3a1c0cfe7fe37cb066d70599b2a44a4fe",
+    "module-library/test-resources/ark-native/fixtures/v1/tools.follow-up.json": "c56cc359f21cd3d6961920b3f840b2ce67a32e013eb60c873dfac5f7bbe1b6f1",
+    "module-library/test-resources/ark-native/fixtures/v1/transport.delay.json": "1fd539aaa01ee4ad38a45fc7390d7348fc201c60e029bbdffe13c988b2e8e9ab",
+    "module-library/test-resources/ark-native/fixtures/v1/transport.hang.json": "06a1267cf7136f1d6a1f9d515c8f4f7358d092441afd5a9dfebe0d6f4300d49d",
+    "module-library/test-resources/ark-native/fixtures/v1/transport.reject.json": "cfa308ac403a4f96456890ab4acd43725d6033afcaeac04e5fb784e1d3865662",
+    "module-library/test-resources/ark-native/index.mjs": "fb233382aa964691b1751df23ac33ebd7005f6c2d7f43f02df856947d4275a50",
+    "module-library/test-resources/ark-native/live.mjs": "c02ee0511b4f86fd529986313ac2103bace2563fa119e2b6c64529e230733152",
+    "module-library/test-resources/ark-native/manifest.json": "6115a2aaf1dbb42397202e2e1225b33c98b0cf222583a99ffaed76383cb6fd3a",
+    "module-library/test-resources/catalog.json": "ce04bd42a622a3bbdaeb7750145782e4d55e41ef4669826e51c6f35c089feafa",
+    "module-library/test-resources/gemini-native/CHANGELOG.md": "6f3b03bab9bc5b1a652f7ef207d4c9edf91e9b6ef50755c45ee3d3ecaa16f757",
+    "module-library/test-resources/gemini-native/CONFIGURATION.md": "c8142a851aa9561de00d96afe25a5277404cd2026c55affbad9d7895beffba6e",
+    "module-library/test-resources/gemini-native/README.md": "ba05d81339312a51d184b6934d23a832044cdfd0ffd718a5830d5d787f966a21",
+    "module-library/test-resources/gemini-native/assets/pixel-1x1.png": "a3ddde277d24c767cf92bc0c94b6af6a36652e760d3096aea896f111b356aafa",
+    "module-library/test-resources/gemini-native/configuration.mjs": "aa3f64e5ebf05a7fceb9e883d91116770d91922ab03ca3c76ed184d5df542ceb",
+    "module-library/test-resources/gemini-native/core.js": "bedb5df8868163a2a280c8439beb22167e2b1f6c4b0a371550a48a1f12efef3c",
+    "module-library/test-resources/gemini-native/fixtures/v1/http.400.json": "6dc1c8dc9c165adb8549e97635197e048f2aa9785242066756a13b6a67105b92",
+    "module-library/test-resources/gemini-native/fixtures/v1/http.403.json": "c494d5c1961d7c42def9dc74329000d870a0c678c56c163f66debafd37de01f0",
+    "module-library/test-resources/gemini-native/fixtures/v1/http.404.json": "8829b7e17e65bdfd2c5f60b3f29aaa5675987389b2cc32bcc7a5c7fd70afc2a3",
+    "module-library/test-resources/gemini-native/fixtures/v1/http.429.json": "b1578fcf47223d0108f10423656ef078cb5d2a8958a1c1a7817b240f31109971",
+    "module-library/test-resources/gemini-native/fixtures/v1/http.500.json": "e3a3852398a40b694a32cf7067db8289cd6bd8c0264be8a363664830cfdd9d26",
+    "module-library/test-resources/gemini-native/fixtures/v1/http.503.json": "cf9ed43e2efcb7d567227adfd9ca8fd127570c9fa9446167b559cf4a282c690b",
+    "module-library/test-resources/gemini-native/fixtures/v1/image.output.json": "7f9ad47fb5fce34675fdeff6ad35c5bc750d95de87b5e83d5f85b06d798c3470",
+    "module-library/test-resources/gemini-native/fixtures/v1/models.empty.json": "8520e14ca805f3283afb3f56c36beb93c0ddd4655d49cfa25cb2fb8f253e1ff7",
+    "module-library/test-resources/gemini-native/fixtures/v1/models.list.json": "25692d495565a0bce94121f17f4c4bb52ca84484286ee688bb3de4d53cefe4f3",
+    "module-library/test-resources/gemini-native/fixtures/v1/models.paged.json": "75af1f8255a4e9343e1acc0bb0274986cd0938309c4804a5b8fb19ac2b7ebe6f",
+    "module-library/test-resources/gemini-native/fixtures/v1/robust.invalid-json.json": "a9a11cb8ec5fc07cc5afd6f9eb07206dbb40dff4cc53f2648665f41c9767c063",
+    "module-library/test-resources/gemini-native/fixtures/v1/safety.prompt-blocked.json": "6bbb138b49ddcaceebc7139ca96ab57b06123f505b921166c448a64d61329d14",
+    "module-library/test-resources/gemini-native/fixtures/v1/text.ok.json": "e48c95cc42508290cc16c9e6cf06f3076c2afc7994a46b826211ab493d371d64",
+    "module-library/test-resources/gemini-native/fixtures/v1/tools.follow-up.json": "75e05bc64ab7b8da72c471a689e301536737e615fbec9a97c88045f1e6340509",
+    "module-library/test-resources/gemini-native/fixtures/v1/transport.delay.json": "7d6e56d13b89a69b777ecb8317e7cf83442e8853efa9b0f95bb608c920c91ff8",
+    "module-library/test-resources/gemini-native/fixtures/v1/transport.hang.json": "754a11d05d57fe2b21a3400d6af5d8fa9224dfef0effde454483da8dc49b0cfa",
+    "module-library/test-resources/gemini-native/fixtures/v1/transport.reject.json": "9f8e2f506d3604121894046f9d9589b28aaab6362f996266443d58d0c3ea6527",
+    "module-library/test-resources/gemini-native/index.mjs": "a88661a53dc6d9bbd30dc2857831e87ad517df2c2aef8e6aa05521fd9d0046a7",
+    "module-library/test-resources/gemini-native/manifest.json": "2b2d12e24a89ca90e9a2c3d6326a020f732a151fb14c8be8b7676c73a047fea0",
+    "module-library/test-resources/shared/README.md": "97179e826ddc74ea139ebb118070e77627934eb547e30bdb4f9c8009efa7a9c0",
+    "module-library/test-resources/shared/configuration.mjs": "3ea27897aa83d9d5454d7cb3a18db04dafd30551d09952a85e0165773e3ac1d3",
+    "module-library/test-resources/shared/core.js": "9ddee992934d0b6fabfc7f7eb7d1a4dd67c9b5c06c99dffbfa64efe59b308855",
+    "module-library/test-resources/shared/png.mjs": "5e79c12beb88366a07404b901d05312960a2d79d8f8e6ef7a62257f3ef1210db",
+    "package.json": "b4ca51b2135943a244fdb4e7e0e2f66236abfce4177a444c891775ef90323708",
+    "scripts/ark-simulator.mjs": "e1bac847286cf361132701d4524cb6d7dfd5b9c9d4054176265ffecf2344e865",
     "scripts/build.mjs": "219ce4240ac3d64e2404d902ea5b9f484363349bc8902fe4c15be07913dbbb4c",
-    "scripts/module-host.mjs": "d16f42f038dce05b1ffd9c54970af9e5c2f06e721b85af0c13400c1ca4826d89",
-    "scripts/module-library.mjs": "4ee683879014ec16fff3ad13d6eaee0fed943ad891b45288deb0f49dd838cc0b",
+    "scripts/gemini-simulator.mjs": "b0f44ef7b7e609c0edb21f6c0272969c04d67a901fc0bcb1aea07a5eea9af93b",
+    "scripts/module-host.mjs": "de968e56b0d35817319bac2c2ba90ee28e60d77b188d30c6a726d31ccd4f8cbd",
+    "scripts/module-library.mjs": "caba69540c328a1768d4acecd42fc929e1f029b6b0ec8cdcd64f610335580ba5",
+    "scripts/module-test-results.mjs": "14baf7a52267e445e8212dffd351b949abb345aa230db10ee4dc9d870abfa713",
+    "scripts/simulator-cli.mjs": "f3840b8807c4eca684ce197626bf5d85a2087b1a429ba5bf8b07eec4ad963348",
     "src/agent.js": "98d86c8e85f40c6c0339e474383c72144144af761c988454b02f00227f038d88",
     "src/app.js": "bd01b5f8876e96c7d56a29dea43b5c747478e088016696e016285b2af825943b",
     "src/core.js": "e750e7c7a26461569da8c399edec5b3fee7720b8cc21a1763ac6847fb5e476f4",
@@ -202,16 +1136,26 @@
     "tests/agent.test.js": "4090f81ce6b25c2ba30186300efbc04a3a25ae494ca7a9ba6102411da4bd65fd",
     "tests/app-controls.test.js": "d2ea264736c7666548880ef029f80b9a8d2ea07199919eb97771f3f362f81950",
     "tests/app.test.js": "4f93aec66c5acb822c48475dfb227c0f9df018147352a9f7429a00ed381832fa",
+    "tests/ark-configuration.test.js": "53023dd142782eebe786d82582a7ab0ef16b6cacb36cb8c23f234687eefa218e",
+    "tests/ark-hosts-live.test.js": "b0e32c037830b8a99f2f1bb509ce768264a7db81ac19bdc272808118cef4f722",
+    "tests/ark-simulator.test.js": "2f4d0fcf16a563da98e3379da7384ae6bc6fbd9446e918573cf4d93e6a65797c",
     "tests/build.test.js": "427ca5867ba38384c4a772efb35566673c1723fdbdaf0232c963f3f0586497b8",
     "tests/cli.test.js": "d43964c5373f6c4aee239f72751865576aa3a079cf0f19ed0a0691c7cf9ea413",
     "tests/core.test.js": "e184653a461a04fe8795350ad62ef313111f07aeebd130698d21e967bd9f9aab",
     "tests/fixtures/fake-browser-mcp.fixture.mjs": "6c43f4c4a8122f196a31eb4fda4ebac2be29520b0718a62adce786c7e9c0cb46",
+    "tests/gemini-configuration.test.js": "384e854d6ccb5dee79cc0ecb5a866f9355723bd110e48bf7ff0368d7f0a59782",
+    "tests/gemini-simulator.test.js": "a94753481e683654302afbda95451ffa73e0c1fdef25d41fc3d95bb9fe7f1cde",
     "tests/image-capabilities.test.js": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
     "tests/logs.test.js": "23df7a420ffe19f86d9111d896a6e7ce6bff16a297f415671381accefd2c96d6",
     "tests/mcp-transport.test.js": "c2ddb36032fbdd5c5f248bf37ad216d9889af4eb900764e9fc05dc47b8c4b05c",
-    "tests/module-hosts.test.js": "adeca0f4f3522123d91c442124b6e41c25698d3aa018ea378c5bc68083924869",
-    "tests/module-library.test.js": "644120ab41f28707d51796031bb55c56b7c7bbdd5ada901b9a18092980713356",
+    "tests/module-hosts.test.js": "23bf006de5a6adab485f7d2fa512acdb0037641ded6928e3827ff5c0f7f00764",
+    "tests/module-library.test.js": "00a51d14c079d613efe2563e820ddf17519219340d22b9a69f2680b20cb37153",
+    "tests/module-test-results.test.js": "a88e2384eeeef728eeb2c279283e2abc02a3c17ad3beb6c3337a63cd1c095850",
     "tests/session.test.js": "0fbe9dc987ca488bff6b9c482c3c11d004da4608a303ef66d8c037cf93a58a8c",
+    "tests/shared-configuration-profile.test.js": "fe7d1ee65c464b2583a4b2b340ad85c9bd32398166456785f8922ba2d2aaa0cc",
+    "tests/shared-fixture-contract.test.js": "76b4cf87c4548a303eb3004645b75a377339638930c5bf3bee25b861e8ea1d7f",
+    "tests/shared-png-inspection.test.js": "227e53ddf9bba9ba6137aeec2dfc1836531499f9cb59d7e065848c53d77658a5",
+    "tests/shared-simulator-session.test.js": "f679b2330556e9ced2214a48ecb22bb20d8547bfc7346e05b4a362ebaa03326f",
     "web-cli.mjs": "1eb6a4d4867b6cab99975a8b5f8df4b98aa5e2a9d7b99feea4c75b479b4e8b3b"
   }
 }

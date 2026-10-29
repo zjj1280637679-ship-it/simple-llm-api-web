@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "module": {
+    "id": "F-002",
+    "version": "0.1.0"
+  },
+  "host": {
+    "id": "H-F-002",
+    "version": "0.3.0",
+    "createdAt": "2026-10-29T06:59:24.112Z",
+    "updatedAt": "2026-10-29T08:35:09.175Z"
+  },
+  "mode": "synthetic",
+  "effect": "text.request-response",
+  "lifecycle": "candidate",
+  "resourceRevisions": [
+    {
+      "resourceId": "TR-ARK-001",
+      "resourceVersion": "0.1.0",
+      "scenarioId": "text.ok",
+      "scenarioVersion": "1.0.0",
+      "fixtureSetVersion": "1.0.0",
+      "fixtureSha256": "c0f2df59c92420a0e9c6e955f96cf4d3a1c0cfe7fe37cb066d70599b2a44a4fe",
+      "protocolSnapshot": "ark-ordinary-v3-chat-images@2026-10-29",
+      "hostId": "H-F-002",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z",
+      "manifestSha256": "6115a2aaf1dbb42397202e2e1225b33c98b0cf222583a99ffaed76383cb6fd3a",
+      "lockSha256": "f57867c37b4a69eac363bf8d0aff63b2dbba5f33edbad87a556a9c893f10b13f"
+    }
+  ],
+  "verifiedAt": "2026-10-29T08:37:30.760Z",
+  "runStartedAt": "2026-10-29T08:37:30.700Z",
+  "runFinishedAt": "2026-10-29T08:37:30.760Z",
+  "evidenceType": "SIMULATED",
+  "realApiCalled": false,
+  "observed": {
+    "text": "Host Ark text reply.",
+    "requestMappingChecked": true,
+    "transportRequests": 1,
+    "realNetworkRequests": 0,
+    "virtualTime": true,
+    "simulation": {
+      "evidenceType": "SIMULATED",
+      "realApiCalled": false,
+      "resourceRevisions": [
+        {
+          "resourceId": "TR-ARK-001",
+          "resourceVersion": "0.1.0",
+          "scenarioId": "text.ok",
+          "scenarioVersion": "1.0.0",
+          "fixtureSetVersion": "1.0.0",
+          "fixtureSha256": "c0f2df59c92420a0e9c6e955f96cf4d3a1c0cfe7fe37cb066d70599b2a44a4fe",
+          "protocolSnapshot": "ark-ordinary-v3-chat-images@2026-10-29"
+        }
+      ],
+      "scenarioId": "text.ok",
+      "entered": 1,
+      "consumed": 1,
+      "remaining": 0,
+      "pending": 0,
+      "active": 0,
+      "failed": false,
+      "events": [
+        {
+          "sequence": 1,
+          "logicalTime": 0,
+          "outcome": "request-matched",
+          "step": 1,
+          "method": "POST",
+          "route": "/api/v3/chat/completions"
+        },
+        {
+          "sequence": 1,
+          "logicalTime": 0,
+          "outcome": "response",
+          "status": 200
+        }
+      ],
+      "failures": []
+    }
+  },
+  "limits": [
+    "SIMULATED 不是模型/账户/CORS能力证据",
+    "非流式；每个文本模拟场景独立验证",
+    "真实费用限制只是预检估算，不是平台硬封顶"
+  ]
+}

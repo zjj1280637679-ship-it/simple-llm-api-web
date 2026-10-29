@@ -1,0 +1,304 @@
+{
+  "resourceId": "TR-GEMINI-001",
+  "resourceVersion": "0.2.0",
+  "schemaVersion": "1.0.0",
+  "createdAt": "2026-10-29T07:41:45.598Z",
+  "updatedAt": "2026-10-29T08:18:05.932Z",
+  "builtAt": "2026-10-29T08:18:05.932Z",
+  "simulatorId": "gemini-rest-simulator",
+  "simulatorVersion": "0.2.0",
+  "fixtureSchemaVersion": "1.0.0",
+  "fixtureSetVersion": "1.0.0",
+  "protocolSnapshot": "gemini-developer-v1beta-generateContent@2026-10-29",
+  "protocolProfile": "gemini-developer-v1beta-generateContent",
+  "sourceCheckedAt": "2026-10-29T07:30:55.000Z",
+  "designVersion": "v0.1.0-draft.4",
+  "evidenceType": "SIMULATED",
+  "realApiCalled": false,
+  "fixtures": [
+    {
+      "id": "text.ok",
+      "version": "1.0.0",
+      "path": "fixtures/v1/text.ok.json",
+      "sha256": "e48c95cc42508290cc16c9e6cf06f3076c2afc7994a46b826211ab493d371d64",
+      "createdAt": "2026-10-29T07:41:45.598Z",
+      "updatedAt": "2026-10-29T07:41:45.598Z"
+    },
+    {
+      "id": "http.400",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.400.json",
+      "sha256": "6dc1c8dc9c165adb8549e97635197e048f2aa9785242066756a13b6a67105b92",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.403",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.403.json",
+      "sha256": "c494d5c1961d7c42def9dc74329000d870a0c678c56c163f66debafd37de01f0",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.404",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.404.json",
+      "sha256": "8829b7e17e65bdfd2c5f60b3f29aaa5675987389b2cc32bcc7a5c7fd70afc2a3",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.429",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.429.json",
+      "sha256": "b1578fcf47223d0108f10423656ef078cb5d2a8958a1c1a7817b240f31109971",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.500",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.500.json",
+      "sha256": "e3a3852398a40b694a32cf7067db8289cd6bd8c0264be8a363664830cfdd9d26",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.503",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.503.json",
+      "sha256": "cf9ed43e2efcb7d567227adfd9ca8fd127570c9fa9446167b559cf4a282c690b",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "transport.reject",
+      "version": "1.0.0",
+      "path": "fixtures/v1/transport.reject.json",
+      "sha256": "9f8e2f506d3604121894046f9d9589b28aaab6362f996266443d58d0c3ea6527",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "transport.delay",
+      "version": "1.0.0",
+      "path": "fixtures/v1/transport.delay.json",
+      "sha256": "7d6e56d13b89a69b777ecb8317e7cf83442e8853efa9b0f95bb608c920c91ff8",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "transport.hang",
+      "version": "1.0.0",
+      "path": "fixtures/v1/transport.hang.json",
+      "sha256": "754a11d05d57fe2b21a3400d6af5d8fa9224dfef0effde454483da8dc49b0cfa",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "robust.invalid-json",
+      "version": "1.0.0",
+      "path": "fixtures/v1/robust.invalid-json.json",
+      "sha256": "a9a11cb8ec5fc07cc5afd6f9eb07206dbb40dff4cc53f2648665f41c9767c063",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "safety.prompt-blocked",
+      "version": "1.0.0",
+      "path": "fixtures/v1/safety.prompt-blocked.json",
+      "sha256": "6bbb138b49ddcaceebc7139ca96ab57b06123f505b921166c448a64d61329d14",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "models.list",
+      "version": "1.0.0",
+      "path": "fixtures/v1/models.list.json",
+      "sha256": "25692d495565a0bce94121f17f4c4bb52ca84484286ee688bb3de4d53cefe4f3",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "models.paged",
+      "version": "1.0.0",
+      "path": "fixtures/v1/models.paged.json",
+      "sha256": "75af1f8255a4e9343e1acc0bb0274986cd0938309c4804a5b8fb19ac2b7ebe6f",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "models.empty",
+      "version": "1.0.0",
+      "path": "fixtures/v1/models.empty.json",
+      "sha256": "8520e14ca805f3283afb3f56c36beb93c0ddd4655d49cfa25cb2fb8f253e1ff7",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "image.output",
+      "version": "1.0.0",
+      "path": "fixtures/v1/image.output.json",
+      "sha256": "7f9ad47fb5fce34675fdeff6ad35c5bc750d95de87b5e83d5f85b06d798c3470",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "tools.follow-up",
+      "version": "1.0.0",
+      "path": "fixtures/v1/tools.follow-up.json",
+      "sha256": "75e05bc64ab7b8da72c471a689e301536737e615fbec9a97c88045f1e6340509",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "text.ok",
+      "version": "1.0.0",
+      "fixtureId": "text.ok",
+      "createdAt": "2026-10-29T07:41:45.598Z",
+      "updatedAt": "2026-10-29T07:41:45.598Z"
+    },
+    {
+      "id": "http.400",
+      "version": "1.0.0",
+      "fixtureId": "http.400",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.403",
+      "version": "1.0.0",
+      "fixtureId": "http.403",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.404",
+      "version": "1.0.0",
+      "fixtureId": "http.404",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.429",
+      "version": "1.0.0",
+      "fixtureId": "http.429",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.500",
+      "version": "1.0.0",
+      "fixtureId": "http.500",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "http.503",
+      "version": "1.0.0",
+      "fixtureId": "http.503",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "transport.reject",
+      "version": "1.0.0",
+      "fixtureId": "transport.reject",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "transport.delay",
+      "version": "1.0.0",
+      "fixtureId": "transport.delay",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "transport.hang",
+      "version": "1.0.0",
+      "fixtureId": "transport.hang",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "robust.invalid-json",
+      "version": "1.0.0",
+      "fixtureId": "robust.invalid-json",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "safety.prompt-blocked",
+      "version": "1.0.0",
+      "fixtureId": "safety.prompt-blocked",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "models.list",
+      "version": "1.0.0",
+      "fixtureId": "models.list",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "models.paged",
+      "version": "1.0.0",
+      "fixtureId": "models.paged",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "models.empty",
+      "version": "1.0.0",
+      "fixtureId": "models.empty",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "image.output",
+      "version": "1.0.0",
+      "fixtureId": "image.output",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    },
+    {
+      "id": "tools.follow-up",
+      "version": "1.0.0",
+      "fixtureId": "tools.follow-up",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z"
+    }
+  ],
+  "assets": [
+    {
+      "id": "pixel-1x1",
+      "version": "1.0.0",
+      "path": "assets/pixel-1x1.png",
+      "sha256": "a3ddde277d24c767cf92bc0c94b6af6a36652e760d3096aea896f111b356aafa",
+      "createdAt": "2026-10-29T07:45:27.398Z",
+      "updatedAt": "2026-10-29T07:45:27.398Z",
+      "mimeType": "image/png",
+      "width": 1,
+      "height": 1,
+      "pixelRgba": [
+        0,
+        128,
+        255,
+        255
+      ],
+      "intent": "Synthetic solid-color pixel; not AI-generated image."
+    }
+  ],
+  "limits": [
+    "Synthetic local protocol subset only; never a real API verification.",
+    "No network fallback, streaming, server cancellation, model quality or account availability verification."
+  ],
+  "configurationApiVersion": "0.2.0",
+  "configurationSchemaVersion": "1.0.0",
+  "configurationEntry": "configuration.mjs"
+}

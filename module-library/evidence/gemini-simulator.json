@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "module": {
+    "id": "F-002",
+    "version": "0.1.0"
+  },
+  "host": {
+    "id": "H-F-002",
+    "version": "0.3.0",
+    "createdAt": "2026-10-29T06:59:24.112Z",
+    "updatedAt": "2026-10-29T08:35:09.175Z"
+  },
+  "mode": "synthetic",
+  "effect": "text.request-response",
+  "lifecycle": "candidate",
+  "resourceRevisions": [
+    {
+      "resourceId": "TR-GEMINI-001",
+      "resourceVersion": "0.2.0",
+      "scenarioId": "text.ok",
+      "scenarioVersion": "1.0.0",
+      "fixtureSetVersion": "1.0.0",
+      "fixtureSha256": "e48c95cc42508290cc16c9e6cf06f3076c2afc7994a46b826211ab493d371d64",
+      "protocolSnapshot": "gemini-developer-v1beta-generateContent@2026-10-29",
+      "hostId": "H-F-002",
+      "createdAt": "2026-10-29T07:41:45.598Z",
+      "updatedAt": "2026-10-29T08:18:05.932Z",
+      "manifestSha256": "2b2d12e24a89ca90e9a2c3d6326a020f732a151fb14c8be8b7676c73a047fea0",
+      "lockSha256": "f57867c37b4a69eac363bf8d0aff63b2dbba5f33edbad87a556a9c893f10b13f"
+    }
+  ],
+  "verifiedAt": "2026-10-29T08:37:30.535Z",
+  "runStartedAt": "2026-10-29T08:37:30.469Z",
+  "runFinishedAt": "2026-10-29T08:37:30.535Z",
+  "evidenceType": "SIMULATED",
+  "realApiCalled": false,
+  "observed": {
+    "text": "Host text reply.",
+    "requestMappingChecked": true,
+    "transportRequests": 1,
+    "realNetworkRequests": 0,
+    "virtualTime": true,
+    "simulation": {
+      "evidenceType": "SIMULATED",
+      "realApiCalled": false,
+      "resourceRevisions": [
+        {
+          "resourceId": "TR-GEMINI-001",
+          "resourceVersion": "0.2.0",
+          "scenarioId": "text.ok",
+          "scenarioVersion": "1.0.0",
+          "fixtureSetVersion": "1.0.0",
+          "fixtureSha256": "e48c95cc42508290cc16c9e6cf06f3076c2afc7994a46b826211ab493d371d64",
+          "protocolSnapshot": "gemini-developer-v1beta-generateContent@2026-10-29"
+        }
+      ],
+      "scenarioId": "text.ok",
+      "entered": 1,
+      "consumed": 1,
+      "remaining": 0,
+      "pending": 0,
+      "active": 0,
+      "failed": false,
+      "events": [
+        {
+          "sequence": 1,
+          "logicalTime": 0,
+          "outcome": "request-matched",
+          "step": 1,
+          "method": "POST",
+          "route": "/v1beta/models/sim-gemini-text-v1:generateContent"
+        },
+        {
+          "sequence": 1,
+          "logicalTime": 0,
+          "outcome": "response",
+          "status": 200
+        }
+      ],
+      "failures": []
+    }
+  },
+  "limits": [
+    "SIMULATED 不是模型/账户/CORS能力证据",
+    "非流式；每个文本模拟场景独立验证",
+    "真实费用限制只是预检估算，不是平台硬封顶"
+  ]
+}

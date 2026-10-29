@@ -1,0 +1,55 @@
+{
+  "id": "http.429",
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T07:45:27.398Z",
+  "updatedAt": "2026-10-29T07:45:27.398Z",
+  "sourceRefs": [
+    "https://ai.google.dev/api/generate-content",
+    "https://ai.google.dev/api/models"
+  ],
+  "intent": "Synthetic protocol subset; no claim about real provider behavior or availability.",
+  "steps": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/sim-gemini-text-v1:generateContent",
+        "headers": {
+          "accept": "application/json",
+          "content-type": "application/json",
+          "x-goog-api-key": "SIMULATOR_ONLY_NOT_A_REAL_KEY"
+        },
+        "body": {
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": {
+                    "$parameter": "prompt"
+                  }
+                }
+              ]
+            }
+          ],
+          "generationConfig": {}
+        }
+      },
+      "response": {
+        "status": 429,
+        "json": {
+          "error": {
+            "code": 429,
+            "status": "RESOURCE_EXHAUSTED",
+            "message": "SIMULATED RESOURCE_EXHAUSTED"
+          }
+        }
+      }
+    }
+  ],
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "default": "Draw one blue cup on a white background."
+    }
+  }
+}

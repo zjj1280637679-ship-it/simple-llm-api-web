@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "resources": [
+    {
+      "resourceId": "TR-ARK-001",
+      "resourceVersion": "0.1.0",
+      "scenarioId": "image.output",
+      "scenarioVersion": "1.0.0",
+      "fixtureSetVersion": "1.0.0",
+      "fixtureSha256": "91d012c08d44896df22943f6fa5f62b03acf915a0beff82c5c48bcac6d94e217",
+      "protocolSnapshot": "ark-ordinary-v3-chat-images@2026-10-29"
+    }
+  ]
+}
