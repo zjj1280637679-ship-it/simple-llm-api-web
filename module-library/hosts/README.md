@@ -17,7 +17,7 @@
 | R-004 | [配置历史宿主](configuration-profile/README.md) | 追加修订、固定快照、历史 replay 及 reset | synthetic |
 | C-001 | [组合宿主](agent-image-turn/README.md) | 工具请求、图片结果、上下文保存、后续对话 | synthetic |
 
-`local` 表示本机实际执行目标功能；`synthetic` 表示执行真实模块，但外部服务由受控响应代替。四个联网构件另有 `live` 模式，运行相同宿主并接真实 Ark API。本次没有运行 live 模式。
+`local` 表示本机实际执行目标功能；`synthetic` 表示执行真实模块，但外部服务由受控响应代替。四个联网构件另有 `live` 入口，但证据范围不同：F-002/F-003 调用独立 HTTP 探针，`adapterVerified:false`；R-001/C-001 仍调用生产适配器/组合。详见下方真实模式，不能把前者的传输成功计为后者的适配器验收。本文档修订只复验离线路径，没有运行 live 模式。
 
 ## 如何使用
 
@@ -37,22 +37,12 @@ npm run hosts:verify
 
 ## 真实模式
 
-设置环境变量后运行，例如：
+按当前目标选择入口，不因宿主登记了 live 就自动执行它：
 
-```sh
-npm run modules:host -- F-002 --live --prompt "Reply with one short sentence."
-npm run modules:host -- F-003 --live --prompt "One blue cup on white."
-npm run modules:host -- C-001 --live --prompt "Use image_generate to draw one blue cup, then briefly describe the tool result."
-```
+- **F-002 / F-003：独立传输探针。** 使用 `--live --live-plan FILE`，必须提供实际获批且未过期的单次计划和环境变量 `ARK_API_KEY`。精确模型、输入、输出限制和预估费用写在计划中；官方普通 Ark 地址固定，不使用 `ARK_BASE_URL` 或环境模型覆盖。报告 `adapterVerified:false`、`requestMappingChecked:false`，不经过生产适配器或其日志，也不保存响应图片。计划格式、边界和调用方式见 [Live probe](../test-resources/ark-native/LIVE.md)。传输 PASS 不等于 F-002/F-003 适配器或网页真实验收。
+- **R-001 / C-001：关系与组合真实路径。** 当前仍用 `--live --prompt TEXT` 和生产适配器；`ARK_API_KEY` 提供凭据，`ARK_BASE_URL`、`ARK_TEXT_MODEL`、`ARK_IMAGE_MODEL` 是可选配置。R-001 将该次执行映射为已确认 context，C-001 只批准第一次图片工具请求，但可能有多次文本请求。执行前应根据本次目标、目标地址、模型与费用范围判断是否已获授权；F-002/F-003 的一次探针批准不自动覆盖这些路径。
 
-| 环境变量 | 作用 |
-| --- | --- |
-| ARK_API_KEY | 真实模式必填，不作为命令参数或报告字段 |
-| ARK_BASE_URL | 可选，覆盖代码中的普通 Ark 基础地址 |
-| ARK_TEXT_MODEL | 可选，覆盖当前文本默认模型 |
-| ARK_IMAGE_MODEL | 可选，覆盖当前图片默认模型，仍需现有适配支持 |
-
-默认模式不读取这些凭据，且真实 fetch 被阻止。真实模式的 --live 明确选择实际请求，可能消耗额度；R-001 将其映射为本次已确认 context，C-001 只批准第一次图片工具请求。C-001 可能发生多次文本请求；用户取消或请求失败不证明已发送请求未计费。宿主设置 120 秒信号期限，不自动重试。
+默认 local/synthetic 模式不读取真实凭据，且真实 fetch 被阻止。真实调用可能消耗额度；120 秒信号期限和不自动重试不代表服务端已经停止生成或计费。配置中的确认字段只是程序条件，不替代真实授权。
 
 真实文本模型如果没有调用工具，C-001 报告该宿主目标未达成，而不是仅凭文本成功就判组合通过。真实模式当前只为 Ark 提供配置接线；其他协议需另补宿主场景，不能从现有结果推断可用。
 
@@ -68,7 +58,7 @@ npm run modules:host -- C-001 --live --prompt "Use image_generate to draw one bl
 - 宿主不能偷偷完成被测模块的工作；受控服务、状态处理器和结果接收器均写明责任。
 - 增加宿主不增加生成算法的替代途径数量，也不替代形式证明和组合真实验收。
 
-隔离或归档构件仍可借助宿主做诊断，报告会显示其维护状态；测试通过不自动解除隔离。单个宿主只校验自身与被测模块的绑定，不要求无关模块或整套网页可运行。
+隔离或归档构件仍可借助宿主做诊断，报告会显示其维护状态；测试通过不自动解除隔离。单个宿主只校验自身与被测模块的绑定，不要求无关模块或整套网页可运行。“独立”指所声明依赖闭包内可单独启动，不表示所有宿主都能只复制 run.mjs 跨仓库运行。消费者可以建立自己的最简宿主，按 [借用说明](../BORROWING.md) 记录独立结果。
 
 完整网页不是每个模块的必要宿主。R-002 使用内存状态即可检验关系效果，但它不证明网页 DOM 或 MCP 宿主已跑通。图片宿主目前验证字节传输和文件承接，不负责完整解码、实测尺寸或内容质量。
 

@@ -26,9 +26,9 @@ npm run modules:host -- F-002
 成功判据：
 
 - 合成模式实际运行适配器并检查输入映射
-- 真实模式收到非空模型文本
+- 真实探针收到非空模型文本，只支持传输结论；`adapterVerified:false`
 
-默认模式为 `synthetic`。真实模式使用 `--live`，需要从环境提供 `ARK_API_KEY`；详细设置见 [总说明](../README.md)。本次只运行默认模式。
+默认模式为 `synthetic`。真实探针使用 `--live --live-plan FILE`，需要有效单次批准计划及环境 `ARK_API_KEY`；详细设置见 [总说明](../README.md)。本次只运行默认模式。
 
 ## 结论边界
 
@@ -41,7 +41,7 @@ npm run modules:host -- F-002
 
 默认 synthetic 模式现借用 `TR-GEMINI-001@0.2.0 / text.ok@1.0.0`，不再使用 always-200 的 Ark 文本夹具。方法、URL、headers、body 和 dummy key 全部严格匹配，再由原 Gemini 适配器解析固定回复。资源锁在 `resources.lock.json`；报告包含 `SIMULATED`、资源/场景/fixture 版本、哈希、UTC 起止时间、零真实网络调用及断言事件。
 
-`--prompt` 只绑定 fixture 明确声明的 prompt 参数，不改变固定响应。`--live` 仍是原有 Ark 路径；本次未运行。完整范围与不覆盖项见 [共享资源说明](../../test-resources/gemini-native/README.md)。
+`--prompt` 只绑定 fixture 明确声明的 prompt 参数，不改变固定响应。`--live` 当前转入独立普通 Ark HTTP 探针，不再经过原生产适配器；本次未运行真实调用。完整范围与不覆盖项见 [共享资源说明](../../test-resources/gemini-native/README.md)。
 
 可调配置使用独立 `npm run simulator -- ...` / `configuration.mjs`，不隐式改变此宿主的固定场景与成功判据；详见[配置契约](../../test-resources/gemini-native/CONFIGURATION.md)。
 
