@@ -17,10 +17,10 @@ for (const protocol of ['gemini','openai','ark']) {
 }
 test('absence differs from actual zero and never guesses model window',()=>{
  assert.equal(usageFrom({},'gemini'),null);
- assert.equal(usageMetrics(null).cache,'未知');
+ assert.equal(usageMetrics(null).cache,'...');
  assert.equal(usageMetrics({inputTokens:10,cachedTokens:0,totalTokens:0}).cache,'0 Token · 0.0%');
  assert.equal(usageMetrics({inputTokens:0,cachedTokens:0}).cache,'0 Token');
- assert.equal(usageMetrics({inputTokens:10}).context,'10 Token · 窗口未知');
+ assert.equal(usageMetrics({inputTokens:10}).context,'10 Token · 窗口 ...');
  assert.equal(usageMetrics({totalTokens:0}).total,0);
 });
 test('malformed, fractional, unsafe counts and invalid cache ratios are unknown',()=>{
@@ -30,4 +30,10 @@ test('malformed, fractional, unsafe counts and invalid cache ratios are unknown'
 });
 test('missing cache detail stays unknown for both compatible protocols',()=>{
  for(const protocol of ['openai','ark']) assert.equal(usageFrom({usage:{prompt_tokens:100,prompt_tokens_details:null}},protocol).cachedTokens,null);
+});
+
+test('missing visible metrics use three dots while true zero stays numeric',()=>{
+ const m=usageMetrics(null);assert.equal(m.total,'...');assert.equal(m.context,'...');
+ const visible=usageMetricsMarkup(null).replace(/<[^>]+>/g,'');
+ assert.doesNotMatch(visible,/未知|—/);assert.equal((visible.match(/\.\.\./g)||[]).length,3);
 });

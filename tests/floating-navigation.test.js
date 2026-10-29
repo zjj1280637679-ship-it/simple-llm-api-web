@@ -37,3 +37,8 @@ test('rerender restores matching enabled action focus without forcing scroll',()
  assert.equal(options.preventScroll,true);
  assert.match(source,/renderLogsPage\(\); restoreControlFocus\(focusIdentity\)/);
 });
+
+test('pending elapsed time uses the shared three-dot presentation',()=>{
+ assert.ok(source.includes("d.elapsed === null ? '...'"));
+ assert.ok(!source.includes("d.elapsed === null ? '—'"));
+});
