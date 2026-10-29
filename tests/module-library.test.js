@@ -7,7 +7,7 @@ import { generateImage } from '../module-library/functions/image-generation/inde
 import { dispatchCommand } from '../module-library/relations/image-command/index.js';
 import { createPageSession } from '../module-library/relations/page-session/index.js';
 import { runConversation } from '../module-library/compositions/agent-image-turn/index.js';
-import { validateCatalog, selectModules, evidenceState } from '../scripts/module-library.mjs';
+import { validateCatalog, selectModules, evidenceState, moduleRevisions } from '../scripts/module-library.mjs';
 
 const url = 'https://audit.example.com/v1';
 const config = {protocol:'openai',url,trustedTarget:url,key:'synthetic-library-key',model:'synthetic-model'};
@@ -97,11 +97,44 @@ test('catalogue filters by relation, tag and effect without merging distinct goa
 test('local evidence becomes stale for changed, removed or added inputs and never fills proof gates', () => {
   const before = JSON.stringify(catalog.modules.map(m=>m.gates));
   const hashes={'src/a.js':'abc'};
-  const record={schemaVersion:1,kind:'local-tests',status:'PASS',moduleIds:catalog.modules.map(m=>m.id),fileHashes:hashes};
+  const record={schemaVersion:2,kind:'local-tests',status:'PASS',moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),fileHashes:hashes};
   assert.equal(evidenceState(record,hashes,catalog.modules),'PASS');
   assert.equal(evidenceState(record,{'src/a.js':'def'},catalog.modules),'STALE');
   assert.equal(evidenceState(record,{},catalog.modules),'STALE');
   assert.equal(evidenceState(record,{...hashes,'src/b.js':'def'},catalog.modules),'STALE');
   assert.equal(evidenceState(null,hashes,catalog.modules),'UNKNOWN');
   assert.equal(JSON.stringify(catalog.modules.map(m=>m.gates)),before);
+});
+
+test('module cards require a stable three-part version', async () => {
+  for (const version of [undefined, 1, '1.0', '01.0.0', '1.0.0-beta', '1.0.-1']) {
+    const copy = structuredClone(catalog); copy.modules[0].version = version;
+    await assert.rejects(validateCatalog(copy), /Invalid module version/);
+  }
+  const copy = structuredClone(catalog); copy.modules[0].version = '2.10.3';
+  await validateCatalog(copy);
+});
+
+test('module timestamps must be canonical UTC and cannot precede creation', async () => {
+  for (const updatedAt of [undefined, 'yesterday', '2026-02-30T00:00:00.000Z',
+    '2026-10-29T14:00:00.000+08:00', '2000-01-01T00:00:00.000Z']) {
+    const copy = structuredClone(catalog); copy.modules[0].updatedAt = updatedAt;
+    await assert.rejects(validateCatalog(copy), /Invalid module timestamps/);
+  }
+  const copy = structuredClone(catalog); delete copy.modules[0].createdAt;
+  await assert.rejects(validateCatalog(copy), /Invalid module timestamps/);
+});
+
+test('verification binds the exact module version and timestamps, not just its ID', () => {
+  const hashes = {'sample.js':'unchanged'};
+  const record = {schemaVersion:2,kind:'local-tests',status:'PASS',moduleIds:catalog.modules.map(m=>m.id),
+    moduleRevisions:moduleRevisions(catalog.modules),fileHashes:hashes};
+  assert.equal(evidenceState(record,hashes,catalog.modules),'PASS');
+  for (const [field,value] of [['version','0.1.1'],['createdAt','2026-10-29T00:00:00.000Z'],
+    ['updatedAt','2026-10-30T00:00:00.000Z']]) {
+    const copy = structuredClone(catalog.modules); copy[0][field] = value;
+    assert.equal(evidenceState(record,hashes,copy),'STALE');
+  }
+  const legacy = {...record,schemaVersion:1};
+  assert.equal(evidenceState(legacy,hashes,catalog.modules),'STALE');
 });

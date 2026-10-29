@@ -10,6 +10,11 @@ const RECORD = 'module-library/evidence/local-tests.json';
 const TYPES = {function:'functions',relation:'relations',composition:'compositions'};
 const STATES = ['PASS','FAIL','UNKNOWN','STALE'];
 const digest = value => createHash('sha256').update(value).digest('hex');
+const stableVersion = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+const utcTimestamp = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) &&
+  new Date(value).toISOString() === value;
+export const moduleRevisions = modules => modules.map(({id, version, createdAt, updatedAt}) =>
+  ({id, version, createdAt, updatedAt}));
 function inside(root, name) {
   if (typeof name !== 'string' || !name || name.includes('\\')) throw Error('Invalid repository path');
   const path = resolve(root, name), rel = relative(root, path);
@@ -30,11 +35,14 @@ async function regular(root, name) {
 const json = async (root, name) => JSON.parse(await readFile(await regular(root, name), 'utf8'));
 
 export async function validateCatalog(catalog, root = ROOT) {
-  if (catalog.schemaVersion !== 1 || !Array.isArray(catalog.modules) || !catalog.modules.length) throw Error('Invalid catalogue');
+  if (catalog.schemaVersion !== 2 || !Array.isArray(catalog.modules) || !catalog.modules.length) throw Error('Invalid catalogue');
   const ids = new Set(), entries = new Set();
   for (const m of catalog.modules) {
     if (!/^[FRC]-\d{3}$/.test(m.id) || ids.has(m.id)) throw Error('Invalid or duplicate module ID');
     ids.add(m.id);
+    if (typeof m.version !== 'string' || !stableVersion.test(m.version)) throw Error('Invalid module version: ' + m.id);
+    if (!utcTimestamp(m.createdAt) || !utcTimestamp(m.updatedAt) || Date.parse(m.updatedAt) < Date.parse(m.createdAt))
+      throw Error('Invalid module timestamps: ' + m.id);
     if (!TYPES[m.kind] || !m.id.startsWith({function:'F',relation:'R',composition:'C'}[m.kind])) throw Error('Invalid module kind');
     if (!m.title || !m.goal || !Array.isArray(m.tags) || !Array.isArray(m.exports) || !m.exports.length || !Array.isArray(m.tests) || !m.tests.length) throw Error('Incomplete module card');
     if (!m.entry?.startsWith('module-library/' + TYPES[m.kind] + '/') || entries.has(m.entry)) throw Error('Invalid or duplicate entry');
@@ -63,13 +71,14 @@ export async function validateCatalog(catalog, root = ROOT) {
 export function selectModules(catalog, {kind, tag, query} = {}) {
   if (kind && !TYPES[kind]) throw Error('Unknown kind: ' + kind);
   return catalog.modules.filter(m => (!kind || m.kind === kind) && (!tag || m.tags.includes(tag)) &&
-    (!query || [m.id,m.title,m.goal,...m.tags].join(' ').toLowerCase().includes(query.toLowerCase())));
+    (!query || [m.id,m.version,m.title,m.goal,...m.tags].join(' ').toLowerCase().includes(query.toLowerCase())));
 }
 
 export function evidenceState(record, hashes, modules) {
   if (!record) return 'UNKNOWN';
-  if (record.schemaVersion !== 1 || record.kind !== 'local-tests' || record.status !== 'PASS' ||
+  if (record.schemaVersion !== 2 || record.kind !== 'local-tests' || record.status !== 'PASS' ||
       !Array.isArray(record.moduleIds) || record.moduleIds.join('|') !== modules.map(m => m.id).join('|')) return 'STALE';
+  if (JSON.stringify(record.moduleRevisions) !== JSON.stringify(moduleRevisions(modules))) return 'STALE';
   const expected = record.fileHashes || {};
   const names = Object.keys(hashes).sort();
   return names.length === Object.keys(expected).length && names.every(name => hashes[name] === expected[name]) ? 'PASS' : 'STALE';
@@ -147,10 +156,10 @@ export async function main(args = process.argv.slice(2), root = ROOT) {
     const after = await inputHashes(root);
     if (JSON.stringify(hashes) !== JSON.stringify(after)) throw Error('Inputs changed during verification');
     if (command === 'record') {
-      record = {schemaVersion:1,kind:'local-tests',status:'PASS',recordedAt:new Date().toISOString(),
+      record = {schemaVersion:2,kind:'local-tests',status:'PASS',recordedAt:new Date().toISOString(),
         baseCommit:catalog.baseCommit,node:process.version,platform:process.platform,
         scope:'Local execution and synthetic network only; no automatic F/C/H/Q promotion.',
-        moduleIds:catalog.modules.map(m=>m.id),...result,fileHashes:after};
+        moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),...result,fileHashes:after};
       await writeFile(inside(root, RECORD), JSON.stringify(record,null,2)+'\n');
     }
   }
@@ -158,7 +167,10 @@ export async function main(args = process.argv.slice(2), root = ROOT) {
   if (command === 'list') {
     for (const m of selectModules(catalog, filters)) {
       const gates = ['F','C','H','Q'].map(k=>k+':'+m.gates[k].status).join(' ');
-      console.log(m.id + ' | ' + m.kind + ' | ' + m.title + ' | local:' + local + ' | ' + gates + '\n  ' + m.entry);
+      const shanghai = stamp => new Date(stamp).toLocaleString('zh-CN', {timeZone:'Asia/Shanghai',hour12:false});
+      console.log(m.id + '@' + m.version + ' | ' + m.kind + ' | ' + m.title + ' | local:' + local + ' | ' + gates +
+        '\n  创建：' + shanghai(m.createdAt) + ' | 更新：' + shanghai(m.updatedAt) + '（北京时间）' +
+        '\n  ' + m.entry);
     }
     return;
   }

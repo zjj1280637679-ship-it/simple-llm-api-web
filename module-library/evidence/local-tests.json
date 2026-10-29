@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "kind": "local-tests",
   "status": "PASS",
-  "recordedAt": "2026-10-29T06:03:34.390Z",
+  "recordedAt": "2026-10-29T06:12:42.670Z",
   "baseCommit": "ce707d3815dce9e33cec372389b0437e465cbc62",
   "node": "v24.22.1",
   "platform": "linux",
@@ -14,6 +14,44 @@
     "R-001",
     "R-002",
     "C-001"
+  ],
+  "moduleRevisions": [
+    {
+      "id": "F-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z"
+    },
+    {
+      "id": "F-002",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z"
+    },
+    {
+      "id": "F-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z"
+    },
+    {
+      "id": "R-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z"
+    },
+    {
+      "id": "R-002",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z"
+    },
+    {
+      "id": "C-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z"
+    }
   ],
   "args": [
     "--test",
@@ -27,14 +65,14 @@
     "tests/session.test.js"
   ],
   "stats": {
-    "tests": 99,
-    "pass": 99,
+    "tests": 102,
+    "pass": 102,
     "fail": 0,
     "skipped": 0,
     "cancelled": 0,
     "todo": 0
   },
-  "outputSha256": "8dc8d90d1d18a88dc2a2565d0081e74595cfa328d941f3cd63aa04dbafe7b61d",
+  "outputSha256": "110e1b52e07145790af7f24a033b5567fcecfd45de5e00e345e5c818e5848157",
   "fileHashes": {
     "README.md": "178889a2d552e89aa881b936049d80ba42765de8e96a6c4042ba1977adb1377c",
     "VALIDATION.md": "9340daf3bdc4338b1e2b3958bbc536afd317d9fc7f442f7aee49385679fd4c4f",
@@ -42,29 +80,29 @@
     "cli-mcp-transport.mjs": "4b8c4df1385c3198f34338585ff8e408fdf82c8056ce80823d91b397868c5afa",
     "cli.mjs": "a66cc071aa4a3ade199590faa75f568d811c1b2c9ea7b0594b7394275866ad8c",
     "design/REQUIREMENTS.md": "e5db97d741f4232d2c8cb4343c7173213198b3daf4baf4aef1294e7639ea054d",
-    "module-library/README.md": "2cda4c1888431b792d6a73c602aeed240c2c603c4eb0fdda9ea732c2e4dd65ca",
-    "module-library/catalog.json": "878d0be329d2f8fdfd1c16281c052189cc2a5bd11f1a17fb005ab888aec426c2",
-    "module-library/compositions/agent-image-turn/CONTRACT.md": "025c99e46b38da28268e8c6572772389cdcd0daaab09a538ac8d7ee9c5d3a3fb",
+    "module-library/README.md": "8da9c1df73dbd06109b7b2bedfb2d6bd0bdb6a2da0a405989485600093894e40",
+    "module-library/catalog.json": "970c9890ed8bc70c679a9c6e96d8afca1fe7ffeada479e4eef0bb355ebe733c2",
+    "module-library/compositions/agent-image-turn/CONTRACT.md": "d0be21c6440647238477a36d15553fac7b282878438eafadaf7756750568139f",
     "module-library/compositions/agent-image-turn/index.js": "e6d6ea4850a974edaa8a1e78857fda2bb2f97e9e2d98b375646a344466e38ee1",
     "module-library/evidence/reported-ark-image.json": "da46f894b34c2f25ab41e76fe2f38060a60ffbec5eb8329ec60630486f4d7ae4",
     "module-library/experiments/README.md": "6ef35120cc0a2f9b953f83982c36fbf7c4f9be63357f5390bc6f2354f7c01995",
-    "module-library/functions/image-generation/CONTRACT.md": "fcde39047cd8c04d6f4217e5ee3ae049e2e73ed242f1e11d0086e0e0a9053a3a",
+    "module-library/functions/image-generation/CONTRACT.md": "640fa6a2be9854989a731d5ac110adf23bc102b689fbc08bccfea4d9335a4fd2",
     "module-library/functions/image-generation/index.js": "55be48ecbbc3b0fe879a48c3d49147c468417f58bfca3c71c2b3374ded0b1702",
-    "module-library/functions/image-options/CONTRACT.md": "b45851e0edcc8e4d348f1cc2e542b21e40f9a2f5593d4f029397cc70cb931d24",
+    "module-library/functions/image-options/CONTRACT.md": "962818e617e9ffd1be6eb5c3fb7c3edbaed3320680119ec75ac3f47f8dfcc724",
     "module-library/functions/image-options/index.js": "f27bf9fbfbc95d9303b3070e52f779eb95f16793924677278c4180ae06dc9060",
-    "module-library/functions/text-generation/CONTRACT.md": "aa4b96777fb10b1fa1ada52cb96f6fdec630f3176de990ffb831254726329977",
+    "module-library/functions/text-generation/CONTRACT.md": "9ced804575de58b569601cc3de94626622f96698b56e7914b1b331cbfba577a9",
     "module-library/functions/text-generation/index.js": "c4ab527758c6a8e5c5ded962189083bb41a98dd98129b4cbec49e6e4255a2c99",
     "module-library/recipes/agent-image-turn.json": "2c1fdae423f2dee0540a1e397d55e19379bdb5fa3cde55dc003b28cd2fb35c5a",
-    "module-library/relations/image-command/CONTRACT.md": "c35c675e4b417a96b295087463ceb2a2134b00962ed24fff5d78e324fb5db2dc",
+    "module-library/relations/image-command/CONTRACT.md": "64939930fb5dfaa045e3003433c9b419f616f1a9a019a181c65e9fedde5c6e08",
     "module-library/relations/image-command/index.js": "baef4013a0c332fcd740e053e0ae2d28c4f2e357cbb6cdd87fe56d05c9e300b7",
-    "module-library/relations/page-session/CONTRACT.md": "c95007cf0eb4672a9b6495bf73943d2b4fc0d8c9785a90155f7ce8e20d9ae66a",
+    "module-library/relations/page-session/CONTRACT.md": "0d87017214a8acfb67e802e79d4ac97880c778743abc1b424c21dd2b4888effd",
     "module-library/relations/page-session/index.js": "1f207e5bdadd35257c966f532ab1f927c8f510df44c0331feb1f02e93f45f0fc",
     "module-library/scenarios/workbench-v1.json": "9bad506dc0457788acd400169a4a344886603c270723c11111ea03400f368b90",
-    "module-library/templates/CONTRACT.md": "6f7c06b38674f6ed31f80473a2c0cb7059f90756e043204303788a09b4e7964e",
-    "module-library/templates/module-card.json": "746611bc39a2f24bb41ec938ed37645aadc56d811e5a560f9892c09985bfa792",
+    "module-library/templates/CONTRACT.md": "3ca8ebd092b521de86dc3812b8de69c0958755a4004f37333e3ddb4dc6d728f4",
+    "module-library/templates/module-card.json": "e421a7570be5d6425def12b98f653bce0d227ab4c2cae44998258ee55b054354",
     "package.json": "3eac47f87800c897135aedf748de1f78ab3ba61ab222d31d959b5342b8fffc54",
     "scripts/build.mjs": "219ce4240ac3d64e2404d902ea5b9f484363349bc8902fe4c15be07913dbbb4c",
-    "scripts/module-library.mjs": "109555873dd7c24e209c6f001ab1f122127cb0c60832ae232252292a14c38f92",
+    "scripts/module-library.mjs": "1454f2d2f20ff792a8fba4004a24b431970eb7152273de9f2e6d7a714adb1f96",
     "src/agent.js": "98d86c8e85f40c6c0339e474383c72144144af761c988454b02f00227f038d88",
     "src/app.js": "bd01b5f8876e96c7d56a29dea43b5c747478e088016696e016285b2af825943b",
     "src/core.js": "e750e7c7a26461569da8c399edec5b3fee7720b8cc21a1763ac6847fb5e476f4",
@@ -84,7 +122,7 @@
     "tests/image-capabilities.test.js": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
     "tests/logs.test.js": "23df7a420ffe19f86d9111d896a6e7ce6bff16a297f415671381accefd2c96d6",
     "tests/mcp-transport.test.js": "c2ddb36032fbdd5c5f248bf37ad216d9889af4eb900764e9fc05dc47b8c4b05c",
-    "tests/module-library.test.js": "a304ddb2fdfe09b1e27079076c290ba5caedc04afcbaa48abfba3f0744a527bd",
+    "tests/module-library.test.js": "794b36e862e8fac145b38be83e7c994ab2322c8bd70687d54bd60630751bc1da",
     "tests/session.test.js": "0fbe9dc987ca488bff6b9c482c3c11d004da4608a303ef66d8c037cf93a58a8c",
     "web-cli.mjs": "1eb6a4d4867b6cab99975a8b5f8df4b98aa5e2a9d7b99feea4c75b479b4e8b3b"
   }

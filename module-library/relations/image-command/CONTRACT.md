@@ -1,6 +1,6 @@
 # R-001 图片命令到执行器的关系
 
-类型：relation。效果目标：`image-command.dispatch`。版本：0.1.0。
+类型：relation。效果目标：`image-command.dispatch`。版本、创建与更新时间以 [catalog.json](../../catalog.json) 为准。
 
 ## 输入与输出
 

@@ -1,6 +1,6 @@
 # C-001 对话 Agent 调图片并继续对话
 
-类型：composition。效果目标：`conversation.image-turn`。版本：0.1.0。
+类型：composition。效果目标：`conversation.image-turn`。版本、创建与更新时间以 [catalog.json](../../catalog.json) 为准。
 
 ## 输入与输出
 

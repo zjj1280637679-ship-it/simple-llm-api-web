@@ -1,10 +1,13 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "baseCommit": "ce707d3815dce9e33cec372389b0437e465cbc62",
   "scenario": "module-library/scenarios/workbench-v1.json",
   "modules": [
     {
       "id": "F-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z",
       "kind": "function",
       "title": "图片能力与参数映射",
       "goal": "image-options.normalize",
@@ -56,6 +59,9 @@
     },
     {
       "id": "F-002",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z",
       "kind": "function",
       "title": "文本请求与协议适配",
       "goal": "text.request-response",
@@ -106,6 +112,9 @@
     },
     {
       "id": "F-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z",
       "kind": "function",
       "title": "图片请求与响应提取",
       "goal": "image.request-response",
@@ -155,6 +164,9 @@
     },
     {
       "id": "R-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z",
       "kind": "relation",
       "title": "图片命令到执行器的关系",
       "goal": "image-command.dispatch",
@@ -204,6 +216,9 @@
     },
     {
       "id": "R-002",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z",
       "kind": "relation",
       "title": "网页命令到页面处理器的关系",
       "goal": "page-command.route",
@@ -256,6 +271,9 @@
     },
     {
       "id": "C-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:05:20.000Z",
+      "updatedAt": "2026-10-29T06:11:32.886Z",
       "kind": "composition",
       "title": "对话 Agent 调图片并继续对话",
       "goal": "conversation.image-turn",

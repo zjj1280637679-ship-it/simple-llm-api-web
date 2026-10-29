@@ -1,5 +1,8 @@
 {
   "id": "F-000",
+  "version": "0.1.0",
+  "createdAt": null,
+  "updatedAt": null,
   "kind": "function",
   "title": "待填写的局部效果",
   "goal": "replace.with.effect",

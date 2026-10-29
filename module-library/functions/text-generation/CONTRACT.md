@@ -1,6 +1,6 @@
 # F-002 文本请求与协议适配
 
-类型：function。效果目标：`text.request-response`。版本：0.1.0。
+类型：function。效果目标：`text.request-response`。版本、创建与更新时间以 [catalog.json](../../catalog.json) 为准。
 
 ## 输入与输出
 

@@ -1,6 +1,6 @@
 # R-002 网页命令到页面处理器的关系
 
-类型：relation。效果目标：`page-command.route`。版本：0.1.0。
+类型：relation。效果目标：`page-command.route`。版本、创建与更新时间以 [catalog.json](../../catalog.json) 为准。
 
 ## 输入与输出
 

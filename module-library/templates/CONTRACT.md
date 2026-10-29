@@ -2,6 +2,8 @@
 
 本文件是模板，不是已收录构件。
 
+版本与时间以 catalog.json 中对应模块卡为唯一来源。首次入库填写 version、createdAt、updatedAt；升级保留 createdAt，按变化更新版本及 updatedAt。测试时间记录在证据 recordedAt，不能用它替代模块更新时间。
+
 ## 目标与来源
 
 声明需求与场景；区分需求关系、环境条件、实现政策和待检验假设。
