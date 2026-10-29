@@ -493,20 +493,16 @@ test('manual endpoint edits remove misleading official supplier identity',()=>{
  assert.equal(d.api.supplier,'Google Gemini');
 });
 
-test('reasoning defaults to omitted and draft template changes do not apply until explicit apply', async()=>{
- const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='custom-model';ui.render();
- assert.equal(d.model.reasoning,undefined);
- assert.match(ui.app.innerHTML,/data-action="reasoning-toggle"/);
- await ui.click({action:'reasoning-toggle'});
- await ui.click({action:'reasoning-template',template:'openai-effort'});
- await ui.click({action:'reasoning-value',value:'high'});
- assert.equal(d.model.reasoning,undefined);
- await ui.click({action:'tab',tab:'image'});await ui.click({action:'tab',tab:'chat'});
- assert.equal(d.model.reasoning,undefined);
- await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-template',template:'openai-effort'});await ui.click({action:'reasoning-value',value:'high'});await ui.click({action:'reasoning-apply'});
- assert.equal(d.model.reasoning.template,'openai-effort');assert.equal(d.model.reasoning.value,'high');
- await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-template',template:''});await ui.click({action:'reasoning-apply'});
- assert.equal(d.model.reasoning,undefined);
+test('model mode config stays omitted until quick choice; unset preserves mode and options',async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='custom-model';ui.addCard('model');const id=String(d.messages.at(-1).id);
+ await ui.click({action:'reasoning-toggle',id});await ui.click({action:'reasoning-template',template:'openai-effort'});
+ await ui.click({action:'tab',tab:'image'});await ui.click({action:'tab',tab:'chat'});assert.equal(d.model.reasoningMode,undefined);
+ await ui.click({action:'reasoning-toggle',id});await ui.click({action:'reasoning-template',template:'openai-effort'});await ui.click({action:'reasoning-apply'});
+ assert.equal(d.model.reasoningMode,'openai-effort');assert.equal(d.model.reasoning,undefined);
+ await ui.click({action:'reasoning-toggle'});assert.match(ui.app.innerHTML,/reasoning-quick/);assert.doesNotMatch(ui.app.innerHTML,/<h3>思考强度/);
+ await ui.click({action:'reasoning-quick',template:'openai-effort',value:'high'});assert.equal(d.model.reasoning.value,'high');
+ await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-quick',value:''});assert.equal(d.model.reasoning,undefined);assert.equal(d.model.reasoningMode,'openai-effort');
+ await ui.click({action:'reasoning-toggle'});assert.match(ui.app.innerHTML,/data-value="high"/);
 });
 test('reasoning incompatible protocol selection is cleared when changing supplier',async()=>{
  const ui=mount(),{d,card}=configure(ui);d.model.reasoning={template:'openai-effort',value:'high'};
@@ -515,8 +511,8 @@ test('reasoning incompatible protocol selection is cleared when changing supplie
 });
 
 test('clearing a reasoning budget is not coerced into zero or applied',async()=>{
- const ui=mount(),{d}=configure(ui);d.api.model='gemini-2.5-flash';
- await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-template',template:'gemini-budget'});
+ const ui=mount(),{d}=configure(ui);d.api.model='gemini-2.5-flash';ui.addCard('model');
+ await ui.click({action:'reasoning-toggle',id:String(d.messages.at(-1).id)});await ui.click({action:'reasoning-template',template:'gemini-budget'});
  ui.app.querySelector('#reasoning-budget').value='';
  await ui.click({action:'reasoning-apply'});
  assert.equal(d.model.reasoning,undefined);assert.match(ui.app.innerHTML,/请输入思考预算/);
@@ -555,3 +551,23 @@ test('each streamed round retains its own immutable metrics through later sends 
  const ui=mount(),{d}=configure(ui);d.lastMetrics={usage:{totalTokens:10},speed:2};
  await ui.click({action:'clear-chat'});assert.equal(d.lastMetrics,null);assert.equal(d.lastUsage,null);
  });
+
+test('model-card reasoning entry shares footer selection and historical entries cannot write',async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='custom';
+ ui.addCard('model');const card=d.messages.at(-1);
+ assert.match(ui.app.innerHTML,/自定义思考模板/);
+ await ui.click({action:'reasoning-toggle',id:String(card.id)});assert.match(ui.app.innerHTML,new RegExp('data-menu-card="'+card.id+'" role="dialog"'));
+ await ui.click({action:'reasoning-template',template:'openai-effort'});await ui.click({action:'reasoning-value',value:'high'});await ui.click({action:'reasoning-apply'});
+ assert.equal(d.model.reasoningMode,'openai-effort');assert.equal(d.model.reasoning,undefined);assert.match(ui.app.innerHTML,/OpenAI Chat 思考强度 · 不指定/);
+ ui.addCard('model');const latest=d.messages.at(-1);await ui.click({action:'reasoning-toggle',id:String(card.id)});
+ assert.doesNotMatch(ui.app.innerHTML,/class="reasoning-menu"/);
+ await ui.click({action:'reasoning-toggle',id:String(latest.id)});await ui.click({action:'reasoning-template',template:''});await ui.click({action:'reasoning-apply'});
+ assert.equal(d.model.reasoning,undefined);
+});
+
+test('quick setting validation failure is visible once without sending or silently changing selection',async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.protocol='anthropic';d.api.url='https://gateway.example/v1';d.api.model='custom';d.model.reasoningMode='anthropic-effort';d.model.temperature='0.7';
+ for(let i=0;i<5;i++)await ui.click({action:'reasoning-quick',template:'anthropic-effort',value:'high'});
+ assert.equal(d.model.reasoning,undefined);assert.match(d.reasoningIssue,/温度/);assert.equal((ui.app.innerHTML.match(/class="reasoning-error"/g)||[]).length,1);
+ await ui.click({action:'reasoning-quick',value:''});assert.equal(d.reasoningIssue,'');
+});

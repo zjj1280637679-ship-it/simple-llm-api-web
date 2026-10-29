@@ -1,6 +1,10 @@
 // Verified provider contracts, not a model quality ranking. No selection => no fields.
 const levels=['low','medium','high'];
 const templates=[
+ {id:'deepseek-effort',label:'DeepSeek 思考强度',provider:'deepseek',protocol:'openai',choices:['none','low','high','max']},
+ {id:'deepseek-thinking',label:'DeepSeek 思考开关',provider:'deepseek',protocol:'openai',choices:['enabled','disabled']},
+ {id:'zhipu-effort',label:'智谱 思考强度',provider:'zhipu',protocol:'openai',choices:['none','minimal',...levels,'xhigh','max']},
+ {id:'zhipu-thinking',label:'智谱 思考开关',provider:'zhipu',protocol:'openai',choices:['enabled','disabled']},
  {id:'gemini-level',label:'Gemini 思考等级',protocol:'gemini',choices:['minimal',...levels]},
  {id:'gemini-budget',label:'Gemini 2.5 思考预算',protocol:'gemini',min:0,max:32768,specialValues:[-1],kind:'number'},
  {id:'openai-effort',label:'OpenAI Chat 思考强度',protocol:'openai',choices:['none','minimal',...levels,'xhigh','max']},
@@ -8,15 +12,32 @@ const templates=[
  {id:'anthropic-effort',label:'Anthropic 自适应思考',protocol:'anthropic',choices:[...levels,'xhigh','max']},
  {id:'anthropic-budget',label:'Anthropic 手动思考预算',protocol:'anthropic',kind:'number',min:1024,max:1000000}
 ];
-const hosts={'generativelanguage.googleapis.com':'gemini','api.openai.com':'openai','ark.cn-beijing.volces.com':'ark','api.anthropic.com':'anthropic'};
+const hosts={'generativelanguage.googleapis.com':'gemini','api.openai.com':'openai','ark.cn-beijing.volces.com':'ark','api.anthropic.com':'anthropic','api.deepseek.com':'deepseek','open.bigmodel.cn':'zhipu'};
 const copy=t=>({...t,...(t.choices?{choices:[...t.choices]}:{}),...(t.specialValues?{specialValues:[...t.specialValues]}:{})});
 function identity(config) {
  try {const u=new URL(config.url);return u.protocol==='https:' ? hosts[u.hostname] || null : null;} catch {return null;}
 }
+function canonicalVendor(config,provider) {
+ try {const u=new URL(config.url);if(u.port||u.username||u.password||u.search||u.hash)return false;
+ const path=u.pathname.replace(/\/+$/,'');
+ return provider==='deepseek' ? ['', '/v1','/chat/completions','/v1/chat/completions'].includes(path) : provider==='zhipu' ? ['/api/paas/v4','/api/paas/v4/chat/completions'].includes(path) : true;
+ } catch {return false;}
+}
+export function isDeepSeekChatEndpoint(config={}) {return config.protocol==='openai' && identity(config)==='deepseek' && canonicalVendor(config,'deepseek');}
 const named=(id,overrides={})=>({...copy(templates.find(t=>t.id===id)),...overrides});
 function official(config) {
  const p=identity(config),m=String(config.model||'').replace(/^models\//,'').trim();
- if(p!==config.protocol || /latest/i.test(m)) return [];
+ if((['deepseek','zhipu'].includes(p)?'openai':p)!==config.protocol || /latest/i.test(m) || !canonicalVendor(config,p)) return [];
+ if(p==='deepseek') {
+  if(['deepseek-flash','deepseek-v4-pro'].includes(m)) return [named('deepseek-effort'),named('deepseek-thinking')];
+  return [];
+ }
+ if(p==='zhipu') {
+  if(['glm-5.3','glm-5.3-flash','glm-5.3-flashx'].includes(m)) return [named('zhipu-effort',{choices:['low','high','max']}),named('zhipu-thinking',{choices:['enabled']})];
+  if(m==='glm-5.2') return [named('zhipu-effort'),named('zhipu-thinking')];
+  if(['glm-5.1','glm-5','glm-5-turbo','glm-5v-turbo','glm-4.7','glm-4.6','glm-4.5'].includes(m)) return [named('zhipu-thinking')];
+  return [];
+ }
  if(p==='gemini') {
   if(['gemini-3.8-flash','gemini-4-argon'].includes(m)) return [named('gemini-level',{choices:levels})];
   if(['gemini-3.6-flash','gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-3-flash-preview'].includes(m)) return [named('gemini-level')];
@@ -44,7 +65,10 @@ function official(config) {
 /** Unknown/rolling models expose manual templates, never an inferred recommendation. */
 export function getReasoningTemplates(config={}) {
  const verified=identity(config) ? official(config) : [];
- const result=verified.length ? verified.map(copy) : templates.filter(t=>t.protocol===config.protocol).map(copy);
+ const provider=identity(config);
+ const manual=templates.filter(t=>t.protocol===config.protocol && (!provider || (t.provider||t.protocol)===provider));
+ // An unrecognised gateway may explicitly select a vendor template. A known vendor never inherits another vendor's recommendation.
+ const result=verified.length ? verified.map(copy) : manual.map(copy);
  return result.map(t=>({...t,verifiedModel:verified.length>0,...(t.choices ? {values:t.choices.map(value=>({value,label:value}))} : {}),
   note:!verified.length ? '手选模板：当前模型能力未核验，选择后才发送；服务端可能拒绝不支持的参数。' : t.kind==='number' ? '仅在应用后发送预算；-1（如支持）为动态，0（如支持）为关闭。' : '仅发送选中的请求档位；不是服务端实际思考程度证明。'}));
 }
@@ -68,7 +92,8 @@ export function reasoningBody(config={},selection,settings={}) {
  } else if(!t.choices.includes(v)) fail('此模型不支持所选思考档位。');
  if(t.id==='gemini-level') return {generationConfig:{thinkingConfig:{thinkingLevel:v}}};
  if(t.id==='gemini-budget') return {generationConfig:{thinkingConfig:{thinkingBudget:v}}};
- if(t.id==='openai-effort'||t.id==='ark-effort') return {reasoning_effort:v};
+ if(t.id==='deepseek-thinking'||t.id==='zhipu-thinking') return {thinking:{type:v}};
+ if(t.id==='openai-effort'||t.id==='ark-effort'||t.id==='deepseek-effort'||t.id==='zhipu-effort') return {reasoning_effort:v};
  if(t.id.startsWith('anthropic-')) {
   if(settings.temperature!==undefined && settings.temperature!=='' && Number(settings.temperature)!==1) fail('启用此 Anthropic 思考模板时请将温度留空或设为 1。');
   if(settings.topP!==undefined && settings.topP!=='') fail('启用此 Anthropic 思考模板时请先将 Top P 留空。');

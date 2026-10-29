@@ -1,4 +1,4 @@
-import { reasoningBody } from './reasoning.js';
+import { reasoningBody, isDeepSeekChatEndpoint } from './reasoning.js';
 import { collectTextStream } from './stream.js';
 import { attachmentParts, attachmentMetadata } from './attachments.js';
 import { usageFrom, createTextTiming, visibleOutputTokens, replyMetricsSnapshot } from './usage.js';
@@ -228,6 +228,11 @@ export async function generateText({config, messages, settings = {}, tools = [],
   const model = modelId(config);
   if (config.protocol === 'anthropic' && tools.length) fail('TOOLS_UNSUPPORTED','Anthropic 格式暂不支持工具调用。');
   const generation = settingsBody(settings, config.protocol);
+  // DeepSeek shares the Chat format, not OpenAI's output-budget field.
+  if (isDeepSeekChatEndpoint(config) && generation.max_completion_tokens !== undefined) {
+    generation.max_tokens = generation.max_completion_tokens;
+    delete generation.max_completion_tokens;
+  }
   const systemMessages = ['gemini','anthropic'].includes(config.protocol) && Array.isArray(messages) ? messages.filter(message => message?.role === 'system') : [];
   const history = nativeMessages(['gemini','anthropic'].includes(config.protocol) && Array.isArray(messages) ? messages.filter(message => message?.role !== 'system') : messages, config.protocol);
   let body;
