@@ -4,11 +4,13 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import * as core from '../src/core.js';
 import { icon } from '../src/icons.js';
+import * as logs from '../src/logs.js';
+import { createPageSession } from '../src/session.js';
 
 // A small event/DOM harness for the production module. No browser, network,
 // real key, external package or production testing hooks are required.
 const source = (await readFile(new URL('../src/app.js', import.meta.url), 'utf8')).replace(/^import .*;\n/gm, '');
-function mount() {
+function mount({ confirm = () => true, runConversation, dispatchCommand } = {}) {
   const listeners = {};
   let html = '', nodes = new Map(), renders = 0;
   const thread = { scrollTop: 0, scrollHeight: 100 };
@@ -16,6 +18,7 @@ function mount() {
     get innerHTML() { return html; },
     set innerHTML(value) {
       html = value; renders += 1; nodes = new Map();
+      if (value.includes('id="network-logs"')) nodes.set('#network-logs', { textContent: '' });
       nodes.set('.top-right', { innerHTML: value.match(/<div class="top-right"[^>]*>(.*?)<\/div>/)?.[1] || '' });
       for (const match of value.matchAll(/<span id="(api-trust\d+)">(.*?)<\/span>/g)) nodes.set(`#${match[1]}`, { textContent: match[2] });
       for (const match of value.matchAll(/<input\b[^>]*\bid="([^"]+)"[^>]*>/g)) {
@@ -30,14 +33,15 @@ function mount() {
   const document = { getElementById: () => app, addEventListener: () => {}, activeElement: null };
   const neverFetch = () => assert.fail('No network may run in control regressions.');
   const context = {
-    ...core, icon, document, window: { confirm: () => true },
+    ...core, ...logs, icon, document, window: { confirm }, createPageSession, registerPageSessionTools: () => {},
+    renderNetworkLogs: container => { if (container) container.textContent = logs.exportNetworkLogs(); },
     URL, Blob, Uint8Array, atob, AbortController, performance,
-    runConversation: neverFetch, listModels: neverFetch, dispatchCommand: neverFetch
+    runConversation: runConversation || neverFetch, listModels: neverFetch, dispatchCommand: dispatchCommand || neverFetch
   };
   vm.createContext(context);
   vm.runInContext(`${source}\nglobalThis.controlTests = { data, addCard, render, matrixSupported, setPage: p => { page = p; } };`, context);
   return {
-    ...context.controlTests, app, document,
+    ...context.controlTests, app, document, session: context.window.llmWorkbench,
     input: target => listeners.input({ target }),
     click: dataset => listeners.click({ target: { closest: () => ({ dataset }) } })
   };
@@ -134,4 +138,133 @@ test('image page accepts the shared core models/ prefix and still rejects other 
 test('Token metric identifies usage as the last request rather than a summed Agent turn', () => {
   const ui = mount();
   assert.match(ui.app.innerHTML, /末次请求 Token/);
+});
+
+
+test('Ark preset changes only the active workspace and renders its 24 option matrix', async () => {
+  const ui = mount(), { d, card } = configure(ui, 'image');
+  const chatBefore = { ...ui.data.chat.api };
+  await ui.click({ action: 'choose-supplier', id: String(card.id), index: '4' });
+  assert.equal(d.api.protocol, 'ark'); assert.equal(d.api.url, core.ARK_ENDPOINT);
+  assert.equal(d.api.model, core.ARK_FLASH_MODEL); assert.equal(d.imageSize, '2K');
+  assert.equal(d.api.key, ''); assert.equal(d.api.trustedTarget, '');
+  assert.deepEqual({ ...ui.data.chat.api }, chatBefore);
+  await ui.click({ action: 'size-toggle' });
+  assert.equal((ui.app.innerHTML.match(/data-action="set-image-options"/g) || []).length, 24);
+  assert.match(ui.app.innerHTML, /1K 为应用预设/);
+  assert.match(ui.app.innerHTML, /1.5K/);
+  assert.doesNotMatch(ui.app.innerHTML, /data-image-size="4K"/);
+});
+
+test('Ark text preset uses the ordinary endpoint and honest manual model entry', async () => {
+  const ui = mount(), { d, card } = configure(ui);
+  await ui.click({ action: 'choose-supplier', id: String(card.id), index: '4' });
+  assert.equal(d.api.protocol, 'ark'); assert.equal(d.api.model, core.ARK_TEXT_MODEL);
+  assert.match(ui.app.innerHTML, /普通 API · 非 Agent Plan/);
+  assert.match(ui.app.innerHTML, /手填模型/);
+  await ui.click({ action: 'pull-models', id: String(card.id) });
+  assert.match(ui.app.innerHTML, /暂无已核实的模型列表接口/);
+});
+
+test('logs tab has no composer, shows sanitized records and can clear them', async () => {
+  logs.clearNetworkLogs();
+  const ui = mount();
+  logs.recordNetwork({ requestId: 'ui-log', source: 'mock', endpoint: 'https://api.example.com', status: 200 });
+  await ui.click({ action: 'tab', tab: 'logs' });
+  assert.match(ui.app.innerHTML, /导出 JSON/);
+  assert.doesNotMatch(ui.app.innerHTML, /id="draft"/);
+  assert.match(ui.app.querySelector('#network-logs').textContent, /ui-log/);
+  await ui.click({ action: 'clear-logs' });
+  assert.equal(logs.getNetworkLogs().length, 0);
+});
+
+test('live page session state redacts keys and cannot edit endpoints or trust', async () => {
+  const ui = mount(), { d } = configure(ui);
+  d.draft = 'test ' + d.api.key;
+  const state = await ui.session.execute({ command: 'session.state', args: {} });
+  const serialized = JSON.stringify(state);
+  assert.doesNotMatch(serialized, /synthetic-control-key/);
+  assert.match(serialized, /REDACTED/);
+  await assert.rejects(ui.session.execute({ command: 'settings.update', args: { url: 'https://other.example.com' } }));
+  await assert.rejects(ui.session.execute({ command: 'settings.update', args: { key: 'synthetic-injection' } }));
+});
+
+test('live page session updates Ark parameters but rejects unavailable 4K atomically', async () => {
+  const ui = mount(), { d, card } = configure(ui, 'image');
+  await ui.click({ action: 'choose-supplier', id: String(card.id), index: '4' });
+  const result = await ui.session.execute({ command: 'settings.update', args: { imageSize: '1.5K', aspectRatio: '16:9' } });
+  assert.equal(result.ok, true); assert.equal(d.imageSize, '1.5K'); assert.equal(d.aspectRatio, '16:9');
+  const rejected = await ui.session.execute({ command: 'settings.update', args: { imageSize: '4K' } });
+  assert.equal(rejected.ok, false); assert.equal(d.imageSize, '1.5K');
+  await ui.session.execute({ command: 'page.navigate', args: { page: 'logs' } });
+  const hidden = await ui.session.execute({ command: 'draft.set', args: { text: 'must not change hidden draft' } });
+  assert.equal(hidden.ok, false);
+});
+
+test('live page session send needs page confirmation and reports actual failure rather than success', async () => {
+  let calls = 0;
+  const ui = mount({ confirm: () => false, runConversation: () => { calls++; } }), { d } = configure(ui);
+  d.draft = 'not authorized';
+  assert.equal((await ui.session.execute({ command: 'request.send', args: {} })).ok, false);
+  assert.equal(calls, 0);
+  const approved = mount({ runConversation: async () => { throw new core.AppError('NETWORK', 'Network failed'); } });
+  configure(approved); approved.data.chat.draft = 'authorized synthetic failure';
+  const result = await approved.session.execute({ command: 'request.send', args: {} });
+  assert.equal(result.result.status, 'failed');
+  assert.equal(result.result.code, 'NETWORK');
+});
+
+
+test('session approval is bound to the exact draft and rejects a racing replacement', async () => {
+  let calls = 0;
+  const ui = mount({ runConversation: async () => { calls++; return { text: 'should not send', history: [] }; } });
+  configure(ui); ui.data.chat.draft = 'approved draft';
+  const sending = ui.session.execute({ command: 'request.send', args: {} });
+  await ui.session.execute({ command: 'draft.set', args: { text: 'changed after approval' } });
+  const result = await sending;
+  assert.equal(result.result.status, 'not-sent');
+  assert.equal(result.result.reason, 'changed-after-confirmation');
+  assert.equal(calls, 0);
+});
+
+test('session approval cannot be redirected to a different workspace or model', async () => {
+  for (const change of [{ command: 'page.navigate', args: { page: 'image' } }, { command: 'settings.update', args: { model: 'different-model' } }]) {
+    let calls = 0;
+    const ui = mount({ runConversation: async () => { calls++; } });
+    configure(ui); ui.data.chat.draft = 'approved draft';
+    const sending = ui.session.execute({ command: 'request.send', args: {} });
+    await ui.session.execute(change);
+    const result = await sending;
+    assert.equal(result.result.status, 'not-sent'); assert.equal(calls, 0);
+  }
+});
+
+test('unused key from the other workspace is redacted in fetch logs, session logs and log tab', async () => {
+  logs.clearNetworkLogs();
+  const secret = 'synthetic-unused-other-workspace-6e447';
+  const ui = mount({ runConversation: async () => {
+    logs.recordNetwork({ source: 'mock', requestId: 'cross-workspace', responsePayload: { text: secret } });
+    return { text: secret, history: [] };
+  } });
+  const image = configure(ui, 'image');
+  const keyInput = ui.app.querySelector(`#key${image.card.id}`); keyInput.value = secret; ui.input(keyInput);
+  configure(ui, 'chat'); ui.data.chat.draft = 'synthetic request';
+  await ui.session.execute({ command: 'request.send', args: {} });
+  assert.doesNotMatch(logs.exportNetworkLogs(), new RegExp(secret));
+  assert.doesNotMatch(JSON.stringify(await ui.session.execute({ command: 'session.logs', args: {} })), new RegExp(secret));
+  await ui.click({ action: 'tab', tab: 'logs' });
+  assert.doesNotMatch(ui.app.querySelector('#network-logs').textContent, new RegExp(secret));
+});
+
+
+test('session cancel during the confirmation microtask prevents the request from starting', async () => {
+  let calls = 0;
+  const ui = mount({ runConversation: async () => { calls++; return { text: 'must not run', history: [] }; } });
+  configure(ui); ui.data.chat.draft = 'approved then cancelled';
+  const sending = ui.session.execute({ command: 'request.send', args: {} });
+  const cancelled = await ui.session.execute({ command: 'request.cancel', args: {} });
+  const result = await sending;
+  assert.equal(cancelled.result.requested, true);
+  assert.equal(result.result.status, 'not-sent');
+  assert.equal(calls, 0);
 });

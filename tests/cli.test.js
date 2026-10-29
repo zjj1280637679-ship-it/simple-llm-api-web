@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { main } from '../cli.mjs';
-import { GEMINI_ENDPOINT, IMAGE_MODEL } from '../src/core.js';
+import { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, GEMINI_ENDPOINT, IMAGE_MODEL } from '../src/core.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const key = 'synthetic-cli-secret';
@@ -78,4 +78,105 @@ test('CLI sanitizes failure without exposing an upstream key echo', async () => 
   assert.equal(calls, 1);
   assert.equal(lines.join('').includes(key), false);
   assert.match(lines.join(''), /401/);
+});
+
+const arkBase = ['image.generate', '--protocol', 'ark', '--prompt', 'A cat', '--endpoint', ARK_ENDPOINT];
+const arkKey = 'synthetic-ark-cli-secret';
+
+test('Ark CLI defaults to Flash + 2K and writes synthetic returned raster through shared core', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'minimal-llm-ark-cli-'));
+  const { io, lines } = capture(); let calls = 0;
+  const readVariables = [];
+  const env = new Proxy({ ARK_API_KEY: arkKey, GEMINI_API_KEY: key }, { get(target, property) { readVariables.push(property); return target[property]; } });
+  try {
+    const code = await main([...arkBase, '--out', directory, '--yes'], env, io, async (url, options) => {
+      calls += 1;
+      assert.equal(url, `${ARK_ENDPOINT}/images/generations`);
+      assert.equal(options.headers.Authorization, `Bearer ${arkKey}`);
+      assert.equal(options.headers['x-goog-api-key'], undefined);
+      const body = JSON.parse(options.body);
+      assert.equal(body.model, ARK_FLASH_MODEL);
+      assert.equal(body.size, '2048x2048');
+      assert.equal(body.response_format, 'b64_json');
+      assert.equal(JSON.stringify(body).includes(arkKey), false);
+      return new Response(JSON.stringify({ data: [{ b64_json: png }] }));
+    });
+    assert.equal(code, 0);
+    assert.equal(calls, 1);
+    assert.deepEqual(readVariables, ['ARK_API_KEY']);
+    const files = await readdir(directory);
+    assert.equal(files.length, 1);
+    assert.deepEqual(await readFile(path.join(directory, files[0])), Buffer.from(png, 'base64'));
+    assert.equal(lines.join('').includes(arkKey), false);
+    assert.equal(lines.join('').includes(key), false);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('Ark CLI supports explicit Pro model using same image transport', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'minimal-llm-ark-pro-cli-'));
+  const { io } = capture();
+  try {
+    assert.equal(await main([...arkBase, '--model', ARK_PRO_MODEL, '--out', directory, '--yes'], { ARK_API_KEY: arkKey }, io, async (_url, options) => {
+      assert.equal(JSON.parse(options.body).model, ARK_PRO_MODEL);
+      return new Response(JSON.stringify({ data: [{ b64_json: png }] }));
+    }), 0);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('CLI keys never fall back or cross-copy between Gemini and Ark', async () => {
+  for (const [args, env, required] of [[arkBase, { GEMINI_API_KEY: key }, 'ARK_API_KEY'], [base, { ARK_API_KEY: arkKey }, 'GEMINI_API_KEY']]) {
+    const { io, lines } = capture();
+    assert.equal(await main([...args, '--yes'], env, io, () => assert.fail('No key fallback or fetch')), 1);
+    assert.match(lines.join(''), new RegExp(required));
+    assert.equal(lines.join('').includes(key), false);
+    assert.equal(lines.join('').includes(arkKey), false);
+  }
+});
+
+test('Ark CLI rejects unsupported sizes before key access or network', async () => {
+  const { io } = capture();
+  const env = new Proxy({}, { get() { assert.fail('Reject invalid options before reading key'); } });
+  assert.equal(await main([...arkBase, '--image-size', '4K', '--yes'], env, io, () => assert.fail('No image fetch')), 1);
+});
+
+test('Ark CLI failure does not log an upstream secret echo or retry', async () => {
+  const { io, lines } = capture(); let calls = 0;
+  const code = await main([...arkBase, '--yes'], { ARK_API_KEY: arkKey }, io, async () => {
+    calls += 1;
+    return new Response(arkKey, { status: 403 });
+  });
+  assert.equal(code, 1);
+  assert.equal(calls, 1);
+  assert.equal(lines.join('').includes(arkKey), false);
+  assert.match(lines.join(''), /403/);
+});
+
+test('CLI rejects percent-escaped key in target before stdout or fetch, regardless of hex case', async () => {
+  const secret = 'synthetic+cred/byte';
+  for (const escaped of ['synthetic%2Bcred%2Fbyte', 'synthetic%2bcred%2fbyte']) {
+    const stdout = [], stderr = [];
+    const code = await main(['image.generate', '--prompt', 'cat', '--endpoint', `https://api.example.com/${escaped}`, '--yes'],
+      { GEMINI_API_KEY: secret }, { stdout: text => stdout.push(text), stderr: text => stderr.push(text) },
+      () => assert.fail('Secret-bearing target must not fetch'));
+    assert.equal(code, 1);
+    assert.deepEqual(stdout, []);
+    assert.equal(stderr.join('').includes(secret), false);
+    assert.equal(stderr.join('').toLowerCase().includes(escaped.toLowerCase()), false);
+  }
+});
+
+test('CLI redacts literal and URL-encoded secrets from output errors with regex metacharacters safely', async () => {
+  const secret = 'synthetic+cred/byte.[x]';
+  const encoded = encodeURIComponent(secret);
+  for (const form of [secret, encoded, encoded.replace(/%[0-9A-F]{2}/g, match => match.toLowerCase())]) {
+    const errors = []; let fetches = 0;
+    const code = await main([...base, '--yes'], { GEMINI_API_KEY: secret }, {
+      stdout: () => { throw new Error(`output failed: ${form}`); },
+      stderr: text => errors.push(text),
+    }, () => { fetches += 1; assert.fail('Output failure precedes fetch'); });
+    assert.equal(code, 1);
+    assert.equal(fetches, 0);
+    assert.equal(errors.join('').includes(form), false);
+    assert.match(errors.join(''), /\[REDACTED\]/);
+  }
 });

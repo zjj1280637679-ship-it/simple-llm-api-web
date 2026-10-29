@@ -1,7 +1,12 @@
+import { getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
+import { recordNetwork, setLogSecrets } from './logs.js';
+export { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, ARK_SIZE_LIMITS, getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
+
 /** Shared browser/Node transport. No storage, SDK, evaluation, shell, or automatic retry. */
 export const DEFAULT_TEXT_MODEL = 'gemini-flash-lite-latest';
 export const IMAGE_MODEL = 'gemini-nano-banana-2.1';
 export const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta';
+export const ARK_TEXT_MODEL = 'doubao-seed-2-1-lite-260915';
 // Google GenerateContent table, verified 2026-10-28. 2K/4K are 2x/4x each dimension.
 export const aspectRatios = Object.freeze([
   {ratio:'1:1',pixels:[1024,1024]}, {ratio:'1:4',pixels:[512,2048]},
@@ -50,8 +55,8 @@ export function canonicalEndpoint(value) {
 }
 
 export function validateEndpoint(config) {
-  if (!config || !['gemini','openai'].includes(config.protocol))
-    fail('PROTOCOL', '当前仅支持 Gemini 原生和 OpenAI 兼容协议。');
+  if (!config || !['gemini','openai','ark'].includes(config.protocol))
+    fail('PROTOCOL', '当前仅支持 Gemini 原生、OpenAI 兼容和火山方舟协议。');
   const base = canonicalEndpoint(config.url);
   let approved;
   try { approved = canonicalEndpoint(config.trustedTarget); } catch {
@@ -62,6 +67,8 @@ export function validateEndpoint(config) {
     fail('KEY', '请填写有效的 API Key。');
   let decoded = base;
   try { decoded = decodeURIComponent(base); } catch { /* URL parser already checked structure. */ }
+  if (config.protocol === 'ark' && /\/api\/plan\/v3(?:\/|$|[?#])/i.test(decoded))
+    fail('ARK_PLAN_ENDPOINT', '当前接入的是火山方舟普通 API，不支持 Coding Plan 地址；请使用普通 API 基础地址与对应密钥。');
   if (base.includes(config.key.trim()) || decoded.includes(config.key.trim()))
     fail('ENDPOINT', 'API 地址中不能包含密钥；请将密钥只填写在 API Key 字段。');
   return base;
@@ -76,6 +83,7 @@ function modelId(config) {
 }
 
 /** Network errors deliberately omit upstream bodies/URLs/causes: they can echo credentials. */
+let nextRequestId = 0;
 async function requestJSON(config, path, {body, signal, fetchImpl = globalThis.fetch} = {}) {
   const base = validateEndpoint(config);
   checkAbort(signal);
@@ -84,34 +92,61 @@ async function requestJSON(config, path, {body, signal, fetchImpl = globalThis.f
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (config.protocol === 'gemini') headers['x-goog-api-key'] = config.key.trim();
   else headers.Authorization = `Bearer ${config.key.trim()}`;
+  const started = Date.now();
+  const event = {
+    requestId:`request-${started}-${++nextRequestId}`, startedAt:new Date(started).toISOString(),
+    method:body === undefined ? 'GET' : 'POST', endpoint:`${base}${path}`, provider:config.protocol,
+    source:fetchImpl === globalThis.fetch ? 'network' : 'mock', requestPayload:body,
+    requestHeaders:{Accept:'application/json',...(body === undefined ? {} : {'Content-Type':'application/json'}),[config.protocol === 'gemini' ? 'x-goog-api-key' : 'Authorization']:'[REDACTED]'},
+  };
+  // Diagnostic failures must never affect a request, and credentials never enter log headers.
+  try { setLogSecrets([config.key]); } catch { /* Diagnostics are optional. */ }
+  const record = details => { try { recordNetwork({...event,durationMs:Date.now() - started,...details}); } catch { /* Never break a request for logging. */ } };
+  record({status:'pending'});
   let response;
+  const responseHeaders = () => {
+    const safe = {};
+    for (const name of ['content-type','x-request-id','request-id','x-tt-logid']) {
+      try { const value = response?.headers?.get?.(name); if (typeof value === 'string' && value) safe[name] = value; } catch { /* Stub or nonstandard header access cannot affect transport. */ }
+    }
+    return safe;
+  };
   try {
-    response = await fetchImpl(`${base}${path}`, {
-      method: body === undefined ? 'GET' : 'POST', headers,
-      ...(body === undefined ? {} : {body:JSON.stringify(body)}), signal,
-      redirect:'error', credentials:'omit', referrerPolicy:'no-referrer', cache:'no-store', mode:'cors',
-    });
-  } catch {
-    if (signal?.aborted) throw cancelled();
-    fail('NETWORK', '连接失败：请检查网络、API 地址及供应商 CORS 设置。重定向不会自动跟随。');
+    try {
+      response = await fetchImpl(`${base}${path}`, {
+        method:event.method, headers,
+        ...(body === undefined ? {} : {body:JSON.stringify(body)}), signal,
+        redirect:'error', credentials:'omit', referrerPolicy:'no-referrer', cache:'no-store', mode:'cors',
+      });
+    } catch {
+      if (signal?.aborted) throw cancelled();
+      fail('NETWORK', '连接失败：请检查网络、API 地址及供应商 CORS 设置。重定向不会自动跟随。');
+    }
+    checkAbort(signal);
+    if (!response.ok) {
+      const status = response.status;
+      const details = {400:'请求参数或模型能力不匹配。',401:'API Key 无效或已失效。',403:'此 Key 无权访问模型或服务。',404:'API 路径或模型不存在。',408:'供应商请求超时。',429:'额度不足或请求频率受限。'};
+      fail('HTTP', `API 请求失败（HTTP ${Number.isInteger(status) ? status : '错误'}）：${details[status] || (status >= 500 ? '供应商暂时不可用。' : '请检查配置和模型支持。')}`, status);
+    }
+    let json;
+    try { json = await response.json(); } catch {
+      if (signal?.aborted) throw cancelled();
+      fail('RESPONSE', 'API 返回了无法解析的 JSON。');
+    }
+    checkAbort(signal);
+    if (!isRecord(json)) fail('RESPONSE', 'API 响应格式不正确。');
+    const responsePayload = config.protocol === 'ark' && path === '/images/generations' && Array.isArray(json.data)
+      ? {...json,data:json.data.map(item => isRecord(item) && Object.hasOwn(item,'url') ? {...item,url:'[OMITTED: image URL]'} : item)} : json;
+    record({status:response.status,responsePayload,responseHeaders:responseHeaders()});
+    return json;
+  } catch (error) {
+    record({status:error?.code === 'CANCELLED' ? 'cancelled' : response?.status || 'error',responseHeaders:responseHeaders(),error:{code:error?.code || 'REQUEST',message:error instanceof AppError ? error.message : '请求未完成。'}});
+    throw error;
   }
-  checkAbort(signal);
-  if (!response.ok) {
-    const status = response.status;
-    const details = {400:'请求参数或模型能力不匹配。',401:'API Key 无效或已失效。',403:'此 Key 无权访问模型或服务。',404:'API 路径或模型不存在。',408:'供应商请求超时。',429:'额度不足或请求频率受限。'};
-    fail('HTTP', `API 请求失败（HTTP ${Number.isInteger(status) ? status : '错误'}）：${details[status] || (status >= 500 ? '供应商暂时不可用。' : '请检查配置和模型支持。')}`, status);
-  }
-  let json;
-  try { json = await response.json(); } catch {
-    if (signal?.aborted) throw cancelled();
-    fail('RESPONSE', 'API 返回了无法解析的 JSON。');
-  }
-  checkAbort(signal);
-  if (!isRecord(json)) fail('RESPONSE', 'API 响应格式不正确。');
-  return json;
 }
 
 export async function listModels({config, signal, fetchImpl} = {}) {
+  if (config?.protocol === 'ark') fail('MODELS_UNSUPPORTED', '当前未接入火山方舟模型列表接口；请手动填写已开通的模型 ID。');
   // One documented page of up to 1000 Gemini models. Never follow a provider-supplied URL.
   const json = await requestJSON(config, config.protocol === 'gemini' ? '/models?pageSize=1000' : '/models', {signal,fetchImpl});
   const models = config.protocol === 'gemini' ? json.models : json.data;
@@ -146,7 +181,7 @@ function nativeMessages(messages, protocol) {
       fail('MESSAGES','消息历史格式不正确。');
     if (isRecord(message.raw)) {
       if (protocol === 'gemini' && Array.isArray(message.raw.parts)) return message.raw;
-      if (protocol === 'openai' && typeof message.raw.role === 'string' && !message.raw.parts) return message.raw;
+      if (['openai','ark'].includes(protocol) && typeof message.raw.role === 'string' && !message.raw.parts) return message.raw;
     }
     if (message.role === 'tool') fail('MESSAGES', '工具历史与当前协议不匹配；请开始新的对话。');
     const text = typeof message.content === 'string' ? message.content : '';
@@ -226,37 +261,52 @@ export const IMAGE_TOOL = Object.freeze({
   },required:['prompt']},
 });
 
-export async function generateImage({config, prompt, aspectRatio = '1:1', imageSize = '1K', signal, fetchImpl} = {}) {
+function checkedRaster(mimeType, data) {
+  if (!['image/png','image/jpeg','image/webp'].includes(mimeType) || typeof data !== 'string' || !data.length || data.length > 80000000 || data.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(data))
+    fail('IMAGE_DATA', '供应商返回了不支持或损坏的图片数据。');
+  let prefix;
+  try { prefix = atob(data.slice(0, 32)); } catch { fail('IMAGE_DATA', '供应商返回了无法解码的图片数据。'); }
+  const bytes = [...prefix].map(character => character.charCodeAt(0));
+  const matches = (signature, offset = 0) => signature.every((byte, index) => bytes[offset + index] === byte);
+  const valid = mimeType === 'image/png' ? matches([137,80,78,71,13,10,26,10])
+    : mimeType === 'image/jpeg' ? matches([255,216,255])
+    : matches([82,73,70,70]) && matches([87,69,66,80], 8);
+  if (!valid) fail('IMAGE_DATA', '供应商返回的图片内容与格式不匹配。');
+  return {mimeType,data};
+}
+export async function generateImage({config, prompt, aspectRatio, imageSize, signal, fetchImpl} = {}) {
   validateEndpoint(config);
-  if (config.protocol !== 'gemini' || modelId(config) !== IMAGE_MODEL)
-    fail('IMAGE_MODEL', '图片生成目前仅支持 Gemini 原生协议的 Nano Banana 2.1。');
+  const model = modelId(config);
+  let options;
+  try { options = normalizeImageOptions(config,{aspectRatio,imageSize}); } catch (error) {
+    fail(error.code || 'IMAGE_OPTIONS',error.message);
+  }
   if (typeof prompt !== 'string' || !prompt.trim() || prompt.length > 30000)
     fail('PROMPT', '图片提示词应为 1–30000 个字符。');
-  if (!aspectRatios.some(item => item.ratio === aspectRatio) || !imageSizes.includes(imageSize))
-    fail('IMAGE_OPTIONS', '图片比例或分辨率不受当前模型支持。');
-  const json = await requestJSON(config, `/models/${IMAGE_MODEL}:generateContent`, {
-    body:{contents:[{role:'user',parts:[{text:prompt.trim()}]}],generationConfig:{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio,imageSize}}},signal,fetchImpl,
+  if (config.protocol === 'ark') {
+    const json = await requestJSON(config,'/images/generations',{
+      body:{model,prompt:prompt.trim(),size:options.size,response_format:'b64_json',output_format:'png'},signal,fetchImpl,
+    });
+    if (!Array.isArray(json.data) || !json.data.length) fail('NO_IMAGE','供应商没有返回图片；此次请求可能仍计费，请检查模型、额度或响应。');
+    const images = json.data.map(item => {
+      if (!isRecord(item)) fail('IMAGE_DATA','供应商返回的图片记录格式不正确。');
+      if (!item.b64_json && typeof item.url === 'string')
+        fail('IMAGE_URL_ONLY','供应商仅返回图片链接，未按请求返回图片数据；本页未下载或重新生成，此次请求可能已计费。');
+      const mimeType = {png:'image/png',jpeg:'image/jpeg',jpg:'image/jpeg',webp:'image/webp'}[item.output_format || 'png'];
+      const image = checkedRaster(mimeType,item.b64_json);
+      if (typeof item.size === 'string' && /^[0-9]{1,6}x[0-9]{1,6}$/.test(item.size)) image.size = item.size;
+      return image;
+    });
+    return {images,text:'',usage:usageFrom(json,config.protocol),...options,model};
+  }
+  const json = await requestJSON(config, `/models/${model}:generateContent`, {
+    body:{contents:[{role:'user',parts:[{text:prompt.trim()}]}],generationConfig:{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:options.aspectRatio,imageSize:options.imageSize}}},signal,fetchImpl,
   });
   const candidate = geminiCandidate(json);
   const parts = candidate.content.parts;
-  const images = parts.filter(part => part.inlineData && !part.thought).map(part => {
-    const {mimeType, data} = part.inlineData;
-    if (!['image/png','image/jpeg','image/webp'].includes(mimeType) || typeof data !== 'string' || !data.length || data.length > 80000000 || data.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(data))
-      fail('IMAGE_DATA', '供应商返回了不支持或损坏的图片数据。');
-    // Verify raster signatures before declaring success or creating a browser Blob.
-    // This is not a full image decoder; actual rendering is still done by the browser.
-    let prefix;
-    try { prefix = atob(data.slice(0, 32)); } catch { fail('IMAGE_DATA', '供应商返回了无法解码的图片数据。'); }
-    const bytes = [...prefix].map(character => character.charCodeAt(0));
-    const matches = (signature, offset = 0) => signature.every((byte, index) => bytes[offset + index] === byte);
-    const valid = mimeType === 'image/png' ? matches([137,80,78,71,13,10,26,10])
-      : mimeType === 'image/jpeg' ? matches([255,216,255])
-      : matches([82,73,70,70]) && matches([87,69,66,80], 8);
-    if (!valid) fail('IMAGE_DATA', '供应商返回的图片内容与格式不匹配。');
-    return {mimeType,data};
-  });
+  const images = parts.filter(part => part.inlineData && !part.thought).map(part => checkedRaster(part.inlineData.mimeType,part.inlineData.data));
   if (!images.length) fail('NO_IMAGE', '供应商没有返回图片；此次请求可能仍计费，请检查提示词、额度或模型响应。');
-  return {images,text:parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join(''),usage:usageFrom(json,config.protocol),aspectRatio,imageSize,model:IMAGE_MODEL};
+  return {images,text:parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join(''),usage:usageFrom(json,config.protocol),...options,model};
 }
 
 /** The only executable command. API keys/endpoint/model cannot come from model tool arguments. */

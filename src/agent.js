@@ -1,5 +1,5 @@
 import {
-  AppError, IMAGE_TOOL, canonicalEndpoint, dispatchCommand, generateText, makeToolResult,
+  AppError, canonicalEndpoint, dispatchCommand, generateText, getImageTool, makeToolResult, normalizeImageOptions,
 } from './core.js';
 
 const MAX_TOOL_ROUNDS = 2;
@@ -31,9 +31,12 @@ function imageInvocation(call, imageConfig) {
     || (args.imageSize !== undefined && typeof args.imageSize !== 'string')) {
     throw agentError('INVALID_TOOL_ARGUMENTS', '图片工具参数无效；只接受提示词、长宽比与分辨率。');
   }
+  const { aspectRatio, imageSize } = normalizeImageOptions(imageConfig, {
+    aspectRatio: args.aspectRatio, imageSize: args.imageSize,
+  });
   return {
     command: 'image.generate',
-    args: { prompt: args.prompt.trim(), aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K' },
+    args: { prompt: args.prompt.trim(), aspectRatio, imageSize },
     target,
     model: imageConfig.model,
     protocol: imageConfig.protocol,
@@ -71,7 +74,8 @@ export async function runConversation({
   let pendingCalls = [];
   // Plain chat should work with providers/models that do not support tools.
   // Configure and trust the separate image workspace before advertising its tool.
-  const tools = imageConfig?.key && imageConfig?.trustedTarget ? [IMAGE_TOOL] : [];
+  const imageTool = imageConfig?.key && imageConfig?.trustedTarget ? getImageTool(imageConfig) : null;
+  const tools = imageTool ? [imageTool] : [];
   const checkpoint = () => onHistory?.(history.map(message => ({ ...message })));
 
   try {
@@ -97,7 +101,7 @@ export async function runConversation({
       for (const call of calls) {
         stopped(signal);
         let summary;
-        if (call.name !== IMAGE_TOOL.name) {
+        if (call.name !== 'image_generate') {
           summary = { ok: false, code: 'UNKNOWN_TOOL', message: '只允许 image_generate，不支持 shell 或其他命令。' };
         } else if (toolRounds > MAX_TOOL_ROUNDS) {
           summary = { ok: false, code: 'TOOL_LIMIT', message: '本轮图片工具调用已达上限。请等待用户新指令。' };

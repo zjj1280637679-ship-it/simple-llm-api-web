@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runConversation } from '../src/agent.js';
-import { DEFAULT_TEXT_MODEL, GEMINI_ENDPOINT, IMAGE_MODEL } from '../src/core.js';
+import { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, DEFAULT_TEXT_MODEL, GEMINI_ENDPOINT, IMAGE_MODEL } from '../src/core.js';
 
 const config = { protocol: 'gemini', url: GEMINI_ENDPOINT, trustedTarget: GEMINI_ENDPOINT, key: 'synthetic-chat-key', model: DEFAULT_TEXT_MODEL };
 const imageConfig = { ...config, key: 'synthetic-image-key', model: IMAGE_MODEL };
@@ -195,4 +195,71 @@ test('more than four tool calls in one turn is rejected without image generation
     return true;
   });
   assert.equal(requests.length, 1);
+});
+
+const arkTextConfig = { protocol: 'ark', url: ARK_ENDPOINT, trustedTarget: ARK_ENDPOINT, key: 'synthetic-ark-chat-key', model: 'synthetic-ark-text-model' };
+const arkImageConfig = { ...arkTextConfig, key: 'synthetic-ark-image-key', model: ARK_FLASH_MODEL };
+const openaiToolReply = (args = { prompt: 'A cat' }) => ({ choices: [{ message: { role: 'assistant', content: null, tool_calls: [{ id: 'ark-call', type: 'function', function: { name: 'image_generate', arguments: JSON.stringify(args) } }] } }] });
+const openaiTextReply = text => ({ choices: [{ message: { role: 'assistant', content: text } }] });
+const arkImageResponse = () => ({ data: [{ b64_json: png }], usage: { generated_images: 1 } });
+
+test('Ark text agent advertises Ark image sizes and uses shared dispatcher with independent keys', async () => {
+  const requests = [], approvals = [];
+  const result = await runConversation({ config: arkTextConfig, imageConfig: arkImageConfig, messages,
+    confirmTool: async invocation => { approvals.push(invocation); return true; },
+    fetchImpl: sequence([openaiToolReply(), arkImageResponse(), openaiTextReply('已交给界面显示')], requests),
+  });
+  assert.equal(result.text, '已交给界面显示');
+  assert.equal(requests[0].url, `${ARK_ENDPOINT}/chat/completions`);
+  const schema = requests[0].body.tools[0].function.parameters;
+  assert.deepEqual(schema.properties.imageSize.enum, ['1K', '1.5K', '2K']);
+  assert.equal(schema.properties.aspectRatio.enum.length, 8);
+  assert.equal(requests[1].url, `${ARK_ENDPOINT}/images/generations`);
+  assert.equal(requests[1].body.model, ARK_FLASH_MODEL);
+  assert.equal(requests[1].body.size, '2048x2048');
+  assert.equal(requests[1].body.response_format, 'b64_json');
+  assert.equal(requests[1].options.headers.Authorization, `Bearer ${arkImageConfig.key}`);
+  assert.equal(requests[2].options.headers.Authorization, `Bearer ${arkTextConfig.key}`);
+  assert.equal(requests[2].body.messages[2].role, 'tool');
+  assert.equal(requests[2].body.messages[2].tool_call_id, 'ark-call');
+  assert.equal(approvals.length, 1);
+  assert.equal(approvals[0].args.imageSize, '2K');
+  assert.equal(approvals[0].target, ARK_ENDPOINT);
+  assert.equal(approvals[0].model, ARK_FLASH_MODEL);
+  assert.equal(JSON.stringify(approvals).includes(arkImageConfig.key), false);
+  assert.equal(JSON.stringify(result.history).includes(arkImageConfig.key), false);
+});
+
+test('Gemini text can invoke Ark Pro image without protocol leakage', async () => {
+  const requests = [];
+  const result = await runConversation({ config, imageConfig: { ...arkImageConfig, model: ARK_PRO_MODEL }, messages,
+    confirmTool: async invocation => { assert.equal(invocation.args.imageSize, '2K'); return true; },
+    fetchImpl: sequence([gemini([call('gem-ark', { prompt: 'A cat' })]), arkImageResponse(), reply('完成')], requests),
+  });
+  assert.equal(result.toolResults[0].result.model, ARK_PRO_MODEL);
+  assert.equal(requests[1].body.model, ARK_PRO_MODEL);
+  assert.equal(requests[2].body.contents[2].parts[0].functionResponse.id, 'gem-ark');
+  assert.equal(requests[2].options.headers['x-goog-api-key'], config.key);
+});
+
+test('unsupported Ark image size fails before confirmation and before image network', async () => {
+  const requests = [];
+  await assert.rejects(runConversation({ config: arkTextConfig, imageConfig: arkImageConfig, messages,
+    confirmTool: () => assert.fail('Unsupported size must not request approval'),
+    fetchImpl: sequence([openaiToolReply({ prompt: 'A cat', imageSize: '4K' })], requests),
+  }), error => {
+    assert.ok(error.code);
+    assert.equal(error.history.at(-1).role, 'tool');
+    return true;
+  });
+  assert.equal(requests.length, 1);
+});
+
+test('Ark ordinary text remains tool-free without image configuration', async () => {
+  const requests = [];
+  const result = await runConversation({ config: arkTextConfig, messages,
+    fetchImpl: sequence([openaiTextReply('普通文本')], requests),
+  });
+  assert.equal(result.text, '普通文本');
+  assert.equal(requests[0].body.tools, undefined);
 });

@@ -9,6 +9,7 @@ const destination = join(root, 'dist');
 const files = [
   'index.html', '.nojekyll',
   'src/app.js', 'src/core.js', 'src/agent.js', 'src/icons.js', 'src/styles.css',
+  'src/image-capabilities.js', 'src/logs.js', 'src/session.js', 'src/session-webmcp.js',
 ];
 for (const file of files) {
   if (!(await lstat(join(root, file))).isFile()) throw new Error(`Expected regular production file: ${file}`);

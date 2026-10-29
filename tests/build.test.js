@@ -17,9 +17,9 @@ async function walk(url, prefix = '') {
   return result.sort();
 }
 
-test('Pages build includes only seven production files and exact source bytes', async () => {
+test('Pages build includes only eleven production files and exact source bytes', async () => {
   await exec(process.execPath, ['scripts/build.mjs'], { cwd: fileURLToPath(root) });
-  const expected = ['.nojekyll', 'index.html', 'src/agent.js', 'src/app.js', 'src/core.js', 'src/icons.js', 'src/styles.css'];
+  const expected = ['.nojekyll', 'index.html', 'src/agent.js', 'src/app.js', 'src/core.js', 'src/icons.js', 'src/image-capabilities.js', 'src/logs.js', 'src/session-webmcp.js', 'src/session.js', 'src/styles.css'];
   assert.deepEqual(await walk(new URL('dist/', root)), expected);
   for (const file of expected) assert.deepEqual(await readFile(new URL(`dist/${file}`, root)), await readFile(new URL(file, root)));
 });
@@ -30,4 +30,17 @@ test('Pages workflow publishes dist rather than the repository root', async () =
   assert.match(workflow, /needs: build/);
   assert.match(workflow, /npm test/);
   assert.doesNotMatch(workflow, /path: ['"]?\.\/?['"]?\s*$/m);
+});
+
+
+test('all relative production module imports exist inside the deployment artifact', async () => {
+  await exec(process.execPath, ['scripts/build.mjs'], { cwd: fileURLToPath(root) });
+  for (const file of (await walk(new URL('dist/', root))).filter(name => name.endsWith('.js'))) {
+    const url = new URL(`dist/${file}`, root), source = await readFile(url, 'utf8');
+    for (const match of source.matchAll(/(?:from|import)\s*['"](\.[^'"]+)['"]/g)) {
+      const imported = new URL(match[1], url);
+      assert.equal(imported.href.startsWith(new URL('dist/', root).href), true);
+      await readFile(imported);
+    }
+  }
 });

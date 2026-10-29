@@ -1,21 +1,23 @@
 # 极简 LLM
 
-无侧栏、无起始页的静态 AI 工作台：顶部切换「对话 / 图片生成」，API 配置与模型设置以卡片出现在当前历史中。使用你自己的 API Key，浏览器直接请求你确认的服务地址；没有共享网关、公共密钥或后台代付。
+无侧栏、无起始页的静态 AI 工作台：顶部切换「对话 / 图片生成 / 通讯日志」，API 配置与模型设置以卡片出现在当前历史中。使用你自己的 API Key，浏览器直接请求你确认的服务地址；没有共享网关、公共密钥或后台代付。
 
 ## 已实现
 
-- **对话**：Gemini 原生 `generateContent`；OpenAI 兼容 `chat/completions`。默认文本模型 `gemini-flash-lite-latest`。
-- **图片**：Gemini 原生 `gemini-nano-banana-2.1`，14 个长宽比 × `1K / 2K / 4K`，共 42 个组合。显示真实返回图片，可下载原始格式。
+- **对话**：Gemini 原生、OpenAI 兼容、火山方舟普通 API。初始文本模型保留 `gemini-flash-lite-latest`；选择 Ark 后使用 `doubao-seed-2-1-lite-260915`，也可手填账号已开通的文本模型。
+- **图片**：保留 Gemini Nano Banana 2.1 的 14×3 矩阵；新增 Ark Seedream 5.0 Flash/Pro 的 8×3 矩阵（`1K / 1.5K / 2K`，默认 2K）。显示 API 实际返回的图片，可下载。
 - **配置**：两页分别保留内存中的 API 配置；无配置时先输入消息会出现配置卡片，填好后再次发送，不重复追加同一条待发送消息。
-- **模型列表**：确认目标后真实调用所选地址的 `/models`；不是写死的候选模型。Gemini 取最多 1000 条的第一页。
+- **模型列表**：Gemini/OpenAI 在确认目标后调用所选地址的 `/models`，Gemini 取最多 1000 条的第一页。普通 Ark 的 Bearer 模型列表契约尚未核实，因此明确使用预设/手填，不伪装拉取。
 - **Agent → 图片工作台**：模型的 `image_generate` 函数调用映射到受控 `image.generate` 命令。网页直接生成、Agent 工具、Node CLI 共用 `src/core.js` 的同一个 dispatcher / image generation core。每次生成前显示地址、模型、提示词与尺寸，确认后才发送。
 - **请求状态**：防重复点击，取消请求，不自动重试。已到达供应商的请求即使取消也可能计费。
+- **通讯日志**：真实 fetch 边界记录地址、方法、脱敏头、请求/响应、状态和耗时；真实网络、模拟测试明确区分，可导出 JSON。
+- **网页会话命令**：`window.llmWorkbench` 和 WebMCP 提供七个受控命令，独立 `web-cli.mjs` 通过用户授权的浏览器宿主调用；不会启动任意 shell 或绕过网页确认。
 
 不将网页模型输出作为 HTML、JavaScript 或 shell 执行。CLI 是可用的独立 Node 入口；浏览器内的 Agent 调用受控 JS 命令分发器，**不会启动操作系统 shell**。
 
 ## 本地运行
 
-需要 Python 3；验证及 CLI 需要 Node.js 20+，无 npm 依赖。
+需要 Python 3；验证及 CLI 需要 Node.js 20+。网页、图片 CLI 和合成测试无 npm 依赖；可选的真实网页 MCP 连接需要另行安装/授权浏览器宿主及 MCP SDK，见 [WEB_SESSION.md](WEB_SESSION.md)。
 
 ```sh
 python3 -m http.server 8000
@@ -33,16 +35,28 @@ node cli.mjs --help
 
 图片的 `gemini-nano-banana-2.1` 必须有该项目实际可用的图片配额。本次检查环境的图片配额为 0，**没有进行真实图片调用**；这里不会引导你绑卡或自动转为付费。网页在每次实际图片调用前确认的是“可能消耗 API 额度”，不是承诺免费可调用。
 
+## 火山方舟普通 API（文本＋图片）
+
+在任一工作区 `+ → API 设置 → 供应商` 中选择 **火山方舟 · 普通 API**。两页各自填写普通 Ark API Key 并确认目标，不会自动复制另一页的密钥。
+
+- 基础地址：`https://ark.cn-beijing.volces.com/api/v3`，**不是** `/api/plan/v3`，不使用 Agent/Coding Plan Key。
+- 文本：`/chat/completions`；预设 `doubao-seed-2-1-lite-260915`。完整保留模型工具消息及 `encrypted_content`；输出预算使用 `max_completion_tokens`，不与 `max_tokens` 同发。
+- 图片：`/images/generations`；预设 `doubao-seedream-5-0-flash-260915`，可手填 `doubao-seedream-5-0-pro-260628`。图片预设只覆盖这两个明确模型，不猜测未知 `ep-` 接入点的能力。
+- 比例矩阵转成精确 `WxH`，不发送虚构 `aspect_ratio`。1.5K/2K 使用官方参考尺寸，1K 为已校验面积/比例范围的应用预设，界面明确区分。
+- 请求 `b64_json + png`，没有组图、流式或联网搜索。若上游仅返回 URL，会明确提示尚未下载、生成可能已计费；不向图片链接附加 Key、不盲目下载、不自动重试。
+
+账号权限、模型开通、余额/额度及 **浏览器 CORS 均尚待真实验证**，不能将适配或 Node 合成测试视为“已经跑通”。没有开启计费或进行真实 API 请求。官方说明的版本摘要、参数及来源已保存到 [docs/ark-api.md](docs/ark-api.md)。
+
 ## API 设置
 
 点输入框左下角 `+ → API 设置`，或直接输入一条消息后发送。
 
 | 字段 | 说明 |
 | --- | --- |
-| API 地址 | 基础地址，不含 `/models/...:generateContent` 或 `/chat/completions`。Google：`https://generativelanguage.googleapis.com/v1beta`；OpenAI：`https://api.openai.com/v1`。 |
-| 协议 | `Gemini 原生` 或 `OpenAI 兼容`；供应商选择只是填写地址，不保证第三方实现所有字段。 |
+| API 地址 | 基础地址，不含 `/models/...:generateContent` 、`/chat/completions` 或 `/images/generations`。Google：`https://generativelanguage.googleapis.com/v1beta`；OpenAI：`https://api.openai.com/v1`。 |
+| 协议 | `Gemini 原生`、`OpenAI 兼容` 或 `火山方舟 · 普通 API`；供应商选择只是填写地址，不保证第三方实现所有字段。 |
 | API Key | 用户自己的密钥，仅在当前页面内存中保存。可显示/隐藏及清除，刷新或关闭页面即丢失。 |
-| 模型 ID | 文本默认 `gemini-flash-lite-latest`；图片默认 `gemini-nano-banana-2.1`。自定义文本模型须与所选协议兼容。 |
+| 模型 ID | 文本默认 `gemini-flash-lite-latest`；图片初始为 `gemini-nano-banana-2.1`；Ark 选择后使用上面的 Lite/Flash 预设。自定义文本模型须与所选协议兼容。 |
 | 确认目标地址 | 确认密钥及请求内容要发往哪里。更改地址或协议会清除旧密钥并要求重新确认。模型列表也需要确认。 |
 
 两页的配置彼此独立；可在两页填同一个用户密钥，但不会自动跨页复制。API Key 不保存到 localStorage、sessionStorage、Cookie、URL、历史卡片或日志。卡片中的密钥输入框属于当前页面内存/DOM，浏览器扩展仍可能访问页面；请只使用可信浏览器与可信上游。
@@ -55,12 +69,24 @@ node cli.mjs --help
 
 - 对话支持最大输出 Token、温度、Top P；留空使用上游默认。上下文为当前页内存中的完整对话，不进行后台持久化或自动截断；切换协议会从新的模型上下文开始，旧的界面历史仍可见。
 - OpenAI 映射为 `max_completion_tokens / temperature / top_p`；部分兼容服务或模型不支持全部字段，留空或按服务文档配置。
-- 图片目前仅支持 **Gemini 原生 Nano Banana 2.1**。OpenAI 兼容图片接口、Anthropic、上传图片编辑、多图批量、音视频、PDF、流式输出暂未实现。
-- 图片固定一次调用，不强制转换格式；以供应商实际返回的 PNG/JPEG/WebP 下载。像素表是官方参数映射，不是对每次输出尺寸的本地验收保证。
+- 图片支持 **Gemini Nano Banana 2.1** 和 **Ark Seedream 5.0 Flash/Pro**。通用 OpenAI 图片接口、Anthropic、上传图片编辑、多图批量、音视频、PDF、流式输出暂未实现。
+- 图片固定一次调用，以供应商实际返回的格式下载，不做本地转码。Ark 请求 PNG；预设像素不是对实际输出尺寸的本地验收保证，1K 的应用预设并非官方像素表。
 - API 模型名可变，拉取列表不代表账号拥有该模型的生成权限。**免费额度、项目配额、地区、计费激活及模型可用性均由供应商决定**，本项目不承诺某模型可免费调用。
 - Agent 工具需文本模型支持 function calling；先在图片页填好并确认图片 API，才向文本模型开放工具。工具向对话返回图片参数、数量、格式及供应商文字，不把图片字节送回文本模型做视觉检查。每轮有有限工具调用次数，无任意命令执行。拒绝确认不会生成图片。
 
-## Node CLI
+## 通讯日志与网页会话控制
+
+「通讯日志」页面保留最多 100 条内存记录，可展开查看或导出。日志在实际 fetch 前后生成，不由 UI 生成成功记录：CORS/网络失败会显示没有响应的网络错误，不冒充供应商响应。认证值、已使用的 Key、签名查询参数会脱敏；图片数据仅显示元数据，大文本会截断。HTTP 错误原始 body 不读取/保存，只保留真实状态及安全错误；**它不是字节级抓包**。导出仍可能包含私人提示词与回复，请检查后再分享。
+
+七个网页命令为 `session.state / session.logs / page.navigate / settings.update / draft.set / request.send / request.cancel`，操作当前已连接的真实页面内存状态。状态不返回密钥；MVP 不提供 endpoint/Key/trust setter。每次工具发送都需要网页内用户确认，图片生成确认仍保留。
+
+```sh
+node web-cli.mjs --help
+```
+
+真实 CLI→浏览器连接需要用户已安装、明确授权并选择的浏览器宿主；本次只完成代码和无网络合成测试，**没有验证真实浏览器宿主闭环**。普通浏览器未提供 WebMCP 时不会假装注册成功。详细安装/连接方式及权限边界见 [WEB_SESSION.md](WEB_SESSION.md)。
+
+## Node 图片 CLI
 
 ```sh
 node cli.mjs --help
@@ -73,25 +99,35 @@ node cli.mjs image.generate \
   --out ./output/city --yes
 ```
 
+Ark 使用单独环境变量与同一 dispatcher：
+
+```sh
+# 在本机安全设置 ARK_API_KEY 后：
+node cli.mjs image.generate --protocol ark \
+  --endpoint https://ark.cn-beijing.volces.com/api/v3 \
+  --prompt '海边日出插画' --aspect-ratio 16:9 --image-size 2K \
+  --out ./generated --yes
+```
+
 密钥从环境变量读取，不要把真实密钥写进仓库、命令行参数或共享日志。`--yes` 是对本次目标和额度消耗的明确批准；未给出时不发送请求。具体环境变量和输出文件命名以 `--help` 为准。CLI 与网页调用同一个图片实现，不是第二套模拟实现。
 
 ## GitHub Pages 部署
 
 本项目是原生 ES modules，零依赖白名单构建，无服务端 secret。
 
-1. 把源码提交到仓库 `main` 分支根目录，设计原件继续保留在私有仓库。
+1. 把源码提交到仓库 `main` 分支根目录，设计原件继续作为仓库源文件保留。
 2. GitHub 仓库 **Settings → Pages → Source → GitHub Actions**。
 3. `.github/workflows/pages.yml` 会先执行语法检查与合成测试，再运行 `npm run build`，仅发布 `dist/` 白名单产物。
 4. 等待 **build + deploy** 成功，再打开实际站点检查。若设置完成前初次运行失败，可从 Actions 手动重新运行。
 
-白名单只有 `index.html`、`.nojekyll`、`src/{app,core,agent,icons}.js` 和 `src/styles.css`。**不发布 design、tests、CLI、README、配置文件或仓库的其他内容**。不要使用全仓库根目录上传或 `main / (root)` 的分支发布来绕过这层隔离。
+白名单只有 `index.html`、`.nojekyll`、`src/{app,core,agent,icons,image-capabilities,logs,session,session-webmcp}.js` 和 `src/styles.css`，共 11 个文件。**不发布 design、tests、CLI、README、配置文件或仓库的其他内容**。不要使用全仓库根目录上传或 `main / (root)` 的分支发布来绕过这层隔离。
 
 ```sh
 npm run build
 python3 -m http.server 8000 --directory dist
 ```
 
-构建只复制上述七个文件，不下载依赖、不读取环境密钥。工作流参考 [GitHub 官方 Pages 自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
+构建只复制上述 11 个文件，不下载依赖、不读取环境密钥。工作流参考 [GitHub 官方 Pages 自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
 CSS/JS 均使用相对路径，兼容 `https://<owner>.github.io/<repository>/`。GitHub 私有仓库的 Pages 可用性和访问范围依账号计划/组织设置而定；启用前检查站点是否会公开。**不要在页面、配置或提交中放共享 API Key。**
 
 若 GitHub 要求重新登录或 2FA，应由账号持有人完成，不能通过代码绕过。代码提交成功不等于 Pages 已部署成功。
@@ -101,10 +137,16 @@ CSS/JS 均使用相对路径，兼容 `https://<owner>.github.io/<repository>/`�
 ```text
 index.html              生产入口（真实 transport，无模拟回复）
 src/app.js              原设计风格 UI，内存配置及费用确认
-src/core.js             两种文本适配器、模型列表、图片核心、typed command dispatcher
+src/core.js             Gemini/OpenAI/Ark 文本、图片核心、typed command dispatcher
+src/image-capabilities.js 按 provider/model 分离的图片能力与尺寸
+src/logs.js             脱敏、限量的内存通讯日志
+src/session*.js         受控网页会话命令及可选 WebMCP 注册
 src/agent.js            模型 function call ↔ dispatcher ↔ 模型结果循环
 cli.mjs                 Node CLI（同一 dispatcher）
-scripts/build.mjs       仅复制七个生产文件到 dist
+web-cli.mjs             真实页面命令 CLI（需要授权浏览器宿主）
+cli-mcp-transport.mjs    可选标准 MCP 传输，不自动安装或连接
+docs/ark-api.md         官方 API 来源与版本化集成摘要
+scripts/build.mjs       仅复制 11 个生产文件到 dist
 .github/workflows/      测试通过后发布 dist 的 Pages 工作流
 design/index.html       原始交互设计，原样保留，不作为生产入口
 design/REQUIREMENTS.md   当时的设计需求记录（保留历史语境）

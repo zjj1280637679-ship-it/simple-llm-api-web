@@ -194,3 +194,122 @@ test('accidentally pasted key in API path is rejected before network', async () 
     await assert.rejects(listModels({config:gemini({url,trustedTarget:url}),fetchImpl:noFetch}),code('ENDPOINT'));
   }
 });
+
+test('Ark Flash and Pro send image generation fields with no invented ratio/sequence options', async () => {
+  const {ARK_FLASH_MODEL,ARK_PRO_MODEL,ARK_ENDPOINT} = await import('../src/core.js');
+  for (const model of [ARK_FLASH_MODEL,ARK_PRO_MODEL]) {
+    const config = {protocol:'ark',url:ARK_ENDPOINT,trustedTarget:ARK_ENDPOINT,key:FAKE_KEY,model};
+    const result = await generateImage({config,prompt:'A tree',aspectRatio:'16:9',imageSize:'2K',fetchImpl:async (url,options) => {
+      assert.equal(url,`${ARK_ENDPOINT}/images/generations`);
+      assert.equal(options.headers.Authorization,`Bearer ${FAKE_KEY}`);
+      assert.deepEqual(JSON.parse(options.body),{model,prompt:'A tree',size:'2816x1584',response_format:'b64_json',output_format:'png'});
+      return jsonResponse({data:[{b64_json:PNG_PIXEL,size:'2816x1584',output_format:'png'}]});
+    }});
+    assert.equal(result.images[0].data,PNG_PIXEL);
+    assert.equal(result.images[0].size,'2816x1584');
+    assert.equal(result.size,'2816x1584');
+    assert.equal(result.model,model);
+  }
+});
+
+test('Ark URL-only response never downloads URL, retries generation or logs URL', async () => {
+  const {ARK_FLASH_MODEL,ARK_ENDPOINT} = await import('../src/core.js');
+  const {clearNetworkLogs,getNetworkLogs} = await import('../src/logs.js');
+  clearNetworkLogs();
+  let requests = 0;
+  const secretURL = 'https://images.example.com/sensitive-image-name.png?signature=opaque-signed-value';
+  await assert.rejects(generateImage({config:{protocol:'ark',url:ARK_ENDPOINT,trustedTarget:ARK_ENDPOINT,key:FAKE_KEY,model:ARK_FLASH_MODEL},prompt:'A tree',fetchImpl:async () => {
+    requests++;
+    return jsonResponse({data:[{url:secretURL}]});
+  }}),error => error.code === 'IMAGE_URL_ONLY' && !error.message.includes(secretURL));
+  assert.equal(requests,1);
+  const logs = JSON.stringify(getNetworkLogs());
+  assert(!logs.includes(secretURL));
+  assert(!logs.includes('sensitive-image-name'));
+  assert(logs.includes('[OMITTED: image URL]'));
+});
+
+test('Ark unsupported image combinations and unverified model listing never fetch', async () => {
+  const {ARK_FLASH_MODEL,ARK_ENDPOINT} = await import('../src/core.js');
+  const config = {protocol:'ark',url:ARK_ENDPOINT,trustedTarget:ARK_ENDPOINT,key:FAKE_KEY,model:ARK_FLASH_MODEL};
+  await assert.rejects(listModels({config,fetchImpl:noFetch}),code('MODELS_UNSUPPORTED'));
+  await assert.rejects(generateImage({config,prompt:'cat',imageSize:'4K',fetchImpl:noFetch}),code('IMAGE_OPTIONS'));
+  await assert.rejects(generateImage({config:{...config,model:'ep-unverified'},prompt:'cat',fetchImpl:noFetch}),code('IMAGE_MODEL'));
+  await assert.rejects(generateImage({config,prompt:'cat',fetchImpl:async () => jsonResponse({data:[{b64_json:'aGVsbG8='}]})}),code('IMAGE_DATA'));
+});
+
+test('Ark text and tool messages preserve encrypted_content with the documented chat path', async () => {
+  const {ARK_TEXT_MODEL,ARK_ENDPOINT} = await import('../src/core.js');
+  const config = {protocol:'ark',url:ARK_ENDPOINT,trustedTarget:ARK_ENDPOINT,key:FAKE_KEY,model:ARK_TEXT_MODEL};
+  const native = {role:'assistant',content:null,encrypted_content:'opaque-encrypted-reasoning',tool_calls:[{id:'ark-1',type:'function',function:{name:'image_generate',arguments:'{"prompt":"cat"}'}}]};
+  const first = await generateText({config,messages:user,tools:[IMAGE_TOOL],settings:{output:512},fetchImpl:async (url,options) => {
+    assert.equal(url,`${ARK_ENDPOINT}/chat/completions`);
+    const body = JSON.parse(options.body);
+    assert.equal(body.model,ARK_TEXT_MODEL);
+    assert.equal(body.max_completion_tokens,512);
+    assert.equal(body.max_tokens,undefined);
+    assert.equal(body.tools[0].type,'function');
+    return jsonResponse({choices:[{message:native,finish_reason:'tool_calls'}]});
+  }});
+  const tool = makeToolResult(config,first.toolCalls[0],{ok:true});
+  await generateText({config,messages:[...user,{role:'assistant',content:'',raw:first.rawAssistant},tool],fetchImpl:async (_url,options) => {
+    assert.deepEqual(JSON.parse(options.body).messages[1],native);
+    assert.equal(JSON.parse(options.body).messages[2].tool_call_id,'ark-1');
+    return jsonResponse({choices:[{message:{role:'assistant',content:'Done'}}]});
+  }});
+});
+
+test('network diagnostics identify mocks, upsert completion and redact echoed credentials', async () => {
+  const {clearNetworkLogs,getNetworkLogs} = await import('../src/logs.js');
+  clearNetworkLogs();
+  await generateText({config:gemini(),messages:[{role:'user',content:`private ${FAKE_KEY}`}],fetchImpl:async () => jsonResponse(responseText(`echo ${FAKE_KEY}`))});
+  const logs = getNetworkLogs();
+  assert.equal(logs.length,1);
+  assert.equal(logs[0].source,'mock');
+  assert.equal(logs[0].status,200);
+  assert.equal(logs[0].provider,'gemini');
+  assert.equal(logs[0].requestHeaders['x-goog-api-key'],'[REDACTED]');
+  assert.equal(logs[0].requestHeaders['Content-Type'],'application/json');
+  assert.equal(logs[0].error,null);
+  assert(!JSON.stringify(logs).includes(FAKE_KEY));
+  assert(JSON.stringify(logs).includes('[REDACTED]'));
+});
+
+test('preflight errors create no network logs and HTTP failure logs no raw upstream body', async () => {
+  const {clearNetworkLogs,getNetworkLogs} = await import('../src/logs.js');
+  clearNetworkLogs();
+  await assert.rejects(generateText({config:gemini({trustedTarget:''}),messages:user,fetchImpl:noFetch}),code('UNTRUSTED_ENDPOINT'));
+  assert.deepEqual(getNetworkLogs(),[]);
+  await assert.rejects(generateText({config:gemini(),messages:user,fetchImpl:async () => ({ok:false,status:429,json:async () => {assert.fail('error body should not be read');}})}),code('HTTP'));
+  const logs = getNetworkLogs();
+  assert.equal(logs.length,1);
+  assert.equal(logs[0].status,429);
+  assert.equal(logs[0].error.code,'HTTP');
+  assert.equal(logs[0].responsePayload,null);
+});
+
+
+test('ordinary Ark rejects Coding Plan endpoint including encoded path before network', async () => {
+  const {ARK_TEXT_MODEL} = await import('../src/core.js');
+  const {clearNetworkLogs,getNetworkLogs} = await import('../src/logs.js');
+  clearNetworkLogs();
+  for (const url of ['https://ark.cn-beijing.volces.com/api/plan/v3','https://trusted.example.com/api/plan/v3/','https://trusted.example.com/%61pi/plan/v3','https://trusted.example.com/api%2fplan%2fv3']) {
+    await assert.rejects(generateText({config:{protocol:'ark',url,trustedTarget:url,key:FAKE_KEY,model:ARK_TEXT_MODEL},messages:user,fetchImpl:noFetch}),code('ARK_PLAN_ENDPOINT'));
+  }
+  assert.deepEqual(getNetworkLogs(),[]);
+});
+
+test('network logs include only redacted request headers and allowlisted response headers', async () => {
+  const {clearNetworkLogs,getNetworkLogs} = await import('../src/logs.js');
+  clearNetworkLogs();
+  await generateText({config:openai(),messages:user,fetchImpl:async () => ({...jsonResponse({choices:[{message:{role:'assistant',content:'ok'}}]}),headers:new Headers({'content-type':'application/json','x-request-id':'request-123','set-cookie':'unsafe-cookie','authorization':FAKE_KEY,'x-private-header':'not-logged'})})});
+  const [entry] = getNetworkLogs();
+  assert.equal(entry.requestHeaders.Authorization,'[REDACTED]');
+  assert.equal(entry.requestHeaders.Accept,'application/json');
+  assert.equal(entry.requestHeaders['Content-Type'],'application/json');
+  assert.deepEqual(entry.responseHeaders,{'content-type':'application/json','x-request-id':'request-123'});
+  const serialized = JSON.stringify(entry);
+  assert(!serialized.includes(FAKE_KEY));
+  assert(!serialized.includes('unsafe-cookie'));
+  assert(!serialized.includes('not-logged'));
+});
