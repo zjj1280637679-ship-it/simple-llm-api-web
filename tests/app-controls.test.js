@@ -312,3 +312,55 @@ test('settings menus replace bottom menus rather than leaving an inline second m
  await ui.click({action:'pull-models',id:String(card.id)});
  assert.doesNotMatch(ui.app.innerHTML,/class="(?:plus-menu|size-menu|inline-list)"/);
 });
+
+test('page protocol picker replaces native select and preserves protocol-change invalidation',async()=>{
+ const ui=mount(),{d,card}=configure(ui);d.history=[{role:'user',content:'old context'}];card.models=[{id:'old'}];
+ await ui.click({action:'plus'});await ui.click({action:'protocol-menu',id:String(card.id)});
+ assert.match(ui.app.innerHTML,/role="listbox"/);assert.equal((ui.app.innerHTML.match(/role="option"/g)||[]).length,3);
+ assert.doesNotMatch(ui.app.innerHTML,/<select[^>]*id="protocol/);
+ assert.doesNotMatch(ui.app.innerHTML,/class="plus-menu"/);
+ await ui.click({action:'choose-protocol',id:String(card.id),protocol:'openai'});
+ assert.equal(d.api.protocol,'openai');assert.equal(d.api.key,'');assert.equal(d.api.trustedTarget,'');assert.equal(d.api.model,'');
+ assert.equal(d.history.length,0);assert.equal(card.models.length,0);
+ assert.doesNotMatch(ui.app.innerHTML,/role="listbox"/);
+ assert.match(ui.app.innerHTML,/OpenAI 兼容 · Chat Completions/);
+});
+
+test('applying displayed API target is an explicit local action without a second modal or request',async()=>{
+ const ui=mount({confirm:()=>assert.fail('target application must not open a modal')});ui.addCard('api');
+ const d=ui.data.chat,card=d.messages.at(-1);d.api.key='synthetic';
+ await ui.click({action:'pull-models',id:String(card.id)});
+ assert.equal(d.api.trustedTarget,'');assert.match(card.modelListStatus,/应用设置/);
+ await ui.click({action:'trust-target'});
+ assert.equal(d.api.trustedTarget,core.canonicalEndpoint(d.api.url));
+ d.api.url='http://unsafe.example/v1';d.api.trustedTarget='';
+ await ui.click({action:'trust-target'});assert.equal(d.api.trustedTarget,'');
+});
+
+for (const [index, name, url] of [
+  ['5', 'DeepSeek', 'https://api.deepseek.com'],
+  ['6', '智谱 AI · 普通 API', 'https://open.bigmodel.cn/api/paas/v4']
+]) {
+  test(`${name} preset is visible and switches to ordinary OpenAI-compatible API without carrying Gemini state`, async () => {
+    const ui = mount(), { d, card } = configure(ui);
+    const imageBefore = { ...ui.data.image.api };
+    await ui.click({ action: 'supplier', id: String(card.id) });
+    assert.ok(ui.app.innerHTML.includes(name));
+    await ui.click({ action: 'choose-supplier', id: String(card.id), index });
+    assert.equal(d.api.supplier, name); assert.equal(d.api.url, url);
+    assert.equal(d.api.protocol, 'openai'); assert.equal(d.api.model, '');
+    assert.equal(d.api.key, ''); assert.equal(d.api.trustedTarget, '');
+    assert.equal(ui.isConfigured(d), false);
+    assert.deepEqual({ ...ui.data.image.api }, imageBefore);
+    d.api.model = 'user-selected-model'; d.api.key = 'synthetic-provider-key';
+    d.api.trustedTarget = url;
+    await ui.click({ action: 'choose-supplier', id: String(card.id), index });
+    assert.equal(d.api.model, 'user-selected-model');
+    assert.equal(d.api.key, 'synthetic-provider-key');
+  });
+  test(`${name} does not claim image generation support`, async () => {
+    const ui = mount(), { d, card } = configure(ui, 'image');
+    await ui.click({ action: 'choose-supplier', id: String(card.id), index });
+    assert.equal(d.api.model, ''); assert.equal(ui.matrixSupported(d), false);
+  });
+}

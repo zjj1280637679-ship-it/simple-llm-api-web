@@ -39,6 +39,20 @@ function syncSettingFields() {
   });
   fields.forEach(field => settingsFieldObserver.observe(field.closest('.formfield')));
 }
+function resizeDraft(field = app.querySelector('#draft')) {
+  if (!field?.matches?.('textarea#draft')) return;
+  // Preserve the value, selection and IME composition; only adjust geometry.
+  const style = getComputedStyle(field);
+  const line = parseFloat(style.lineHeight) || 24;
+  const padding = (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
+  const visual = window.visualViewport;
+  const viewportHeight = visual && Math.abs((visual.scale || 1) - 1) < 0.01 ? visual.height : window.innerHeight;
+  const minimum = Math.max(44, line + padding);
+  const maximum = Math.max(minimum, Math.min(240, viewportHeight * 0.3));
+  field.style.height = 'auto';
+  field.style.height = `${Math.ceil(Math.max(minimum, Math.min(field.scrollHeight, maximum)))}px`;
+  field.style.overflowY = field.scrollHeight > maximum ? 'auto' : 'hidden';
+}
 function protectFloatingFocus(target) {
   if (!target?.getBoundingClientRect) return;
   const nav = app.querySelector('.top'), composer = app.querySelector('.composer-area');
@@ -56,6 +70,7 @@ function syncFloatingNavigation() {
   if (!nav) return;
   const composer = app.querySelector('.composer-area');
   const measure = () => {
+    resizeDraft();
     const visual = window.visualViewport;
     // Follow the keyboard-sized visual viewport, not pinch-zoom panning.
     const keyboardViewport = visual && Math.abs((visual.scale || 1) - 1) < 0.01;
@@ -168,7 +183,7 @@ window.visualViewport?.addEventListener('resize', positionFloatingMenu);
 window.visualViewport?.addEventListener('scroll', positionFloatingMenu);
 document.addEventListener('pointerdown', event => {
   const menu = app.querySelector('[data-floating-menu]');
-  if (!menu || menu.contains(event.target) || event.target.closest?.('[data-action="plus"],[data-action="size-toggle"],[data-action="supplier"],[data-action="pull-models"]')) return;
+  if (!menu || menu.contains(event.target) || event.target.closest?.('[data-action="plus"],[data-action="size-toggle"],[data-action="supplier"],[data-action="pull-models"],[data-action="protocol-menu"]')) return;
   dismissFloatingMenu();
 });
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -177,7 +192,9 @@ const providers = [
   { name: 'OpenAI', protocol: 'openai', url: 'https://api.openai.com/v1' },
   { name: '自定义 · Gemini', protocol: 'gemini', url: '' },
   { name: '自定义 · OpenAI 兼容', protocol: 'openai', url: '' },
-  { name: '火山方舟 · 普通 API', protocol: 'ark', url: ARK_ENDPOINT }
+  { name: '火山方舟 · 普通 API', protocol: 'ark', url: ARK_ENDPOINT },
+  { name: 'DeepSeek', protocol: 'openai', url: 'https://api.deepseek.com' },
+  { name: '智谱 AI · 普通 API', protocol: 'openai', url: 'https://open.bigmodel.cn/api/paas/v4' }
 ];
 const makePage = type => ({
   api: { protocol: 'gemini', url: providers[0].url, key: '', model: type === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL, supplier: 'Google Gemini', trustedTarget: '' },
@@ -246,16 +263,17 @@ function errorText(error) {
   if (Number.isInteger(error?.status)) return `API 返回 HTTP ${error.status}。请检查密钥权限、模型、额度及参数；不会自动重试。`;
   return '请求未完成。请检查 API 配置、模型支持、网络与 CORS；不会自动重试。';
 }
+function protocolLabel(protocol) { return ({gemini:'Gemini 原生 · generateContent',openai:'OpenAI 兼容 · Chat Completions',ark:'火山方舟 · 普通 API'})[protocol] || protocol; }
 function apiCard(m) {
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.api;
   const menu = subMenu.endsWith(`:${m.id}`) ? subMenu.split(':')[0] : '';
   return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}
     <div class="formfield"><label for="url${m.id}">API 地址</label><div class="fieldrow"><textarea class="setting-text" rows="1" wrap="soft" id="url${m.id}" data-card="${m.id}" data-key="url" placeholder="API 地址" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.url)}</textarea><div class="sub-menu"><button type="button" data-action="supplier" data-id="${m.id}" aria-expanded="${menu === 'supplier'}" class="uniform-btn">${esc(x.supplier)}</button>${menu === 'supplier' ? `<div class="inline-list" data-floating-menu="supplier" data-menu-card="${m.id}">${providers.map((p, i) => `<button class="inline-item" data-action="choose-supplier" data-id="${m.id}" data-index="${i}">${esc(p.name)}</button>`).join('')}</div>` : ''}</div></div></div>
-    <div class="formfield"><label for="protocol${m.id}">协议</label><select class="native-select" id="protocol${m.id}" data-card="${m.id}" data-key="protocol" aria-describedby="protocol-reading${m.id}"><option value="gemini" ${x.protocol === 'gemini' ? 'selected' : ''}>Gemini 原生 · generateContent</option><option value="openai" ${x.protocol === 'openai' ? 'selected' : ''}>OpenAI 兼容 · Chat Completions</option><option value="ark" ${x.protocol === 'ark' ? 'selected' : ''}>火山方舟 · 普通 API</option></select><div class="field-reading" id="protocol-reading${m.id}">${x.protocol === 'gemini' ? 'Gemini 原生 · generateContent' : x.protocol === 'ark' ? '火山方舟 · 普通 API' : 'OpenAI 兼容 · Chat Completions'}</div></div>
+    <div class="formfield"><label id="protocol-label${m.id}" for="protocol${m.id}">协议</label><div class="fieldrow"><button type="button" class="protocol-trigger" id="protocol${m.id}" data-action="protocol-menu" data-id="${m.id}" aria-haspopup="listbox" aria-expanded="${menu === 'protocol'}" aria-controls="protocol-options${m.id}">${esc(protocolLabel(x.protocol))} ${icon('chev', 14)}</button>${menu === 'protocol' ? `<div class="inline-list" id="protocol-options${m.id}" role="listbox" aria-labelledby="protocol-label${m.id}" data-floating-menu="protocol-menu" data-menu-card="${m.id}">${['gemini','openai','ark'].map(protocol => `<button type="button" role="option" tabindex="-1" aria-selected="${x.protocol === protocol}" class="inline-item" data-action="choose-protocol" data-id="${m.id}" data-protocol="${protocol}">${x.protocol === protocol ? '✓ ' : ''}${esc(protocolLabel(protocol))}</button>`).join('')}</div>` : ''}</div></div>
     <div class="formfield"><label for="key${m.id}">API Key</label><div class="fieldrow"><input id="key${m.id}" data-card="${m.id}" data-key="key" type="${!old && m.showKey ? 'text' : 'password'}" placeholder="" aria-describedby="key-help${m.id}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(old ? '' : x.key)}"><button type="button" data-action="toggle-key" data-id="${m.id}" class="uniform-btn">${m.showKey ? '隐藏' : '显示'}</button></div><div class="field-reading" id="key-help${m.id}">${old ? '未保留历史密钥' : '仅保留在本页内存，刷新即清除'}</div></div>
     <div class="formfield"><label for="model${m.id}">模型 ID</label><div class="fieldrow"><textarea class="setting-text" rows="1" wrap="soft" id="model${m.id}" data-card="${m.id}" data-key="model" placeholder="模型 ID" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.model)}</textarea><div class="sub-menu"><button type="button" data-action="pull-models" data-id="${m.id}" aria-expanded="${menu === 'models'}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list" data-floating-menu="pull-models" data-menu-card="${m.id}">${m.models.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div></div></div>
     <div class="field-reading" id="models-status${m.id}" role="status">${esc(m.modelListStatus || '')}</div>
-    <div class="api-security">${!old && d.pendingTextId ? '<div>填写并确认后，再次发送即可继续。</div>' : ''}<span id="api-trust${m.id}">${old ? '密钥不写入历史记录' : apiTrustText(x)}</span>${!old && x.protocol === 'ark' ? '<div>普通 API · 非 Agent Plan。浏览器跨域支持尚待真实验证。</div>' : ''}${!old ? '<div class="security-actions"><button type="button" class="chip" data-action="trust-target">确认目标地址</button><button type="button" class="chip" data-action="clear-key">清除密钥</button></div>' : ''}</div>
+    <div class="api-security">${!old && d.pendingTextId ? '<div>填写并确认后，再次发送即可继续。</div>' : ''}<span id="api-trust${m.id}">${old ? '密钥不写入历史记录' : apiTrustText(x)}</span>${!old && x.protocol === 'ark' ? '<div>普通 API · 非 Agent Plan。浏览器跨域支持尚待真实验证。</div>' : ''}${!old ? '<div>应用后，密钥和请求内容将发送到上方填写的地址；应用本身不发送请求。</div><div class="security-actions"><button type="button" class="chip" data-action="trust-target">应用设置</button><button type="button" class="chip" data-action="clear-key">清除密钥</button></div>' : ''}</div>
   </div></fieldset></div>`;
 }
 function modelCard(m) {
@@ -305,18 +323,18 @@ function render(scrollEnd = false) {
   const focusIdentity = captureControlFocus();
   if (page === 'logs') { renderLogsPage(); restoreControlFocus(focusIdentity); return; }
   const d = get(), scrollTop = app.scrollTop;
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="mock-status" role="status">正在请求 API…</div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="mock-status" role="status">正在请求 API…</div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
   mountFloatingMenu();
   syncFloatingNavigation();
   positionFloatingMenu();
   app.scrollTop = scrollEnd ? app.scrollHeight : scrollTop;
   restoreControlFocus(focusIdentity);
 }
-function trustTarget(d, report = text => status(d, text, 'error')) {
+function trustTarget(d, report = text => status(d, text, 'error'), apply = false) {
   let target;
   try { target = canonicalEndpoint(d.api.url); } catch (e) { report(errorText(e)); return false; }
   if (trusted(d.api)) return true;
-  if (!window.confirm(`确认 API 目标地址\n\n${target}\n协议：${d.api.protocol === 'gemini' ? 'Gemini 原生' : d.api.protocol === 'ark' ? '火山方舟普通 API' : 'OpenAI 兼容'}\n\n此后本页的密钥、输入内容及当前对话上下文会直接发送到该地址。仅信任你了解的官方服务或自建代理。地址更改后需要重新确认。`)) return false;
+  if (!apply) { report('目标地址尚未确认，请先在设置卡点击应用设置；未发送请求。'); return false; }
   d.api.trustedTarget = target; return true;
 }
 function approveImage(invocation) {
@@ -403,6 +421,13 @@ app.addEventListener('click', async e => {
     case 'size-toggle': sizeOpen = !sizeOpen; plusOpen = false; subMenu = ''; render(); if (sizeOpen) focusFloatingMenu(); break;
     case 'set-image-options': if (matrixSupported(d) && getImageCapabilities(d.api).ratios.some(x => x.ratio === el.dataset.ratio) && getImageCapabilities(d.api).sizes.includes(el.dataset.imageSize)) { const scroll = app.querySelector('.matrix-scroll')?.scrollTop || 0; d.aspectRatio = el.dataset.ratio; d.imageSize = el.dataset.imageSize; render(); app.querySelector('.matrix-scroll').scrollTop = scroll; } break;
     case 'supplier': plusOpen = sizeOpen = false; subMenu = subMenu === `supplier:${card.id}` ? '' : `supplier:${card.id}`; render(); if (subMenu) focusFloatingMenu(); break;
+    case 'protocol-menu':
+      plusOpen = sizeOpen = false; subMenu = subMenu === `protocol:${card.id}` ? '' : `protocol:${card.id}`;
+      render(); if (subMenu) (app.querySelector('[data-floating-menu] [aria-selected="true"]') || app.querySelector('[data-floating-menu] button'))?.focus({preventScroll:true}); break;
+    case 'choose-protocol':
+      if (!['gemini','openai','ark'].includes(el.dataset.protocol)) break;
+      updateField({target:{value:el.dataset.protocol,dataset:{card:String(card.id),key:'protocol'}}});
+      subMenu = ''; render(); app.querySelector(`#protocol${card.id}`)?.focus?.({preventScroll:true}); break;
     case 'choose-supplier': {
       const p = providers[Number(el.dataset.index)];
       const sameProviderTarget = d.api.protocol === p.protocol && (sameEndpoint(d.api.url, p.url) || (!p.url && d.api.supplier === p.name));
@@ -416,7 +441,12 @@ app.addEventListener('click', async e => {
       card.modelListStatus = ''; subMenu = ''; render(); break;
     }
     case 'toggle-key': card.showKey = !card.showKey; render(); break;
-    case 'trust-target': trustTarget(d); render(); break;
+    case 'trust-target': {
+      const settingsCard = getCard(activeCardId(d));
+      const applied = trustTarget(d, text => { if (settingsCard) settingsCard.modelListStatus = text; }, true);
+      if (applied && settingsCard) settingsCard.modelListStatus = '';
+      render(); break;
+    }
     case 'clear-key': archiveWorkspaceKey(d); d.api.key = ''; d.api.trustedTarget = ''; syncLogSecrets(); status(d, '本页密钥已清除。'); render(); break;
     case 'pull-models': await pullModels(card); break;
     case 'choose-model': d.api.model = el.dataset.model; if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
@@ -434,7 +464,7 @@ function updateField(e) {
   const t = e.target, d = get();
   resizeSettingField(t);
   if (!d) return;
-  if (t.id === 'draft') { d.draft = t.value; return; }
+  if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); return; }
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
   if (card.kind === 'api') {
@@ -473,6 +503,14 @@ app.addEventListener('error', e => {
 app.addEventListener('input', updateField);
 app.addEventListener('change', e => { updateField(e); if (e.target.dataset?.key === 'key') archiveWorkspaceKey(get()); if (e.target.tagName === 'SELECT') render(); });
 document.addEventListener('keydown', e => {
+  if (e.target.dataset?.action === 'protocol-menu' && ['ArrowDown','ArrowUp'].includes(e.key)) {
+    e.preventDefault(); plusOpen = sizeOpen = false; subMenu = `protocol:${e.target.dataset.id}`; render();
+    (app.querySelector('[data-floating-menu] [aria-selected="true"]') || app.querySelector('[data-floating-menu] button'))?.focus({preventScroll:true});
+  } else if (e.target.dataset?.action === 'choose-protocol' && ['ArrowDown','ArrowUp','Home','End'].includes(e.key)) {
+    e.preventDefault(); const choices = [...app.querySelectorAll('[data-floating-menu="protocol-menu"] [role="option"]')];
+    const index = choices.indexOf(e.target), next = e.key === 'Home' ? 0 : e.key === 'End' ? choices.length-1 : (index + (e.key === 'ArrowDown' ? 1 : -1) + choices.length) % choices.length;
+    choices[next]?.focus({preventScroll:true}); choices[next]?.scrollIntoView({block:'nearest'});
+  }
   if (e.key === 'Escape' && (plusOpen || sizeOpen)) { e.preventDefault(); dismissFloatingMenu(true); }
   else if (e.key === 'Escape' && subMenu) { e.preventDefault(); dismissFloatingMenu(true); }
   if (e.target.id === 'draft' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); }

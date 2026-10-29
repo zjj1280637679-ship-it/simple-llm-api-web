@@ -313,3 +313,16 @@ test('network logs include only redacted request headers and allowlisted respons
   assert(!serialized.includes('unsafe-cookie'));
   assert(!serialized.includes('not-logged'));
 });
+
+for (const url of ['https://api.deepseek.com', 'https://open.bigmodel.cn/api/paas/v4']) {
+  test(`restored provider appends chat path once: ${url}`, async () => {
+    const result = await generateText({ config: openai({ url, trustedTarget: url }), messages: user,
+      fetchImpl: async (target, options) => {
+        assert.equal(target, `${url}/chat/completions`);
+        assert.equal(JSON.parse(options.body).model, 'test-chat');
+        return jsonResponse({ choices: [{ message: { role: 'assistant', content: 'synthetic OK' } }] });
+      }
+    });
+    assert.equal(result.text, 'synthetic OK');
+  });
+}

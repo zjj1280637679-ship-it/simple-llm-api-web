@@ -36,3 +36,12 @@ test('settings menus prefer below the complete input row and use bounded fallbac
  assert.match(source,/data-floating-menu="supplier" data-menu-card/);
  assert.match(source,/data-floating-menu="pull-models" data-menu-card/);
 });
+
+test('protocol field uses the same full-row popup with explicit accessible keyboard contract',()=>{
+ assert.match(source,/data-floating-menu="protocol-menu" data-menu-card/);
+ assert.match(source,/aria-haspopup="listbox"/);
+ assert.match(source,/\['ArrowDown','ArrowUp','Home','End'\]/);
+ assert.match(source,/choices\[next\]\?\.focus/);
+ assert.match(source,/dismissFloatingMenu\(true\)/);
+ assert.doesNotMatch(source,/protocol-reading/);
+});

@@ -109,3 +109,15 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 .setting-text:disabled{opacity:.7}
 .field-reading{white-space:normal;overflow-wrap:anywhere}
 @media(prefers-color-scheme:dark){.fieldrow>.setting-text{background:#292e29;color:#e9ede6;border-color:#465047}}
+
+/* A compact idle capsule; the draft grows while controls keep their touch area. */
+.composer-area .compose{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:end;gap:0 6px;padding:6px;border-radius:29px}
+.composer-area .compose-actions,.composer-area .left-actions,.composer-area .right-actions{display:contents}
+.composer-area .left-actions>.menu-wrap{grid-column:1;grid-row:1;align-self:end}
+.composer-area .compose textarea#draft{grid-column:2;grid-row:1;width:100%;min-width:0;height:44px;min-height:44px;padding:10px 2px;line-height:1.5;overflow-y:hidden;overflow-wrap:anywhere;white-space:pre-wrap}
+.composer-area .circle,.composer-area .send{width:44px;height:44px;min-width:44px;min-height:44px}
+.composer-area .send{grid-column:3;grid-row:1;align-self:end}
+.composer-area [data-image-control]{grid-column:1 / -1;grid-row:2;margin-top:6px;min-width:0}
+
+.protocol-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;min-height:47px;padding:12px 13px;border:1px solid var(--line2);border-radius:12px;background:var(--panel);color:var(--fg);text-align:left;white-space:normal;overflow-wrap:anywhere}
+.protocol-trigger svg{flex-shrink:0}
