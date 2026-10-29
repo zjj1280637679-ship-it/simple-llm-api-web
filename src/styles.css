@@ -6,3 +6,63 @@
 /* Live application additions: preserve the original compact layout. */
 .shell{height:100dvh}.card-fieldset{border:0;padding:0;margin:0;min-width:0}.api-security,.model-note{font-size:12px;color:#7c857c;line-height:1.7}.security-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.model-note{margin-top:17px}.reply-text{white-space:pre-wrap;overflow-wrap:anywhere}.generated-image{display:block;width:100%;height:auto;background:#f5f6f3}.img-result+.img-result{margin-top:12px}.sample-caption a{color:#315747;text-decoration:none}.sample-caption a:hover{text-decoration:underline}.dot.ready{background:#608d73}.compose-metrics span:first-child{overflow:hidden;text-overflow:ellipsis}.compose-metrics span{flex-shrink:0}.compose-metrics span:first-child{flex-shrink:1}.mock-status{white-space:pre-wrap;overflow-wrap:anywhere}.uniform-btn:disabled,.circle:disabled,.size-btn:disabled{opacity:.5}.compose textarea:disabled{opacity:.7}.assistant-note{margin-top:5px}.thread-inner{padding-bottom:30px}@media(max-width:640px){.top .mobile-logo{font-size:13px}.compose-metrics{gap:10px}.security-actions .chip{font-size:12px}}@media(prefers-color-scheme:dark){.composer-area{background:#161816;border-color:#2c312d}.sample-caption a{color:#bad8c6}.api-security,.model-note{color:#b2bfb1}.generated-image{background:#222722}}
 .log-actions{display:flex;gap:9px;margin-bottom:18px}#network-logs{font-size:13px;color:var(--fg)}#network-logs>p{color:var(--muted);line-height:1.8}#network-logs details{border:1px solid var(--line2);border-radius:12px;padding:12px 14px;margin:10px 0;background:var(--panel)}#network-logs summary{cursor:pointer;overflow-wrap:anywhere}#network-logs pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;max-height:460px;overflow:auto;border-top:1px solid var(--line);padding-top:12px}@media(max-width:420px){.top{padding:0 10px}.top .mobile-logo{font-size:11px}.tab{padding:7px 10px;font-size:12px}}
+
+/* Content-driven reflow: labels and controls may grow instead of being clipped. */
+.shell{overflow:auto}
+.main,.thread,.thread-inner,.composer-area,.compose,.formfield,.subgrid>*,
+.fieldrow>*,.compose-actions>*,.left-actions,.right-actions,.tabs,.top-right{min-width:0}
+.thread{min-height:0}
+.top{height:auto;min-height:69px;padding-block:12px;gap:12px;flex-wrap:wrap}
+.tabs{display:flex;flex-wrap:wrap;max-width:100%}
+.tab{min-width:0;white-space:normal;overflow-wrap:anywhere}
+.top-right{flex-wrap:wrap;overflow-wrap:anywhere}
+.dot{flex-shrink:0}
+button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
+.model-note,.assistant-note,.assistant-label,.sample-caption,.sample-chip,
+.matrix-model,.matrix-notice,.menu-heading,.menu-meta,.size-name,.menu-foot,
+.compose-metrics,.mobile-logo{overflow-wrap:anywhere}
+.fieldrow{flex-wrap:wrap}
+.fieldrow>input{flex:1 1 12rem}
+.fieldrow>.sub-menu,.fieldrow>.uniform-btn{flex:0 1 7rem;max-width:100%}
+.uniform-btn{width:100%;min-width:0;min-height:47px;height:auto;padding:10px 12px;white-space:normal;overflow:visible;text-overflow:clip}
+.sub-menu .uniform-btn{height:100%}
+.subgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr))}
+.inline-list{min-width:min(16rem,100%);max-width:100%}
+.inline-item{white-space:normal;overflow-wrap:anywhere}
+.sample-caption,.menu-heading,.compose-actions,.left-actions,.right-actions,.log-actions{flex-wrap:wrap}
+.sample-caption>*{min-width:0;max-width:100%}
+.right-actions{margin-left:auto}
+.circle,.send{flex-shrink:0}
+.size-btn{max-width:100%;height:auto;min-height:36px;white-space:normal;overflow-wrap:anywhere;padding-block:8px}
+.size-btn svg{flex-shrink:0}
+.compose-metrics{flex-wrap:wrap;white-space:normal;overflow:visible;gap:6px 18px}
+.compose-metrics span,.compose-metrics span:first-child{flex:0 1 auto;min-width:0;max-width:100%;overflow:visible;text-overflow:clip}
+.compose-metrics span:first-child{flex-basis:100%}
+.right-actions .menu-wrap{position:static}
+.size-menu{right:0;max-width:calc(100vw - 48px);max-height:70dvh;overflow:auto}
+.matrix-scroll{max-height:45dvh}
+.option-matrix th,.option-matrix td{overflow-wrap:anywhere;min-width:0}
+.matrix-choice{height:auto;min-height:48px;padding:6px 2px}
+.matrix-pixels,.size-dim{white-space:normal;overflow-wrap:anywhere;line-height:1.3;max-width:100%}
+#network-logs details,#network-logs summary,#network-logs pre{min-width:0;max-width:100%}
+@media(max-width:640px){
+ .top{min-height:61px;padding:10px 12px}
+ .top-right{display:flex;font-size:11px}
+ .composer-area{padding-bottom:max(16px,env(safe-area-inset-bottom))}
+ .size-menu{right:0;width:min(360px,calc(100vw - 48px))}
+ .uniform-btn{font-size:12px}
+}
+/* A short viewport (keyboard/zoom) must still let every section be reached. */
+@media(max-height:600px){
+ .shell{height:auto;min-height:100dvh;overflow:visible}
+ .thread{overflow:visible;flex:1 0 auto}
+ .main{min-height:100dvh}
+ .size-menu,.plus-menu{position:static;margin-top:10px;max-width:100%}
+ .menu-wrap{max-width:100%}
+ .size-menu{max-height:none}
+ .matrix-scroll{max-height:45dvh;min-height:7rem}
+}
+
+.block-value{display:block;width:100%;min-height:47px;border:1px solid var(--line2);border-radius:12px;background:var(--soft);padding:10px 13px;color:var(--fg);white-space:normal;overflow-wrap:anywhere}
+
+.field-reading{font-size:12px;color:var(--muted);white-space:normal;overflow-wrap:anywhere;margin-top:6px}
