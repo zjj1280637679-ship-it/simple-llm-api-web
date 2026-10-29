@@ -14,7 +14,7 @@ test('reflow policy explicitly lets constrained text and action groups wrap',()=
  assert.match(rules,/\.size-menu,\.plus-menu\{position:static;margin-top:10px;max-width:100%;max-height:none\}/);
 });
 test('read-only descriptive values reflow while editable key/number semantics remain',()=>{
- assert.match(app,/<output[^>]*class="block-value">本页内存中的对话<\/output>/);
+ assert.match(app,/<output[^>]*class="block-value">当前对话上下文<\/output>/);
  assert.match(app,/<output[^>]*class="block-value">上游原始格式<\/output>/);
  assert.match(app,/type="number"/);assert.match(app,/'text' : 'password'/);
 });

@@ -130,14 +130,14 @@ node cli.mjs image.generate --protocol ark \
 3. `.github/workflows/pages.yml` 会先执行语法检查与合成测试，再运行 `npm run build`，仅发布 `dist/` 白名单产物。
 4. 等待 **build + deploy** 成功，再打开实际站点检查。若设置完成前初次运行失败，可从 Actions 手动重新运行。
 
-白名单只有 `index.html`、`.nojekyll`、`src/{app,core,agent,icons,image-capabilities,logs,session,session-webmcp,usage,attachments,stream,reasoning}.js` 和 `src/styles.css`，共 15 个文件。**不发布 design、tests、CLI、README、配置文件或仓库的其他内容**。不要使用全仓库根目录上传或 `main / (root)` 的分支发布来绕过这层隔离。
+白名单只有 `index.html`、`.nojekyll`、`src/{app,core,agent,icons,image-capabilities,logs,session,session-webmcp,usage,attachments,stream,reasoning,persistence}.js` 和 `src/styles.css`，共 16 个文件。**不发布 design、tests、CLI、README、配置文件或仓库的其他内容**。不要使用全仓库根目录上传或 `main / (root)` 的分支发布来绕过这层隔离。
 
 ```sh
 npm run build
 python3 -m http.server 8000 --directory dist
 ```
 
-构建仅生成上述 15 个文件，为 CSS/JS 入口及全部相对模块引用加入一致的内容哈希版本；不下载依赖、不读取环境密钥。工作流参考 [GitHub 官方 Pages 自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
+构建仅生成上述 16 个文件，为 CSS/JS 入口及全部相对模块引用加入一致的内容哈希版本；不下载依赖、不读取环境密钥。工作流参考 [GitHub 官方 Pages 自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
 CSS/JS 均使用相对路径，兼容 `https://<owner>.github.io/<repository>/`。GitHub 私有仓库的 Pages 可用性和访问范围依账号计划/组织设置而定；启用前检查站点是否会公开。**不要在页面、配置或提交中放共享 API Key。**
 
 若 GitHub 要求重新登录或 2FA，应由账号持有人完成，不能通过代码绕过。代码提交成功不等于 Pages 已部署成功。
@@ -161,7 +161,7 @@ docs/ark-api.md         官方 API 来源与版本化集成摘要
 docs/ark-model-catalog.md 当前模型目录与生命周期依据
 docs/credentials.md    密钥容器、授权消费者与静态站点边界
 .env.example           空凭据字段与非秘密参考默认值
-scripts/build.mjs       生成 15 个白名单生产文件，带内容哈希资源版本
+scripts/build.mjs       生成 16 个白名单生产文件，带内容哈希资源版本
 .github/workflows/      测试通过后发布 dist 的 Pages 工作流
 design/index.html       原始交互设计，原样保留，不作为生产入口
 design/REQUIREMENTS.md   当时的设计需求记录（保留历史语境）
@@ -188,3 +188,7 @@ Google 当前同时提供较新的 Interactions 协议。本 MVP 有意使用仍
 状态动画与客户端截止、缓存版本方案详见 [请求状态说明](docs/loading-status.md)。
 
 供应商菜单说明：[格式选择](docs/provider-formats.md)。Anthropic 请求头、原生流事件与能力边界：[Messages 适配](docs/anthropic-messages.md)。
+
+## 本机刷新恢复
+
+对话、草稿、附件、模型设置和独立指标自动保存到当前网站路径的 IndexedDB；API Key/目标确认与通讯日志不保存。失败/配额不足/多标签页冲突会明确提示，不会静默删附件或覆盖其他标签页。+ 菜单可查看状态、导出和恢复本地备份。浏览器清理、无痕结束或系统回收空间仍可能丢失数据，详见 [本机持久化说明](docs/LOCAL_PERSISTENCE.md)。

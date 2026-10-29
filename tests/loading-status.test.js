@@ -60,7 +60,7 @@ test('first streaming delta inserts reply beside the existing spinner, subsequen
  let reply=null,renders=0,inserts=0;const text={},label={};
  const spinner={closest:()=>({insertAdjacentHTML(){inserts++;reply={querySelector:s=>s==='.reply-text'?text:label}}})};
  const app={scrollHeight:1000,clientHeight:500,scrollTop:500,querySelector:s=>s==='.api-loading'?spinner:reply};
- const d={};const c={recordScrollDiagnostic:()=>{},get:()=>d,app,render:()=>renders++,messageMarkup:()=>'<div></div>'};vm.createContext(c);vm.runInContext(paint,c);
+ const d={};const c={recordScrollDiagnostic:()=>{},get:()=>d,app,render:()=>renders++,messageMarkup:()=>'<div></div>'};vm.createContext(c);vm.runInContext('function saveLocal(){}\n'+paint,c);
  for(let i=0;i<20;i++)c.paintStream(d,{id:1,text:'chunk'+i,streaming:true});
  assert.equal(renders,0);assert.equal(inserts,1);assert.equal(app.querySelector('.api-loading'),spinner);assert.equal(text.textContent,'chunk19');
 });

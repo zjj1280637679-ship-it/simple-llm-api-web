@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>Local persistence QA (synthetic only)</title>
+<style>body{font:16px/1.5 system-ui;max-width:780px;margin:30px auto;padding:15px}button,a{padding:10px;margin:5px}pre{white-space:pre-wrap}iframe{width:390px;height:700px}</style>
+<h1>本机持久化 QA</h1><p>仅合成数据、仅 localhost。无 API 调用。测试库名 qa-*，丰富样本会替换本 localhost 项目存档；不要在真实生产域名运行。</p>
+<button id="run">运行真实 IndexedDB 故障/冲突测试</button><button id="seed">写入丰富样本</button><a href="../../index.html">打开应用验证刷新</a><pre id="output">等待操作</pre>
+<p>应用验证：样本有两页历史、原生签名、附件、已完成指标与未完成回复。刷新后密钥空、无自动请求。输入草稿/切换页/滚动后刷新。+ → 清空对话后立即刷新应为空。可打开两标签页分别输入，第二个写入方必须提示冲突而不是覆盖。+ → 本机保存与备份可导出/恢复。</p>
+<script type="module">
+import {createLocalStore,snapshotWorkspace,restoreWorkspace} from '../../src/persistence.js';
+const out=document.querySelector('#output');const log=s=>out.textContent+='\n'+s;const check=(c,m)=>{if(!c)throw Error(m);};
+const make=()=>({api:{protocol:'gemini',url:'https://generativelanguage.googleapis.com/v1beta',model:'synthetic-test-model',supplier:'Google Gemini',key:'',trustedTarget:''},model:{inputs:['text','image'],output:'',temperature:'',topP:''},draft:'',attachments:[],messages:[],history:[],lastMetrics:null,lastUsage:null,aspectRatio:'1:1',imageSize:'1K'});
+const fixture=()=>({data:{chat:make(),image:make()},page:'chat',nextId:1,views:{chat:{top:0,bottom:false}}});
+document.querySelector('#run').onclick=async()=>{out.textContent='运行中…';const stores=[];try{
+const f=fixture(),aStates=[],bStates=[],name='qa-'+crypto.randomUUID();const a=createLocalStore({name,onStatus:s=>aStates.push(s)}),b=createLocalStore({name,onStatus:s=>bStates.push(s)});stores.push(a,b);
+a.schedule(snapshotWorkspace(f),{immediate:true});await a.load();await b.load();check(aStates.at(-1)==='ready','preload save must not write');
+f.data.chat.draft='winner';await a.schedule(snapshotWorkspace(f),{immediate:true});f.data.chat.draft='loser';await b.schedule(snapshotWorkspace(f),{immediate:true});check(bStates.at(-1)==='conflict','conflict missing');const reader=createLocalStore({name});stores.push(reader);check((await reader.load()).workspaces.chat.draft==='winner','silent overwrite');log('PASS pre-load gate + atomic revision conflict');
+const original=IDBDatabase.prototype.transaction;let fail=true;try{IDBDatabase.prototype.transaction=function(...args){const t=original.apply(this,args);if(args[1]==='readwrite'&&fail)queueMicrotask(()=>t.abort());return t;};await a.schedule(snapshotWorkspace(f),{immediate:true});check(aStates.at(-1)==='error','abort must be visible');fail=false;await a.schedule(snapshotWorkspace(f),{immediate:true});check(aStates.at(-1)==='saved','retry failed');}finally{IDBDatabase.prototype.transaction=original;}log('PASS transaction-abort simulation + retry (not actual disk-full)');
+const states=[],u=createLocalStore({indexedDB:null,onStatus:s=>states.push(s)});await u.load();check(states.at(-1)==='unavailable','fallback');log('PASS unavailable fallback');
+const upgrade=indexedDB.open(name,2);await new Promise((resolve,reject)=>{upgrade.onsuccess=()=>{upgrade.result.close();resolve();};upgrade.onerror=reject;});check(aStates.at(-1)==='blocked','versionchange');log('PASS versionchange stops stale writes');log('ALL PASS');
+}catch(e){log('FAIL '+e.message);}finally{stores.forEach(s=>s.close());}};
+document.querySelector('#seed').onclick=async()=>{if(!['localhost','127.0.0.1'].includes(location.hostname)){out.textContent='仅允许localhost种样本';return;}try{
+const f=fixture(),d=f.data.chat,png='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j2i8AAAAASUVORK5CYII=';
+d.api.key='synthetic-credential-never-persist';d.api.trustedTarget='synthetic-trust';d.draft='刷新后仍在的草稿';d.attachments=[{id:'text-1',name:'note.txt',size:5,mimeType:'text/plain',kind:'text',base64:'aGVsbG8=',text:'hello'}];d.busy=true;
+d.lastUsage={inputTokens:10,outputTokens:5,totalTokens:15,cachedTokens:0};d.lastMetrics={usage:d.lastUsage,speed:2.5,textTokens:5,durationMs:2000};
+d.history=[{role:'assistant',content:'完成',raw:{role:'model',parts:[{text:'完成',thoughtSignature:'synthetic-signature'}]}},{role:'tool',content:'完成图片',raw:{role:'user',parts:[{functionResponse:{name:'image_generate',response:{ok:true}}}]}}];
+for(let i=1;i<=25;i++)d.messages.push({id:i,type:i%2?'user':'chatResult',text:`合成历史 ${i}：仅用于阅读位置与刷新验证。`.repeat(3),...(i%2?{}:{metrics:d.lastMetrics})});
+d.messages.push({id:26,type:'chatResult',text:'未完成片段',streaming:true},{id:27,type:'card',kind:'api',values:{...d.api}});f.data.image.messages=[{id:28,type:'imageResult',images:[{data:png,mimeType:'image/png',extension:'png'}],prompt:'一像素样本',aspectRatio:'1:1',imageSize:'1K',metrics:d.lastMetrics}];f.nextId=29;
+const name='llm-workbench-local-v1:'+new URL('../../',location.href).pathname,store=createLocalStore({name,onStatus:log});await store.load();await store.schedule(snapshotWorkspace(f),{immediate:true});store.close();log('样本已写入。点击“打开应用验证刷新”。');
+}catch(e){log('FAIL '+e.message);}};
+</script>

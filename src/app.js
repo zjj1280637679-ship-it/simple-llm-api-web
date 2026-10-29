@@ -1,3 +1,4 @@
+import { createLocalStore, snapshotWorkspace, restoreWorkspace, migrateSnapshot, MAX_SNAPSHOT_BYTES } from './persistence.js';
 import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody, REASONING_FAMILIES, reasoningFamilyFor, resolveReasoningFamily } from './reasoning.js';
 import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
 import { replyMetricsMarkup, replyMetricsSnapshot } from './usage.js';
@@ -291,11 +292,16 @@ const makePage = type => ({
   controller: null, lastUsage: null, lastMetrics: null
 });
 const data = { chat: makePage('chat'), image: makePage('image') };
+let localHydrated=false,storageState='loading',localSaveTimer,localRestored=false;
+const localSecrets=new Set();
+const storageLabels={loading:'正在读取本机存档',ready:'本机自动保存已启用',restored:'已恢复本机存档；API Key 请重新填写',saving:'正在保存…',saved:'已保存到本机；API Key 不保存',error:'本机保存失败；当前改动尚未保存，请导出备份后重试', 'size-limit':'本机存档超过 48 MiB；当前改动尚未保存，请备份',conflict:'另一标签页已更新存档；本页暂停保存，请先导出备份',blocked:'存储版本已变化或被占用；请备份后刷新',schema:'本机存档版本不支持或损坏；已停止覆盖',unavailable:'本机存储不可用；仅内存运行，刷新会丢失，请导出备份'};
+const localStore=createLocalStore({name:`llm-workbench-local-v1:${(window.location?.pathname || '/').replace(/index\.html$/,'')}`,onStatus:setStorageStatus});
+
 let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
 let reasoningAnchorId = null;
 const get = () => data[page];
-function syncLogSecrets() { updateActiveLogSecrets(Object.values(data).map(d => d.api.key)); }
-function archiveWorkspaceKey(d) { if (d) setLogSecrets([d.api.key]); }
+function syncLogSecrets() { for(const d of Object.values(data))if(d.api.key)localSecrets.add(d.api.key); updateActiveLogSecrets(Object.values(data).map(d => d.api.key)); }
+function archiveWorkspaceKey(d) { if (d) { if(d.api.key)localSecrets.add(d.api.key);setLogSecrets([d.api.key]); } }
 const activeCardId = d => d.messages.findLast(m => m.type === 'card')?.id;
 const getCard = id => get()?.messages.find(m => m.id === id && m.type === 'card');
 const matrixSupported = d => Boolean(getImageCapabilities(d.api));
@@ -320,10 +326,16 @@ function reasoningQuickMarkup(d) {
   const values=mode?.values || [...new Set([...(mode?.specialValues||[]),...(d.model.reasoningBudget!==undefined?[d.model.reasoningBudget]:[])].map(String))].map(value=>({value,label:value==='-1'?'动态':value==='0'?'关闭':String(value)}));
   return `<section class="reasoning-menu reasoning-quick" data-floating-menu="reasoning-toggle" role="menu" aria-label="思考强度"><button type="button" role="menuitemradio" aria-checked="${!current}" data-action="reasoning-quick" data-value="">不指定</button>${values.map(v=>`<button type="button" role="menuitemradio" aria-checked="${current?.template===mode.id && String(current.value)===String(v.value)}" data-action="reasoning-quick" data-template="${esc(mode.id)}" data-value="${esc(v.value)}">${esc(v.label||v.value)}</button>`).join('')}${mode?.kind==='number'?`<div class="reasoning-budget-row"><input type="number" id="reasoning-quick-budget" aria-label="思考预算 Token" placeholder="Token" min="${mode.min}" max="${mode.max}" step="1" value="${esc(d.model.reasoningBudget??'')}"><button type="button" data-action="reasoning-budget-apply">确定</button></div>`:''}</section>`;
 }
+function reasoningCurrentLabel(d) {
+  const current=d.model.reasoning;if(!current)return '不指定';
+  const mode=selectedReasoningMode(d);
+  if(mode?.kind==='number'){if(mode.specialValues?.includes(Number(current.value)) && Number(current.value)===-1)return '动态';if(Number(current.value)===0)return '关闭';return `${current.value} Token`;}
+  return mode?.values?.find(v=>String(v.value)===String(current.value))?.label || String(current.value);
+}
 function reasoningMarkup() {
-  const d=get(), open=subMenu==='reasoning', current=d.model.reasoning;
+  const d=get(), open=subMenu==='reasoning', current=d.model.reasoning, label=reasoningCurrentLabel(d);
   const picker=open ? reasoningAnchorId===null ? reasoningQuickMarkup(d) : `<section class="reasoning-menu reasoning-family-list" data-floating-menu="reasoning-toggle" data-menu-card="${reasoningAnchorId}" role="menu" aria-label="思考模板">${REASONING_FAMILIES.map(f=>`<button type="button" role="menuitemradio" aria-checked="${selectedReasoningFamily(d)===f.id}" data-action="reasoning-family" data-family="${f.id}">${f.label}</button>`).join('')}</section>` : '';
-  return `<div class="reasoning-control"><button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度${current?'，已指定':'，不指定'}" aria-haspopup="menu" aria-expanded="${open&&reasoningAnchorId===null}" ${d.busy?'disabled':''}>思考${current?' · 已设':''}</button>${picker}</div>`;
+  return `<div class="reasoning-control"><button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度：${esc(label)}" aria-haspopup="menu" aria-expanded="${open&&reasoningAnchorId===null}" ${d.busy?'disabled':''}>${esc(label)}</button>${picker}</div>`;
 }
 function resetImageOptions(d, force = false) {
   const cap = getImageCapabilities(d.api); if (!cap) return;
@@ -343,6 +355,9 @@ function sameEndpoint(left, right) {
 }
 function apiTrustText(config) { return config.key.trim() ? '发送或拉取时使用上方配置 · 密钥仅在内存' : '请填写密钥 · 密钥仅在内存'; }
 function refreshApiStatus(d, cardId) {
+  const reasoningButton=app.querySelector('[data-action="reasoning-toggle"]:not([data-id])');
+  if(reasoningButton){const label=reasoningCurrentLabel(d);reasoningButton.textContent=label;reasoningButton.setAttribute('aria-label',`思考强度：${label}`);}
+
   // Update only status nodes: never replace an input while the user is typing.
   const trustLabel = app.querySelector(`#api-trust${cardId}`);
   if (trustLabel) trustLabel.textContent = apiTrustText(d.api);
@@ -400,7 +415,7 @@ function apiCard(m) {
 function modelCard(m) {
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.model;
   const field = (label, key, placeholder) => `<div class="formfield"><label for="${key}${m.id}">${label}</label><input class="block-input" type="number" id="${key}${m.id}" data-card="${m.id}" data-key="${key}" placeholder="${placeholder}" value="${esc(x[key])}" step="any"></div>`;
-  return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}<div class="card-type">模型设置</div><div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield"><label for="reasoning-model${m.id}">自定义思考模板</label><button type="button" id="reasoning-model${m.id}" class="block-value reasoning-model-trigger" data-action="reasoning-toggle" data-id="${m.id}" aria-haspopup="menu" aria-expanded="${subMenu==='reasoning' && reasoningAnchorId===m.id}">${esc(REASONING_FAMILIES.find(f=>f.id===(old ? x.reasoningFamily : x.reasoningFamily || reasoningFamilyFor(d.api,x.reasoningMode || x.reasoning?.template)))?.label || '选择模板')}</button></div><div class="formfield"><label for="context${m.id}">上下文</label><output id="context${m.id}" class="block-value">本页内存中的对话</output></div>` : `<div class="formfield"><label for="count${m.id}">生成数量</label><output id="count${m.id}" class="block-value">1</output></div><div class="formfield"><label for="format${m.id}">输出格式</label><output id="format${m.id}" class="block-value">上游原始格式</output></div>`}</div>${page === 'chat' ? `<div class="fieldgroup"><span class="formlabel">输入模态</span><div class="chips">${Object.entries(MODALITIES).map(([kind,label]) => `<button type="button" class="chip ${x.inputs?.includes(kind) ? 'sel' : ''}" data-action="toggle-input" data-id="${m.id}" data-modality="${kind}" aria-pressed="${Boolean(x.inputs?.includes(kind))}" ${!supportedModalities(d.api.protocol).includes(kind) || kind === 'text' ? 'disabled' : ''}>${label}</button>`).join('')}</div></div>` : ''}<div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : d.api.protocol === 'anthropic' ? ' 输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div></div></fieldset></div>`;
+  return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}<div class="card-type">模型设置</div><div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield"><label for="reasoning-model${m.id}">自定义思考模板</label><button type="button" id="reasoning-model${m.id}" class="block-value reasoning-model-trigger" data-action="reasoning-toggle" data-id="${m.id}" aria-haspopup="menu" aria-expanded="${subMenu==='reasoning' && reasoningAnchorId===m.id}">${esc(REASONING_FAMILIES.find(f=>f.id===(old ? x.reasoningFamily : x.reasoningFamily || reasoningFamilyFor(d.api,x.reasoningMode || x.reasoning?.template)))?.label || '选择模板')}</button></div><div class="formfield"><label for="context${m.id}">上下文</label><output id="context${m.id}" class="block-value">当前对话上下文</output></div>` : `<div class="formfield"><label for="count${m.id}">生成数量</label><output id="count${m.id}" class="block-value">1</output></div><div class="formfield"><label for="format${m.id}">输出格式</label><output id="format${m.id}" class="block-value">上游原始格式</output></div>`}</div>${page === 'chat' ? `<div class="fieldgroup"><span class="formlabel">输入模态</span><div class="chips">${Object.entries(MODALITIES).map(([kind,label]) => `<button type="button" class="chip ${x.inputs?.includes(kind) ? 'sel' : ''}" data-action="toggle-input" data-id="${m.id}" data-modality="${kind}" aria-pressed="${Boolean(x.inputs?.includes(kind))}" ${!supportedModalities(d.api.protocol).includes(kind) || kind === 'text' ? 'disabled' : ''}>${label}</button>`).join('')}</div></div>` : ''}<div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : d.api.protocol === 'anthropic' ? ' 输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div></div></fieldset></div>`;
 }
 function imageMarkup(m) {
   return `<div class="message"><div class="assistant-message"><div class="assistant-label">${m.fromTool ? '图片工作台 · Agent 调用' : '图片结果'}</div>${m.images.map((im, i) => `<div class="img-result">${im.failed ? '<div class="mock-status" role="alert">返回的图片文件无法在浏览器中解码。请检查下载文件；不会自动重新生成。</div>' : `<img class="generated-image" data-image-message="${m.id}" data-image-index="${i}" src="${esc(im.url)}" alt="${esc(m.prompt)}" loading="lazy">`}<div class="sample-caption"><span>${esc(m.aspectRatio)} · ${esc(m.imageSize)}</span><a href="${esc(im.url)}" download="image-${m.id}-${i + 1}.${im.extension}">下载</a></div></div>`).join('')}${m.text ? `<div class="assistant-note">${esc(m.text)}</div>` : ''}${m.metrics ? `<div class="reply-metrics">${replyMetricsMarkup(m.metrics)}</div>` : ''}</div></div>`;
@@ -427,11 +442,11 @@ function selectAttachments(kind) {
   d.attachmentReading=true; closeMenus(); if(get()===d)render();
   try { d.attachments=await prepareFiles(picker.files,d.attachments,d.api.protocol,d.model.inputs); d.attachmentError=''; }
   catch(error) { d.attachmentError=errorText(error); }
-  finally {d.attachmentReading=false;if(get()===d)render();}
+  finally {d.attachmentReading=false;saveLocal(true);if(get()===d)render();}
  },{once:true});
  picker.click();
 }
-function plusMarkup() { return `<div class="menu-wrap"><button class="circle" aria-label="展开工具菜单" aria-expanded="${plusOpen}" data-action="plus" ${get().busy ? 'disabled' : ''}>${icon('plus', 22)}</button>${plusOpen ? `<div class="plus-menu">${page === 'chat' ? '<button data-action="attach" data-kind="image">添加图片</button><button data-action="attach" data-kind="file">添加文件</button><button data-action="clear-attachments">清空附件</button><button data-action="clear-chat">清空对话</button>' : ''}<button data-action="new-card" data-kind="api">${icon('key')} API 设置</button><button data-action="new-card" data-kind="model">${icon('settings')} 模型设置</button></div>` : ''}</div>`; }
+function plusMarkup() { return `<div class="menu-wrap"><button class="circle" aria-label="展开工具菜单" aria-expanded="${plusOpen}" data-action="plus" ${get().busy ? 'disabled' : ''}>${icon('plus', 22)}</button>${plusOpen ? `<div class="plus-menu">${page === 'chat' ? '<button data-action="attach" data-kind="image">添加图片</button><button data-action="attach" data-kind="file">添加文件</button><button data-action="clear-attachments">清空附件</button><button data-action="clear-chat">清空对话</button>' : ''}<button data-action="local-storage">本机保存与备份</button><button data-action="new-card" data-kind="api">${icon('key')} API 设置</button><button data-action="new-card" data-kind="model">${icon('settings')} 模型设置</button></div>` : ''}</div>`; }
 function sizeMarkup() {
   const d = get(), cap = getImageCapabilities(d.api);
   return `<div class="menu-wrap" data-image-control><button class="size-btn" type="button" data-action="size-toggle" aria-expanded="${sizeOpen}" aria-label="选择长宽比与分辨率" ${d.busy ? 'disabled' : ''}>${cap ? `${esc(d.aspectRatio)} · ${esc(d.imageSize)}` : '图片参数'} ${icon('chev', 14)}</button>${sizeOpen ? `<div class="size-menu" id="image-options"><div class="menu-heading">长宽比与分辨率</div><div class="matrix-model">${esc(cap?.label || '未支持的图片模型')}</div>${cap ? `<div class="matrix-scroll"><table class="option-matrix" aria-label="${esc(cap.label)} 图片长宽比与分辨率"><colgroup><col class="matrix-ratio-col">${cap.sizes.map(() => '<col>').join('')}</colgroup><thead><tr><th scope="col">长宽比</th>${cap.sizes.map(size => `<th scope="col">${size}</th>`).join('')}</tr></thead><tbody>${cap.ratios.map(item => `<tr><th scope="row"><span class="size-name">${item.ratio}</span></th>${cap.sizes.map(size => { const selected = d.aspectRatio === item.ratio && d.imageSize === size; return `<td><button type="button" class="matrix-choice ${selected ? 'sel' : ''}" data-action="set-image-options" data-ratio="${item.ratio}" data-image-size="${size}" aria-label="长宽比 ${item.ratio}，${size}，${selectedPixels(d, item.ratio, size)}" aria-pressed="${selected}"><span class="matrix-mark" aria-hidden="true">${selected ? '✓' : ''}</span><span class="matrix-pixels">${selectedPixels(d, item.ratio, size)}</span></button></td>`; }).join('')}</tr>`).join('')}</tbody></table></div>${cap.presetNotes ? `<div class="matrix-notice">${esc(cap.presetNotes)}</div>` : ''}` : '<div class="matrix-notice">此模型的图片参数尚未支持。请选择 Nano Banana 2.1 或已支持的 Seedream 5.0 Flash / Pro。</div>'}</div>` : ''}</div>`;
@@ -485,6 +500,7 @@ function restoreViewPosition(scrollEnd = false) {
   });
 }
 function render(scrollEnd = false) {
+  saveLocal();
   recordScrollDiagnostic(scrollEnd ? 'render-send-end' : 'render-start');
   rememberViewPosition();
   const focusIdentity = captureControlFocus();
@@ -501,6 +517,7 @@ function render(scrollEnd = false) {
 }
 // Update only the active reply node: do not rebuild composer or displace readers.
 function paintStream(d, message) {
+  saveLocal();
   if (get() !== d) return;
   const follow = app.scrollHeight - app.clientHeight - app.scrollTop <= 32;
   let node = app.querySelector(`[data-stream-message="${message.id}"]`);
@@ -595,9 +612,10 @@ function appendImages(d, result, args, fromTool = false) {
     const extension = ({'image/png':'png','image/jpeg':'jpg','image/webp':'webp'})[mime];
     if (!extension) throw new Error('Unsupported image MIME');
     const decoded = atob(im.data), bytes = Uint8Array.from(decoded, c => c.charCodeAt(0));
-    return { url: URL.createObjectURL(new Blob([bytes], { type: mime })), extension };
+    return { url: URL.createObjectURL(new Blob([bytes], { type: mime })), extension, data: im.data, mimeType: mime };
   });
   d.messages.push({ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', metrics:replyMetricsSnapshot(result.usage), fromTool });
+  saveLocal(true);
   if (get() === d) render();
 }
 function modelListStatus(d, card, text) {
@@ -631,6 +649,7 @@ async function send() {
   try { validateAttachments(attachments,d.api.protocol,d.model.inputs); } catch(e) { d.attachmentError=errorText(e); render(); return {status:'not-sent',reason:'attachments'}; }
   const pending = d.messages.find(m => m.id === d.pendingTextId);
   if (!pending || pending.text !== text || JSON.stringify(pending.attachments?.map(a=>a.id)) !== JSON.stringify(attachments.map(a=>a.id))) { const m = { id: nextId++, type: 'user', text, attachments }; d.messages.push(m); d.pendingTextId = m.id; }
+  saveLocal(true);
   if (!isConfigured(d)) { addCard('api'); return { status: 'needs-configuration' }; }
   if (!applyCurrentTarget(d)) return {status:'not-sent',reason:'invalid-target'};
   if (requestPage === 'image' && !matrixSupported(d)) { status(d, '此图片模型的参数尚未支持，请选择 Nano Banana 2.1 或 Seedream 5.0 Flash / Pro。', 'error'); return { status: 'not-sent', reason: 'unsupported-model' }; }
@@ -641,6 +660,7 @@ async function send() {
   let checkpointed = false;
   const streamedReplies = new Map();
   render(true);
+  if(localHydrated)await saveLocal(true);
   try {
     if (requestPage === 'image') {
       const result = await dispatchCommand({ command: 'image.generate', args }, { imageConfig: config, signal: d.controller.signal, confirmed: true, onPhase:phase=>requestPhase(d,phase) });
@@ -663,7 +683,7 @@ async function send() {
           if (reply) { reply.streaming = false; reply.metrics = response.metrics; paintStream(d,reply); }
         },
         confirmTool: async invocation => approveImage(invocation),
-        onHistory: history => { d.history = history; checkpointed = true; },
+        onHistory: history => { d.history = history; checkpointed = true; saveLocal(true); },
         onToolResult: ({ result, invocation }) => appendImages(d, result, invocation.args, true)
       });
       d.history = result.history;
@@ -681,11 +701,12 @@ async function send() {
     if (!checkpointed) { d.draft = text; d.attachments = attachments; }
     else { d.pendingTextId = null; status(d, '已保留本轮工具上下文。你可以继续对话；已完成的图片不会自动重做。', 'status', false); }
     return { status: e?.code === 'CANCELLED' ? 'cancelled' : 'failed', code: e instanceof AppError ? e.code : 'REQUEST_FAILED' };
-  } finally { stopLoading(); d.busy = false; d.controller = null; if (get() === d) render(); }
+  } finally { stopLoading(); d.busy = false; d.controller = null; await saveLocal(true); if (get() === d) render(); }
 }
 app.addEventListener('click', async e => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
+  if (el.dataset.action === 'local-storage') { openStoragePanel(); return; }
   const action = el.dataset.action, d = get(), card = getCard(Number(el.dataset.id));
   if ((d?.busy || d?.attachmentReading) && !['tab', 'cancel'].includes(action)) return;
   if (['supplier','choose-supplier','pull-models','choose-model','toggle-key'].includes(action) && (!d || card?.id !== activeCardId(d))) return;
@@ -732,7 +753,7 @@ app.addEventListener('click', async e => {
     }
     case 'plus': plusOpen = !plusOpen; sizeOpen = false; subMenu = ''; render(); if (plusOpen) focusFloatingMenu(); break;
     case 'attach': selectAttachments(el.dataset.kind); break;
-    case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;d.lastMetrics=null;render();break;
+    case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;d.lastMetrics=null;await saveLocal(true);render();break;
     case 'clear-attachments': d.attachments=[]; d.attachmentError=''; render(); break;
     case 'remove-attachment': d.attachments=d.attachments.filter(a=>a.id!==el.dataset.id); d.attachmentError=''; render(); break;
     case 'toggle-input': { const kind=el.dataset.modality; if(card?.id !== activeCardId(d) || kind==='text' || !supportedModalities(d.api.protocol).includes(kind)) break; d.model.inputs=d.model.inputs.includes(kind)?d.model.inputs.filter(k=>k!==kind):[...d.model.inputs,kind]; render(); break; }
@@ -781,13 +802,14 @@ function updateField(e) {
   const t = e.target, d = get();
   resizeSettingField(t);
   if (!d) return;
-  if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); return; }
+  if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); saveLocal(); return; }
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
   if (card.kind === 'api') {
     const changed = d.api[key] !== t.value;
     if (changed && key === 'key') { archiveWorkspaceKey(d); d.api.trustedTarget = ''; }
     d.api[key] = t.value;
+    if(key==='key'&&t.value){localRestored=false;setStorageStatus(storageState);}
     if (changed) {
       card.modelListStatus = '';
       const modelStatus = app.querySelector(`#models-status${id}`);
@@ -807,6 +829,7 @@ function updateField(e) {
     if (page === 'image') resetImageOptions(d);
     refreshApiStatus(d, id);
   } else { d.model[key] = t.value; card.values[key] = t.value; }
+  saveLocal();
 }
 app.addEventListener('error', e => {
   const image = e.target;
@@ -904,6 +927,72 @@ const pageSession = createPageSession({
     d?.controller?.abort(); return { requested: pendingApproval || Boolean(d?.controller) };
   }
 });
+await initializeLocal();
 window.llmWorkbench = pageSession;
 registerPageSessionTools(pageSession);
 render();
+
+
+// Hydration completes before controls or page-session tools become available.
+async function initializeLocal() {
+  app.innerHTML='<p role="status" class="local-loading">正在恢复本机数据…</p>';
+  const saved=await localStore.load();
+  if(saved) {
+    try { const restored=restoreWorkspace(saved,makePage); Object.assign(data,restored.data);page=restored.page;nextId=restored.nextId;
+      localRestored=Object.values(data).some(d=>d.messages.length||d.draft);setStorageStatus('restored');
+      for(const [key,value] of Object.entries(restored.views))if(['chat','image','logs'].includes(key)&&Number.isFinite(value?.top))viewPositions.set(key,{top:Math.max(0,value.top),bottom:Boolean(value.bottom)});
+    } catch { localStore.close(); setStorageStatus('schema'); }
+  }
+  localHydrated=true;
+}
+function saveLocal(immediate=false) {
+  if(!localHydrated)return;
+  clearTimeout(localSaveTimer);
+  const capture=()=>{
+    try { rememberViewPosition(); return localStore.schedule(snapshotWorkspace({data,page,nextId,views:Object.fromEntries(viewPositions),secrets:[...localSecrets]}),{immediate:true}); }
+    catch(e){localStore.reportError(e);}
+  };
+  if(immediate)return capture();
+  localSaveTimer=setTimeout(capture,250);
+}
+function setStorageStatus(state) {
+  storageState=state;
+  const warning=['error','size-limit','conflict','blocked','schema','unavailable'].includes(state);
+  const show=warning||localRestored;
+  let notice=document.getElementById('local-save-notice');
+  if(show&&!notice){notice=document.createElement('button');notice.id='local-save-notice';notice.className='local-save-notice';notice.setAttribute('role','status');notice.onclick=openStoragePanel;document.body.append(notice);}
+  if(notice){notice.hidden=!show;notice.textContent=warning?storageLabels[state]:'已恢复本机内容；API Key 请重新填写（点击查看）';}
+  const status=document.getElementById('local-storage-status');if(status)status.textContent=storageLabels[state]||state;
+}
+function openStoragePanel() {
+  localRestored=false;setStorageStatus(storageState);
+  document.getElementById('local-storage-panel')?.remove();
+  const dialog=document.createElement('dialog');dialog.id='local-storage-panel';dialog.className='local-storage-panel';
+  dialog.innerHTML=`<h2>本机保存与备份</h2><p id="local-storage-status">${esc(storageLabels[storageState])}</p><p>自动保留本机的对话、草稿、附件、模型设置和独立指标。API Key 与目标确认不保存；刷新后请重新填写密钥。通讯日志不保存。含账号、密码、查询参数或片段的 API 地址不保存。</p><p>仅限当前浏览器与网站地址。无痕模式、清理浏览器或系统回收空间可能删除数据；这不是永久备份。单份快照上限 48 MiB，超限或配额不足时保留上一份成功存档，不会悄悄删除附件。</p><p>多标签页版本冲突后不会覆盖另一页；先导出本页备份，再刷新读取最新存档。</p><div class="local-storage-actions"><button data-local="export">导出本页备份</button><button data-local="import">恢复备份</button><button data-local="retry">重试保存</button><button data-local="close">关闭</button></div><p id="local-backup-status" role="status"></p>`;
+  dialog.addEventListener('click',async event=>{
+    const action=event.target.dataset.local;if(!action)return;
+    const result=dialog.querySelector('#local-backup-status');
+    if(action==='close'){dialog.close();dialog.remove();return;}
+    if(action==='retry'){await saveLocal(true);return;}
+    if(action==='export')try{
+      const value=snapshotWorkspace({data,page,nextId,views:Object.fromEntries(viewPositions),secrets:[...localSecrets]});
+      const url=URL.createObjectURL(new Blob([JSON.stringify(value)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='llm-workbench-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);result.textContent='已发起下载。备份包含对话与附件，请妥善保管。';
+    }catch{result.textContent='快照过大或无法导出。请先下载重要图片并复制重要文字。';}
+    if(action==='import'){
+      const picker=document.createElement('input');picker.type='file';picker.accept='.json,application/json';
+      picker.onchange=async()=>{try{
+        const file=picker.files?.[0];if(!file)return;if(file.size>MAX_SNAPSHOT_BYTES)throw new Error();
+        const restored=restoreWorkspace(migrateSnapshot(JSON.parse(await file.text())),makePage);
+        if(Object.values(data).some(d=>d.busy)){result.textContent='请先结束当前请求。';return;}
+        if(!window.confirm('用备份替换当前本页对话和设置？建议先导出当前内容。'))return;
+        Object.assign(data,restored.data);page=restored.page;nextId=restored.nextId;viewPositions.clear();for(const [k,v]of Object.entries(restored.views))viewPositions.set(k,v);
+        render();await saveLocal(true);result.textContent='已恢复到本页。是否成功写入本机，请看上方保存状态。';
+      }catch{result.textContent='备份格式不支持、损坏或超过 48 MiB；未恢复。';}};picker.click();
+    }
+  });
+  document.body.append(dialog);dialog.showModal();
+}
+
+app.addEventListener('scroll',()=>{if(localHydrated)saveLocal();},{passive:true});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveLocal(true);});
+window.addEventListener('pagehide',()=>saveLocal(true));

@@ -9,7 +9,7 @@ const destination = join(root, 'dist');
 // not deployment inputs. No recursive copy of the repository is ever performed.
 const files = [
   'index.html', '.nojekyll',
-  'src/reasoning.js', 'src/stream.js', 'src/usage.js', 'src/app.js', 'src/core.js', 'src/agent.js', 'src/attachments.js', 'src/icons.js', 'src/styles.css',
+  'src/reasoning.js', 'src/stream.js', 'src/usage.js', 'src/persistence.js', 'src/app.js', 'src/core.js', 'src/agent.js', 'src/attachments.js', 'src/icons.js', 'src/styles.css',
   'src/image-capabilities.js', 'src/logs.js', 'src/session.js', 'src/session-webmcp.js',
 ];
 for (const file of files) {
