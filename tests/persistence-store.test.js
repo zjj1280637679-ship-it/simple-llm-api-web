@@ -106,3 +106,14 @@ test('uncommitted clear tombstone remains effective across repeated reloads',asy
  const idb=fakeIDB({value:saved,revision:2}),storage=fakeJournalStorage(),a=journalInstance(idb,storage);await a.store.load(snapshot());a.store.journal(smallPatch(''),{clear:['chat']});a.store.close();
  for(let i=0;i<2;i++){const b=journalInstance(idb,storage);const loaded=await b.store.load(snapshot());assert.deepEqual(loaded.workspaces.chat.messages,[]);assert.deepEqual(loaded.workspaces.chat.history,[]);b.store.close();}
 });
+
+
+test('older snapshot commit cannot clear a newer collision or size-limit warning',async()=>{
+ for(const code of ['CREDENTIAL_COLLISION','SIZE_LIMIT']){
+  const idb=fakeIDB(),{store,statuses}=instance(idb);await store.load();
+  const earlier=store.schedule(snapshot('earlier good state'),{immediate:true});
+  store.reportError({code});const warning=statuses.at(-1);await earlier;
+  assert.equal(statuses.at(-1),warning);assert.equal(idb.state.record.value.workspaces.chat.draft,'earlier good state');
+  await store.schedule(snapshot('new valid retry'),{immediate:true});assert.equal(statuses.at(-1),'saved');store.close();
+ }
+});

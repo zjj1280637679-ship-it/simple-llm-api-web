@@ -69,3 +69,22 @@ test('unknown and malformed schemas fail closed',()=>{
 test('oversize snapshot fails explicitly rather than dropping attachments',()=>{
  const f=fixture();f.data.chat.draft='x'.repeat(MAX_SNAPSHOT_BYTES);assert.throws(()=>snapshotWorkspace(f),{code:'SIZE_LIMIT'});
 });
+
+
+test('editing prefixes including standalone s preserve native signatures and binary data exactly',()=>{
+ const f=fixture();f.data.chat.history=[{role:'assistant',content:'status',raw:{parts:[{thoughtSignature:'s'},{thoughtSignature:'sk-long-opaque-value'}]}}];
+ f.data.chat.attachments=[attachment];
+ for(const key of ['s','sk','sk-','sk-complete-not-submitted']){f.data.chat.api.key=key;const s=snapshotWorkspace(f);assert.deepEqual(s.workspaces.chat.history,f.data.chat.history);assert.deepEqual(s.workspaces.chat.attachments,[attachment]);assert.equal(s.workspaces.chat.api.url,f.data.chat.api.url);}
+});
+test('complete used credentials redact longest first across text delimiters, never retain a suffix',()=>{
+ const f=fixture(),key='sk-full-credential-value';f.secrets=['sk-full',key];
+ f.data.chat.draft=`Bearer ${key} key=${key} "${key}" /${key}/ (${key}) prefix${key}suffix`;
+ const s=snapshotWorkspace(f);assert.ok(!JSON.stringify(s).includes(key));assert.ok(!s.workspaces.chat.draft.includes('-credential-value'));assert.equal((s.workspaces.chat.draft.match(/密钥已移除/g)||[]).length,6);
+});
+test('credential collision in native history fails visibly instead of changing a signed context',()=>{
+ const f=fixture(),key='sk-complete-credential';f.secrets=[key];f.data.chat.history=[{role:'assistant',content:'done',raw:{parts:[{thoughtSignature:`signed-${key}-value`}]} }];
+ const before=JSON.stringify(f.data.chat.history);assert.throws(()=>snapshotWorkspace(f),{code:'CREDENTIAL_COLLISION'});assert.equal(JSON.stringify(f.data.chat.history),before);
+});
+test('actual submitted short credential ambiguity fails closed, without a length heuristic',()=>{
+ const f=fixture();f.secrets=['s'];assert.throws(()=>snapshotWorkspace(f),{code:'CREDENTIAL_COLLISION'});
+});

@@ -6,6 +6,12 @@ import { getImageCapabilities, normalizeImageOptions, getImageTool } from './ima
 import { recordNetwork, setLogSecrets } from './logs.js';
 export { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, ARK_SIZE_LIMITS, getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
 
+// Memory-only observer for the exact credential used at the transport boundary.
+// Does not persist or expose request payloads; consumers decide their local policy.
+const credentialUseObservers=new Set();
+export function subscribeCredentialUse(observer) { credentialUseObservers.add(observer);return ()=>credentialUseObservers.delete(observer); }
+function announceCredentialUse(key) { for(const observer of credentialUseObservers)try{observer(key);}catch{} }
+
 /** Shared browser/Node transport. No storage, SDK, evaluation, shell, or automatic retry. */
 export const DEFAULT_TEXT_MODEL = 'gemini-flash-lite-latest';
 export const IMAGE_MODEL = 'gemini-nano-banana-2.1';
@@ -125,6 +131,8 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, onReas
   try {
     try {
       onPhase?.('waiting_headers');
+      checkAbort(signal);
+      announceCredentialUse(config.key.trim());
       response = await fetchImpl(`${base}${path}`, {
         method:event.method, headers,
         ...(body === undefined ? {} : {body:JSON.stringify(body)}), signal,

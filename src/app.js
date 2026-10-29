@@ -3,7 +3,7 @@ import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody, 
 import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
 import { replyMetricsMarkup, replyMetricsSnapshot } from './usage.js';
 import { icon } from './icons.js';
-import { AppError, DEFAULT_TEXT_MODEL, IMAGE_MODEL, ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_TEXT_MODEL, getImageCapabilities, normalizeImageOptions, canonicalEndpoint, listModels, dispatchCommand } from './core.js';
+import { AppError, DEFAULT_TEXT_MODEL, IMAGE_MODEL, ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_TEXT_MODEL, getImageCapabilities, normalizeImageOptions, canonicalEndpoint, listModels, dispatchCommand, subscribeCredentialUse } from './core.js';
 import { runConversation } from './agent.js';
 import { getNetworkLogs, clearNetworkLogs, exportNetworkLogs, subscribeNetworkLogs, renderNetworkLogs, sanitizeLogValue, setLogSecrets, updateActiveLogSecrets } from './logs.js';
 import { createPageSession } from './session.js';
@@ -310,15 +310,16 @@ const makePage = type => ({
 const data = { chat: makePage('chat'), image: makePage('image') };
 let localHydrated=false,storageState='loading',localSaveTimer,localRestored=false;
 const localSecrets=new Set();
-const storageLabels={loading:'正在读取本机存档',ready:'本机自动保存已启用',restored:'已恢复本机存档；API Key 请重新填写',saving:'正在保存…',saved:'已保存到本机；API Key 不保存',error:'本机保存失败；当前改动尚未保存，请导出备份后重试', 'size-limit':'本机存档超过 48 MiB；当前改动尚未保存，请备份',conflict:'另一标签页已更新存档；本页暂停保存，请先导出备份',blocked:'存储版本已变化或被占用；请备份后刷新',schema:'本机存档版本不支持或损坏；已停止覆盖',unavailable:'本机存储不可用；仅内存运行，刷新会丢失，请导出备份','saved-journal-error':'完整存档已提交；即时草稿保护不可用，后续改动请等提交后刷新','journal-error':'即时草稿保护失败或超过 128 KiB；请等待完整存档提交后再刷新，或导出备份'};
+subscribeCredentialUse(key=>localSecrets.add(key));
+const storageLabels={loading:'正在读取本机存档',ready:'本机自动保存已启用',restored:'已恢复本机存档；API Key 请重新填写',saving:'正在保存…',saved:'已保存到本机；API Key 不保存',error:'本机保存失败；当前改动尚未保存，请导出备份后重试', 'size-limit':'本机存档超过 48 MiB；当前改动尚未保存，请备份',conflict:'另一标签页已更新存档；本页暂停保存，请先导出备份',blocked:'存储版本已变化或被占用；请备份后刷新',schema:'本机存档版本不支持或损坏；已停止覆盖',unavailable:'本机存储不可用；仅内存运行，刷新会丢失，请导出备份','credential-collision':'已用密钥与原生上下文或配置内容重合；为避免泄露或破坏签名，本次未保存','saved-journal-error':'完整存档已提交；即时草稿保护不可用，后续改动请等提交后刷新','journal-error':'即时草稿保护失败或超过 128 KiB；请等待完整存档提交后再刷新，或导出备份'};
 let journalStorage=null;try{journalStorage=window.localStorage;}catch{}
 const localStore=createLocalStore({journalStorage,name:`llm-workbench-local-v1:${(window.location?.pathname || '/').replace(/index\.html$/,'')}`,onStatus:setStorageStatus});
 
 let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
 let reasoningAnchorId = null;
 const get = () => data[page];
-function syncLogSecrets() { for(const d of Object.values(data))if(d.api.key)localSecrets.add(d.api.key); updateActiveLogSecrets(Object.values(data).map(d => d.api.key)); }
-function archiveWorkspaceKey(d) { if (d) { if(d.api.key)localSecrets.add(d.api.key);setLogSecrets([d.api.key]); } }
+function syncLogSecrets() { updateActiveLogSecrets(Object.values(data).map(d => d.api.key)); }
+function archiveWorkspaceKey(d) { if (d) setLogSecrets([d.api.key]); }
 const activeCardId = d => d.messages.findLast(m => m.type === 'card')?.id;
 const getCard = id => get()?.messages.find(m => m.id === id && m.type === 'card');
 const matrixSupported = d => Boolean(getImageCapabilities(d.api));
@@ -705,7 +706,7 @@ async function send() {
       appendImages(d, result, args); d.lastUsage = result.usage; d.lastMetrics = replyMetricsSnapshot(result.usage);
     } else {
       const result = await runConversation({
-        config, imageConfig: configuredImageSnapshot(), messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
+        config, imageConfig:configuredImageSnapshot(), messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
         onPhase:phase=>requestPhase(d,phase),
         onDelta: (delta, {round}) => {
           if (!delta) return;
@@ -993,7 +994,7 @@ async function initializeLocal() {
 }
 function saveLocal(immediate=false,protectDraft=false,clear=[]) {
   if(!localHydrated)return;
-  if(protectDraft)try{localStore.journal(snapshotJournal({data,page,secrets:[...localSecrets]}),{clear});}catch{if(clear.length)localStore.journal({page,workspaces:{}},{clear});setStorageStatus('journal-error');}
+  if(protectDraft)try{localStore.journal(snapshotJournal({data,page,secrets:[...localSecrets]}),{clear});}catch(error){if(clear.length)localStore.journal({page,workspaces:{}},{clear});if(error?.code==='CREDENTIAL_COLLISION')localStore.reportError(error);else setStorageStatus('journal-error');}
   clearTimeout(localSaveTimer);
   const capture=()=>{
     try { rememberViewPosition(); return localStore.schedule(snapshotWorkspace({data,page,nextId,views:Object.fromEntries(viewPositions),secrets:[...localSecrets]}),{immediate:true}); }
@@ -1004,7 +1005,7 @@ function saveLocal(immediate=false,protectDraft=false,clear=[]) {
 }
 function setStorageStatus(state) {
   storageState=state;
-  const warning=['saved-journal-error','journal-error','error','size-limit','conflict','blocked','schema','unavailable'].includes(state);
+  const warning=['credential-collision','saved-journal-error','journal-error','error','size-limit','conflict','blocked','schema','unavailable'].includes(state);
   const show=warning||localRestored;
   let notice=document.getElementById('local-save-notice');
   if(show&&!notice){notice=document.createElement('button');notice.id='local-save-notice';notice.className='local-save-notice';notice.setAttribute('role','status');notice.onclick=openStoragePanel;document.body.append(notice);}

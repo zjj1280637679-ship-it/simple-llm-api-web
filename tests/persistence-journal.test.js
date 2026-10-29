@@ -8,7 +8,7 @@ function journal(f,extra={}){return {schema:1,owner:'tab-a',sequence:3,baseRevis
 test('bounded journal contains draft/settings but no history, attachments, diagnostics or credentials',()=>{
  const f=fixture(),d=f.data.chat;d.api.key='live-secret';d.api.trustedTarget='trusted-secret';d.api.headers={authorization:'header-secret'};d.draft='draft live-secret old-secret';
  d.history=[{role:'assistant',raw:{content:'history-sentinel'}}];d.messages=[{id:1,type:'user',text:'message-sentinel'}];d.attachments=[{base64:'attachment-sentinel'}];d.logs=['log-sentinel'];
- const j=snapshotJournal({...f,secrets:['old-secret']}),serialized=JSON.stringify(j);
+ const j=snapshotJournal({...f,secrets:['live-secret','old-secret']}),serialized=JSON.stringify(j);
  for(const text of ['live-secret','old-secret','trusted-secret','header-secret','history-sentinel','message-sentinel','attachment-sentinel','log-sentinel'])assert.ok(!serialized.includes(text),text);
  assert.match(j.workspaces.chat.draft,/draft/);assert.equal(j.workspaces.chat.api.url,'https://example.com/v1');assert.deepEqual(j.workspaces.chat.model,d.model);
 });

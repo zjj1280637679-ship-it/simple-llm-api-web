@@ -18,8 +18,27 @@ function safeApi(api) {
   try { const u = new URL(out.url); if (u.username || u.password || u.search || u.hash || u.protocol !== 'https:') out.url = ''; } catch { out.url = ''; }
   return out;
 }
+// Never rewrite signed/native history or binary/configuration values. If a used
+// credential really collides with such content, fail visibly rather than save
+// either a credential or a corrupted context. Editing prefixes are not secrets.
+function protectImmutable(value,secrets) {
+  if(typeof value==='string' && secrets.some(secret=>value.includes(secret)))throw Object.assign(new Error('Credential in immutable content'),{code:'CREDENTIAL_COLLISION'});
+  if(value&&typeof value==='object')for(const child of Object.values(value))protectImmutable(child,secrets);
+}
+function protectWorkspace(value,secrets) {
+  const {workspaces,...metadata}=value;protectImmutable(metadata,secrets);
+  for(const d of Object.values(value.workspaces)){
+    protectImmutable({api:d.api,model:d.model,attachments:d.attachments,history:d.history},secrets);
+    d.draft=clean(d.draft,secrets);
+    for(const message of d.messages||[]){
+      const {text,prompt,reasoningText,...immutable}=message;protectImmutable(immutable,secrets);
+      for(const field of ['text','prompt','reasoningText'])if(typeof message[field]==='string')message[field]=clean(message[field],secrets);
+    }
+  }
+  return value;
+}
 export function snapshotWorkspace({data,page,nextId,views={},secrets:archivedSecrets=[]}) {
-  const secrets = [...archivedSecrets,...Object.values(data).map(d=>d.api?.key)].filter(Boolean);
+  const secrets = [...new Set(archivedSecrets)].filter(Boolean).sort((a,b)=>b.length-a.length);
   const workspaces = {}, metrics = {};
   for (const name of ['chat','image']) {
     const d = data[name];
@@ -38,7 +57,7 @@ export function snapshotWorkspace({data,page,nextId,views={},secrets:archivedSec
     };
     metrics[name]={lastUsage:d.lastUsage,lastMetrics:d.lastMetrics,messages:Object.fromEntries(d.messages.filter(m=>m.metrics).map(m=>[m.id,m.metrics]))};
   }
-  const result=clean({schema:SCHEMA_VERSION,page,nextId,views,workspaces,metrics},secrets);
+  const result=protectWorkspace(clean({schema:SCHEMA_VERSION,page,nextId,views,workspaces,metrics}),secrets);
   if(new TextEncoder().encode(JSON.stringify(result)).byteLength>MAX_SNAPSHOT_BYTES)throw Object.assign(new Error('Snapshot too large'),{code:'SIZE_LIMIT'});
   return result;
 }
@@ -94,12 +113,12 @@ export function restoreWorkspace(snapshot,makePage) {
 // A bounded synchronous safety journal, never a second history store.
 export const MAX_JOURNAL_BYTES=128*1024;
 export function snapshotJournal({data,page,secrets:archived=[]}) {
-  const secrets=[...archived,...Object.values(data).map(d=>d.api?.key)].filter(Boolean),workspaces={};
+  const secrets=[...new Set(archived)].filter(Boolean).sort((a,b)=>b.length-a.length),workspaces={};
   for(const name of ['chat','image']){
     const d=data[name],pending=d.busy&&d.messages.find(m=>m.id===d.pendingTextId);
     workspaces[name]={draft:pending?.text||d.draft,api:safeApi(d.api),model:pick(d.model,modelKeys),aspectRatio:d.aspectRatio,imageSize:d.imageSize};
   }
-  const result=clean({page,workspaces},secrets);
+  const result=protectWorkspace(clean({page,workspaces}),secrets);
   if(new TextEncoder().encode(JSON.stringify(result)).byteLength>MAX_JOURNAL_BYTES)throw Object.assign(new Error('Journal too large'),{code:'JOURNAL'});
   return result;
 }
@@ -128,11 +147,11 @@ export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{}
   let db,ready=false,revision=0,timer,pending,blocked=false,queue=Promise.resolve();
   const journalKey=name+':draft-journal';
   const owner=globalThis.crypto?.randomUUID?.()||`tab-${Date.now()}-${Math.random()}`;
-  let sequence=0,journalFailure=false;
+  let sequence=0,journalFailure=false,errorGeneration=0;
   const readJournal=()=>{const raw=journalStorage?.getItem(journalKey);return raw?JSON.parse(raw):null;};
   const putJournal=value=>journalStorage.setItem(journalKey,JSON.stringify(value));
   const status=(state)=>onStatus(journalFailure&&state==='saved'?'saved-journal-error':journalFailure&&['saving','restored','ready'].includes(state)?'journal-error':state);
-  const fail=e=>{status(e?.code==='CONFLICT'?'conflict':e?.code==='SIZE_LIMIT'?'size-limit':'error');};
+  const fail=e=>{errorGeneration++;status(e?.code==='CREDENTIAL_COLLISION'?'credential-collision':e?.code==='CONFLICT'?'conflict':e?.code==='SIZE_LIMIT'?'size-limit':'error');};
   const journal=(patch,{clear=[]}={})=>{
     if(!ready||blocked)return false;
     try {
@@ -175,7 +194,7 @@ export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{}
       status(record||result?'restored':'ready');return result;
     }catch(e){blocked=true;status(e?.code==='SCHEMA'?'schema':e?.code==='BLOCKED'?'blocked':'unavailable');return null;}
   };
-  const write=async ({value,commitSequence})=>{
+  const write=async ({value,commitSequence,captureGeneration})=>{
     if(!ready||blocked||!db)return false;
     try {
       await new Promise((resolve,reject)=>{
@@ -185,12 +204,12 @@ export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{}
         t.oncomplete=()=>{revision++;resolve();};t.onabort=()=>reject(conflict?Object.assign(new Error('Conflict'),{code:'CONFLICT'}):t.error);t.onerror=()=>{};
       });
       if(journalStorage)try{const current=readJournal();if(current?.owner===owner){if(current.sequence<=commitSequence)putJournal({schema:1,owner:'',baseRevision:revision,sequence:0,patch:null});else putJournal({...current,baseRevision:revision});}}catch{journalFailure=true;}
-      status('saved');return true;
+      if(!blocked&&captureGeneration===errorGeneration)status('saved');return true;
     }catch(e){if(e?.code==='CONFLICT')blocked=true;fail(e);return false;}
   };
   const flush=()=>{clearTimeout(timer);if(!pending)return queue;const value=pending;pending=null;queue=queue.then(()=>write(value));return queue;};
   return {load,flush,journal,
-    schedule(value,{immediate=false}={}){if(!ready||blocked)return;pending={value,commitSequence:sequence};clearTimeout(timer);status('saving');if(immediate)return flush();timer=setTimeout(flush,debounceMs);},
+    schedule(value,{immediate=false}={}){if(!ready||blocked)return;pending={value,commitSequence:sequence,captureGeneration:errorGeneration};clearTimeout(timer);status('saving');if(immediate)return flush();timer=setTimeout(flush,debounceMs);},
     reportError:fail,
     close(){clearTimeout(timer);db?.close();blocked=true;eventTarget?.removeEventListener?.('storage',storageListener);},
     get ready(){return ready;}

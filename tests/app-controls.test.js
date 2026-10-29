@@ -42,7 +42,7 @@ function mount({ confirm = () => true, runConversation, dispatchCommand, listMod
     runConversation: runConversation || neverFetch, listModels: listModels || neverFetch, dispatchCommand: dispatchCommand || neverFetch
   };
   vm.createContext(context);
-  vm.runInContext(`${source}\nglobalThis.controlTests = { isConfigured, data, addCard, render, matrixSupported, setPage: p => { page = p; } };`, context);
+  vm.runInContext(`${source}\nglobalThis.controlTests = { isConfigured, data, addCard, render, matrixSupported, persisted: () => snapshotWorkspace({data,page,nextId,secrets:[...localSecrets]}), setPage: p => { page = p; } };`, context);
   return {
     ...context.controlTests, app, document, session: context.window.llmWorkbench,
     input: target => listeners.input({ target }),
@@ -586,4 +586,28 @@ test('composer reasoning label shows current value, unset and budget without gen
  d.api.protocol='gemini';d.api.url=core.GEMINI_ENDPOINT;d.api.model='gemini-2.5-flash';d.model.reasoning={template:'gemini-budget',value:1024};ui.render();assert.match(ui.app.innerHTML,/aria-label="思考强度：1024 Token"/);
  d.model.reasoning.value=-1;ui.render();assert.match(ui.app.innerHTML,/aria-label="思考强度：动态"/);d.model.reasoning.value=0;ui.render();assert.match(ui.app.innerHTML,/aria-label="思考强度：关闭"/);
  await ui.click({action:'choose-supplier',id:String(card.id),index:'7'});assert.match(ui.app.innerHTML,/aria-label="思考强度：不指定"/);
+});
+
+
+test('typing API credentials one character at a time never archives prefixes into persisted history',()=>{
+ const ui=mount();ui.addCard('api');const d=ui.data.chat;
+ d.draft='status signature sk-ordinary';
+ d.history=[{role:'assistant',content:'status',raw:{parts:[{text:'status',thoughtSignature:'s'},{thoughtSignature:'sk-long-opaque-signature'}]}}];
+ const original=JSON.stringify(d.history),field=ui.app.querySelector(`#key${d.messages.at(-1).id}`);
+ for(const value of ['s','sk','sk-','sk-real-complete']){
+  field.value=value;ui.input(field);const saved=ui.persisted();
+  assert.equal(saved.workspaces.chat.api.url,d.api.url);
+  assert.equal(JSON.stringify(saved.workspaces.chat.history),original);
+  assert.equal(saved.workspaces.chat.draft,'status signature sk-ordinary');
+  assert.equal(saved.workspaces.chat.api.key,undefined);
+ }
+});
+
+test('only an explicitly submitted complete credential remains protected after field replacement',async()=>{
+ const ui=mount({runConversation:async({config})=>{await core.listModels({config,fetchImpl:async()=>new Response(JSON.stringify({models:[]}),{status:200})});return {text:'done',history:[],usage:null};}}),{d}=configure(ui);
+ d.api.key='sk-complete-credential';ui.render();d.draft='hello';await ui.click({action:'send'});
+ const field=ui.app.querySelector(`[data-key="key"]`) || ui.app.querySelector(`#key${d.messages.find(m=>m.type==='card').id}`);
+ field.value='';ui.input(field);
+ d.draft='Bearer sk-complete-credential / key=sk-complete-credential';
+ const saved=ui.persisted();assert.ok(!saved.workspaces.chat.draft.includes('sk-complete-credential'));assert.ok(saved.workspaces.chat.draft.includes('[密钥已移除]'));
 });
