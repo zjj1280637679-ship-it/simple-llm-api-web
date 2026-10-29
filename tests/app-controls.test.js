@@ -11,7 +11,7 @@ import { createPageSession } from '../src/session.js';
 // A small event/DOM harness for the production module. No browser, network,
 // real key, external package or production testing hooks are required.
 const source = (await readFile(new URL('../src/app.js', import.meta.url), 'utf8')).replace(/^import .*;\n/gm, '');
-function mount({ confirm = () => true, runConversation, dispatchCommand } = {}) {
+function mount({ confirm = () => true, runConversation, dispatchCommand, listModels } = {}) {
   const listeners = {};
   let html = '', nodes = new Map(), renders = 0;
   const thread = { scrollTop: 0, scrollHeight: 100 };
@@ -36,7 +36,7 @@ function mount({ confirm = () => true, runConversation, dispatchCommand } = {}) 
     ...core, ...logs, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
     renderNetworkLogs: container => { if (container) container.textContent = logs.exportNetworkLogs(); },
     URL, Blob, Uint8Array, atob, AbortController, performance,
-    runConversation: runConversation || neverFetch, listModels: neverFetch, dispatchCommand: dispatchCommand || neverFetch
+    runConversation: runConversation || neverFetch, listModels: listModels || neverFetch, dispatchCommand: dispatchCommand || neverFetch
   };
   vm.createContext(context);
   vm.runInContext(`${source}\nglobalThis.controlTests = { isConfigured, data, addCard, render, matrixSupported, setPage: p => { page = p; } };`, context);
@@ -267,4 +267,48 @@ test('session cancel during the confirmation microtask prevents the request from
   assert.equal(cancelled.result.requested, true);
   assert.equal(result.result.status, 'not-sent');
   assert.equal(calls, 0);
+});
+
+
+test('repeated missing-key model pulls stay in one card status without network or history spam', async () => {
+  const ui = mount(); ui.addCard('api');
+  const d = ui.data.chat, card = d.messages.at(-1), count = d.messages.length;
+  for (let i=0;i<10;i++) await ui.click({action:'pull-models',id:String(card.id)});
+  assert.equal(d.messages.length,count);
+  assert.match(card.modelListStatus,/尚未发送/);
+  assert.equal((ui.app.innerHTML.match(/尚未发送模型列表请求/g)||[]).length,1);
+  const key=ui.app.querySelector(`#key${card.id}`); key.value='synthetic';ui.input(key);
+  assert.equal(card.modelListStatus,'');
+});
+test('corrected settings continue and busy model pulls never duplicate a request', async () => {
+  let calls=0,resolve;
+  const ui=mount({listModels:()=>{calls++;return new Promise(r=>{resolve=r;});}});
+  const {d,card}=configure(ui);card.modelListStatus='old validation';
+  const pending=ui.click({action:'pull-models',id:String(card.id)});
+  for(let i=0;i<10;i++)await ui.click({action:'pull-models',id:String(card.id)});
+  assert.equal(calls,1);assert.equal(d.busy,true);assert.equal(card.modelListStatus,'');
+  resolve([{id:'synthetic-model'}]);await pending;
+  assert.equal(d.busy,false);assert.equal(card.models[0].id,'synthetic-model');
+});
+test('invalid or unapproved model-list targets update one local status and make no request', async () => {
+  const ui=mount({confirm:()=>false}),{d,card}=configure(ui),count=d.messages.length;
+  d.api.url='invalid';d.api.trustedTarget='';
+  for(let i=0;i<5;i++)await ui.click({action:'pull-models',id:String(card.id)});
+  assert.equal(d.messages.length,count);assert.ok(card.modelListStatus);
+  d.api.url='https://example.com/v1';
+  await ui.click({action:'pull-models',id:String(card.id)});
+  assert.match(card.modelListStatus,/尚未确认/);assert.equal(d.messages.length,count);
+});
+
+test('settings menus replace bottom menus rather than leaving an inline second menu',async()=>{
+ const ui=mount(),{d,card}=configure(ui,'image');
+ for(let i=0;i<10;i++){
+  await ui.click({action:i%2?'plus':'size-toggle'});
+  await ui.click({action:'supplier',id:String(card.id)});
+  assert.equal((ui.app.innerHTML.match(/class="inline-list"/g)||[]).length,1);
+  assert.doesNotMatch(ui.app.innerHTML,/class="(?:plus-menu|size-menu)"/);
+ }
+ d.api.key='';await ui.click({action:'plus'});
+ await ui.click({action:'pull-models',id:String(card.id)});
+ assert.doesNotMatch(ui.app.innerHTML,/class="(?:plus-menu|size-menu|inline-list)"/);
 });

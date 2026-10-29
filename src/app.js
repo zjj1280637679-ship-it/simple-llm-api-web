@@ -101,28 +101,44 @@ function floatingMenuBounds(anchor, menuHeight, viewport, topLimit = 8) {
   const top = available < 120 ? minTop : useAbove ? anchor.top - gap - height : anchor.bottom + gap;
   return { top: Math.max(minTop, Math.min(top, bottom - height)), maxHeight };
 }
+function settingsMenuBounds(anchor, menuHeight, viewport, topLimit = 8) {
+  const minTop = Math.max(viewport.top + 8, topLimit);
+  const bottom = viewport.top + viewport.height - 8;
+  const full = Math.max(1, bottom - minTop);
+  const below = Math.min(full, Math.max(0, bottom - anchor.bottom - 8));
+  const above = Math.min(full, Math.max(0, anchor.top - 8 - minTop));
+  const downward = below >= Math.min(120, menuHeight) || below >= above;
+  const maxHeight = Math.max(1, downward ? below : above);
+  const height = Math.min(menuHeight, maxHeight);
+  const top = downward ? anchor.bottom + 8 : anchor.top - 8 - height;
+  return { top: Math.max(minTop, Math.min(top, bottom - height)), maxHeight };
+}
+function floatingMenuTrigger(menu) {
+  return app.querySelector(`[data-action="${menu.dataset.floatingMenu}"]${menu.dataset.menuCard ? `[data-id="${menu.dataset.menuCard}"]` : ''}`);
+}
 function positionFloatingMenu() {
   const menu = app.querySelector('[data-floating-menu]');
   if (!menu) return;
-  const anchor = app.querySelector(`[data-action="${menu.dataset.floatingMenu}"]`);
+  const anchor = floatingMenuTrigger(menu);
   if (!anchor) return;
   const visual = window.visualViewport;
   const viewport = {left:visual?.offsetLeft || 0,top:visual?.offsetTop || 0,width:visual?.width || window.innerWidth,height:visual?.height || window.innerHeight};
   const nav = app.querySelector('.top');
   const topLimit = nav && !app.classList.contains('navigation-in-flow') ? nav.getBoundingClientRect().bottom + 8 : viewport.top + 8;
-  const width = Math.max(1, Math.min(menu.classList.contains('size-menu') ? 360 : 240, viewport.width - 16));
+  const settings = menu.classList.contains('inline-list');
+  const rect = (settings ? anchor.closest('.fieldrow') : anchor).getBoundingClientRect();
+  const width = Math.max(1, Math.min(settings ? rect.width : menu.classList.contains('size-menu') ? 360 : 240, viewport.width - 16));
   menu.style.width = `${width}px`;
-  const rect = anchor.getBoundingClientRect();
-  const bounds = floatingMenuBounds(rect, menu.scrollHeight + 2, viewport, topLimit);
+  const bounds = settings ? settingsMenuBounds(rect, menu.scrollHeight + 2, viewport, topLimit) : floatingMenuBounds(rect, menu.scrollHeight + 2, viewport, topLimit);
   menu.style.maxHeight = `${bounds.maxHeight}px`;
   menu.style.left = `${Math.max(viewport.left + 8, Math.min(rect.left, viewport.left + viewport.width - width - 8))}px`;
   menu.style.top = `${bounds.top}px`;
 }
 function mountFloatingMenu() {
   floatingMenuObserver?.disconnect();
-  const menu = app.querySelector('.plus-menu,.size-menu');
+  const menu = app.querySelector('.plus-menu,.size-menu,.inline-list');
   if (!menu) return;
-  menu.dataset.floatingMenu = menu.classList.contains('plus-menu') ? 'plus' : 'size-toggle';
+  if (!menu.dataset.floatingMenu) menu.dataset.floatingMenu = menu.classList.contains('plus-menu') ? 'plus' : 'size-toggle';
   menu.classList.add('floating-menu');
   app.append(menu);
   if (typeof menu.showPopover === 'function') {
@@ -138,8 +154,8 @@ function mountFloatingMenu() {
 function dismissFloatingMenu(restoreFocus = false) {
   const menu = app.querySelector('[data-floating-menu]');
   if (!menu) return;
-  const anchor = app.querySelector(`[data-action="${menu.dataset.floatingMenu}"]`);
-  plusOpen = sizeOpen = false;
+  const anchor = floatingMenuTrigger(menu);
+  plusOpen = sizeOpen = false; subMenu = '';
   floatingMenuObserver?.disconnect();
   menu.remove();
   anchor?.setAttribute('aria-expanded', 'false');
@@ -152,7 +168,7 @@ window.visualViewport?.addEventListener('resize', positionFloatingMenu);
 window.visualViewport?.addEventListener('scroll', positionFloatingMenu);
 document.addEventListener('pointerdown', event => {
   const menu = app.querySelector('[data-floating-menu]');
-  if (!menu || menu.contains(event.target) || event.target.closest?.('[data-action="plus"],[data-action="size-toggle"]')) return;
+  if (!menu || menu.contains(event.target) || event.target.closest?.('[data-action="plus"],[data-action="size-toggle"],[data-action="supplier"],[data-action="pull-models"]')) return;
   dismissFloatingMenu();
 });
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -234,10 +250,11 @@ function apiCard(m) {
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.api;
   const menu = subMenu.endsWith(`:${m.id}`) ? subMenu.split(':')[0] : '';
   return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}
-    <div class="formfield"><label for="url${m.id}">API 地址</label><div class="fieldrow"><textarea class="setting-text" rows="1" wrap="soft" id="url${m.id}" data-card="${m.id}" data-key="url" placeholder="API 地址" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.url)}</textarea><div class="sub-menu"><button type="button" data-action="supplier" data-id="${m.id}" class="uniform-btn">${esc(x.supplier)}</button>${menu === 'supplier' ? `<div class="inline-list">${providers.map((p, i) => `<button class="inline-item" data-action="choose-supplier" data-id="${m.id}" data-index="${i}">${esc(p.name)}</button>`).join('')}</div>` : ''}</div></div></div>
+    <div class="formfield"><label for="url${m.id}">API 地址</label><div class="fieldrow"><textarea class="setting-text" rows="1" wrap="soft" id="url${m.id}" data-card="${m.id}" data-key="url" placeholder="API 地址" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.url)}</textarea><div class="sub-menu"><button type="button" data-action="supplier" data-id="${m.id}" aria-expanded="${menu === 'supplier'}" class="uniform-btn">${esc(x.supplier)}</button>${menu === 'supplier' ? `<div class="inline-list" data-floating-menu="supplier" data-menu-card="${m.id}">${providers.map((p, i) => `<button class="inline-item" data-action="choose-supplier" data-id="${m.id}" data-index="${i}">${esc(p.name)}</button>`).join('')}</div>` : ''}</div></div></div>
     <div class="formfield"><label for="protocol${m.id}">协议</label><select class="native-select" id="protocol${m.id}" data-card="${m.id}" data-key="protocol" aria-describedby="protocol-reading${m.id}"><option value="gemini" ${x.protocol === 'gemini' ? 'selected' : ''}>Gemini 原生 · generateContent</option><option value="openai" ${x.protocol === 'openai' ? 'selected' : ''}>OpenAI 兼容 · Chat Completions</option><option value="ark" ${x.protocol === 'ark' ? 'selected' : ''}>火山方舟 · 普通 API</option></select><div class="field-reading" id="protocol-reading${m.id}">${x.protocol === 'gemini' ? 'Gemini 原生 · generateContent' : x.protocol === 'ark' ? '火山方舟 · 普通 API' : 'OpenAI 兼容 · Chat Completions'}</div></div>
     <div class="formfield"><label for="key${m.id}">API Key</label><div class="fieldrow"><input id="key${m.id}" data-card="${m.id}" data-key="key" type="${!old && m.showKey ? 'text' : 'password'}" placeholder="" aria-describedby="key-help${m.id}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(old ? '' : x.key)}"><button type="button" data-action="toggle-key" data-id="${m.id}" class="uniform-btn">${m.showKey ? '隐藏' : '显示'}</button></div><div class="field-reading" id="key-help${m.id}">${old ? '未保留历史密钥' : '仅保留在本页内存，刷新即清除'}</div></div>
-    <div class="formfield"><label for="model${m.id}">模型 ID</label><div class="fieldrow"><textarea class="setting-text" rows="1" wrap="soft" id="model${m.id}" data-card="${m.id}" data-key="model" placeholder="模型 ID" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.model)}</textarea><div class="sub-menu"><button type="button" data-action="pull-models" data-id="${m.id}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list">${m.models.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div></div></div>
+    <div class="formfield"><label for="model${m.id}">模型 ID</label><div class="fieldrow"><textarea class="setting-text" rows="1" wrap="soft" id="model${m.id}" data-card="${m.id}" data-key="model" placeholder="模型 ID" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.model)}</textarea><div class="sub-menu"><button type="button" data-action="pull-models" data-id="${m.id}" aria-expanded="${menu === 'models'}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list" data-floating-menu="pull-models" data-menu-card="${m.id}">${m.models.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div></div></div>
+    <div class="field-reading" id="models-status${m.id}" role="status">${esc(m.modelListStatus || '')}</div>
     <div class="api-security">${!old && d.pendingTextId ? '<div>填写并确认后，再次发送即可继续。</div>' : ''}<span id="api-trust${m.id}">${old ? '密钥不写入历史记录' : apiTrustText(x)}</span>${!old && x.protocol === 'ark' ? '<div>普通 API · 非 Agent Plan。浏览器跨域支持尚待真实验证。</div>' : ''}${!old ? '<div class="security-actions"><button type="button" class="chip" data-action="trust-target">确认目标地址</button><button type="button" class="chip" data-action="clear-key">清除密钥</button></div>' : ''}</div>
   </div></fieldset></div>`;
 }
@@ -295,9 +312,9 @@ function render(scrollEnd = false) {
   app.scrollTop = scrollEnd ? app.scrollHeight : scrollTop;
   restoreControlFocus(focusIdentity);
 }
-function trustTarget(d) {
+function trustTarget(d, report = text => status(d, text, 'error')) {
   let target;
-  try { target = canonicalEndpoint(d.api.url); } catch (e) { status(d, errorText(e), 'error'); return false; }
+  try { target = canonicalEndpoint(d.api.url); } catch (e) { report(errorText(e)); return false; }
   if (trusted(d.api)) return true;
   if (!window.confirm(`确认 API 目标地址\n\n${target}\n协议：${d.api.protocol === 'gemini' ? 'Gemini 原生' : d.api.protocol === 'ark' ? '火山方舟普通 API' : 'OpenAI 兼容'}\n\n此后本页的密钥、输入内容及当前对话上下文会直接发送到该地址。仅信任你了解的官方服务或自建代理。地址更改后需要重新确认。`)) return false;
   d.api.trustedTarget = target; return true;
@@ -316,18 +333,24 @@ function appendImages(d, result, args, fromTool = false) {
   d.messages.push({ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', fromTool });
   if (get() === d) render(true);
 }
+function modelListStatus(d, card, text) {
+  card.modelListStatus = text;
+  if (get() === d) render();
+}
 async function pullModels(card) {
   const d = get(); if (d.busy) return;
+  closeMenus();
   syncLogSecrets();
-  if (d.api.protocol === 'ark') { status(d, '普通 Ark API 暂无已核实的模型列表接口，请填写官方模型 ID。'); return; }
-  if (!d.api.key.trim()) { status(d, '请先填写 API Key；模型列表会从所选地址实际获取。', 'error'); return; }
-  if (!trustTarget(d)) { render(); return; }
+  if (d.api.protocol === 'ark') { modelListStatus(d, card, '普通 Ark API 暂无已核实的模型列表接口，请填写官方模型 ID。'); return; }
+  if (!d.api.key.trim()) { modelListStatus(d, card, '请先填写 API Key；尚未发送模型列表请求。'); return; }
+  card.modelListStatus = '';
+  if (!trustTarget(d, text => { card.modelListStatus = text; })) { modelListStatus(d, card, card.modelListStatus || '目标地址尚未确认，未发送模型列表请求。'); return; }
   d.busy = true; d.controller = new AbortController(); render();
   try {
     card.models = await listModels({ config: { ...d.api }, signal: d.controller.signal });
     if (get() === d) subMenu = `models:${card.id}`;
-  } catch (e) { status(d, errorText(e), 'error'); }
-  finally { d.busy = false; d.controller = null; if (get() === d) render(true); }
+  } catch (e) { card.modelListStatus = errorText(e); }
+  finally { d.busy = false; d.controller = null; if (get() === d) { render(); if (subMenu === `models:${card.id}`) focusFloatingMenu(); } }
 }
 async function send() {
   const d = get(); if (!d) return { status: 'not-sent', reason: 'select-workspace' };
@@ -379,7 +402,7 @@ app.addEventListener('click', async e => {
     case 'new-card': addCard(el.dataset.kind); break;
     case 'size-toggle': sizeOpen = !sizeOpen; plusOpen = false; subMenu = ''; render(); if (sizeOpen) focusFloatingMenu(); break;
     case 'set-image-options': if (matrixSupported(d) && getImageCapabilities(d.api).ratios.some(x => x.ratio === el.dataset.ratio) && getImageCapabilities(d.api).sizes.includes(el.dataset.imageSize)) { const scroll = app.querySelector('.matrix-scroll')?.scrollTop || 0; d.aspectRatio = el.dataset.ratio; d.imageSize = el.dataset.imageSize; render(); app.querySelector('.matrix-scroll').scrollTop = scroll; } break;
-    case 'supplier': subMenu = subMenu === `supplier:${card.id}` ? '' : `supplier:${card.id}`; render(); break;
+    case 'supplier': plusOpen = sizeOpen = false; subMenu = subMenu === `supplier:${card.id}` ? '' : `supplier:${card.id}`; render(); if (subMenu) focusFloatingMenu(); break;
     case 'choose-supplier': {
       const p = providers[Number(el.dataset.index)];
       const sameProviderTarget = d.api.protocol === p.protocol && (sameEndpoint(d.api.url, p.url) || (!p.url && d.api.supplier === p.name));
@@ -390,7 +413,7 @@ app.addEventListener('click', async e => {
         card.models = []; syncLogSecrets();
         if (page === 'image') resetImageOptions(d, true);
       } else d.api.supplier = p.name;
-      subMenu = ''; render(); break;
+      card.modelListStatus = ''; subMenu = ''; render(); break;
     }
     case 'toggle-key': card.showKey = !card.showKey; render(); break;
     case 'trust-target': trustTarget(d); render(); break;
@@ -417,6 +440,11 @@ function updateField(e) {
   if (card.kind === 'api') {
     const changed = d.api[key] !== t.value;
     d.api[key] = t.value;
+    if (changed) {
+      card.modelListStatus = '';
+      const modelStatus = app.querySelector(`#models-status${id}`);
+      if (modelStatus) modelStatus.textContent = '';
+    }
     if (changed && ['url','protocol'].includes(key)) {
       archiveWorkspaceKey(d);
       d.api.trustedTarget = ''; d.api.key = ''; card.models = [];
@@ -446,7 +474,7 @@ app.addEventListener('input', updateField);
 app.addEventListener('change', e => { updateField(e); if (e.target.dataset?.key === 'key') archiveWorkspaceKey(get()); if (e.target.tagName === 'SELECT') render(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && (plusOpen || sizeOpen)) { e.preventDefault(); dismissFloatingMenu(true); }
-  else if (e.key === 'Escape' && subMenu) { e.preventDefault(); closeMenus(); render(); }
+  else if (e.key === 'Escape' && subMenu) { e.preventDefault(); dismissFloatingMenu(true); }
   if (e.target.id === 'draft' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); }
 });
 subscribeNetworkLogs(() => {

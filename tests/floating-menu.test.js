@@ -25,3 +25,14 @@ test('menus leave measured composer and support native top layer with portal fal
  const render=source.slice(source.indexOf('function render(scrollEnd'));
  assert.ok(render.indexOf('mountFloatingMenu();')<render.indexOf('syncFloatingNavigation();'));
 });
+
+test('settings menus prefer below the complete input row and use bounded fallback',()=>{
+ const below=context.settingsMenuBounds({top:100,bottom:160},300,{top:0,height:800},80);
+ assert.equal(below.top,168);assert.ok(below.maxHeight>=300);
+ const above=context.settingsMenuBounds({top:700,bottom:760},300,{top:0,height:800},80);
+ assert.ok(above.top+300<700);
+ assert.match(source,/anchor.closest\('\.fieldrow'\)/);
+ assert.match(source,/settings \? rect.width/);
+ assert.match(source,/data-floating-menu="supplier" data-menu-card/);
+ assert.match(source,/data-floating-menu="pull-models" data-menu-card/);
+});
