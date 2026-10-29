@@ -320,10 +320,16 @@ function reasoningQuickMarkup(d) {
   const values=mode?.values || [...new Set([...(mode?.specialValues||[]),...(d.model.reasoningBudget!==undefined?[d.model.reasoningBudget]:[])].map(String))].map(value=>({value,label:value==='-1'?'动态':value==='0'?'关闭':String(value)}));
   return `<section class="reasoning-menu reasoning-quick" data-floating-menu="reasoning-toggle" role="menu" aria-label="思考强度"><button type="button" role="menuitemradio" aria-checked="${!current}" data-action="reasoning-quick" data-value="">不指定</button>${values.map(v=>`<button type="button" role="menuitemradio" aria-checked="${current?.template===mode.id && String(current.value)===String(v.value)}" data-action="reasoning-quick" data-template="${esc(mode.id)}" data-value="${esc(v.value)}">${esc(v.label||v.value)}</button>`).join('')}${mode?.kind==='number'?`<div class="reasoning-budget-row"><input type="number" id="reasoning-quick-budget" aria-label="思考预算 Token" placeholder="Token" min="${mode.min}" max="${mode.max}" step="1" value="${esc(d.model.reasoningBudget??'')}"><button type="button" data-action="reasoning-budget-apply">确定</button></div>`:''}</section>`;
 }
+function reasoningCurrentLabel(d) {
+  const current=d.model.reasoning;if(!current)return '不指定';
+  const mode=selectedReasoningMode(d);
+  if(mode?.kind==='number'){if(mode.specialValues?.includes(Number(current.value)) && Number(current.value)===-1)return '动态';if(Number(current.value)===0)return '关闭';return `${current.value} Token`;}
+  return mode?.values?.find(v=>String(v.value)===String(current.value))?.label || String(current.value);
+}
 function reasoningMarkup() {
-  const d=get(), open=subMenu==='reasoning', current=d.model.reasoning;
+  const d=get(), open=subMenu==='reasoning', current=d.model.reasoning, label=reasoningCurrentLabel(d);
   const picker=open ? reasoningAnchorId===null ? reasoningQuickMarkup(d) : `<section class="reasoning-menu reasoning-family-list" data-floating-menu="reasoning-toggle" data-menu-card="${reasoningAnchorId}" role="menu" aria-label="思考模板">${REASONING_FAMILIES.map(f=>`<button type="button" role="menuitemradio" aria-checked="${selectedReasoningFamily(d)===f.id}" data-action="reasoning-family" data-family="${f.id}">${f.label}</button>`).join('')}</section>` : '';
-  return `<div class="reasoning-control"><button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度${current?'，已指定':'，不指定'}" aria-haspopup="menu" aria-expanded="${open&&reasoningAnchorId===null}" ${d.busy?'disabled':''}>思考${current?' · 已设':''}</button>${picker}</div>`;
+  return `<div class="reasoning-control"><button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度：${esc(label)}" aria-haspopup="menu" aria-expanded="${open&&reasoningAnchorId===null}" ${d.busy?'disabled':''}>${esc(label)}</button>${picker}</div>`;
 }
 function resetImageOptions(d, force = false) {
   const cap = getImageCapabilities(d.api); if (!cap) return;
@@ -343,6 +349,9 @@ function sameEndpoint(left, right) {
 }
 function apiTrustText(config) { return config.key.trim() ? '发送或拉取时使用上方配置 · 密钥仅在内存' : '请填写密钥 · 密钥仅在内存'; }
 function refreshApiStatus(d, cardId) {
+  const reasoningButton=app.querySelector('[data-action="reasoning-toggle"]:not([data-id])');
+  if(reasoningButton){const label=reasoningCurrentLabel(d);reasoningButton.textContent=label;reasoningButton.setAttribute('aria-label',`思考强度：${label}`);}
+
   // Update only status nodes: never replace an input while the user is typing.
   const trustLabel = app.querySelector(`#api-trust${cardId}`);
   if (trustLabel) trustLabel.textContent = apiTrustText(d.api);

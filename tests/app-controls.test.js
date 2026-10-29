@@ -576,3 +576,13 @@ test('historical unselected custom family does not inherit a later official prov
  ui.addCard('api');await ui.click({action:'choose-supplier',id:String(d.messages.at(-1).id),index:'0'});
  assert.equal(old.values.reasoningFamily,null);assert.match(ui.app.innerHTML,new RegExp('id="reasoning-model'+old.id+'"[^>]*>选择模板</button>'));
 });
+
+test('composer reasoning label shows current value, unset and budget without generic set marker',async()=>{
+ const ui=mount(),{d,card}=configure(ui);d.api.protocol='openai';d.api.url='https://api.deepseek.com';d.api.model='deepseek-flash';ui.render();
+ assert.match(ui.app.innerHTML,/aria-label="思考强度：不指定"/);
+ await ui.click({action:'reasoning-quick',template:'deepseek-effort',value:'high'});assert.match(ui.app.innerHTML,/aria-label="思考强度：high"/);assert.doesNotMatch(ui.app.innerHTML,/已设/);
+ await ui.click({action:'reasoning-quick',value:''});assert.match(ui.app.innerHTML,/aria-label="思考强度：不指定"/);
+ d.api.protocol='gemini';d.api.url=core.GEMINI_ENDPOINT;d.api.model='gemini-2.5-flash';d.model.reasoning={template:'gemini-budget',value:1024};ui.render();assert.match(ui.app.innerHTML,/aria-label="思考强度：1024 Token"/);
+ d.model.reasoning.value=-1;ui.render();assert.match(ui.app.innerHTML,/aria-label="思考强度：动态"/);d.model.reasoning.value=0;ui.render();assert.match(ui.app.innerHTML,/aria-label="思考强度：关闭"/);
+ await ui.click({action:'choose-supplier',id:String(card.id),index:'7'});assert.match(ui.app.innerHTML,/aria-label="思考强度：不指定"/);
+});
