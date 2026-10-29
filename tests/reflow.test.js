@@ -24,3 +24,10 @@ test('manual browser harness is separate from production and labels synthetic sc
  assert.match(h,/QA network disabled/);assert.match(h,/synthetic display fixtures/);
  const build=await readFile(new URL('../scripts/build.mjs',import.meta.url),'utf8');assert.doesNotMatch(build,/reflow\.html/);
 });
+
+test('usage indicators share a flex row and wrap only under width pressure',()=>{
+ const rules=css.slice(css.indexOf('/* Content-driven reflow:'));
+ assert.match(rules,/\.compose-metrics\{flex-wrap:wrap;white-space:normal/);
+ assert.match(rules,/\.compose-metrics span,\.compose-metrics span:first-child\{flex:0 1 auto/);
+ assert.doesNotMatch(rules,/\.compose-metrics span:first-child\{flex-basis:100%/);
+});

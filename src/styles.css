@@ -39,7 +39,6 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 .size-btn svg{flex-shrink:0}
 .compose-metrics{flex-wrap:wrap;white-space:normal;overflow:visible;gap:6px 18px}
 .compose-metrics span,.compose-metrics span:first-child{flex:0 1 auto;min-width:0;max-width:100%;overflow:visible;text-overflow:clip}
-.compose-metrics span:first-child{flex-basis:100%}
 .right-actions .menu-wrap{position:static}
 .size-menu{right:0;max-width:calc(100vw - 48px);max-height:70dvh;overflow:auto}
 .matrix-scroll{max-height:45dvh}
