@@ -1,3 +1,4 @@
+import { reasoningBody } from './reasoning.js';
 import { collectTextStream } from './stream.js';
 import { attachmentParts, attachmentMetadata } from './attachments.js';
 import { usageFrom } from './usage.js';
@@ -239,6 +240,9 @@ export async function generateText({config, messages, settings = {}, tools = [],
     body = {model,messages:history,stream:typeof onDelta === 'function',...(onDelta ? {stream_options:{include_usage:true}} : {}),...generation};
     if (tools.length) body.tools = tools.map(tool => ({type:'function',function:tool}));
   }
+  let thinkingControls;try {thinkingControls=reasoningBody(config,settings.reasoning,settings);}catch(error){fail('REASONING_SETTINGS',error.message);}
+  if (thinkingControls.generationConfig) body.generationConfig = {...body.generationConfig,...thinkingControls.generationConfig};
+  else Object.assign(body,thinkingControls);
   if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 16 * 1024 * 1024) fail('ATTACHMENT_LIMIT','对话附件累计过大，请清空对话后重新添加。');
   const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : '/chat/completions', {body,signal,fetchImpl,onDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
   if (config.protocol === 'gemini') {

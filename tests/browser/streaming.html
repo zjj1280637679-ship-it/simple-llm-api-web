@@ -25,7 +25,7 @@ view.onload=()=>{view.contentWindow.fetch=async(url,options={})=>{
 };};
 document.querySelector('#setup').onclick=()=>{const d=view.contentDocument,w=view.contentWindow;d.querySelector('[data-action="tab"][data-tab="chat"]').click();d.querySelector('[data-action=plus]').click();d.querySelector('[data-action=new-card][data-kind=api]').click();
  const protocol=document.querySelector('#protocol').value;
- d.querySelector('fieldset:not([disabled]) [data-action=supplier]').click();d.querySelector('[data-action=choose-supplier][data-index=+({gemini:2,openai:3,ark:4,anthropic:7})[protocol]+]').click();
+ d.querySelector('fieldset:not([disabled]) [data-action=supplier]').click();d.querySelector('[data-action=choose-supplier][data-index="'+({gemini:2,openai:3,ark:4,anthropic:7})[protocol]+'"]').click();
  for(const [key,value]of Object.entries({url:protocol==='gemini'&&document.querySelector('#official-usage').checked?'https://generativelanguage.googleapis.com/v1beta':'https://api.example.com/v1',key:'SYNTHETIC-NOT-A-REAL-KEY',model:'fixture-model'})){const n=d.querySelector('fieldset:not([disabled]) [data-key='+key+']');n.value=value;n.dispatchEvent(new w.Event('input',{bubbles:true}));}
  const input=d.querySelector('#draft');input.value='请用五段展示真实增量输出，第 '+(sent+1)+' 轮';input.dispatchEvent(new w.Event('input',{bubbles:true}));d.querySelector('[data-action=send]').click();
 };

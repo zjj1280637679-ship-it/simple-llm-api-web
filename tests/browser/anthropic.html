@@ -10,10 +10,7 @@ view.onload=()=>{view.contentWindow.fetch=async(url,options={})=>{
  report.textContent=JSON.stringify({synthetic:true,outboundNetwork:false,calls,path:new URL(url).pathname,method:options.method,model:body.model,historyCount:body.messages?.length,stream:body.stream,maxTokens:body.max_tokens},null,2);
  if(mode==='error')return new Response('{}',{status:401});
  if(!options.method||options.method==='GET')return Response.json({data:[{id:'claude-synthetic',display_name:'Synthetic model'}],has_more:false});
- const frame=e=>new TextEncoder().encode('event: '+e.type+'
-data: '+JSON.stringify(e)+'
-
-');let timer;
+ const frame=e=>new TextEncoder().encode('event: '+e.type+'\ndata: '+JSON.stringify(e)+'\n\n');let timer;
  return new Response(new ReadableStream({start(c){
   c.enqueue(frame({type:'message_start',message:{id:'synthetic',type:'message',role:'assistant',content:[],usage:{input_tokens:12,output_tokens:0}}}));
   if(mode==='wait')return;

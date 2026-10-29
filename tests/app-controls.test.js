@@ -1,3 +1,4 @@
+import * as reasoning from '../src/reasoning.js';
 import * as attachments from '../src/attachments.js';
 import { usageMetricsMarkup } from '../src/usage.js';
 import test from 'node:test';
@@ -34,7 +35,7 @@ function mount({ confirm = () => true, runConversation, dispatchCommand, listMod
   const document = { getElementById: () => app, addEventListener: () => {}, activeElement: null };
   const neverFetch = () => assert.fail('No network may run in control regressions.');
   const context = {
-    ...core, ...logs, ...attachments, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
+    ...core, ...logs, ...attachments, ...reasoning, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
     renderNetworkLogs: container => { if (container) container.textContent = logs.exportNetworkLogs(); },
     URL, Blob, Uint8Array, atob, AbortController, performance, setTimeout, clearTimeout, setInterval, clearInterval,
     runConversation: runConversation || neverFetch, listModels: listModels || neverFetch, dispatchCommand: dispatchCommand || neverFetch
@@ -490,4 +491,39 @@ test('manual endpoint edits remove misleading official supplier identity',()=>{
  assert.doesNotMatch(ui.app.innerHTML,/>Google Gemini<\/button>/);
  ui.input({value:core.GEMINI_ENDPOINT,dataset:{card:String(card.id),key:'url'}});
  assert.equal(d.api.supplier,'Google Gemini');
+});
+
+test('reasoning defaults to omitted and draft template changes do not apply until explicit apply', async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='custom-model';ui.render();
+ assert.equal(d.model.reasoning,undefined);
+ assert.match(ui.app.innerHTML,/data-action="reasoning-toggle"/);
+ await ui.click({action:'reasoning-toggle'});
+ await ui.click({action:'reasoning-template',template:'openai-effort'});
+ await ui.click({action:'reasoning-value',value:'high'});
+ assert.equal(d.model.reasoning,undefined);
+ await ui.click({action:'tab',tab:'image'});await ui.click({action:'tab',tab:'chat'});
+ assert.equal(d.model.reasoning,undefined);
+ await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-template',template:'openai-effort'});await ui.click({action:'reasoning-value',value:'high'});await ui.click({action:'reasoning-apply'});
+ assert.equal(d.model.reasoning.template,'openai-effort');assert.equal(d.model.reasoning.value,'high');
+ await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-template',template:''});await ui.click({action:'reasoning-apply'});
+ assert.equal(d.model.reasoning,undefined);
+});
+test('reasoning incompatible protocol selection is cleared when changing supplier',async()=>{
+ const ui=mount(),{d,card}=configure(ui);d.model.reasoning={template:'openai-effort',value:'high'};
+ await ui.click({action:'choose-supplier',id:String(card.id),index:'7'});
+ assert.equal(d.api.protocol,'anthropic');assert.equal(d.model.reasoning,undefined);
+});
+
+test('clearing a reasoning budget is not coerced into zero or applied',async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.model='gemini-2.5-flash';
+ await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-template',template:'gemini-budget'});
+ ui.app.querySelector('#reasoning-budget').value='';
+ await ui.click({action:'reasoning-apply'});
+ assert.equal(d.model.reasoning,undefined);assert.match(ui.app.innerHTML,/请输入思考预算/);
+});
+test('session approval rejects in-place reasoning value changes before dispatch',async()=>{
+ let calls=0;const ui=mount({runConversation:async()=>{calls++;return {text:'no',history:[]}}}),{d}=configure(ui);
+ d.draft='test';d.model.reasoning={template:'gemini-budget',value:1024};
+ const pending=ui.session.execute({command:'request.send',args:{}});d.model.reasoning.value=2048;
+ const result=await pending;assert.equal(calls,0);assert.equal(result.result.reason,'changed-after-confirmation');
 });

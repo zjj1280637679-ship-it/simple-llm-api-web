@@ -84,3 +84,14 @@ test('navigation uses concise visible and accessible labels without changing rou
  assert.doesNotMatch(html,/图片生成|通讯日志/);
  assert.match(html,/role="tab" aria-selected="true"[^>]*data-tab="image"/);
 });
+
+test('reasoning choice focus retains template and value identity across render',()=>{
+ const block=source.slice(source.indexOf('function captureControlFocus()'),source.indexOf('function render(scrollEnd'));
+ for(const [action,key,value]of [['reasoning-template','template','openai-effort'],['reasoning-value','value','high']]){
+  let focused=false;const active={tagName:'BUTTON',dataset:{action,[key]:value}};
+  const wrong={dataset:{action,[key]:'first'},focus:()=>assert.fail('Wrong reasoning choice')};
+  const right={dataset:{action,[key]:value},focus:()=>focused=true};
+  const context={recordScrollDiagnostic:()=>{},document:{activeElement:active},app:{contains:()=>true,querySelectorAll:()=>[wrong,right]}};
+  vm.createContext(context);vm.runInContext(block+'\nrestoreControlFocus(captureControlFocus());',context);assert.equal(focused,true);
+ }
+});

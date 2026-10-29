@@ -1,3 +1,4 @@
+import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody } from './reasoning.js';
 import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
 import { usageMetricsMarkup } from './usage.js';
 import { icon } from './icons.js';
@@ -237,7 +238,7 @@ function positionFloatingMenu() {
 }
 function mountFloatingMenu() {
   floatingMenuObserver?.disconnect();
-  const menu = app.querySelector('.plus-menu,.size-menu,.inline-list');
+  const menu = app.querySelector('.plus-menu,.size-menu,.inline-list,.reasoning-menu');
   if (!menu) return;
   if (!menu.dataset.floatingMenu) menu.dataset.floatingMenu = menu.classList.contains('plus-menu') ? 'plus' : 'size-toggle';
   menu.classList.add('floating-menu');
@@ -269,7 +270,7 @@ window.visualViewport?.addEventListener('resize', positionFloatingMenu);
 window.visualViewport?.addEventListener('scroll', positionFloatingMenu);
 document.addEventListener('pointerdown', event => {
   const menu = app.querySelector('[data-floating-menu]');
-  if (!menu || menu.contains(event.target) || event.target.closest?.('[data-action="plus"],[data-action="size-toggle"],[data-action="supplier"],[data-action="pull-models"]')) return;
+  if (!menu || menu.contains(event.target) || event.target.closest?.('[data-action="plus"],[data-action="size-toggle"],[data-action="supplier"],[data-action="pull-models"],[data-action="reasoning-toggle"]')) return;
   dismissFloatingMenu();
 });
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -291,6 +292,7 @@ const makePage = type => ({
 });
 const data = { chat: makePage('chat'), image: makePage('image') };
 let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
+let reasoningDraft = null, reasoningError = '';
 const get = () => data[page];
 function syncLogSecrets() { updateActiveLogSecrets(Object.values(data).map(d => d.api.key)); }
 function archiveWorkspaceKey(d) { if (d) setLogSecrets([d.api.key]); }
@@ -298,6 +300,18 @@ const activeCardId = d => d.messages.findLast(m => m.type === 'card')?.id;
 const getCard = id => get()?.messages.find(m => m.id === id && m.type === 'card');
 const matrixSupported = d => Boolean(getImageCapabilities(d.api));
 function selectedPixels(d, ratio, size) { return getImageCapabilities(d.api)?.ratios.find(item => item.ratio === ratio)?.pixelsBySize[size]?.join('×') || ''; }
+function clearIncompatibleReasoning(d) {
+  if (!d?.model.reasoning) return;
+  try { reasoningBody(d.api, d.model.reasoning, d.model); }
+  catch { delete d.model.reasoning; }
+}
+function reasoningMarkup() {
+  const d=get(), templates=getReasoningTemplates(d.api), selected=d.model.reasoning;
+  const open=subMenu==='reasoning';
+  const chosen=templates.find(t=>t.id===reasoningDraft?.template);
+  const recommendation=getRecommendedReasoningTemplate(d.api);
+  return `<div class="reasoning-control"><button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度${selected?'，已指定':'，不指定'}" aria-haspopup="dialog" aria-expanded="${open}" ${d.busy?'disabled':''}>思考${selected?' · 已设':''}</button>${open?`<section class="reasoning-menu" data-floating-menu="reasoning-toggle" role="dialog" aria-label="思考强度"><h3>思考强度</h3><p>默认不指定，不发送思考参数。${recommendation?'已识别官方模型模板。':'未知模型或自定义地址，请按上游文档选择模板。'}</p><button type="button" data-action="reasoning-template" data-template="" aria-pressed="${!reasoningDraft?.template}">不指定</button><div class="reasoning-templates">${templates.map(t=>`<button type="button" data-action="reasoning-template" data-template="${esc(t.id)}" aria-pressed="${reasoningDraft?.template===t.id}">${esc(t.label)}${recommendation===t.id?' · 推荐':''}</button>`).join('')}</div>${chosen?`<p>${esc(chosen.note||'参数按所选模板发送；兼容网关的实际支持由上游决定。')}</p>${chosen.values?.length?`<div class="reasoning-values">${chosen.values.map(v=>`<button type="button" data-action="reasoning-value" data-value="${esc(v.value)}" aria-pressed="${String(reasoningDraft.value)===String(v.value)}">${esc(v.label||v.value)}</button>`).join('')}</div>`:`${chosen.specialValues?.length?`<div class="reasoning-values">${chosen.specialValues.map(v=>`<button type="button" data-action="reasoning-value" data-value="${v}">${v===-1?'动态预算 (-1)':v===0?'关闭 (0)':v}</button>`).join('')}</div>`:''}<label for="reasoning-budget">思考预算（Token）</label><input type="number" id="reasoning-budget" min="${chosen.min??0}" max="${chosen.max??1000000}" step="${chosen.step??1}" value="${esc(reasoningDraft.value??'')}">`}`:''}<p role="status">${esc(reasoningError)}</p><div class="reasoning-footer"><button type="button" data-action="reasoning-cancel">取消</button><button type="button" data-action="reasoning-apply">应用</button></div></section>`:''}</div>`;
+}
 function resetImageOptions(d, force = false) {
   const cap = getImageCapabilities(d.api); if (!cap) return;
   if (force || !cap.ratios.some(item => item.ratio === d.aspectRatio)) d.aspectRatio = cap.defaultRatio;
@@ -424,7 +438,7 @@ function renderLogsPage() {
 function captureControlFocus() {
   const active = document.activeElement;
   if (active?.tagName !== 'BUTTON' || !app.contains(active) || !active.dataset.action) return null;
-  return Object.fromEntries(['action','tab','ratio','imageSize','id','kind','card']
+  return Object.fromEntries(['action','tab','ratio','imageSize','id','kind','card','template','value']
     .filter(key => active.dataset[key] !== undefined).map(key => [key, active.dataset[key]]));
 }
 function restoreControlFocus(identity) {
@@ -463,7 +477,7 @@ function render(scrollEnd = false) {
   const focusIdentity = captureControlFocus();
   if (page === 'logs') { renderLogsPage(); restoreViewPosition(scrollEnd); restoreControlFocus(focusIdentity); return; }
   const d = get();
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message">'+loadingMarkup(d)+'</div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message">'+loadingMarkup(d)+'</div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : reasoningMarkup()}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
   recordScrollDiagnostic('render-dom-replaced');
   mountFloatingMenu();
   syncFloatingNavigation();
@@ -663,6 +677,28 @@ app.addEventListener('click', async e => {
   if (['supplier','choose-supplier','pull-models','choose-model','toggle-key'].includes(action) && (!d || card?.id !== activeCardId(d))) return;
   switch (action) {
     case 'tab': if(el.dataset.tab === 'logs')freezeScrollReport(); page = el.dataset.tab; closeMenus(); render(); break;
+    case 'reasoning-toggle': {
+      const open=subMenu!=='reasoning';closeMenus();
+      if(open){reasoningDraft=d.model.reasoning?{...d.model.reasoning}:null;reasoningError='';subMenu='reasoning';}
+      render();if(open)focusFloatingMenu();break;
+    }
+    case 'reasoning-template': {
+      const t=getReasoningTemplates(d.api).find(t=>t.id===el.dataset.template);
+      reasoningDraft=t?{template:t.id,value:t.defaultValue??t.values?.[0]?.value??t.min??0}:null;
+      reasoningError='';render();break;
+    }
+    case 'reasoning-value': reasoningDraft={...reasoningDraft,value:el.dataset.value};reasoningError='';render();break;
+    case 'reasoning-cancel': dismissFloatingMenu(true);break;
+    case 'reasoning-apply': {
+      try {
+        const budget=app.querySelector('#reasoning-budget');
+        if(budget && reasoningDraft){if(budget.value.trim()==='')throw new AppError('REASONING_SETTINGS','请输入思考预算，或选择不指定。');reasoningDraft.value=budget.value;}
+        reasoningBody(d.api,reasoningDraft,d.model);
+        if(reasoningDraft)d.model.reasoning={...reasoningDraft};else delete d.model.reasoning;
+        closeMenus();render();app.querySelector('[data-action="reasoning-toggle"]')?.focus({preventScroll:true});
+      } catch(error){reasoningError=error?.code==='REASONING_SETTINGS'?error.message:errorText(error);render();}
+      break;
+    }
     case 'plus': plusOpen = !plusOpen; sizeOpen = false; subMenu = ''; render(); if (plusOpen) focusFloatingMenu(); break;
     case 'attach': selectAttachments(el.dataset.kind); break;
     case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;render();break;
@@ -683,11 +719,11 @@ app.addEventListener('click', async e => {
         card.models = []; syncLogSecrets();
         if (page === 'image') resetImageOptions(d, true);
       } else d.api.supplier = p.name;
-      card.modelListStatus = ''; subMenu = ''; render(); break;
+      clearIncompatibleReasoning(d);card.modelListStatus = ''; subMenu = ''; render(); break;
     }
     case 'toggle-key': card.showKey = !card.showKey; render(); break;
     case 'pull-models': await pullModels(card); break;
-    case 'choose-model': d.api.model = el.dataset.model; if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
+    case 'choose-model': d.api.model = el.dataset.model; clearIncompatibleReasoning(d); if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
     case 'send': await send(); break;
     case 'cancel': d.controller?.abort(); break;
     case 'copy-scroll-diagnostics': {
@@ -715,6 +751,7 @@ function updateField(e) {
   resizeSettingField(t);
   if (!d) return;
   if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); return; }
+  if(t.id==='reasoning-budget'){if(reasoningDraft)reasoningDraft.value=t.value;return;}
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
   if (card.kind === 'api') {
@@ -735,6 +772,7 @@ function updateField(e) {
     }
     // No API-key snapshots anywhere in the message list.
     if (key !== 'key') card.values[key] = t.value;
+    if(changed && ['url','protocol','model'].includes(key))clearIncompatibleReasoning(d);
     syncLogSecrets();
     if (page === 'image') resetImageOptions(d);
     refreshApiStatus(d, id);
@@ -785,7 +823,7 @@ function publicSessionState() {
 let approvedSessionRequest = null;
 function sessionRequestSnapshot() {
   const d = get();
-  return d ? { page, draft: d.draft, attachments: d.attachments.map(a=>a.id), api: { ...d.api }, settings: { ...d.model }, aspectRatio: d.aspectRatio, imageSize: d.imageSize } : null;
+  return d ? { page, draft: d.draft, attachments: d.attachments.map(a=>a.id), api: { ...d.api }, settings: { ...d.model, ...(d.model.reasoning ? {reasoning:{...d.model.reasoning}} : {}) }, aspectRatio: d.aspectRatio, imageSize: d.imageSize } : null;
 }
 const pageSession = createPageSession({
   state: publicSessionState,
@@ -801,6 +839,7 @@ const pageSession = createPageSession({
       options = normalizeImageOptions(api, { aspectRatio: args.aspectRatio ?? d.aspectRatio, imageSize: args.imageSize ?? d.imageSize });
     }
     d.api = api;
+    clearIncompatibleReasoning(d);
     for (const key of ['output', 'temperature', 'topP']) if (args[key] !== undefined) d.model[key] = args[key];
     if (options) { d.aspectRatio = options.aspectRatio; d.imageSize = options.imageSize; }
     if (page === 'image') resetImageOptions(d);
