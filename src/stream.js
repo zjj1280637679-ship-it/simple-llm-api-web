@@ -4,14 +4,19 @@ export async function readSSE(response, { signal, onEvent, error }) {
   const type = response.headers?.get?.('content-type');
   if (type && !type.toLowerCase().includes('text/event-stream')) throw error('STREAM_UNSUPPORTED', '供应商未返回 SSE 流；未自动切换或重试。');
   const reader = response.body.getReader(), decoder = new TextDecoder();
-  let buffer = '', data = [], event = '', done = false;
+  let buffer = '', data = [], event = '', done = false, frameBytes = 0;
+  const maxFrameBytes = 8 * 1024 * 1024, encoder = new TextEncoder();
+  const budget = bytes => { if (bytes > maxFrameBytes) throw error('STREAM_FORMAT','流式数据帧过大。'); };
   const abort = () => { reader.cancel().catch(() => {}); };
   signal?.addEventListener('abort', abort, {once:true});
   const check = () => { if (signal?.aborted) throw error('CANCELLED', '请求已取消；已到达供应商的请求仍可能产生费用。'); };
   function line(value) {
+    // Check before storing or dispatching, including a complete frame in one read.
+    frameBytes += encoder.encode(value).byteLength + 1;
+    budget(frameBytes);
     if (!value) {
       if (data.length) { check(); const value = data.join('\n'); data = []; if (onEvent(value, event) === false) done = true; }
-      event = ''; return;
+      event = ''; frameBytes = 0; return;
     }
     if (value.startsWith(':')) return;
     const colon = value.indexOf(':');
@@ -31,7 +36,7 @@ export async function readSSE(response, { signal, onEvent, error }) {
       const value = buffer.slice(0,i); buffer = buffer.slice(i+length); line(value);
       if (done) break;
     }
-    if (buffer.length > 8 * 1024 * 1024 || data.join('\n').length > 8 * 1024 * 1024) throw error('STREAM_FORMAT','流式数据帧过大。');
+    if (!done) { budget(frameBytes + buffer.length); budget(frameBytes + encoder.encode(buffer).byteLength); }
   }
   try {
     check();

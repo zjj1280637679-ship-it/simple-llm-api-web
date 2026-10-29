@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { generateText } from '../src/core.js';
+import { readSSE } from '../src/stream.js';
 import { runConversation } from '../src/agent.js';
 const config = protocol => ({protocol,url:'https://api.example.com/v1',trustedTarget:'https://api.example.com/v1',key:'synthetic-key',model:'fixture'});
 const messages = [{role:'user',content:'hi'}];
@@ -74,4 +75,23 @@ test('HTTP failures retain status; non-SSE is not silently buffered/retried',asy
 test('SSE comments, multiline data, LF, lone CR and final unterminated frame',async()=>{
  const source=': ping\r\nevent: message\r\ndata: {"choices":\r\ndata: [{"index":0,"delta":{"content":"ok"},"finish_reason":"stop"}]}\r\n\r\ndata: [DONE]';
  const result=await generateText({config:config('openai'),messages,onDelta:()=>{},fetchImpl:async()=>new Response(source,{headers:{'content-type':'text/event-stream'}})});assert.equal(result.text,'ok');
+});
+
+for (const [name, source] of [
+ ['single complete oversized frame', 'data: '+ 'x'.repeat(8*1024*1024+1)+'\n\n'],
+ ['multiline aggregate oversized frame', ('data: '+'x'.repeat(1024*1024)+'\n').repeat(9)+'\n'],
+ ['UTF8 byte oversized frame', 'data: '+'你'.repeat(3*1024*1024)+'\n\n'],
+]) test(`SSE frame budget rejects ${name} before dispatch`, async()=>{
+ let dispatched=false;
+ await assert.rejects(readSSE(new Response(source,{headers:{'content-type':'text/event-stream'}}),{
+  onEvent:()=>{dispatched=true},error:(code,message)=>Object.assign(new Error(message),{code}),
+ }),{code:'STREAM_FORMAT'});
+ assert.equal(dispatched,false);
+});
+test('SSE frame budget resets for individually bounded events in one chunk',async()=>{
+ let count=0;
+ await readSSE(new Response(('data: '+'x'.repeat(1024*1024)+'\n\n').repeat(9),{headers:{'content-type':'text/event-stream'}}),{
+  onEvent:()=>{count++},error:(code,message)=>Object.assign(new Error(message),{code}),
+ });
+ assert.equal(count,9);
 });
