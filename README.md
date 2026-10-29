@@ -33,7 +33,7 @@ node cli.mjs --help
 
 默认面向 **Google AI Studio 的 Gemini API Key 和免费项目**，不要求信用卡，不会开启 Billing，也不使用 Google AI Pro 赠金。先在你自己的 [Google AI Studio](https://aistudio.google.com/) 取得 API Key，在「对话」页使用默认 `gemini-flash-lite-latest`，免费使用仍受账号/地区支持与项目额度限制；是否有可用免费额度以 AI Studio 显示为准。
 
-图片的 `gemini-nano-banana-2.1` 必须有该项目实际可用的图片配额。本次检查环境的图片配额为 0，**没有进行真实图片调用**；这里不会引导你绑卡或自动转为付费。网页在每次实际图片调用前确认的是“可能消耗 API 额度”，不是承诺免费可调用。
+图片的 `gemini-nano-banana-2.1` 必须有该项目实际可用的图片配额。本次检查环境的图片配额为 0，**没有进行 Gemini 真实图片调用**；这里不会引导你绑卡或自动转为付费。网页在每次实际图片调用前确认的是“可能消耗 API 额度”，不是承诺免费可调用。
 
 ## 火山方舟普通 API（文本＋图片）
 
@@ -45,7 +45,17 @@ node cli.mjs --help
 - 比例矩阵转成精确 `WxH`，不发送虚构 `aspect_ratio`。1.5K/2K 使用官方参考尺寸，1K 为已校验面积/比例范围的应用预设，界面明确区分。
 - 请求 `b64_json + png`，没有组图、流式或联网搜索。若上游仅返回 URL，会明确提示尚未下载、生成可能已计费；不向图片链接附加 Key、不盲目下载、不自动重试。
 
-账号权限、模型开通、余额/额度及 **浏览器 CORS 均尚待真实验证**，不能将适配或 Node 合成测试视为“已经跑通”。没有开启计费或进行真实 API 请求。官方说明的版本摘要、参数及来源已保存到 [docs/ark-api.md](docs/ark-api.md)。
+**已完成一条严格限定的真实图片验证**：2026-10-29 04:50–04:53 UTC，公开工作台对 `doubao-seedream-5-0-flash-260915` 发起一次请求，返回 HTTP 200；2048×2048 PNG（4,788,089 字节）已在网页渲染并下载。页面耗时 18.9 秒，通讯日志 18,335 ms。这证明当时该页面、账号与图片请求路径可用，**不代表所有模型或环境的 CORS/权限/额度均已验证**。
+
+文本、对话 Agent 调图、终端图片 CLI 和终端网页会话 CLI 尚未完成真实 API 闭环；它们的合成测试不能替代实际验收。详情见 [VALIDATION.md](VALIDATION.md)。官方接口集成摘要保存于 [docs/ark-api.md](docs/ark-api.md)。
+
+## 当前模型选型与凭据容器
+
+- [普通 Ark 当前模型目录](docs/ark-model-catalog.md)（[机器可读 JSON](docs/ark-model-catalog.json)）：按文本、图片、视频、杂项列出官方现售/生命周期证据与实验候选；区分推荐、代码已适配和账号实际可用，不把“最新”自动等同“最适合”。
+- [凭据容器说明](docs/credentials.md)：目标是仓库 Actions Secret `ARK_API_KEY`；语音可独立使用 `VOLC_SPEECH_API_KEY`。创建、消费和真实调用是分别验收的步骤。
+- [空环境示例](.env.example)：不含密钥，不会自动导入浏览器或 CLI。
+
+**当前 Pages 工作流不消费 `ARK_API_KEY`。** 将它存为 GitHub Secret 不会给静态网页增加安全的服务端密钥能力；不能把 Secret 编进公开站点。本文档不冒称容器已经写入，具体操作结果需另行核验。
 
 ## API 设置
 
@@ -146,6 +156,9 @@ cli.mjs                 Node CLI（同一 dispatcher）
 web-cli.mjs             真实页面命令 CLI（需要授权浏览器宿主）
 cli-mcp-transport.mjs    可选标准 MCP 传输，不自动安装或连接
 docs/ark-api.md         官方 API 来源与版本化集成摘要
+docs/ark-model-catalog.md 当前模型目录与生命周期依据
+docs/credentials.md    密钥容器、授权消费者与静态站点边界
+.env.example           空凭据字段与非秘密参考默认值
 scripts/build.mjs       仅复制 11 个生产文件到 dist
 .github/workflows/      测试通过后发布 dist 的 Pages 工作流
 design/index.html       原始交互设计，原样保留，不作为生产入口
