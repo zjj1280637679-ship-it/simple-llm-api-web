@@ -7,35 +7,54 @@ import { createPageSession } from './session.js';
 import { registerPageSessionTools } from './session-webmcp.js';
 
 const app = document.getElementById('app');
-// Measure the real floating group, including wrapping and font changes.
-// When it consumes too much of the viewport, prefer readable normal flow.
+// Measure the real floating groups, including wrapping and font changes.
+// If the combined overlays crowd the readable viewport, use normal flow.
 let navigationObserver;
+function protectFloatingFocus(target) {
+  if (!target?.getBoundingClientRect) return;
+  const nav = app.querySelector('.top'), composer = app.querySelector('.composer-area');
+  if (nav?.contains(target) || composer?.contains(target)) return;
+  const rect = target.getBoundingClientRect();
+  const floor = nav && !app.classList.contains('navigation-in-flow') ? nav.getBoundingClientRect().bottom + 12 : 0;
+  const ceiling = composer && !app.classList.contains('composer-in-flow') ? composer.getBoundingClientRect().top - 12 : window.innerHeight;
+  if (rect.top < floor) app.scrollBy({ top: rect.top - floor, behavior: 'instant' });
+  else if (rect.bottom > ceiling) app.scrollBy({ top: rect.bottom - ceiling, behavior: 'instant' });
+}
 function syncFloatingNavigation() {
   navigationObserver?.disconnect();
   const nav = app.querySelector('.top');
   if (!nav) return;
+  const composer = app.querySelector('.composer-area');
   const measure = () => {
-    const height = nav.getBoundingClientRect().height;
-    const inFlow = height > window.innerHeight / 3;
-    app.classList.toggle('navigation-in-flow', inFlow);
-    const clearance = inFlow ? 0 : Math.ceil(nav.getBoundingClientRect().bottom + 12);
-    app.style.setProperty('--navigation-clearance', `${clearance}px`);
+    const visual = window.visualViewport;
+    // Follow the keyboard-sized visual viewport, not pinch-zoom panning.
+    const keyboardViewport = visual && Math.abs((visual.scale || 1) - 1) < 0.01;
+    const viewportHeight = keyboardViewport ? visual.height : window.innerHeight;
+    const bottomInset = keyboardViewport ? Math.max(0, window.innerHeight - visual.height - visual.offsetTop) : 0;
+    app.style.setProperty('--keyboard-inset', `${Math.ceil(bottomInset)}px`);
+    const navHeight = nav.getBoundingClientRect().height;
+    const navInFlow = navHeight > viewportHeight / 3;
+    app.classList.toggle('navigation-in-flow', navInFlow);
+    const composerHeight = composer?.getBoundingClientRect().height || 0;
+    const composerInFlow = composerHeight + (navInFlow ? 0 : navHeight) > viewportHeight * 0.65;
+    app.classList.toggle('composer-in-flow', composerInFlow);
+    const top = navInFlow ? 0 : Math.ceil(nav.getBoundingClientRect().bottom + 12);
+    const bottom = !composer || composerInFlow ? 0 : Math.ceil(window.innerHeight - composer.getBoundingClientRect().top + 12);
+    app.style.setProperty('--navigation-clearance', `${top}px`);
+    app.style.setProperty('--composer-clearance', `${bottom}px`);
   };
   measure();
   if (typeof ResizeObserver === 'function') {
     navigationObserver = new ResizeObserver(measure);
     navigationObserver.observe(nav);
+    if (composer) navigationObserver.observe(composer);
   }
 }
 window.addEventListener('resize', syncFloatingNavigation);
-// Explicitly protect keyboard focus when native scroll-padding is insufficient.
-app.addEventListener('focusin', event => {
-  const nav = app.querySelector('.top');
-  if (!nav || nav.contains(event.target) || app.classList.contains('navigation-in-flow')) return;
-  const target = event.target.getBoundingClientRect();
-  const floor = nav.getBoundingClientRect().bottom + 12;
-  if (target.top < floor) app.scrollBy({ top: target.top - floor, behavior: 'instant' });
-});
+const refreshVisualViewport = () => { syncFloatingNavigation(); protectFloatingFocus(document.activeElement); };
+window.visualViewport?.addEventListener('resize', refreshVisualViewport);
+window.visualViewport?.addEventListener('scroll', refreshVisualViewport);
+app.addEventListener('focusin', event => protectFloatingFocus(event.target));
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const providers = [
   { name: 'Google Gemini', protocol: 'gemini', url: 'https://generativelanguage.googleapis.com/v1beta' },

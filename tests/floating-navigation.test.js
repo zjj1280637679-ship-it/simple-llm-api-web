@@ -7,7 +7,7 @@ const layout=source.slice(source.indexOf('// Measure the real floating group'),s
 function mount(height=60,viewport=800){
  const classes=new Set(),styles={},events={};let disconnected=0,observed=0,scroll=0;
  const nav={getBoundingClientRect:()=>({height,bottom:height+10}),contains:()=>false};
- const app={querySelector:()=>nav,classList:{toggle:(c,v)=>v?classes.add(c):classes.delete(c),contains:c=>classes.has(c)},style:{setProperty:(k,v)=>styles[k]=v},addEventListener:(k,v)=>events[k]=v,scrollBy:o=>scroll+=o.top};
+ const app={querySelector:selector=>selector==='.top'?nav:null,classList:{toggle:(c,v)=>v?classes.add(c):classes.delete(c),contains:c=>classes.has(c)},style:{setProperty:(k,v)=>styles[k]=v},addEventListener:(k,v)=>events[k]=v,scrollBy:o=>scroll+=o.top};
  const context={app,window:{innerHeight:viewport,addEventListener:()=>{}},ResizeObserver:class{observe(){observed++}disconnect(){disconnected++}},Math};
  vm.createContext(context);vm.runInContext(layout+'\nsyncFloatingNavigation();',context);
  return {context,styles,classes,events,stats:()=>({disconnected,observed,scroll})};
@@ -41,4 +41,25 @@ test('rerender restores matching enabled action focus without forcing scroll',()
 test('pending elapsed time uses the shared three-dot presentation',()=>{
  assert.ok(source.includes("d.elapsed === null ? '...'"));
  assert.ok(!source.includes("d.elapsed === null ? '—'"));
+});
+function mountComposer({height=800,composerHeight=160,visual=null}={}){
+ const classes=new Set(),styles={},observed=[],events={};let scroll=0;
+ const nav={getBoundingClientRect:()=>({height:60,top:10,bottom:70}),contains:()=>false};
+ const composer={getBoundingClientRect:()=>({height:composerHeight,top:height-composerHeight-10-parseFloat(styles['--keyboard-inset']||0)}),contains:()=>false};
+ const app={querySelector:s=>s==='.top'?nav:s==='.composer-area'?composer:null,classList:{toggle:(c,v)=>v?classes.add(c):classes.delete(c),contains:c=>classes.has(c)},style:{setProperty:(k,v)=>styles[k]=v},addEventListener:(k,v)=>events[k]=v,scrollBy:o=>scroll+=o.top};
+ const context={app,window:{innerHeight:height,visualViewport:visual,addEventListener:()=>{}},document:{activeElement:null},ResizeObserver:class{observe(el){observed.push(el)}disconnect(){}},Math};
+ vm.createContext(context);vm.runInContext(layout+'\nsyncFloatingNavigation();',context);
+ return {context,styles,classes,observed,events,scroll:()=>scroll};
+}
+test('floating composer reserves measured bottom space and observes both overlays',()=>{
+ const m=mountComposer();assert.equal(m.styles['--composer-clearance'],'182px');assert.equal(m.observed.length,2);
+ m.events.focusin({target:{getBoundingClientRect:()=>({top:650,bottom:680})}});assert.equal(m.scroll(),62);
+});
+test('combined overlay pressure sends long composer into flow and removes spacer',()=>{
+ const m=mountComposer({height:400,composerHeight:260});assert.ok(m.classes.has('composer-in-flow'));assert.equal(m.styles['--composer-clearance'],'0px');
+});
+test('keyboard viewport updates inset; pinch zoom does not masquerade as keyboard',()=>{
+ const visual={height:400,offsetTop:20,scale:1,addEventListener:()=>{}};
+ const m=mountComposer({visual});assert.equal(m.styles['--keyboard-inset'],'380px');
+ visual.scale=2;vm.runInContext('syncFloatingNavigation()',m.context);assert.equal(m.styles['--keyboard-inset'],'0px');
 });
