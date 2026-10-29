@@ -76,3 +76,11 @@ test('floating captions have no shared panel while input retains translucent pan
  assert.match(rules,/\.composer-area \.compose\{padding:12px;border:1px solid var\(--line2\);border-radius:28px;background:rgba/);
  assert.match(rules,/\.compose-metrics\{padding:8px 8px 0;background:transparent;border:0;box-shadow:none/);
 });
+test('navigation uses concise visible and accessible labels without changing route IDs',()=>{
+ const code=source.slice(source.indexOf('function tabsMarkup()'),source.indexOf('function renderLogsPage()'));
+ const context={page:'image'};vm.createContext(context);vm.runInContext(code,context);
+ const html=context.tabsMarkup();
+ for(const [id,label] of [['chat','对话'],['image','图片'],['logs','日志']]) assert.match(html,new RegExp('data-tab="'+id+'">'+label+'</button>'));
+ assert.doesNotMatch(html,/图片生成|通讯日志/);
+ assert.match(html,/role="tab" aria-selected="true"[^>]*data-tab="image"/);
+});
