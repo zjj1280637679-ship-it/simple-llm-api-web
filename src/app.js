@@ -21,9 +21,21 @@ let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
 const get = () => data[page];
 const activeCardId = d => d.messages.findLast(m => m.type === 'card')?.id;
 const getCard = id => get().messages.find(m => m.id === id && m.type === 'card');
-const matrixSupported = d => d.api.protocol === 'gemini' && d.api.model.trim() === IMAGE_MODEL;
+const matrixSupported = d => d.api.protocol === 'gemini' && d.api.model.trim().replace(/^models\//, '') === IMAGE_MODEL;
 const isConfigured = d => Boolean(d.api.key.trim() && d.api.model.trim() && trusted(d.api));
 function trusted(config) { try { return config.trustedTarget === canonicalEndpoint(config.url); } catch { return false; } }
+function sameEndpoint(left, right) {
+  try { return canonicalEndpoint(left) === canonicalEndpoint(right); } catch { return left === right; }
+}
+function apiStatusMarkup(d) { return `<span class="dot ${isConfigured(d) ? 'ready' : ''}"></span>${isConfigured(d) ? 'API 已配置 · 仅内存' : 'API 未配置'}`; }
+function apiTrustText(config) { return trusted(config) ? '已确认目标 · 密钥仅在内存' : '调用前需确认目标 · 密钥仅在内存'; }
+function refreshApiStatus(d, cardId) {
+  // Update only status nodes: never replace an input while the user is typing.
+  const badge = app.querySelector('.top-right');
+  if (badge) badge.innerHTML = apiStatusMarkup(d);
+  const trustLabel = app.querySelector(`#api-trust${cardId}`);
+  if (trustLabel) trustLabel.textContent = apiTrustText(d.api);
+}
 function closeMenus() { plusOpen = sizeOpen = false; subMenu = ''; }
 function addCard(kind) {
   const d = get();
@@ -63,7 +75,7 @@ function apiCard(m) {
     <div class="formfield"><label for="protocol${m.id}">协议</label><select class="native-select" id="protocol${m.id}" data-card="${m.id}" data-key="protocol"><option value="gemini" ${x.protocol === 'gemini' ? 'selected' : ''}>Gemini 原生 · generateContent</option><option value="openai" ${x.protocol === 'openai' ? 'selected' : ''}>OpenAI 兼容 · Chat Completions</option></select></div>
     <div class="formfield"><label for="key${m.id}">API Key</label><div class="fieldrow"><input id="key${m.id}" data-card="${m.id}" data-key="key" type="${!old && m.showKey ? 'text' : 'password'}" placeholder="${old ? '未保留历史密钥' : '仅保留在本页内存，刷新即清除'}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(old ? '' : x.key)}"><button type="button" data-action="toggle-key" data-id="${m.id}" class="uniform-btn">${m.showKey ? '隐藏' : '显示'}</button></div></div>
     <div class="formfield"><label for="model${m.id}">模型 ID</label><div class="fieldrow"><input id="model${m.id}" data-card="${m.id}" data-key="model" placeholder="输入模型 ID" value="${esc(x.model)}" spellcheck="false"><div class="sub-menu"><button type="button" data-action="pull-models" data-id="${m.id}" class="uniform-btn">拉取模型</button>${menu === 'models' ? `<div class="inline-list">${m.models.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div></div></div>
-    <div class="api-security">${!old && d.pendingTextId ? '<div>填写并确认后，再次发送即可继续。</div>' : ''}<span>${old ? '密钥不写入历史记录' : trusted(x) ? '已确认目标 · 密钥仅在内存' : '调用前需确认目标 · 密钥仅在内存'}</span>${!old ? '<div class="security-actions"><button type="button" class="chip" data-action="trust-target">确认目标地址</button><button type="button" class="chip" data-action="clear-key">清除密钥</button></div>' : ''}</div>
+    <div class="api-security">${!old && d.pendingTextId ? '<div>填写并确认后，再次发送即可继续。</div>' : ''}<span id="api-trust${m.id}">${old ? '密钥不写入历史记录' : apiTrustText(x)}</span>${!old ? '<div class="security-actions"><button type="button" class="chip" data-action="trust-target">确认目标地址</button><button type="button" class="chip" data-action="clear-key">清除密钥</button></div>' : ''}</div>
   </div></fieldset></div>`;
 }
 function modelCard(m) {
@@ -92,7 +104,7 @@ function usageValue(d) {
 }
 function render(scrollEnd = false) {
   const d = get(), scrollTop = app.querySelector('#thread')?.scrollTop || 0;
-  app.innerHTML = `<main class="main"><header class="top"><span class="mobile-logo">极简 LLM</span><div class="tabs" role="tablist" aria-label="页面导航"><button role="tab" aria-selected="${page === 'chat'}" class="tab ${page === 'chat' ? 'active' : ''}" data-action="tab" data-tab="chat">对话</button><button role="tab" aria-selected="${page === 'image'}" class="tab ${page === 'image' ? 'active' : ''}" data-action="tab" data-tab="image">图片生成</button></div><div class="top-right"><span class="dot ${isConfigured(d) ? 'ready' : ''}"></span>${isConfigured(d) ? 'API 已配置 · 仅内存' : 'API 未配置'}</div></header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner"><div class="date">今天</div>${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="mock-status" role="status">正在请求 API…</div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" placeholder="${page === 'image' ? '描述你想生成的图片…' : '输入消息…'}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics"><span>${esc(d.api.model || '未选择模型')}</span><span>Token <strong>${esc(usageValue(d))}</strong></span><span>耗时 <strong>${d.elapsed === null ? '—' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  app.innerHTML = `<main class="main"><header class="top"><span class="mobile-logo">极简 LLM</span><div class="tabs" role="tablist" aria-label="页面导航"><button role="tab" aria-selected="${page === 'chat'}" class="tab ${page === 'chat' ? 'active' : ''}" data-action="tab" data-tab="chat">对话</button><button role="tab" aria-selected="${page === 'image'}" class="tab ${page === 'image' ? 'active' : ''}" data-action="tab" data-tab="image">图片生成</button></div><div class="top-right" aria-live="polite">${apiStatusMarkup(d)}</div></header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner"><div class="date">今天</div>${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="mock-status" role="status">正在请求 API…</div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" placeholder="${page === 'image' ? '描述你想生成的图片…' : '输入消息…'}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics"><span>${esc(d.api.model || '未选择模型')}</span><span>末次请求 Token <strong>${esc(usageValue(d))}</strong></span><span>耗时 <strong>${d.elapsed === null ? '—' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
   const thread = app.querySelector('#thread'); thread.scrollTop = scrollEnd ? thread.scrollHeight : scrollTop;
 }
 function trustTarget(d) {
@@ -174,7 +186,16 @@ app.addEventListener('click', async e => {
     case 'size-toggle': sizeOpen = !sizeOpen; plusOpen = false; subMenu = ''; render(); break;
     case 'set-image-options': if (matrixSupported(d) && aspectRatios.some(x => x.ratio === el.dataset.ratio) && imageSizes.includes(el.dataset.imageSize)) { const scroll = app.querySelector('.matrix-scroll')?.scrollTop || 0; d.aspectRatio = el.dataset.ratio; d.imageSize = el.dataset.imageSize; render(); app.querySelector('.matrix-scroll').scrollTop = scroll; } break;
     case 'supplier': subMenu = subMenu === `supplier:${card.id}` ? '' : `supplier:${card.id}`; render(); break;
-    case 'choose-supplier': { const p = providers[Number(el.dataset.index)]; if (d.api.protocol !== p.protocol) d.history = []; d.api = { ...d.api, protocol: p.protocol, url: p.url, key: '', supplier: p.name, model: p.protocol === 'gemini' ? (page === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL) : '', trustedTarget: '' }; card.models = []; subMenu = ''; render(); break; }
+    case 'choose-supplier': {
+      const p = providers[Number(el.dataset.index)];
+      const sameProviderTarget = d.api.protocol === p.protocol && (sameEndpoint(d.api.url, p.url) || (!p.url && d.api.supplier === p.name));
+      if (!sameProviderTarget) {
+        if (d.api.protocol !== p.protocol) d.history = [];
+        d.api = { ...d.api, protocol: p.protocol, url: p.url, key: '', supplier: p.name, model: p.protocol === 'gemini' ? (page === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL) : '', trustedTarget: '' };
+        card.models = [];
+      } else d.api.supplier = p.name;
+      subMenu = ''; render(); break;
+    }
     case 'toggle-key': card.showKey = !card.showKey; render(); break;
     case 'trust-target': trustTarget(d); render(); break;
     case 'clear-key': d.api.key = ''; d.api.trustedTarget = ''; status(d, '本页密钥已清除。'); render(); break;
@@ -199,6 +220,7 @@ function updateField(e) {
     }
     // No API-key snapshots anywhere in the message list.
     if (key !== 'key') card.values[key] = t.value;
+    refreshApiStatus(d, id);
   } else { d.model[key] = t.value; card.values[key] = t.value; }
 }
 app.addEventListener('error', e => {
