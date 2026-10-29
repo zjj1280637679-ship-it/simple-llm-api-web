@@ -39,6 +39,20 @@ function syncSettingFields() {
   });
   fields.forEach(field => settingsFieldObserver.observe(field.closest('.formfield')));
 }
+function resizeDraft(field = app.querySelector('#draft')) {
+  if (!field?.matches?.('textarea#draft')) return;
+  // Preserve the value, selection and IME composition; only adjust geometry.
+  const style = getComputedStyle(field);
+  const line = parseFloat(style.lineHeight) || 24;
+  const padding = (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
+  const visual = window.visualViewport;
+  const viewportHeight = visual && Math.abs((visual.scale || 1) - 1) < 0.01 ? visual.height : window.innerHeight;
+  const minimum = Math.max(44, line + padding);
+  const maximum = Math.max(minimum, Math.min(240, viewportHeight * 0.3));
+  field.style.height = 'auto';
+  field.style.height = `${Math.ceil(Math.max(minimum, Math.min(field.scrollHeight, maximum)))}px`;
+  field.style.overflowY = field.scrollHeight > maximum ? 'auto' : 'hidden';
+}
 function protectFloatingFocus(target) {
   if (!target?.getBoundingClientRect) return;
   const nav = app.querySelector('.top'), composer = app.querySelector('.composer-area');
@@ -56,6 +70,7 @@ function syncFloatingNavigation() {
   if (!nav) return;
   const composer = app.querySelector('.composer-area');
   const measure = () => {
+    resizeDraft();
     const visual = window.visualViewport;
     // Follow the keyboard-sized visual viewport, not pinch-zoom panning.
     const keyboardViewport = visual && Math.abs((visual.scale || 1) - 1) < 0.01;
@@ -305,7 +320,7 @@ function render(scrollEnd = false) {
   const focusIdentity = captureControlFocus();
   if (page === 'logs') { renderLogsPage(); restoreControlFocus(focusIdentity); return; }
   const d = get(), scrollTop = app.scrollTop;
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="mock-status" role="status">正在请求 API…</div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="mock-status" role="status">正在请求 API…</div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
   mountFloatingMenu();
   syncFloatingNavigation();
   positionFloatingMenu();
@@ -434,7 +449,7 @@ function updateField(e) {
   const t = e.target, d = get();
   resizeSettingField(t);
   if (!d) return;
-  if (t.id === 'draft') { d.draft = t.value; return; }
+  if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); return; }
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
   if (card.kind === 'api') {
