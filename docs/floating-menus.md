@@ -13,3 +13,14 @@
 打开后聚焦菜单首按钮，Escape关闭并回触发按钮；外点关闭不重建输入DOM，避免打断编辑。矩阵选择仍保留原值、滚动与焦点策略。菜单使用普通按钮组而非虚假的ARIA menu角色；不新增API请求。
 
 Node测试验证定位边界、长内容及离屏锚点、portal/原生分支策略；仍需真实CUA检查开关前后composer高度不变、菜单所有选项可滚达、Escape/焦点及窄屏。iOS真机未验证。
+
+## 真实浏览器复验（2026-10-29T13:16Z）
+
+主代理在独立 Chromium CUA 预览固定提交 `a47dafeb5c77f3f61c497f4c2759be16c2d99fd3`，使用离线测试夹具，无真实 API 请求：
+
+- 320×800：工具菜单连续三次打开/Escape关闭，composer 高度在打开前、打开中、关闭后均为 161px；关闭后焦点回到“展开工具菜单”。图片矩阵打开前后同为 161px，首末选项通过 Enter 成功选择。
+- 320 宽、200%字体：156字符模型字段 clientHeight/scrollHeight 均为609px，clientWidth/scrollWidth均为245px；183字符URL字段对应为654px和245px。字段值没有因视觉换行增加换行符；密码说明为独立 helper。
+- 320×400、200%字体：菜单 top=60.59px、bottom=287px，无横向溢出；375/430/768/1280宽度同样未发现横向溢出。
+- composer wrapper 背景透明、边框0、阴影none，聊天placeholder为空；指标位于独立输入面板外。
+
+范围限制：这是桌面 Chromium 中真实 iframe 布局与键盘操作，不等于 iOS Safari 真机、真实软键盘、浏览器 pinch zoom 或真实 API 验收；原生 Popover 不支持时的固定定位回退仅有离线策略/几何测试。
