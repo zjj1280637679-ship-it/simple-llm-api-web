@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>真实流式界面 · 离线验收</title>
+<style>body{font:14px system-ui;margin:16px}iframe{width:430px;height:760px;max-width:100%;border:1px solid #888}button,select{margin:5px}pre{white-space:pre-wrap}</style>
+<h1>延迟 SSE · 合成离线验收</h1><p>真实 app，fetch 全部截获，无外部 API。每 900ms 新到一段；观察首段早于完成且始终一个回复节点。可取消、切页和发送下一轮。</p>
+<select id="protocol"><option>gemini</option><option>openai</option><option>ark</option></select><select id="mode"><option value="ok">正常</option><option value="error">半途流内错误</option><option value="cut">半途断流</option></select><button id="setup">设置并发送</button><pre id="report">等待</pre><iframe id="view" src="../../index.html" title="真实应用"></iframe>
+<script>
+const view=document.querySelector('#view'), report=document.querySelector('#report');let sent=0;
+view.onload=()=>{view.contentWindow.fetch=async(url,options={})=>{
+ const protocol=document.querySelector('#protocol').value,mode=document.querySelector('#mode').value;const body=JSON.parse(options.body||'{}');const began=performance.now();let timer,step=0,cancelled=false;
+ const fragments=['第一段已经到达。\n','现在第二段才从合成服务到达。\n','第三段：无需等待完整回复。\n','第四段：中文和 emoji 🙂 保持完整。\n','第五段：完成后才保存上下文。'];
+ const frame=value=>new TextEncoder().encode('data: '+(typeof value==='string'?value:JSON.stringify(value))+'\r\n\r\n');
+ const stream=new ReadableStream({start(c){
+  const tick=()=>{if(cancelled)return;step++;
+   if(step===3&&mode!=='ok'){if(mode==='error')c.enqueue(frame({error:{message:'synthetic stream failure'}}));c.close();return;}
+   if(step<=fragments.length){const last=step===fragments.length;const value=protocol==='gemini'?{candidates:[{index:0,content:{role:'model',parts:[{text:fragments[step-1]}]},...(last?{finishReason:'STOP'}:{})}]}:{choices:[{index:0,delta:{content:fragments[step-1]},finish_reason:last?'stop':null}]};c.enqueue(frame(value));
+    report.textContent=JSON.stringify({synthetic:true,outboundNetwork:false,request:sent,step,elapsedMs:Math.round(performance.now()-began),upstreamComplete:false,nativeHistoryCount:body.contents?.length||body.messages?.length,requestedStreaming:body.stream??url.includes('streamGenerateContent')},null,2);timer=setTimeout(tick,900);
+   }else{c.enqueue(frame(protocol==='gemini'?{usageMetadata:{promptTokenCount:20,candidatesTokenCount:30,totalTokenCount:50}}:{choices:[],usage:{prompt_tokens:20,completion_tokens:30,total_tokens:50}}));if(protocol!=='gemini')c.enqueue(frame('[DONE]'));c.close();report.textContent+='\n上游结束：现在才允许最终成功。';}
+  };timer=setTimeout(tick,200);
+ },cancel(){cancelled=true;clearTimeout(timer);report.textContent+='\nreader 已取消。'}});
+ sent++;return new Response(stream,{headers:{'content-type':'text/event-stream'}});
+};};
+document.querySelector('#setup').onclick=()=>{const d=view.contentDocument,w=view.contentWindow;d.querySelector('[data-action="tab"][data-tab="chat"]').click();d.querySelector('[data-action=plus]').click();d.querySelector('[data-action=new-card][data-kind=api]').click();
+ const protocol=document.querySelector('#protocol').value;
+ d.querySelector('fieldset:not([disabled]) [data-action=protocol-menu]').click();d.querySelector('[data-action=choose-protocol][data-protocol='+protocol+']').click();
+ for(const [key,value]of Object.entries({url:'https://api.example.com/v1',key:'SYNTHETIC-NOT-A-REAL-KEY',model:'fixture-model'})){const n=d.querySelector('fieldset:not([disabled]) [data-key='+key+']');n.value=value;n.dispatchEvent(new w.Event('input',{bubbles:true}));}
+ const input=d.querySelector('#draft');input.value='请用五段展示真实增量输出，第 '+(sent+1)+' 轮';input.dispatchEvent(new w.Event('input',{bubbles:true}));d.querySelector('[data-action=send]').click();
+};
+</script></html>

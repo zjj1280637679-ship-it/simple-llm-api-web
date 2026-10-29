@@ -63,13 +63,13 @@ test('URL input immediately revokes visible trust without rebuilding the focused
   input.selectionStart = input.selectionEnd = 12;
   ui.document.activeElement = input;
   assert.equal(ui.isConfigured(ui.data.chat), true);
-  assert.match(ui.app.querySelector(`#api-trust${card.id}`).textContent, /已确认目标/);
+  assert.match(ui.app.querySelector(`#api-trust${card.id}`).textContent, /发送或拉取时使用上方配置/);
   ui.input(input);
   assert.equal(d.api.key, ''); assert.equal(d.api.trustedTarget, '');
   assert.equal(ui.app.querySelector(`#key${card.id}`).value, '');
   assert.equal(ui.isConfigured(ui.data.chat), false);
   assert.equal(ui.app.querySelector('.top-right'), null);
-  assert.match(ui.app.querySelector(`#api-trust${card.id}`).textContent, /调用前需确认目标/);
+  assert.match(ui.app.querySelector(`#api-trust${card.id}`).textContent, /请填写密钥/);
   assert.equal(ui.app.renders, renders);
   assert.equal(ui.app.querySelector(`#url${card.id}`), input);
   assert.equal(ui.document.activeElement, input);
@@ -291,14 +291,12 @@ test('corrected settings continue and busy model pulls never duplicate a request
   resolve([{id:'synthetic-model'}]);await pending;
   assert.equal(d.busy,false);assert.equal(card.models[0].id,'synthetic-model');
 });
-test('invalid or unapproved model-list targets update one local status and make no request', async () => {
-  const ui=mount({confirm:()=>false}),{d,card}=configure(ui),count=d.messages.length;
-  d.api.url='invalid';d.api.trustedTarget='';
-  for(let i=0;i<5;i++)await ui.click({action:'pull-models',id:String(card.id)});
-  assert.equal(d.messages.length,count);assert.ok(card.modelListStatus);
-  d.api.url='https://example.com/v1';
-  await ui.click({action:'pull-models',id:String(card.id)});
-  assert.match(card.modelListStatus,/尚未确认/);assert.equal(d.messages.length,count);
+test('invalid model-list targets update one status without requests', async () => {
+ const ui=mount(),{d,card}=configure(ui),count=d.messages.length;
+ const url=ui.app.querySelector(`#url${card.id}`);url.value='http://unsafe.example/v1';ui.input(url);
+ const key=ui.app.querySelector(`#key${card.id}`);key.value='synthetic-new';ui.input(key);
+ for(let i=0;i<5;i++)await ui.click({action:'pull-models',id:String(card.id)});
+ assert.equal(d.messages.length,count);assert.ok(card.modelListStatus);assert.equal(d.api.trustedTarget,'');
 });
 
 test('settings menus replace bottom menus rather than leaving an inline second menu',async()=>{
@@ -327,15 +325,14 @@ test('page protocol picker replaces native select and preserves protocol-change 
  assert.match(ui.app.innerHTML,/OpenAI 兼容 · Chat Completions/);
 });
 
-test('applying displayed API target is an explicit local action without a second modal or request',async()=>{
- const ui=mount({confirm:()=>assert.fail('target application must not open a modal')});ui.addCard('api');
- const d=ui.data.chat,card=d.messages.at(-1);d.api.key='synthetic';
- await ui.click({action:'pull-models',id:String(card.id)});
- assert.equal(d.api.trustedTarget,'');assert.match(card.modelListStatus,/应用设置/);
- await ui.click({action:'trust-target'});
- assert.equal(d.api.trustedTarget,core.canonicalEndpoint(d.api.url));
- d.api.url='http://unsafe.example/v1';d.api.trustedTarget='';
- await ui.click({action:'trust-target'});assert.equal(d.api.trustedTarget,'');
+test('filled configuration applies only on send/list actions with no settings buttons',async()=>{
+ let sent=0,listed=0;
+ const ui=mount({confirm:()=>assert.fail('No target modal'),runConversation:async({config,imageConfig})=>{sent++;assert.equal(config.trustedTarget,config.url);assert.equal(imageConfig.trustedTarget,imageConfig.url);return {text:'ok',history:[]};},listModels:async({config})=>{listed++;assert.equal(config.trustedTarget,config.url);return[];}});
+ ui.addCard('api');const d=ui.data.chat,card=d.messages.at(-1),key=ui.app.querySelector(`#key${card.id}`);
+ key.value='synthetic';ui.input(key);assert.equal(sent+listed,0);assert.equal(d.api.trustedTarget,'');
+ assert.doesNotMatch(ui.app.innerHTML,/data-action="(?:trust-target|clear-key)"/);
+ await ui.click({action:'pull-models',id:String(card.id)});assert.equal(listed,1);
+ ui.data.image.api.key='synthetic-image';ui.data.image.api.trustedTarget='';d.draft='test';await ui.click({action:'send'});assert.equal(sent,1);
 });
 
 for (const [index, name, url] of [
@@ -424,4 +421,38 @@ test('late success or error cannot steal a reading position after switching away
   if(fail)reject(new core.AppError('TEST','late failure'));else resolve({text:'late result',history:[],usage:null});
   await pending;assert.equal(ui.app.scrollTop,600);assert.equal(d.busy,false);
  }
+});
+
+test('reopening settings preserves key, deleting it clears memory immediately, inactive cards cannot restore it',()=>{
+ const ui=mount(),{d,card:old}=configure(ui);const retained=d.api.key;
+ ui.addCard('api');const current=d.messages.at(-1),key=ui.app.querySelector(`#key${current.id}`);
+ assert.equal(key.value,retained);assert.equal(d.api.key,retained);assert.equal(old.values.key,'');
+ key.value='';ui.input(key);assert.equal(d.api.key,'');assert.equal(d.api.trustedTarget,'');
+ ui.input({dataset:{card:String(old.id),key:'key'},value:'stale-key'});assert.equal(d.api.key,'');
+});
+test('send reconciles eventless autofill, while target edits never carry an unchanged old key',async()=>{
+ let calls=0;
+ const ui=mount({runConversation:async({config})=>{calls++;assert.equal(config.key,'autofilled-new');return{text:'ok',history:[]};}});
+ const {d,card}=configure(ui);ui.app.querySelector(`#key${card.id}`).value='autofilled-new';d.draft='autofilled';await ui.click({action:'send'});assert.equal(calls,1);
+ ui.addCard('api');const next=d.messages.at(-1),url=ui.app.querySelector(`#url${next.id}`);url.value='https://other.example.com/v1';
+ d.draft='must not send old key';await ui.click({action:'send'});assert.equal(calls,1);assert.equal(d.api.key,'');assert.equal(d.api.trustedTarget,'');
+});
+test('deleting a key without blur prevents send and list immediately',async()=>{
+ const ui=mount(),{d,card}=configure(ui);const key=ui.app.querySelector(`#key${card.id}`);key.value='';ui.input(key);
+ await ui.click({action:'pull-models',id:String(card.id)});assert.match(card.modelListStatus,/请先填写/);
+ d.draft='no key';await ui.click({action:'send'});assert.equal(d.api.key,'');assert.equal(d.busy,false);
+});
+
+test('eventless target and new-key autofill stay consistent across consecutive sends',async()=>{
+ let calls=0;const ui=mount({runConversation:async({config})=>{calls++;assert.equal(config.url,'https://new.example.com/v1');assert.equal(config.key,'new-autofill');return{text:'ok',history:[]};}}),{d,card}=configure(ui);
+ ui.app.querySelector(`#url${card.id}`).value='https://new.example.com/v1';ui.app.querySelector(`#key${card.id}`).value='new-autofill';
+ for(let i=0;i<2;i++){d.draft='request '+i;await ui.click({action:'send'});assert.equal(ui.app.querySelector(`#key${card.id}`).value,'new-autofill');}
+ assert.equal(calls,2);
+});
+test('page-tool confirmation snapshots autofill before approval and refuses eventless post-approval edits',async()=>{
+ let calls=0,ui,card;
+ ui=mount({confirm:()=>{ui.app.querySelector(`#url${card.id}`).value='https://racing.example.com/v1';ui.app.querySelector(`#key${card.id}`).value='racing-key';return true;},runConversation:async()=>{calls++;return{text:'unexpected',history:[]};}});
+ ({card}=configure(ui));ui.data.chat.draft='tool send';
+ const result=await ui.session.execute({command:'request.send',args:{}});
+ assert.equal(calls,0);assert.equal(result.result.reason,'changed-after-confirmation');
 });

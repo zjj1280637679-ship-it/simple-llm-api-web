@@ -1,16 +1,16 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>附件离线验收</title>
 <style>body{font:14px system-ui}iframe{width:430px;height:760px;max-width:100%;border:1px solid #888}pre{white-space:pre-wrap}button{margin:4px}</style>
 <h1>合成附件 · 零外部网络测试</h1><p>这是测试页，不是供应商验收。iframe 的 fetch 全部由本页截获，不允许外部 API 请求。先点设置测试端点，再在真实应用加号中选择下载的无敏感 fixture。发送/取消/切页/清空均使用应用本身。</p>
-<button id="setup">设置合成 Gemini 端点</button><button id="note">下载文本 fixture</button><button id="png">下载 PNG fixture</button><button id="pdf">下载 PDF fixture</button><label>模拟响应<select id="mode"><option value="ok">成功</option><option value="error">HTTP 429 失败</option><option value="wait">等待取消</option></select></label>
+<button id="setup">设置合成 Gemini 端点</button><button id="note">下载文本 fixture</button><button id="png">下载 PNG fixture</button><button id="pdf">下载 PDF fixture</button><label>模拟响应<select id="mode"><option value="ok">成功（发送/取模型）</option><option value="error">HTTP 429 失败</option><option value="wait">等待取消</option></select></label>
 <pre id="report">仅记录安全元数据</pre><iframe id="view" src="../../index.html" title="真实应用"></iframe>
 <script>
 const view=document.querySelector('#view'),report=document.querySelector('#report');let count=0;
 view.onload=()=>{view.contentWindow.fetch=async(url,options={})=>{
  const b=JSON.parse(options.body||'{}');count++;report.textContent=JSON.stringify({synthetic:true,outboundNetwork:false,count,partTypes:(b.contents?.[0]?.parts||[]).map(p=>p.inlineData?.mimeType||'text')},null,2);
  if(document.querySelector('#mode').value==='wait')return new Promise((resolve,reject)=>{if(options.signal?.aborted)reject(new DOMException('Aborted','AbortError'));options.signal?.addEventListener('abort',()=>reject(new DOMException('Aborted','AbortError')),{once:true})});
- const error=document.querySelector('#mode').value==='error';return new Response(JSON.stringify(error?{error:{message:'SYNTHETIC quota failure'}}:{candidates:[{content:{role:'model',parts:[{text:'合成传输成功；不是实际模型结果。'}]}}]}),{status:error?429:200,headers:{'Content-Type':'application/json'}});
+ const error=document.querySelector('#mode').value==='error';if(!error&&(!options.method||options.method==='GET'))return new Response(JSON.stringify({models:[{name:'models/fixture-model',supportedGenerationMethods:['generateContent']}]}),{status:200,headers:{'Content-Type':'application/json'}});return new Response(error ? JSON.stringify({error:{message:'SYNTHETIC quota failure'}}) : 'data: '+JSON.stringify({candidates:[{content:{role:'model',parts:[{text:'合成传输成功；不是实际模型结果。'}]},finishReason:'STOP'}]})+'\n\n',{status:error?429:200,headers:{'Content-Type':error?'application/json':'text/event-stream'}});
 };};
-document.querySelector('#setup').onclick=()=>{const d=view.contentDocument;d.querySelector('[data-action=plus]').click();d.querySelector('[data-action=new-card][data-kind=api]').click();for(const [key,value]of Object.entries({url:'https://api.example.com/v1',key:'SYNTHETIC-NOT-A-REAL-KEY',model:'fixture-model'})){const n=d.querySelector('[data-key='+key+']');n.value=value;n.dispatchEvent(new Event('input',{bubbles:true}));}d.querySelector('[data-action=trust-target]').click();};
+document.querySelector('#setup').onclick=()=>{const d=view.contentDocument;d.querySelector('[data-action=plus]').click();d.querySelector('[data-action=new-card][data-kind=api]').click();for(const [key,value]of Object.entries({url:'https://api.example.com/v1',key:'SYNTHETIC-NOT-A-REAL-KEY',model:'fixture-model'})){const n=d.querySelector('[data-key='+key+']');n.value=value;n.dispatchEvent(new Event('input',{bubbles:true}));}};
 function download(url,name){const a=document.createElement('a');a.href=url;a.download=name;a.click();}
 document.querySelector('#note').onclick=()=>download('../fixtures/attachments/note.txt','note.txt');
 document.querySelector('#pdf').onclick=()=>download('../fixtures/attachments/sample.pdf','sample.pdf');

@@ -64,7 +64,7 @@ function imageSummary(result) {
  */
 export async function runConversation({
   config, imageConfig, messages, settings = {}, signal,
-  confirmTool, onToolResult, onHistory, fetchImpl,
+  confirmTool, onToolResult, onHistory, fetchImpl, onDelta, onResponse,
 }) {
   const history = messages.map(message => ({ ...message }));
   const toolResults = [];
@@ -72,6 +72,7 @@ export async function runConversation({
   let toolRounds = 0;
   let toolCallCount = 0;
   let pendingCalls = [];
+  let round = 0;
   // Plain chat should work with providers/models that do not support tools.
   // Configure and trust the separate image workspace before advertising its tool.
   const imageTool = imageConfig?.key && imageConfig?.trustedTarget ? getImageTool(imageConfig) : null;
@@ -83,8 +84,11 @@ export async function runConversation({
       stopped(signal);
       const response = await generateText({
         config, messages: history, settings, tools, signal, fetchImpl,
+        onDelta: onDelta ? delta => onDelta(delta, {round}) : undefined,
       });
       stopped(signal);
+      onResponse?.(response, {round});
+      round += 1;
       history.push({ role: 'assistant', content: response.text || '', raw: response.rawAssistant });
       const calls = response.toolCalls || [];
       pendingCalls = [...calls];

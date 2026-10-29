@@ -17,9 +17,9 @@ async function walk(url, prefix = '') {
   return result.sort();
 }
 
-test('Pages build includes only twelve production files and exact source bytes', async () => {
+test('Pages build includes only allowlisted production files and exact source bytes', async () => {
   await exec(process.execPath, ['scripts/build.mjs'], { cwd: fileURLToPath(root) });
-  const expected = ['.nojekyll', 'index.html', 'src/agent.js', 'src/app.js', 'src/attachments.js', 'src/core.js', 'src/icons.js', 'src/image-capabilities.js', 'src/logs.js', 'src/session-webmcp.js', 'src/session.js', 'src/styles.css', 'src/usage.js'];
+  const expected = ['.nojekyll', 'index.html', 'src/agent.js', 'src/app.js', 'src/attachments.js', 'src/core.js', 'src/icons.js', 'src/image-capabilities.js', 'src/logs.js', 'src/session-webmcp.js', 'src/session.js', 'src/stream.js', 'src/styles.css', 'src/usage.js'];
   assert.deepEqual(await walk(new URL('dist/', root)), expected);
   for (const file of expected) assert.deepEqual(await readFile(new URL(`dist/${file}`, root)), await readFile(new URL(file, root)));
 });

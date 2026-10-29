@@ -137,3 +137,6 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 @media(pointer:coarse),(max-width:640px){
  .shell input,.shell textarea,.shell select,.composer-area .compose textarea#draft,.fieldrow>.setting-text{font-size:max(16px,1em)}
 }
+
+/* Scroll position is managed explicitly across render/overlay geometry changes. */
+.shell{overflow-anchor:none;scroll-behavior:auto}
