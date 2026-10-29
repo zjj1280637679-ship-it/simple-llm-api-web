@@ -243,7 +243,7 @@ function addCard(kind) {
   d.messages.push({ id: nextId++, type: 'card', kind, values, showKey: false, models: [] });
   closeMenus(); render(true);
 }
-function status(d, text, type = 'status') { d.messages.push({ id: nextId++, type, text }); if (get() === d) render(true); }
+function status(d, text, type = 'status', scrollEnd = true) { d.messages.push({ id: nextId++, type, text }); if (get() === d) render(scrollEnd); }
 function errorText(error) {
   if (error?.code === 'ATTACHMENT') return error.safeMessage;
   if (error instanceof AppError) return error.message;
@@ -393,7 +393,7 @@ function appendImages(d, result, args, fromTool = false) {
     return { url: URL.createObjectURL(new Blob([bytes], { type: mime })), extension };
   });
   d.messages.push({ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', fromTool });
-  if (get() === d) render(true);
+  if (get() === d) render();
 }
 function modelListStatus(d, card, text) {
   card.modelListStatus = text;
@@ -449,11 +449,11 @@ async function send() {
     d.pendingTextId = null;
     return { status: 'completed', messageCount: d.messages.length };
   } catch (e) {
-    status(d, errorText(e), 'error');
+    status(d, errorText(e), 'error', false);
     if (!checkpointed) { d.draft = text; d.attachments = attachments; }
-    else { d.pendingTextId = null; status(d, '已保留本轮工具上下文。你可以继续对话；已完成的图片不会自动重做。'); }
+    else { d.pendingTextId = null; status(d, '已保留本轮工具上下文。你可以继续对话；已完成的图片不会自动重做。', 'status', false); }
     return { status: e?.code === 'CANCELLED' ? 'cancelled' : 'failed', code: e instanceof AppError ? e.code : 'REQUEST_FAILED' };
-  } finally { d.busy = false; d.controller = null; d.elapsed = (performance.now() - started) / 1000; if (get() === d) render(true); }
+  } finally { d.busy = false; d.controller = null; d.elapsed = (performance.now() - started) / 1000; if (get() === d) render(); }
 }
 app.addEventListener('click', async e => {
   const el = e.target.closest('[data-action]');

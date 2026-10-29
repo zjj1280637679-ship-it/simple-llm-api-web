@@ -411,3 +411,17 @@ test('page session permits attachment-only approval, describes files and rejects
  const sending=ui.session.execute({command:'request.send',args:{}});d.attachments=[];const raced=await sending;assert.equal(raced.result.reason,'changed-after-confirmation');assert.equal(calls,1);
  d.attachmentReading=true;d.draft='not ready';assert.equal((await ui.session.execute({command:'request.send',args:{}})).ok,false);assert.equal(calls,1);
 });
+
+test('late success or error cannot steal a reading position after switching away and back',async()=>{
+ for(const fail of [false,true]){
+  let resolve,reject;
+  const ui=mount({runConversation:()=>new Promise((ok,no)=>{resolve=ok;reject=no;})}),{d}=configure(ui);
+  ui.app.scrollHeight=5000;ui.app.clientHeight=800;ui.app.scrollTop=100;d.draft='delayed offline';
+  const pending=ui.click({action:'send'});assert.equal(ui.app.scrollTop,5000);
+  ui.app.scrollTop=600;
+  await ui.click({action:'tab',tab:'image'});await ui.click({action:'tab',tab:'chat'});
+  assert.equal(ui.app.scrollTop,600);
+  if(fail)reject(new core.AppError('TEST','late failure'));else resolve({text:'late result',history:[],usage:null});
+  await pending;assert.equal(ui.app.scrollTop,600);assert.equal(d.busy,false);
+ }
+});
