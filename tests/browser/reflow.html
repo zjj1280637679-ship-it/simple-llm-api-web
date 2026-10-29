@@ -23,7 +23,7 @@ document.querySelector('#fixture').onclick=()=>{const d=doc();let target=d.query
   for(const [key,value]of Object.entries({url:'https://api.example.com/v1',key:'SYNTHETIC-QA-ONLY',model:'fixture-model'})){
    const n=d.querySelector('[data-key="'+key+'"]');n.value=value;n.dispatchEvent(new w.Event('input',{bubbles:true}));
   }
-  d.querySelector('[data-action="trust-target"]').click();
+  
   w.fetch=async()=>new Response(JSON.stringify({candidates:[{content:{role:'model',parts:[{text:('离线长对话，仅用于切页滚动验收。\n').repeat(35)}]}}]}),{status:200,headers:{'Content-Type':'application/json'}});
   for(let i=0;i<4;i++){
    const input=d.querySelector('#draft');input.value='离线第'+(i+1)+'轮';input.dispatchEvent(new w.Event('input',{bubbles:true}));d.querySelector('[data-action="send"]').click();

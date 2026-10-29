@@ -218,12 +218,12 @@ function resetImageOptions(d, force = false) {
   if (force || !cap.sizes.includes(d.imageSize)) d.imageSize = cap.defaultSize;
 }
 function defaultModel(protocol, workspace) { return protocol === 'gemini' ? (workspace === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL) : protocol === 'ark' ? (workspace === 'image' ? ARK_FLASH_MODEL : ARK_TEXT_MODEL) : ''; }
-const isConfigured = d => Boolean(d.api.key.trim() && d.api.model.trim() && trusted(d.api));
+const isConfigured = d => { try { canonicalEndpoint(d.api.url); return Boolean(d.api.key.trim() && d.api.model.trim()); } catch { return false; } };
 function trusted(config) { try { return config.trustedTarget === canonicalEndpoint(config.url); } catch { return false; } }
 function sameEndpoint(left, right) {
   try { return canonicalEndpoint(left) === canonicalEndpoint(right); } catch { return left === right; }
 }
-function apiTrustText(config) { return trusted(config) ? '已确认目标 · 密钥仅在内存' : '调用前需确认目标 · 密钥仅在内存'; }
+function apiTrustText(config) { return config.key.trim() ? '发送或拉取时使用上方配置 · 密钥仅在内存' : '请填写密钥 · 密钥仅在内存'; }
 function refreshApiStatus(d, cardId) {
   // Update only status nodes: never replace an input while the user is typing.
   const trustLabel = app.querySelector(`#api-trust${cardId}`);
@@ -275,7 +275,7 @@ function apiCard(m) {
     <div class="formfield"><label for="key${m.id}">API Key</label><div class="fieldrow"><input id="key${m.id}" data-card="${m.id}" data-key="key" type="${!old && m.showKey ? 'text' : 'password'}" placeholder="" aria-describedby="key-help${m.id}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(old ? '' : x.key)}"><button type="button" data-action="toggle-key" data-id="${m.id}" class="uniform-btn">${m.showKey ? '隐藏' : '显示'}</button></div><div class="field-reading" id="key-help${m.id}">${old ? '未保留历史密钥' : '仅保留在本页内存，刷新即清除'}</div></div>
     <div class="formfield"><label for="model${m.id}">模型 ID</label><div class="fieldrow"><textarea class="setting-text" rows="1" wrap="soft" id="model${m.id}" data-card="${m.id}" data-key="model" placeholder="模型 ID" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.model)}</textarea><div class="sub-menu"><button type="button" data-action="pull-models" data-id="${m.id}" aria-expanded="${menu === 'models'}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list" data-floating-menu="pull-models" data-menu-card="${m.id}">${m.models.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div></div></div>
     <div class="field-reading" id="models-status${m.id}" role="status">${esc(m.modelListStatus || '')}</div>
-    <div class="api-security">${!old && d.pendingTextId ? '<div>填写并确认后，再次发送即可继续。</div>' : ''}<span id="api-trust${m.id}">${old ? '密钥不写入历史记录' : apiTrustText(x)}</span>${!old && x.protocol === 'ark' ? '<div>普通 API · 非 Agent Plan。浏览器跨域支持尚待真实验证。</div>' : ''}${!old ? '<div>应用后，密钥和请求内容将发送到上方填写的地址；应用本身不发送请求。</div><div class="security-actions"><button type="button" class="chip" data-action="trust-target">应用设置</button><button type="button" class="chip" data-action="clear-key">清除密钥</button></div>' : ''}</div>
+    <div class="api-security">${!old && d.pendingTextId ? '<div>填写后，再次发送即可继续。</div>' : ''}<span id="api-trust${m.id}">${old ? '密钥不写入历史记录' : apiTrustText(x)}</span>${!old && x.protocol === 'ark' ? '<div>普通 API · 非 Agent Plan。浏览器跨域支持尚待真实验证。</div>' : ''}${!old ? '<div>发送消息或拉取模型时，密钥及请求内容将发送到上方地址；填写本身不发送请求。</div>' : ''}</div>
   </div></fieldset></div>`;
 }
 function modelCard(m) {
@@ -374,12 +374,27 @@ function render(scrollEnd = false) {
   restoreViewPosition(scrollEnd);
   restoreControlFocus(focusIdentity);
 }
-function trustTarget(d, report = text => status(d, text, 'error'), apply = false) {
-  let target;
-  try { target = canonicalEndpoint(d.api.url); } catch (e) { report(errorText(e)); return false; }
-  if (trusted(d.api)) return true;
-  if (!apply) { report('目标地址尚未确认，请先在设置卡点击应用设置；未发送请求。'); return false; }
-  d.api.trustedTarget = target; return true;
+function applyCurrentTarget(d, report = text => status(d, text, 'error')) {
+  try { d.api.trustedTarget = canonicalEndpoint(d.api.url); return true; }
+  catch (e) { d.api.trustedTarget = ''; report(errorText(e)); return false; }
+}
+function syncCurrentApiFields(d) {
+  const card = getCard(activeCardId(d));
+  if (!card || card.kind !== 'api') return;
+  const values = Object.fromEntries(['url','key','model'].map(key => [key, app.querySelector(`#${key}${card.id}`)?.value]));
+  // Autofill may skip input events: snapshot first, but never carry an unchanged old key to a changed target.
+  if (values.url !== undefined && values.url !== d.api.url && values.key === d.api.key) values.key = '';
+  for (const key of ['url','key','model']) if (values[key] !== undefined && values[key] !== d.api[key]) {
+    updateField({target:{value:values[key],dataset:{card:String(card.id),key}}});
+  }
+  const keyField = app.querySelector(`#key${card.id}`);
+  if (keyField && keyField.value !== d.api.key) keyField.value = d.api.key;
+}
+function configuredImageSnapshot() {
+  const config = { ...data.image.api };
+  try { config.trustedTarget = config.key.trim() ? canonicalEndpoint(config.url) : ''; }
+  catch { config.trustedTarget = ''; }
+  return config;
 }
 function approveImage(invocation) {
   return window.confirm(`生成图片将消耗 API 额度\n\n目标：${invocation.target}\n模型：${invocation.model}\n长宽比：${invocation.args.aspectRatio || '1:1'} · 分辨率：${invocation.args.imageSize || '1K'}\n提示词：${invocation.args.prompt}\n\n确认调用图片工作台？`);
@@ -401,12 +416,13 @@ function modelListStatus(d, card, text) {
 }
 async function pullModels(card) {
   const d = get(); if (d.busy) return;
+  syncCurrentApiFields(d);
   closeMenus();
   syncLogSecrets();
   if (d.api.protocol === 'ark') { modelListStatus(d, card, '普通 Ark API 暂无已核实的模型列表接口，请填写官方模型 ID。'); return; }
   if (!d.api.key.trim()) { modelListStatus(d, card, '请先填写 API Key；尚未发送模型列表请求。'); return; }
   card.modelListStatus = '';
-  if (!trustTarget(d, text => { card.modelListStatus = text; })) { modelListStatus(d, card, card.modelListStatus || '目标地址尚未确认，未发送模型列表请求。'); return; }
+  if (!applyCurrentTarget(d, text => { card.modelListStatus = text; })) { modelListStatus(d, card, card.modelListStatus || '地址无效，未发送模型列表请求。'); return; }
   d.busy = true; d.controller = new AbortController(); render();
   try {
     card.models = await listModels({ config: { ...d.api }, signal: d.controller.signal });
@@ -416,6 +432,7 @@ async function pullModels(card) {
 }
 async function send() {
   const d = get(); if (!d) return { status: 'not-sent', reason: 'select-workspace' };
+  syncCurrentApiFields(d);
   syncLogSecrets();
   const requestPage = page, text = d.draft.trim();
   if (d.busy || d.attachmentReading || (!text && !d.attachments.length)) return { status: 'not-sent', reason: d.busy ? 'busy' : 'empty' };
@@ -425,6 +442,7 @@ async function send() {
   const pending = d.messages.find(m => m.id === d.pendingTextId);
   if (!pending || pending.text !== text || JSON.stringify(pending.attachments?.map(a=>a.id)) !== JSON.stringify(attachments.map(a=>a.id))) { const m = { id: nextId++, type: 'user', text, attachments }; d.messages.push(m); d.pendingTextId = m.id; }
   if (!isConfigured(d)) { addCard('api'); return { status: 'needs-configuration' }; }
+  if (!applyCurrentTarget(d)) return {status:'not-sent',reason:'invalid-target'};
   if (requestPage === 'image' && !matrixSupported(d)) { status(d, '此图片模型的参数尚未支持，请选择 Nano Banana 2.1 或 Seedream 5.0 Flash / Pro。', 'error'); return { status: 'not-sent', reason: 'unsupported-model' }; }
   const config = { ...d.api }, args = { prompt: text, aspectRatio: d.aspectRatio, imageSize: d.imageSize };
   if (requestPage === 'image' && !approveImage({ target: canonicalEndpoint(config.url), model: config.model, args })) { render(true); return { status: 'declined' }; }
@@ -437,7 +455,7 @@ async function send() {
       appendImages(d, result, args); d.lastUsage = result.usage;
     } else {
       const result = await runConversation({
-        config, imageConfig: { ...data.image.api }, messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
+        config, imageConfig: configuredImageSnapshot(), messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
         confirmTool: async invocation => approveImage(invocation),
         onHistory: history => { d.history = history; checkpointed = true; },
         onToolResult: ({ result, invocation }) => appendImages(d, result, invocation.args, true)
@@ -492,13 +510,6 @@ app.addEventListener('click', async e => {
       card.modelListStatus = ''; subMenu = ''; render(); break;
     }
     case 'toggle-key': card.showKey = !card.showKey; render(); break;
-    case 'trust-target': {
-      const settingsCard = getCard(activeCardId(d));
-      const applied = trustTarget(d, text => { if (settingsCard) settingsCard.modelListStatus = text; }, true);
-      if (applied && settingsCard) settingsCard.modelListStatus = '';
-      render(); break;
-    }
-    case 'clear-key': archiveWorkspaceKey(d); d.api.key = ''; d.api.trustedTarget = ''; syncLogSecrets(); status(d, '本页密钥已清除。'); render(); break;
     case 'pull-models': await pullModels(card); break;
     case 'choose-model': d.api.model = el.dataset.model; if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
     case 'send': await send(); break;
@@ -520,6 +531,7 @@ function updateField(e) {
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
   if (card.kind === 'api') {
     const changed = d.api[key] !== t.value;
+    if (changed && key === 'key') { archiveWorkspaceKey(d); d.api.trustedTarget = ''; }
     d.api[key] = t.value;
     if (changed) {
       card.modelListStatus = '';
@@ -607,14 +619,16 @@ const pageSession = createPageSession({
   },
   confirmSend: () => {
     const d = get(); if (!d || d.busy || d.attachmentReading || (!d.draft.trim() && !d.attachments.length) || approvedSessionRequest) return false;
+    syncCurrentApiFields(d);
     syncLogSecrets();
     const snapshot = sessionRequestSnapshot();
-    const approved = window.confirm(`允许已连接的页面控制工具发送当前${page === 'image' ? '图片生成' : '对话及附件'}请求？\n\n目标：${sanitizeLogValue(d.api.url)}\n模型：${sanitizeLogValue(d.api.model)}\n提示词：${sanitizeLogValue(d.draft)}\n附件：${d.attachments.length ? d.attachments.map(a=>`${sanitizeLogValue(a.name)} (${(a.size/1024).toFixed(1)} KiB)`).join('、') : '无'}\n此操作可能消耗 API 额度。API 目标与图片生成确认仍然适用。`);
+    const approved = window.confirm(`允许已连接的页面控制工具发送当前${page === 'image' ? '图片生成' : '对话及附件'}请求？\n\n目标：${sanitizeLogValue(d.api.url)}\n模型：${sanitizeLogValue(d.api.model)}\n提示词：${sanitizeLogValue(d.draft)}\n附件：${d.attachments.length ? d.attachments.map(a=>`${sanitizeLogValue(a.name)} (${(a.size/1024).toFixed(1)} KiB)`).join('、') : '无'}\n此操作可能消耗 API 额度。图片生成的独立确认仍然适用。`);
     if (approved) approvedSessionRequest = snapshot;
     return approved;
   },
   send: () => {
     const approved = approvedSessionRequest; approvedSessionRequest = null;
+    const current = get(); if (current) syncCurrentApiFields(current);
     // Confirmation yields a microtask in the command dispatcher. Recheck the
     // exact page/prompt/config/settings snapshot so a racing command cannot
     // replace what the user just approved. The snapshot is never logged.
