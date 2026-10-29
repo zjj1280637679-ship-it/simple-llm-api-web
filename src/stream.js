@@ -59,6 +59,7 @@ export async function readSSE(response, { signal, onEvent, error, onPhase }) {
 
 /** Build the same native assistant shape as the nonstream transport. */
 export async function collectTextStream(response, {protocol, signal, onDelta, error, onPhase}) {
+  if (protocol === 'anthropic') return collectAnthropicStream(response,{signal,onDelta,error,onPhase});
   const gemini = protocol === 'gemini';
   const parts = [], calls = new Map();
   let text = '', finish = null, usage = null, refusal = '', reasoning = '', encrypted = '', ended = false;
@@ -123,4 +124,60 @@ export async function collectTextStream(response, {protocol, signal, onDelta, er
   if (reasoning) message.reasoning_content = reasoning;
   if (encrypted) message.encrypted_content = encrypted;
   return {...metadata,choices:[{message,finish_reason:finish}],usage};
+}
+
+/** Messages SSE: preserve native block boundaries and opaque thinking signatures. */
+async function collectAnthropicStream(response, {signal,onDelta,error,onPhase}) {
+  let message = null, ended = false;
+  const blocks = new Map(), closed = new Set();
+  const malformed = () => error('STREAM_FORMAT','Anthropic 流式事件格式或顺序不正确；未加入历史。');
+  await readSSE(response,{signal,error,onPhase,onEvent(data,event) {
+    let value;
+    try { value = JSON.parse(data); } catch { throw malformed(); }
+    if (!value || typeof value !== 'object') throw malformed();
+    if (event === 'error' || value.type === 'error' || value.error) throw error('STREAM_ERROR','供应商在流中返回错误；部分回复未完成。');
+    switch (value.type) {
+      case 'message_start':
+        if (message || value.message?.role !== 'assistant' || !Array.isArray(value.message.content) || value.message.content.length) throw malformed();
+        message = {...value.message,usage:{...value.message.usage}};
+        break;
+      case 'content_block_start': {
+        if (!message || !Number.isInteger(value.index) || value.index < 0 || blocks.has(value.index)) throw malformed();
+        const block = value.content_block;
+        if (!['text','thinking','redacted_thinking'].includes(block?.type)) throw error('CONTENT_UNSUPPORTED','Anthropic 返回了尚未支持的内容或工具调用；未加入历史。');
+        blocks.set(value.index,{...block});
+        if (block.type === 'text' && block.text) { onPhase?.('output'); onDelta?.(block.text); }
+        break;
+      }
+      case 'content_block_delta': {
+        const block = blocks.get(value.index), delta = value.delta;
+        if (!block || closed.has(value.index) || !delta) throw malformed();
+        if (delta.type === 'text_delta' && block.type === 'text' && typeof delta.text === 'string') {
+          block.text = (block.text || '') + delta.text;
+          if (delta.text) { onPhase?.('output'); onDelta?.(delta.text); }
+        } else if (delta.type === 'thinking_delta' && block.type === 'thinking' && typeof delta.thinking === 'string') {
+          block.thinking = (block.thinking || '') + delta.thinking;
+          if (delta.thinking) onPhase?.('reasoning');
+        } else if (delta.type === 'signature_delta' && block.type === 'thinking' && typeof delta.signature === 'string') {
+          block.signature = (block.signature || '') + delta.signature;
+        } else throw error('CONTENT_UNSUPPORTED','Anthropic 返回了尚未支持的内容增量；未加入历史。');
+        break;
+      }
+      case 'content_block_stop':
+        if (!blocks.has(value.index) || closed.has(value.index)) throw malformed();
+        closed.add(value.index); break;
+      case 'message_delta':
+        if (!message || closed.size !== blocks.size) throw malformed();
+        message = {...message,...value.delta,usage:{...message.usage,...value.usage}}; break;
+      case 'message_stop':
+        if (!message || closed.size !== blocks.size || !message.stop_reason) throw malformed();
+        ended = true; return false;
+      // Pings and new top-level event types carry no supported content.
+      default: break;
+    }
+  }});
+  if (!ended) throw error('STREAM_INTERRUPTED','Anthropic 流式回复未正常结束；部分内容未加入上下文。');
+  const sorted = [...blocks].sort(([a],[b]) => a-b);
+  if (sorted.some(([index],i) => index !== i)) throw malformed();
+  return {...message,content:sorted.map(([,block]) => block)};
 }

@@ -1,0 +1,34 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Anthropic 原生离线验收</title>
+<style>body{font:14px system-ui}iframe{width:430px;height:760px;max-width:100%;border:1px solid #aaa}pre{white-space:pre-wrap}button{margin:5px}</style>
+<h1>Anthropic Messages · 合成数据</h1><p>真实应用和原生事件结构，所有iframe fetch截获；无真实密钥、无外部API请求。</p>
+<button id="setup">选择空白Anthropic并填测试配置</button><button id="send">发送下一轮</button><select id="mode"><option value="ok">成功</option><option value="error">HTTP401</option><option value="wait">等待取消</option><option value="cut">断流</option></select>
+<pre id="report">等待</pre><iframe id="view" src="../../index.html" title="真实应用"></iframe>
+<script>
+const view=document.querySelector('#view'),report=document.querySelector('#report');let calls=0;
+view.onload=()=>{view.contentWindow.fetch=async(url,options={})=>{
+ calls++;const body=JSON.parse(options.body||'{}'),mode=document.querySelector('#mode').value;
+ report.textContent=JSON.stringify({synthetic:true,outboundNetwork:false,calls,path:new URL(url).pathname,method:options.method,model:body.model,historyCount:body.messages?.length,stream:body.stream,maxTokens:body.max_tokens},null,2);
+ if(mode==='error')return new Response('{}',{status:401});
+ if(!options.method||options.method==='GET')return Response.json({data:[{id:'claude-synthetic',display_name:'Synthetic model'}],has_more:false});
+ const frame=e=>new TextEncoder().encode('event: '+e.type+'
+data: '+JSON.stringify(e)+'
+
+');let timer;
+ return new Response(new ReadableStream({start(c){
+  c.enqueue(frame({type:'message_start',message:{id:'synthetic',type:'message',role:'assistant',content:[],usage:{input_tokens:12,output_tokens:0}}}));
+  if(mode==='wait')return;
+  c.enqueue(frame({type:'content_block_start',index:0,content_block:{type:'text',text:''}}));
+  let step=0;const tick=()=>{if(mode==='cut'&&step===1){c.close();return}
+   if(step<3){c.enqueue(frame({type:'content_block_delta',index:0,delta:{type:'text_delta',text:['原生第一段。','第二段继续。','最后一段完成。'][step++]}}));timer=setTimeout(tick,900)}
+   else{c.enqueue(frame({type:'content_block_stop',index:0}));c.enqueue(frame({type:'message_delta',delta:{stop_reason:'end_turn'},usage:{output_tokens:9}}));c.enqueue(frame({type:'message_stop'}));c.close()}
+  };timer=setTimeout(tick,400);
+ },cancel(){clearTimeout(timer)}}),{headers:{'content-type':'text/event-stream'}});
+}};
+document.querySelector('#setup').onclick=()=>{
+ const d=view.contentDocument,w=view.contentWindow;
+ d.querySelector('[data-action=plus]').click();d.querySelector('[data-action=new-card][data-kind=api]').click();
+ d.querySelector('fieldset:not([disabled]) [data-action=supplier]').click();d.querySelector('[data-action=choose-supplier][data-index="7"]').click();
+ for(const [key,value]of Object.entries({url:'https://api.anthropic.com/v1',key:'SYNTHETIC-NOT-A-REAL-KEY',model:'claude-synthetic'})){const n=d.querySelector('fieldset:not([disabled]) [data-key='+key+']');n.value=value;n.dispatchEvent(new w.Event('input',{bubbles:true}))}
+};
+document.querySelector('#send').onclick=()=>{const d=view.contentDocument,w=view.contentWindow,input=d.querySelector('#draft');input.value='合成测试下一轮';input.dispatchEvent(new w.Event('input',{bubbles:true}));d.querySelector('[data-action=send]').click()};
+</script>

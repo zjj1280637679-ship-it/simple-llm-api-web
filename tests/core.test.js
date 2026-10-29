@@ -32,7 +32,7 @@ test('endpoint canonicalization keeps exact approved base path', () => {
   assert.equal(validateEndpoint(gemini()),GEMINI_ENDPOINT);
   assert.throws(() => validateEndpoint(gemini({trustedTarget:''})),code('UNTRUSTED_ENDPOINT'));
   assert.throws(() => validateEndpoint(gemini({url:'https://evil.example.com/v1'})),code('UNTRUSTED_ENDPOINT'));
-  assert.throws(() => validateEndpoint(gemini({protocol:'anthropic'})),code('PROTOCOL'));
+  assert.throws(() => validateEndpoint(gemini({protocol:'unsupported'})),code('PROTOCOL'));
 });
 
 test('malicious and private endpoints rejected before any key transmission', async () => {

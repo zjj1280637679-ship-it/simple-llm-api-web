@@ -87,7 +87,7 @@ export function sanitizeLogValue(value, { includeActive = true, preserveRootKeys
       if (budget < 1400) { result._truncated = 'event size limit'; break; }
       const safeKey = preserveRootKeys && depth === 0 ? field : cleanText(field).slice(0, 200);
       budget -= safeKey.length * 6 + 4;
-      result[safeKey] = walk(item[field], field, depth + 1, key);
+      result[safeKey] = item.type === 'redacted_thinking' && field === 'data' ? REDACTED : walk(item[field], field, depth + 1, key);
     }
     if (keys.length > 100) result._truncated = `${keys.length} fields`;
     return result;

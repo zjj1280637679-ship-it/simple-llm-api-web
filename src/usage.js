@@ -13,6 +13,11 @@ function officialGeminiZero(u, endpoint) {
 export function usageFrom(json, protocol, {endpoint} = {}) {
   const u = protocol === 'gemini' ? json?.usageMetadata : json?.usage;
   if (!u || typeof u !== 'object' || Array.isArray(u)) return null;
+  if (protocol === 'anthropic') {
+    const uncached = count(u.input_tokens), read = count(u.cache_read_input_tokens), write = count(u.cache_creation_input_tokens), output = count(u.output_tokens);
+    const input = [uncached,read,write].every(n => n !== null) ? count(uncached + read + write) : null;
+    return {inputTokens:input,outputTokens:output,totalTokens:input !== null && output !== null ? count(input + output) : null,cachedTokens:read,cacheCreationTokens:write};
+  }
   return protocol === 'gemini'
     ? {inputTokens:count(u.promptTokenCount),outputTokens:count(u.candidatesTokenCount),totalTokens:count(u.totalTokenCount),cachedTokens:officialGeminiZero(u,endpoint) ? 0 : count(u.cachedContentTokenCount),...(officialGeminiZero(u,endpoint) ? {cacheCountSource:"gemini-proto-default-zero"} : {})}
     : {inputTokens:count(u.prompt_tokens),outputTokens:count(u.completion_tokens),totalTokens:count(u.total_tokens),cachedTokens:count(u.prompt_tokens_details?.cached_tokens)};

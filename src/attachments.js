@@ -10,7 +10,7 @@ const types = {
 };
 const extensions = {png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',pdf:'application/pdf',mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',flac:'audio/flac',mp4:'video/mp4',webm:'video/webm',mov:'video/quicktime'};
 const textExtensions = /\.(txt|md|csv|json|log|xml|html|css|js|ts|py|yaml|yml)$/i;
-export function supportedModalities(protocol) { return protocol === 'gemini' ? Object.keys(MODALITIES) : protocol === 'openai' ? ['text','image','pdf'] : ['text','image']; }
+export function supportedModalities(protocol) { return protocol === 'anthropic' ? ['text'] : protocol === 'gemini' ? Object.keys(MODALITIES) : protocol === 'openai' ? ['text','image','pdf'] : ['text','image']; }
 export function attachmentError(message) { return Object.assign(new Error(message), {code:'ATTACHMENT', safeMessage:message}); }
 export function describeFile(file) {
  const mimeType = (file.type || extensions[file.name?.split('.').pop()?.toLowerCase()] || '').toLowerCase();

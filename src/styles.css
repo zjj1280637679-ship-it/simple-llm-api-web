@@ -119,8 +119,6 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 .composer-area .send{grid-column:3;grid-row:1;align-self:end}
 .composer-area [data-image-control]{grid-column:1 / -1;grid-row:2;margin-top:6px;min-width:0}
 
-.protocol-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;min-height:47px;padding:12px 13px;border:1px solid var(--line2);border-radius:12px;background:var(--panel);color:var(--fg);text-align:left;white-space:normal;overflow-wrap:anywhere}
-.protocol-trigger svg{flex-shrink:0}
 
 /* Loading is visual-only text-wise; assistive technology still gets status. */
 .api-loading{display:flex;align-items:center;min-height:28px;padding:4px 0;color:var(--muted)}

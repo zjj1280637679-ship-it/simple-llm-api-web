@@ -75,7 +75,7 @@ export async function runConversation({
   let round = 0;
   // Plain chat should work with providers/models that do not support tools.
   // Configure and trust the separate image workspace before advertising its tool.
-  const imageTool = imageConfig?.key && imageConfig?.trustedTarget ? getImageTool(imageConfig) : null;
+  const imageTool = config.protocol !== 'anthropic' && imageConfig?.key && imageConfig?.trustedTarget ? getImageTool(imageConfig) : null;
   const tools = imageTool ? [imageTool] : [];
   const checkpoint = () => onHistory?.(history.map(message => ({ ...message })));
 

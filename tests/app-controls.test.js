@@ -102,7 +102,7 @@ test('reselecting the same canonical provider retains key, trust, custom model a
 
 test('reselecting the active custom provider keeps its manually entered target and credentials', async () => {
   const ui = mount(), { d, card } = configure(ui);
-  Object.assign(d.api, { url: 'https://custom.example.com/v1beta', trustedTarget: 'https://custom.example.com/v1beta', supplier: '自定义 · Gemini', model: 'gemini-custom-model' });
+  Object.assign(d.api, { url: 'https://custom.example.com/v1beta', trustedTarget: 'https://custom.example.com/v1beta', supplier: '自定义 · Gemini 格式', model: 'gemini-custom-model' });
   const before = { ...d.api };
   await ui.click({ action: 'choose-supplier', id: String(card.id), index: '2' });
   assert.deepEqual({ ...d.api }, before);
@@ -312,17 +312,17 @@ test('settings menus replace bottom menus rather than leaving an inline second m
  assert.doesNotMatch(ui.app.innerHTML,/class="(?:plus-menu|size-menu|inline-list)"/);
 });
 
-test('page protocol picker replaces native select and preserves protocol-change invalidation',async()=>{
+test('supplier format picker replaces separate protocol and preserves invalidation',async()=>{
  const ui=mount(),{d,card}=configure(ui);d.history=[{role:'user',content:'old context'}];card.models=[{id:'old'}];
- await ui.click({action:'plus'});await ui.click({action:'protocol-menu',id:String(card.id)});
- assert.match(ui.app.innerHTML,/role="listbox"/);assert.equal((ui.app.innerHTML.match(/role="option"/g)||[]).length,3);
- assert.doesNotMatch(ui.app.innerHTML,/<select[^>]*id="protocol/);
+ await ui.click({action:'plus'});await ui.click({action:'supplier',id:String(card.id)});
+ assert.match(ui.app.innerHTML,/role="listbox"/);assert.equal((ui.app.innerHTML.match(/role="option"/g)||[]).length,8);
+ assert.doesNotMatch(ui.app.innerHTML,/data-action="protocol-menu"|id="protocol-label/);
  assert.doesNotMatch(ui.app.innerHTML,/class="plus-menu"/);
- await ui.click({action:'choose-protocol',id:String(card.id),protocol:'openai'});
- assert.equal(d.api.protocol,'openai');assert.equal(d.api.key,'');assert.equal(d.api.trustedTarget,'');assert.equal(d.api.model,'');
+ await ui.click({action:'choose-supplier',id:String(card.id),index:'3'});
+ assert.equal(d.api.protocol,'openai');assert.equal(d.api.key,'');assert.equal(d.api.trustedTarget,'');assert.equal(d.api.model,'');assert.equal(d.api.url,'');
  assert.equal(d.history.length,0);assert.equal(card.models.length,0);
  assert.doesNotMatch(ui.app.innerHTML,/role="listbox"/);
- assert.match(ui.app.innerHTML,/OpenAI 兼容 · Chat Completions/);
+ assert.match(ui.app.innerHTML,/自定义 · OpenAI 格式/);
 });
 
 test('filled configuration applies only on send/list actions with no settings buttons',async()=>{
@@ -455,4 +455,39 @@ test('page-tool confirmation snapshots autofill before approval and refuses even
  ({card}=configure(ui));ui.data.chat.draft='tool send';
  const result=await ui.session.execute({command:'request.send',args:{}});
  assert.equal(calls,0);assert.equal(result.result.reason,'changed-after-confirmation');
+});
+
+test('all custom format entries start empty and cannot request before credentials are filled',async()=>{
+ for(const [index,protocol] of [['2','gemini'],['3','openai'],['7','anthropic']]){
+  const ui=mount(),{d,card}=configure(ui);await ui.click({action:'choose-supplier',id:String(card.id),index});
+  assert.equal(d.api.protocol,protocol);for(const key of ['url','key','model','trustedTarget'])assert.equal(d.api[key],'');
+  assert.equal(ui.isConfigured(d),false);
+  await ui.click({action:'pull-models',id:String(card.id)});
+  assert.match(card.modelListStatus,/请先填写/);
+ }
+});
+test('historical cards and invalid supplier IDs cannot mutate the current credentials',async()=>{
+ const ui=mount(),{d,card}=configure(ui);ui.addCard('api');const before={...d.api};
+ for(const action of ['supplier','choose-supplier','pull-models','choose-model','toggle-key']){
+  await ui.click({action,id:String(card.id),index:'3',model:'unexpected'});
+  assert.deepEqual({...d.api},before);
+ }
+ const current=d.messages.findLast(m=>m.type==='card');
+ await ui.click({action:'choose-supplier',id:String(current.id),index:'999'});
+ assert.deepEqual({...d.api},before);
+});
+test('legacy custom provider label reselects without discarding current manual endpoint',async()=>{
+ const ui=mount(),{d,card}=configure(ui);Object.assign(d.api,{supplier:'自定义 · Gemini',url:'https://custom.example.com/v1beta',model:'custom'});
+ await ui.click({action:'choose-supplier',id:String(card.id),index:'2'});
+ assert.equal(d.api.url,'https://custom.example.com/v1beta');assert.equal(d.api.key,'synthetic-control-key');assert.equal(d.api.model,'custom');
+});
+
+test('manual endpoint edits remove misleading official supplier identity',()=>{
+ const ui=mount(),{d,card}=configure(ui);
+ ui.input({value:'https://gateway.example.com/v1beta',dataset:{card:String(card.id),key:'url'}});
+ assert.equal(d.api.supplier,'自定义 · Gemini 格式');
+ ui.render();assert.match(ui.app.innerHTML,/自定义 · Gemini 格式<\/button>/);
+ assert.doesNotMatch(ui.app.innerHTML,/>Google Gemini<\/button>/);
+ ui.input({value:core.GEMINI_ENDPOINT,dataset:{card:String(card.id),key:'url'}});
+ assert.equal(d.api.supplier,'Google Gemini');
 });

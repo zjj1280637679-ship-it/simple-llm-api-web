@@ -58,8 +58,8 @@ export function canonicalEndpoint(value) {
 }
 
 export function validateEndpoint(config) {
-  if (!config || !['gemini','openai','ark'].includes(config.protocol))
-    fail('PROTOCOL', '当前仅支持 Gemini 原生、OpenAI 兼容和火山方舟协议。');
+  if (!config || !['gemini','openai','ark','anthropic'].includes(config.protocol))
+    fail('PROTOCOL', '当前支持 Gemini、OpenAI、Anthropic Messages 和火山方舟格式。');
   const base = canonicalEndpoint(config.url);
   let approved;
   try { approved = canonicalEndpoint(config.trustedTarget); } catch {
@@ -97,13 +97,17 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, onPhas
   const headers = {Accept:onDelta ? 'text/event-stream' : 'application/json'};
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (config.protocol === 'gemini') headers['x-goog-api-key'] = config.key.trim();
+  else if (config.protocol === 'anthropic') { headers['x-api-key'] = config.key.trim(); headers['anthropic-version'] = '2023-06-01';
+    // Official SDK browser opt-in, restricted to the exact official API base.
+    if (base === 'https://api.anthropic.com/v1') headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  }
   else headers.Authorization = `Bearer ${config.key.trim()}`;
   const started = Date.now();
   const event = {
     requestId:`request-${started}-${++nextRequestId}`, startedAt:new Date(started).toISOString(),
     method:body === undefined ? 'GET' : 'POST', endpoint:`${base}${path}`, provider:config.protocol,
     source:fetchImpl === globalThis.fetch ? 'network' : 'mock', requestPayload:logBody ?? body,
-    requestHeaders:{Accept:headers.Accept,...(body === undefined ? {} : {'Content-Type':'application/json'}),[config.protocol === 'gemini' ? 'x-goog-api-key' : 'Authorization']:'[REDACTED]'},
+    requestHeaders:{Accept:headers.Accept,...(body === undefined ? {} : {'Content-Type':'application/json'}),[config.protocol === 'gemini' ? 'x-goog-api-key' : config.protocol === 'anthropic' ? 'x-api-key' : 'Authorization']:'[REDACTED]'},
   };
   // Diagnostic failures must never affect a request, and credentials never enter log headers.
   try { setLogSecrets([config.key]); } catch { /* Diagnostics are optional. */ }
@@ -157,12 +161,12 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, onPhas
 export async function listModels({config, signal, fetchImpl, onPhase} = {}) {
   if (config?.protocol === 'ark') fail('MODELS_UNSUPPORTED', '当前未接入火山方舟模型列表接口；请手动填写已开通的模型 ID。');
   // One documented page of up to 1000 Gemini models. Never follow a provider-supplied URL.
-  const json = await requestJSON(config, config.protocol === 'gemini' ? '/models?pageSize=1000' : '/models', {signal,fetchImpl,onPhase});
+  const json = await requestJSON(config, config.protocol === 'gemini' ? '/models?pageSize=1000' : config.protocol === 'anthropic' ? '/models?limit=1000' : '/models', {signal,fetchImpl,onPhase});
   const models = config.protocol === 'gemini' ? json.models : json.data;
   if (!Array.isArray(models)) fail('RESPONSE', '模型列表响应格式不正确。');
   return models.filter(isRecord).map(model => config.protocol === 'gemini'
     ? {id:String(model.name || '').replace(/^models\//,''),name:String(model.displayName || model.name || ''),methods:Array.isArray(model.supportedGenerationMethods) ? model.supportedGenerationMethods.filter(x => typeof x === 'string') : []}
-    : {id:String(model.id || ''),name:String(model.id || '')}).filter(model => model.id);
+    : {id:String(model.id || ''),name:String(model.display_name || model.id || '')}).filter(model => model.id);
 }
 
 function settingsBody(settings, protocol) {
@@ -176,11 +180,15 @@ function settingsBody(settings, protocol) {
     return parsed;
   };
   const max = numeric(output,'最大输出 Token',1,1000000,true);
-  const temperature = numeric(settings.temperature,'温度',0,2);
+  const temperature = numeric(settings.temperature,'温度',0,protocol === 'anthropic' ? 1 : 2);
   const topP = numeric(settings.topP,'Top P',0,1);
-  if (max !== undefined) result[protocol === 'gemini' ? 'maxOutputTokens' : 'max_completion_tokens'] = max;
+  if (max !== undefined) result[protocol === 'gemini' ? 'maxOutputTokens' : protocol === 'anthropic' ? 'max_tokens' : 'max_completion_tokens'] = max;
   if (temperature !== undefined) result.temperature = temperature;
   if (topP !== undefined) result[protocol === 'gemini' ? 'topP' : 'top_p'] = topP;
+  if (protocol === 'anthropic') {
+    result.max_tokens ??= 4096;
+    if (temperature !== undefined && topP !== undefined) fail('SETTINGS','Anthropic 请仅设置温度或 Top P 其中一项。');
+  }
   return result;
 }
 function nativeMessages(messages, protocol) {
@@ -188,7 +196,9 @@ function nativeMessages(messages, protocol) {
   return messages.map(message => {
     if (!isRecord(message) || !['user','assistant','tool','system'].includes(message.role))
       fail('MESSAGES','消息历史格式不正确。');
+    if (protocol === 'anthropic' && message.role === 'tool') fail('TOOLS_UNSUPPORTED','Anthropic 格式暂不支持工具历史，请开始新对话。');
     if (isRecord(message.raw)) {
+      if (protocol === 'anthropic' && message.raw.role === 'assistant' && Array.isArray(message.raw.content)) return {role:'assistant',content:message.raw.content};
       if (protocol === 'gemini' && Array.isArray(message.raw.parts)) return message.raw;
       if (['openai','ark'].includes(protocol) && typeof message.raw.role === 'string' && !message.raw.parts) return message.raw;
     }
@@ -213,20 +223,24 @@ function geminiCandidate(json) {
 export async function generateText({config, messages, settings = {}, tools = [], signal, fetchImpl, onDelta, onPhase} = {}) {
   validateEndpoint(config);
   const model = modelId(config);
+  if (config.protocol === 'anthropic' && tools.length) fail('TOOLS_UNSUPPORTED','Anthropic 格式暂不支持工具调用。');
   const generation = settingsBody(settings, config.protocol);
-  const systemMessages = config.protocol === 'gemini' && Array.isArray(messages) ? messages.filter(message => message?.role === 'system') : [];
-  const history = nativeMessages(config.protocol === 'gemini' && Array.isArray(messages) ? messages.filter(message => message?.role !== 'system') : messages, config.protocol);
+  const systemMessages = ['gemini','anthropic'].includes(config.protocol) && Array.isArray(messages) ? messages.filter(message => message?.role === 'system') : [];
+  const history = nativeMessages(['gemini','anthropic'].includes(config.protocol) && Array.isArray(messages) ? messages.filter(message => message?.role !== 'system') : messages, config.protocol);
   let body;
   if (config.protocol === 'gemini') {
     body = {contents:history,generationConfig:generation};
     if (systemMessages.length) body.systemInstruction = {parts:systemMessages.map(message => ({text:String(message.content || '')}))};
     if (tools.length) body.tools = [{functionDeclarations:tools.map(tool => ({name:tool.name,description:tool.description,parameters:tool.parameters}))}];
+  } else if (config.protocol === 'anthropic') {
+    body = {model,messages:history,stream:typeof onDelta === 'function',...generation};
+    if (systemMessages.length) body.system = systemMessages.map(message => ({type:'text',text:String(message.content || '')}));
   } else {
     body = {model,messages:history,stream:typeof onDelta === 'function',...(onDelta ? {stream_options:{include_usage:true}} : {}),...generation};
     if (tools.length) body.tools = tools.map(tool => ({type:'function',function:tool}));
   }
   if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 16 * 1024 * 1024) fail('ATTACHMENT_LIMIT','对话附件累计过大，请清空对话后重新添加。');
-  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : '/chat/completions', {body,signal,fetchImpl,onDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
+  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : '/chat/completions', {body,signal,fetchImpl,onDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
   if (config.protocol === 'gemini') {
     const candidate = geminiCandidate(json);
     const rawAssistant = candidate.content;
@@ -236,6 +250,14 @@ export async function generateText({config, messages, settings = {}, tools = [],
     const text = rawAssistant.parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join('');
     if (!text && !toolCalls.length) fail('EMPTY','模型没有返回文本或工具调用。');
     return {text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:candidate.finishReason || null};
+  }
+  if (config.protocol === 'anthropic') {
+    if (json.role !== 'assistant' || !Array.isArray(json.content)) fail('RESPONSE','Anthropic 响应格式不正确。');
+    if (json.content.some(block => !['text','thinking','redacted_thinking'].includes(block?.type))) fail('CONTENT_UNSUPPORTED','Anthropic 返回了尚未支持的内容或工具调用；未加入历史。');
+    if (!['end_turn','stop_sequence'].includes(json.stop_reason)) fail('STREAM_INCOMPLETE','Anthropic 回复未完整结束；未加入历史。');
+    const text = json.content.filter(block => block.type === 'text').map(block => block.text || '').join('');
+    if (!text) fail('EMPTY','模型没有返回文本。');
+    return {text,toolCalls:[],rawAssistant:{role:'assistant',content:json.content},usage:usageFrom(json,'anthropic'),finishReason:json.stop_reason};
   }
   const choice = json.choices?.[0];
   const rawAssistant = choice?.message;
