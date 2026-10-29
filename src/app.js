@@ -6,6 +6,35 @@ import { createPageSession } from './session.js';
 import { registerPageSessionTools } from './session-webmcp.js';
 
 const app = document.getElementById('app');
+// Measure the real floating group, including wrapping and font changes.
+// When it consumes too much of the viewport, prefer readable normal flow.
+let navigationObserver;
+function syncFloatingNavigation() {
+  navigationObserver?.disconnect();
+  const nav = app.querySelector('.top');
+  if (!nav) return;
+  const measure = () => {
+    const height = nav.getBoundingClientRect().height;
+    const inFlow = height > window.innerHeight / 3;
+    app.classList.toggle('navigation-in-flow', inFlow);
+    const clearance = inFlow ? 0 : Math.ceil(nav.getBoundingClientRect().bottom + 12);
+    app.style.setProperty('--navigation-clearance', `${clearance}px`);
+  };
+  measure();
+  if (typeof ResizeObserver === 'function') {
+    navigationObserver = new ResizeObserver(measure);
+    navigationObserver.observe(nav);
+  }
+}
+window.addEventListener('resize', syncFloatingNavigation);
+// Explicitly protect keyboard focus when native scroll-padding is insufficient.
+app.addEventListener('focusin', event => {
+  const nav = app.querySelector('.top');
+  if (!nav || nav.contains(event.target) || app.classList.contains('navigation-in-flow')) return;
+  const target = event.target.getBoundingClientRect();
+  const floor = nav.getBoundingClientRect().bottom + 12;
+  if (target.top < floor) app.scrollBy({ top: target.top - floor, behavior: 'instant' });
+});
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const providers = [
   { name: 'Google Gemini', protocol: 'gemini', url: 'https://generativelanguage.googleapis.com/v1beta' },
@@ -40,12 +69,9 @@ function trusted(config) { try { return config.trustedTarget === canonicalEndpoi
 function sameEndpoint(left, right) {
   try { return canonicalEndpoint(left) === canonicalEndpoint(right); } catch { return left === right; }
 }
-function apiStatusMarkup(d) { return `<span class="dot ${isConfigured(d) ? 'ready' : ''}"></span>${isConfigured(d) ? 'API 已配置 · 仅内存' : 'API 未配置'}`; }
 function apiTrustText(config) { return trusted(config) ? '已确认目标 · 密钥仅在内存' : '调用前需确认目标 · 密钥仅在内存'; }
 function refreshApiStatus(d, cardId) {
   // Update only status nodes: never replace an input while the user is typing.
-  const badge = app.querySelector('.top-right');
-  if (badge) badge.innerHTML = apiStatusMarkup(d);
   const trustLabel = app.querySelector(`#api-trust${cardId}`);
   if (trustLabel) trustLabel.textContent = apiTrustText(d.api);
   if (page === 'image') {
@@ -120,19 +146,35 @@ function tabsMarkup() {
 }
 function renderLogsPage() {
   syncLogSecrets();
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}<div class="top-right">仅内存 · 脱敏日志</div></header><section class="thread"><div class="thread-inner"><div class="log-actions"><button class="chip" data-action="export-logs">导出 JSON</button><button class="chip" data-action="clear-logs">清空日志</button></div><div id="network-logs"></div></div></section></main>`;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread"><div class="thread-inner"><div class="log-actions"><button class="chip" data-action="export-logs">导出 JSON</button><button class="chip" data-action="clear-logs">清空日志</button></div><div id="network-logs"></div></div></section></main>`;
   renderNetworkLogs(app.querySelector('#network-logs'));
+  syncFloatingNavigation();
 }
 
 function usageValue(d) {
   const u = d.lastUsage;
   return u?.totalTokens ?? '—';
 }
+function captureControlFocus() {
+  const active = document.activeElement;
+  if (active?.tagName !== 'BUTTON' || !app.contains(active) || !active.dataset.action) return null;
+  return Object.fromEntries(['action','tab','ratio','imageSize','id','kind','card']
+    .filter(key => active.dataset[key] !== undefined).map(key => [key, active.dataset[key]]));
+}
+function restoreControlFocus(identity) {
+  if (!identity) return;
+  const target = [...app.querySelectorAll('button[data-action]')]
+    .find(button => !button.disabled && Object.entries(identity).every(([key,value]) => button.dataset[key] === value));
+  target?.focus({ preventScroll: true });
+}
 function render(scrollEnd = false) {
-  if (page === 'logs') { renderLogsPage(); return; }
-  const d = get(), scrollTop = app.querySelector('#thread')?.scrollTop || 0;
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}<div class="top-right" aria-live="polite">${apiStatusMarkup(d)}</div></header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner"><div class="date">今天</div>${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="mock-status" role="status">正在请求 API…</div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" placeholder="${page === 'image' ? '描述你想生成的图片…' : '输入消息…'}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics"><span>${esc(d.api.model || '未选择模型')}</span><span>末次请求 Token <strong>${esc(usageValue(d))}</strong></span><span>耗时 <strong>${d.elapsed === null ? '—' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
-  const thread = app.querySelector('#thread'); thread.scrollTop = scrollEnd ? thread.scrollHeight : scrollTop;
+  const focusIdentity = captureControlFocus();
+  if (page === 'logs') { renderLogsPage(); restoreControlFocus(focusIdentity); return; }
+  const d = get(), scrollTop = app.scrollTop;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="mock-status" role="status">正在请求 API…</div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" placeholder="${page === 'image' ? '描述你想生成的图片…' : '输入消息…'}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics"><span>末次请求 Token <strong>${esc(usageValue(d))}</strong></span><span>耗时 <strong>${d.elapsed === null ? '—' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  syncFloatingNavigation();
+  app.scrollTop = scrollEnd ? app.scrollHeight : scrollTop;
+  restoreControlFocus(focusIdentity);
 }
 function trustTarget(d) {
   let target;
