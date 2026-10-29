@@ -26,3 +26,9 @@
 本地批次证据 schema 4 追加 `resourceRevisions`、运行开始/结束时间。资源修订记录包含宿主、所有锁定字段、manifest 创建/更新时间以及 manifest/锁文件 SHA-256。任何修订变化或任意输入文件变化使旧证据变为 `STALE`。无资源的旧 schema 3 单元记录仍可读取，不意味着旧记录已验证新资源。
 
 升级顺序：修改资源并更新相应资源/场景/fixture 版本与更新时间 → 核对 fixture 哈希 → 显式升级借用宿主的锁和宿主版本 → 运行完整测试 → 最后 `npm run modules:record`。模块生产契约未变时不必升级模块版本；宿主绑定或测试清单改变时更新模块卡 `updatedAt`。共享资源升级不能自动修改其他宿主的锁。
+
+## Ordinary Ark (`TR-ARK-001`)
+
+[Independent protocol fixture package](ark-native/README.md), [editable profiles](ark-native/CONFIGURATION.md), [bounded optional live probe](ark-native/LIVE.md).
+`npm run simulator:ark -- help`; `npm run modules:host -- F-002 --simulator ark`; image host `F-003 --simulator ark`.
+Ark and Gemini share the [neutral engine](shared/README.md), not response wrappers. Default Gemini commands remain compatible. Simulation and live results never substitute for each other; no real Ark call is made by tests or imports.

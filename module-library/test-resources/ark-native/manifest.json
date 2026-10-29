@@ -1,0 +1,318 @@
+{
+  "resourceId": "TR-ARK-001",
+  "resourceVersion": "0.1.0",
+  "schemaVersion": "1.0.0",
+  "createdAt": "2026-10-29T08:26:00.000Z",
+  "updatedAt": "2026-10-29T08:26:00.000Z",
+  "builtAt": "2026-10-29T08:26:00.000Z",
+  "simulatorId": "ark-rest-simulator",
+  "simulatorVersion": "0.1.0",
+  "fixtureSchemaVersion": "1.0.0",
+  "fixtureSetVersion": "1.0.0",
+  "protocolSnapshot": "ark-ordinary-v3-chat-images@2026-10-29",
+  "protocolProfile": "ark-ordinary-v3-chat-images",
+  "sourceCheckedAt": "2026-10-29T08:26:00.000Z",
+  "designVersion": "v0.1.0",
+  "evidenceType": "SIMULATED",
+  "realApiCalled": false,
+  "modelSnapshot": {
+    "snapshotId": "ark-text-image-selectors@2026-10-29",
+    "checkedAt": "2026-10-29T08:26:00.000Z",
+    "textSelector": "sim-ark-text-v1",
+    "textSelectorKind": "synthetic-test-only",
+    "imageSelector": "doubao-seedream-5-0-flash-260915",
+    "imageSelectorKind": "official-candidate-capability-routing-only",
+    "accountAvailabilityVerified": false,
+    "sourceRefs": [
+      "https://docs.volcengine.com/docs/ark/model-list?lang=zh&redirect=1",
+      "https://docs.volcengine.com/docs/ark/image-generation-api?lang=zh&redirect=1"
+    ]
+  },
+  "fixtures": [
+    {
+      "id": "text.ok",
+      "version": "1.0.0",
+      "path": "fixtures/v1/text.ok.json",
+      "sha256": "c0f2df59c92420a0e9c6e955f96cf4d3a1c0cfe7fe37cb066d70599b2a44a4fe",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.400",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.400.json",
+      "sha256": "122ebaf6b43d79a173423ec171522c81574d624ea4f4a4406967559418100430",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.401",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.401.json",
+      "sha256": "dcb4f0aec2f1d5bfc624bf8632c4fa8e987cfecc3d5212ed836213360bd0fd10",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.403",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.403.json",
+      "sha256": "fea22c012832fa5d6811f5b6d3db7d58cca3f095c8f60619572700c80dd87477",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.404",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.404.json",
+      "sha256": "7df1b3f42864faa8f84520d89db80764d66c6f9b22d4dac07254414e13948ddf",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.429",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.429.json",
+      "sha256": "250bba6bc3eacad293c641167f66fb988a7f46af26000dcce6c7ce2b248d0f7e",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.500",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.500.json",
+      "sha256": "18490d8dfa65c5f5dbc65ddc131ca00b4c2b5eeaa257b17de8d86954c8f930a4",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.503",
+      "version": "1.0.0",
+      "path": "fixtures/v1/http.503.json",
+      "sha256": "52477e5b39724aed977f1a59f6e8f32b895c78d523b6621e00f53cdfefdaa016",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "transport.reject",
+      "version": "1.0.0",
+      "path": "fixtures/v1/transport.reject.json",
+      "sha256": "cfa308ac403a4f96456890ab4acd43725d6033afcaeac04e5fb784e1d3865662",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "transport.delay",
+      "version": "1.0.0",
+      "path": "fixtures/v1/transport.delay.json",
+      "sha256": "1fd539aaa01ee4ad38a45fc7390d7348fc201c60e029bbdffe13c988b2e8e9ab",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "transport.hang",
+      "version": "1.0.0",
+      "path": "fixtures/v1/transport.hang.json",
+      "sha256": "06a1267cf7136f1d6a1f9d515c8f4f7358d092441afd5a9dfebe0d6f4300d49d",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "robust.invalid-json",
+      "version": "1.0.0",
+      "path": "fixtures/v1/robust.invalid-json.json",
+      "sha256": "9421f9380d213c860998db30332207667aa36a76ea0a909cc36588bdb4d604d3",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "image.output",
+      "version": "1.0.0",
+      "path": "fixtures/v1/image.output.json",
+      "sha256": "91d012c08d44896df22943f6fa5f62b03acf915a0beff82c5c48bcac6d94e217",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "image.http.400",
+      "version": "1.0.0",
+      "path": "fixtures/v1/image.http.400.json",
+      "sha256": "2765fb4d6a5eea399faae243370ce07f4a09b778d49c47482be7840b71ac47d1",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "text.encrypted-follow-up",
+      "version": "1.0.0",
+      "path": "fixtures/v1/text.encrypted-follow-up.json",
+      "sha256": "0e69aab54f19ff980ec76f202dd486487604f88ca4c8373f0f9c99902cd1e456",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "tools.follow-up",
+      "version": "1.0.0",
+      "path": "fixtures/v1/tools.follow-up.json",
+      "sha256": "c56cc359f21cd3d6961920b3f840b2ce67a32e013eb60c873dfac5f7bbe1b6f1",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "text.empty",
+      "version": "1.0.0",
+      "path": "fixtures/v1/text.empty.json",
+      "sha256": "c897764785a603d84dcffe467936c4a62d211f27fc489060054082647dc6a64f",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "text.ok",
+      "version": "1.0.0",
+      "fixtureId": "text.ok",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.400",
+      "version": "1.0.0",
+      "fixtureId": "http.400",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.401",
+      "version": "1.0.0",
+      "fixtureId": "http.401",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.403",
+      "version": "1.0.0",
+      "fixtureId": "http.403",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.404",
+      "version": "1.0.0",
+      "fixtureId": "http.404",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.429",
+      "version": "1.0.0",
+      "fixtureId": "http.429",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.500",
+      "version": "1.0.0",
+      "fixtureId": "http.500",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "http.503",
+      "version": "1.0.0",
+      "fixtureId": "http.503",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "transport.reject",
+      "version": "1.0.0",
+      "fixtureId": "transport.reject",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "transport.delay",
+      "version": "1.0.0",
+      "fixtureId": "transport.delay",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "transport.hang",
+      "version": "1.0.0",
+      "fixtureId": "transport.hang",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "robust.invalid-json",
+      "version": "1.0.0",
+      "fixtureId": "robust.invalid-json",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "image.output",
+      "version": "1.0.0",
+      "fixtureId": "image.output",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "image.http.400",
+      "version": "1.0.0",
+      "fixtureId": "image.http.400",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "text.encrypted-follow-up",
+      "version": "1.0.0",
+      "fixtureId": "text.encrypted-follow-up",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "tools.follow-up",
+      "version": "1.0.0",
+      "fixtureId": "tools.follow-up",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    },
+    {
+      "id": "text.empty",
+      "version": "1.0.0",
+      "fixtureId": "text.empty",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z"
+    }
+  ],
+  "assets": [
+    {
+      "id": "solid-blue-1536",
+      "version": "1.0.0",
+      "path": "assets/solid-blue-1536.png",
+      "sha256": "5a25d47978e87f6e6d5a72d8688d18ea6ea50b82d2add5729b04ec5fc092ba43",
+      "createdAt": "2026-10-29T08:26:00.000Z",
+      "updatedAt": "2026-10-29T08:26:00.000Z",
+      "mimeType": "image/png",
+      "width": 1536,
+      "height": 1536,
+      "pixelRgba": [
+        0,
+        128,
+        255,
+        255
+      ],
+      "intent": "Synthetic solid-color fixture; no AI model generated this image."
+    }
+  ],
+  "limits": [
+    "Synthetic local ordinary Ark protocol subset only; never real API verification.",
+    "No implicit networking, retries or fallback. No Plan/control-plane API, models listing, streaming, video, audio, server cancellation, model quality or billing verification.",
+    "Encrypted content is synthetic opaque preservation data; no signature generation or validation."
+  ],
+  "configurationApiVersion": "0.2.0",
+  "configurationSchemaVersion": "1.0.0",
+  "configurationEntry": "configuration.mjs"
+}

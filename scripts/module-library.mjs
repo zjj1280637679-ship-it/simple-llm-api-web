@@ -332,7 +332,7 @@ export async function inputHashes(root = ROOT) {
   }
   // Deliberately conservative: changes anywhere in these inputs stale the local batch.
   for (const name of ['src','tests','module-library','package.json','scripts/build.mjs',
-    'scripts/module-library.mjs','scripts/module-host.mjs','scripts/gemini-simulator.mjs','cli.mjs','web-cli.mjs','cli-mcp-transport.mjs',
+    'scripts/module-library.mjs','scripts/module-host.mjs','scripts/gemini-simulator.mjs','scripts/ark-simulator.mjs','scripts/simulator-cli.mjs','cli.mjs','web-cli.mjs','cli-mcp-transport.mjs',
     'README.md','VALIDATION.md','WEB_SESSION.md','design/REQUIREMENTS.md']) await walk(name);
   // Follow literal local ESM imports, including files newly added outside src/.
   const visited = new Set();

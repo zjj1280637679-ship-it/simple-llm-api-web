@@ -4,6 +4,10 @@
     {
       "id": "TR-GEMINI-001",
       "manifest": "module-library/test-resources/gemini-native/manifest.json"
+    },
+    {
+      "id": "TR-ARK-001",
+      "manifest": "module-library/test-resources/ark-native/manifest.json"
     }
   ]
 }

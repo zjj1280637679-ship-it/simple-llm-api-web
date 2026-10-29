@@ -212,3 +212,19 @@ npm run simulator -- load --profile another --file /tmp/gemini-demo-export.json
 - 这里“命中”暂拆为**选定预设匹配率、HTTP 成功比例、模拟缓存命中率**三个独立控制，不代表真实模型/缓存命中。详细匹配、回退和错误规则见[配置契约](module-library/test-resources/gemini-native/CONFIGURATION.md)。
 - 当前是非流式 JSON：上例成功回复耗时模型为 `150 + 40/20×1000 = 2150 ms`，不是逐 token/SSE。CLI 回放用虚拟时钟直接展示该逻辑耗时，不让终端实际等待；API 可显式注入真实计时器。
 - `replay` 是 fixture 传输预览，明确输出 `adapterVerified:false`；实际生产适配器兼容由测试另行验证。管理界面、HTTP 服务和流式输出尚未实现。
+
+### 普通火山方舟模拟后台（独立于 Gemini）
+
+新增 `TR-ARK-001@0.1.0`：17个独立普通Ark严格fixture，文本 `/chat/completions`、图片 `/images/generations`、Bearer鉴权、tool_calls与encrypted_content不透明往返、HTTP/网络/取消及完整合成PNG。它是本地可调用API/CLI，不是HTTP服务或网页控制台。生产 `src/` 与Pages不变。
+
+```bash
+npm run simulator:ark -- restore --profile ark-demo
+npm run simulator:ark -- replay --profile ark-demo
+npm run modules:host -- F-002 --simulator ark --profile ark-demo
+npm run simulator:ark -- restore --profile ark-image --scenario image.output
+npm run modules:host -- F-003 --simulator ark --profile ark-image
+```
+
+[Ark配置](module-library/test-resources/ark-native/CONFIGURATION.md)支持文本/PNG预设、独立seed与命中/成功率、延迟/非流式文本速度、append-only版本/UTC/hash、固定快照和历史replay。共享中性引擎但不混用协议数据，Gemini17个fixture与CLI保持兼容。所有模拟输出均为 `SIMULATED`，不读真实密钥，不回退联网。
+
+[独立真实探针](module-library/test-resources/ark-native/LIVE.md)默认关闭；必须另有一次调用授权计划和临时 `ARK_API_KEY`，固定官方地址、不重试、不回退、不记录密钥/提示/响应文本。费用限制是预检估算，不是平台账单硬封顶。测试只注入假传输并标为 `SIMULATED`；不能用其证明真实模型、费用、CORS或账号权限。视频/语音/流式、GUI/HTTP服务另行实现，不伪造支持。

@@ -1,0 +1,207 @@
+{
+  "id": "tools.follow-up",
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T08:26:00.000Z",
+  "updatedAt": "2026-10-29T08:26:00.000Z",
+  "sourceRefs": [
+    "https://docs.volcengine.com/docs/ark/base-url-and-authentication?lang=zh",
+    "https://docs.volcengine.com/docs/ark/chat-api?lang=zh&redirect=1",
+    "https://docs.volcengine.com/docs/ark/agent-model-invocation-practice?lang=en"
+  ],
+  "intent": "SIMULATED. Two-step ordinary Chat tool roundtrip; only tests may call an explicitly allowlisted pure sim_add stub. Resource never executes tools or external actions. Encrypted content is opaque synthetic data, not real credentials.",
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "default": "Add two and three."
+    },
+    "model": {
+      "type": "string",
+      "default": "sim-ark-text-v1"
+    }
+  },
+  "steps": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+        "headers": {
+          "accept": "application/json",
+          "authorization": "Bearer SIMULATOR_ONLY_NOT_A_REAL_KEY",
+          "content-type": "application/json"
+        },
+        "body": {
+          "model": {
+            "$parameter": "model"
+          },
+          "messages": [
+            {
+              "role": "user",
+              "content": {
+                "$parameter": "prompt"
+              }
+            }
+          ],
+          "stream": false,
+          "tools": [
+            {
+              "type": "function",
+              "function": {
+                "name": "sim_add",
+                "description": "Add two numbers in the local test allowlist.",
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "a": {
+                      "type": "number"
+                    },
+                    "b": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "a",
+                    "b"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "id": "SIMULATED-ark-tools-1",
+          "object": "chat.completion",
+          "created": 1793262360,
+          "model": {
+            "$parameter": "model"
+          },
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": null,
+                "reasoning_content": "SIMULATED reasoning summary.",
+                "encrypted_content": "SIMULATED_OPAQUE_ENCRYPTED_CONTENT_DO_NOT_REWRITE",
+                "tool_calls": [
+                  {
+                    "id": "SIMULATED-call-1",
+                    "type": "function",
+                    "function": {
+                      "name": "sim_add",
+                      "arguments": "{\"a\":2,\"b\":3}"
+                    }
+                  }
+                ]
+              },
+              "finish_reason": "tool_calls"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "total_tokens": 15
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+        "headers": {
+          "accept": "application/json",
+          "authorization": "Bearer SIMULATOR_ONLY_NOT_A_REAL_KEY",
+          "content-type": "application/json"
+        },
+        "body": {
+          "model": {
+            "$parameter": "model"
+          },
+          "messages": [
+            {
+              "role": "user",
+              "content": {
+                "$parameter": "prompt"
+              }
+            },
+            {
+              "role": "assistant",
+              "content": null,
+              "reasoning_content": "SIMULATED reasoning summary.",
+              "encrypted_content": "SIMULATED_OPAQUE_ENCRYPTED_CONTENT_DO_NOT_REWRITE",
+              "tool_calls": [
+                {
+                  "id": "SIMULATED-call-1",
+                  "type": "function",
+                  "function": {
+                    "name": "sim_add",
+                    "arguments": "{\"a\":2,\"b\":3}"
+                  }
+                }
+              ]
+            },
+            {
+              "role": "tool",
+              "tool_call_id": "SIMULATED-call-1",
+              "content": "{\"value\":5}"
+            }
+          ],
+          "stream": false,
+          "tools": [
+            {
+              "type": "function",
+              "function": {
+                "name": "sim_add",
+                "description": "Add two numbers in the local test allowlist.",
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "a": {
+                      "type": "number"
+                    },
+                    "b": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "a",
+                    "b"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "id": "SIMULATED-ark-tools-2",
+          "object": "chat.completion",
+          "created": 1793262360,
+          "model": {
+            "$parameter": "model"
+          },
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "SIMULATED sum: 5."
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "total_tokens": 15
+          }
+        }
+      }
+    }
+  ]
+}

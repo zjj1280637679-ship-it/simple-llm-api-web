@@ -7,9 +7,9 @@
   },
   "host": {
     "id": "H-F-002",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "createdAt": "2026-10-29T06:59:24.112Z",
-    "updatedAt": "2026-10-29T08:16:42.420Z"
+    "updatedAt": "2026-10-29T08:35:09.175Z"
   },
   "mode": "synthetic",
   "effect": "text.request-response",
@@ -27,12 +27,12 @@
       "createdAt": "2026-10-29T07:41:45.598Z",
       "updatedAt": "2026-10-29T08:18:05.932Z",
       "manifestSha256": "2b2d12e24a89ca90e9a2c3d6326a020f732a151fb14c8be8b7676c73a047fea0",
-      "lockSha256": "bc4e362fc35e102900e58d6233ae4f2d51e9b285007749caee3f1c7360b5466a"
+      "lockSha256": "f57867c37b4a69eac363bf8d0aff63b2dbba5f33edbad87a556a9c893f10b13f"
     }
   ],
-  "verifiedAt": "2026-10-29T08:18:06.043Z",
-  "runStartedAt": "2026-10-29T08:18:06.008Z",
-  "runFinishedAt": "2026-10-29T08:18:06.043Z",
+  "verifiedAt": "2026-10-29T08:37:30.535Z",
+  "runStartedAt": "2026-10-29T08:37:30.469Z",
+  "runFinishedAt": "2026-10-29T08:37:30.535Z",
   "evidenceType": "SIMULATED",
   "realApiCalled": false,
   "observed": {
@@ -40,6 +40,7 @@
     "requestMappingChecked": true,
     "transportRequests": 1,
     "realNetworkRequests": 0,
+    "virtualTime": true,
     "simulation": {
       "evidenceType": "SIMULATED",
       "realApiCalled": false,
@@ -68,7 +69,7 @@
           "outcome": "request-matched",
           "step": 1,
           "method": "POST",
-          "route": "/models/sim-gemini-text-v1:generateContent"
+          "route": "/v1beta/models/sim-gemini-text-v1:generateContent"
         },
         {
           "sequence": 1,
@@ -81,7 +82,8 @@
     }
   },
   "limits": [
-    "SIMULATED 回复不是真实 Gemini/Ark 模型能力证据",
-    "Gemini 模拟资源仅验收已登记场景；真实模式仍为 Ark"
+    "SIMULATED 不是模型/账户/CORS能力证据",
+    "非流式；每个文本模拟场景独立验证",
+    "真实费用限制只是预检估算，不是平台硬封顶"
   ]
 }

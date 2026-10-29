@@ -1,0 +1,74 @@
+{
+  "id": "text.ok",
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T08:26:00.000Z",
+  "updatedAt": "2026-10-29T08:26:00.000Z",
+  "sourceRefs": [
+    "https://docs.volcengine.com/docs/ark/base-url-and-authentication?lang=zh",
+    "https://docs.volcengine.com/docs/ark/chat-api?lang=zh&redirect=1"
+  ],
+  "intent": "SIMULATED. Closed non-streaming ordinary Ark Chat Completions request and synthetic fixed response; no real model availability assertion.",
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "default": "Draw one blue cup on a white background."
+    },
+    "model": {
+      "type": "string",
+      "default": "sim-ark-text-v1"
+    }
+  },
+  "steps": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+        "headers": {
+          "accept": "application/json",
+          "authorization": "Bearer SIMULATOR_ONLY_NOT_A_REAL_KEY",
+          "content-type": "application/json"
+        },
+        "body": {
+          "model": {
+            "$parameter": "model"
+          },
+          "messages": [
+            {
+              "role": "user",
+              "content": {
+                "$parameter": "prompt"
+              }
+            }
+          ],
+          "stream": false
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "id": "SIMULATED-ark-text-ok-1",
+          "object": "chat.completion",
+          "created": 1793262360,
+          "model": {
+            "$parameter": "model"
+          },
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "Host Ark text reply."
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "total_tokens": 15
+          }
+        }
+      }
+    }
+  ]
+}
