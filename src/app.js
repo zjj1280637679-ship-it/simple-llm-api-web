@@ -1,3 +1,4 @@
+import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
 import { usageMetricsMarkup } from './usage.js';
 import { icon } from './icons.js';
 import { AppError, DEFAULT_TEXT_MODEL, IMAGE_MODEL, ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_TEXT_MODEL, getImageCapabilities, normalizeImageOptions, canonicalEndpoint, listModels, dispatchCommand } from './core.js';
@@ -198,7 +199,7 @@ const providers = [
 ];
 const makePage = type => ({
   api: { protocol: 'gemini', url: providers[0].url, key: '', model: type === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL, supplier: 'Google Gemini', trustedTarget: '' },
-  model: { output: '', temperature: '', topP: '' }, draft: '', pendingTextId: null,
+  model: { output: '', temperature: '', topP: '', inputs: ['text','image','pdf','audio','video'] }, draft: '', attachments: [], attachmentReading: false, attachmentError: '', pendingTextId: null,
   aspectRatio: '1:1', imageSize: '1K', messages: [], history: [], busy: false,
   controller: null, lastUsage: null, elapsed: null
 });
@@ -244,6 +245,7 @@ function addCard(kind) {
 }
 function status(d, text, type = 'status') { d.messages.push({ id: nextId++, type, text }); if (get() === d) render(true); }
 function errorText(error) {
+  if (error?.code === 'ATTACHMENT') return error.safeMessage;
   if (error instanceof AppError) return error.message;
   if (error?.name === 'AbortError' || error?.code === 'ABORTED') return '已取消。不会自动重试。';
   // Do not display raw upstream responses, stack traces, or arbitrary Error messages.
@@ -279,19 +281,38 @@ function apiCard(m) {
 function modelCard(m) {
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.model;
   const field = (label, key, placeholder) => `<div class="formfield"><label for="${key}${m.id}">${label}</label><input class="block-input" type="number" id="${key}${m.id}" data-card="${m.id}" data-key="${key}" placeholder="${placeholder}" value="${esc(x[key])}" step="any"></div>`;
-  return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}<div class="card-type">模型设置</div><div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield"><label for="context${m.id}">上下文</label><output id="context${m.id}" class="block-value">本页内存中的对话</output></div>` : `<div class="formfield"><label for="count${m.id}">生成数量</label><output id="count${m.id}" class="block-value">1</output></div><div class="formfield"><label for="format${m.id}">输出格式</label><output id="format${m.id}" class="block-value">上游原始格式</output></div>`}</div><div class="model-note">${page === 'chat' ? `文本输入；图片请求可由 Agent 调用图片工作台。每次工具生成前须确认。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div></div></fieldset></div>`;
+  return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}<div class="card-type">模型设置</div><div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield"><label for="context${m.id}">上下文</label><output id="context${m.id}" class="block-value">本页内存中的对话</output></div>` : `<div class="formfield"><label for="count${m.id}">生成数量</label><output id="count${m.id}" class="block-value">1</output></div><div class="formfield"><label for="format${m.id}">输出格式</label><output id="format${m.id}" class="block-value">上游原始格式</output></div>`}</div>${page === 'chat' ? `<div class="fieldgroup"><span class="formlabel">输入模态</span><div class="chips">${Object.entries(MODALITIES).map(([kind,label]) => `<button type="button" class="chip ${x.inputs?.includes(kind) ? 'sel' : ''}" data-action="toggle-input" data-id="${m.id}" data-modality="${kind}" aria-pressed="${Boolean(x.inputs?.includes(kind))}" ${!supportedModalities(d.api.protocol).includes(kind) || kind === 'text' ? 'disabled' : ''}>${label}</button>`).join('')}</div></div>` : ''}<div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div></div></fieldset></div>`;
 }
 function imageMarkup(m) {
   return `<div class="message"><div class="assistant-message"><div class="assistant-label">${m.fromTool ? '图片工作台 · Agent 调用' : '图片结果'}</div>${m.images.map((im, i) => `<div class="img-result">${im.failed ? '<div class="mock-status" role="alert">返回的图片文件无法在浏览器中解码。请检查下载文件；不会自动重新生成。</div>' : `<img class="generated-image" data-image-message="${m.id}" data-image-index="${i}" src="${esc(im.url)}" alt="${esc(m.prompt)}" loading="lazy">`}<div class="sample-caption"><span>${esc(m.aspectRatio)} · ${esc(m.imageSize)}</span><a href="${esc(im.url)}" download="image-${m.id}-${i + 1}.${im.extension}">下载</a></div></div>`).join('')}${m.text ? `<div class="assistant-note">${esc(m.text)}</div>` : ''}</div></div>`;
 }
 function messageMarkup(m) {
   if (m.type === 'card') return `<div class="message">${m.kind === 'api' ? apiCard(m) : modelCard(m)}</div>`;
-  if (m.type === 'user') return `<div class="message user"><div class="bubble">${esc(m.text)}</div></div>`;
+  if (m.type === 'user') return `<div class="message user"><div class="bubble">${esc(m.text)}${attachmentsMarkup(m.attachments)}</div></div>`;
   if (m.type === 'imageResult') return imageMarkup(m);
   if (m.type === 'chatResult') return `<div class="message"><div class="assistant-message"><div class="assistant-label">模型回复</div><div class="assistant-note reply-text">${esc(m.text)}</div></div></div>`;
   return `<div class="message"><div class="mock-status" role="${m.type === 'error' ? 'alert' : 'status'}">${esc(m.text)}</div></div>`;
 }
-function plusMarkup() { return `<div class="menu-wrap"><button class="circle" aria-label="展开工具菜单" aria-expanded="${plusOpen}" data-action="plus" ${get().busy ? 'disabled' : ''}>${icon('plus', 22)}</button>${plusOpen ? `<div class="plus-menu"><button data-action="new-card" data-kind="api">${icon('key')} API 设置</button><button data-action="new-card" data-kind="model">${icon('settings')} 模型设置</button></div>` : ''}</div>`; }
+function attachmentsMarkup(files = [], editable = false) {
+  return files.length ? `<div class="attachments">${files.map(a=>`<div class="attachment">${a.kind==='image' ? `<img src="data:${esc(a.mimeType)};base64,${esc(a.base64)}" alt="${esc(a.name)}">` : ''}<span>${esc(a.name)} · ${(a.size/1024).toFixed(1)} KiB</span>${editable ? `<button type="button" data-action="remove-attachment" data-id="${esc(a.id)}" aria-label="移除 ${esc(a.name)}">×</button>` : ''}</div>`).join('')}</div>` : '';
+}
+function selectAttachments(kind) {
+ const d=get(); if(page!=='chat' || d.busy || d.attachmentReading) return;
+ const picker=document.createElement('input'); picker.type='file'; picker.multiple=true;
+ const formats={text:'.txt,.md,.csv,.json,.log,.xml,.html,.css,.js,.ts,.py,.yaml,.yml',image:'.png,.jpg,.jpeg,.webp',pdf:'.pdf',audio:'.mp3,.wav,.ogg,.flac',video:'.mp4,.webm,.mov'};
+ const enabled=supportedModalities(d.api.protocol).filter(k=>d.model.inputs.includes(k) && (kind!=='image'||k==='image'));
+ picker.accept=enabled.map(k=>formats[k]).join(',');
+ if(!enabled.length) {d.attachmentError='请先在模型设置启用图片输入。';render();return;}
+ picker.addEventListener('change',async()=>{
+  if(!picker.files?.length) return;
+  d.attachmentReading=true; closeMenus(); if(get()===d)render();
+  try { d.attachments=await prepareFiles(picker.files,d.attachments,d.api.protocol,d.model.inputs); d.attachmentError=''; }
+  catch(error) { d.attachmentError=errorText(error); }
+  finally {d.attachmentReading=false;if(get()===d)render();}
+ },{once:true});
+ picker.click();
+}
+function plusMarkup() { return `<div class="menu-wrap"><button class="circle" aria-label="展开工具菜单" aria-expanded="${plusOpen}" data-action="plus" ${get().busy ? 'disabled' : ''}>${icon('plus', 22)}</button>${plusOpen ? `<div class="plus-menu">${page === 'chat' ? '<button data-action="attach" data-kind="image">添加图片</button><button data-action="attach" data-kind="file">添加文件</button><button data-action="clear-attachments">清空附件</button><button data-action="clear-chat">清空对话</button>' : ''}<button data-action="new-card" data-kind="api">${icon('key')} API 设置</button><button data-action="new-card" data-kind="model">${icon('settings')} 模型设置</button></div>` : ''}</div>`; }
 function sizeMarkup() {
   const d = get(), cap = getImageCapabilities(d.api);
   return `<div class="menu-wrap" data-image-control><button class="size-btn" type="button" data-action="size-toggle" aria-expanded="${sizeOpen}" aria-label="选择长宽比与分辨率" ${d.busy ? 'disabled' : ''}>${cap ? `${esc(d.aspectRatio)} · ${esc(d.imageSize)}` : '图片参数'} ${icon('chev', 14)}</button>${sizeOpen ? `<div class="size-menu" id="image-options"><div class="menu-heading">长宽比与分辨率</div><div class="matrix-model">${esc(cap?.label || '未支持的图片模型')}</div>${cap ? `<div class="matrix-scroll"><table class="option-matrix" aria-label="${esc(cap.label)} 图片长宽比与分辨率"><colgroup><col class="matrix-ratio-col">${cap.sizes.map(() => '<col>').join('')}</colgroup><thead><tr><th scope="col">长宽比</th>${cap.sizes.map(size => `<th scope="col">${size}</th>`).join('')}</tr></thead><tbody>${cap.ratios.map(item => `<tr><th scope="row"><span class="size-name">${item.ratio}</span></th>${cap.sizes.map(size => { const selected = d.aspectRatio === item.ratio && d.imageSize === size; return `<td><button type="button" class="matrix-choice ${selected ? 'sel' : ''}" data-action="set-image-options" data-ratio="${item.ratio}" data-image-size="${size}" aria-label="长宽比 ${item.ratio}，${size}，${selectedPixels(d, item.ratio, size)}" aria-pressed="${selected}"><span class="matrix-mark" aria-hidden="true">${selected ? '✓' : ''}</span><span class="matrix-pixels">${selectedPixels(d, item.ratio, size)}</span></button></td>`; }).join('')}</tr>`).join('')}</tbody></table></div>${cap.presetNotes ? `<div class="matrix-notice">${esc(cap.presetNotes)}</div>` : ''}` : '<div class="matrix-notice">此模型的图片参数尚未支持。请选择 Nano Banana 2.1 或已支持的 Seedream 5.0 Flash / Pro。</div>'}</div>` : ''}</div>`;
@@ -323,7 +344,7 @@ function render(scrollEnd = false) {
   const focusIdentity = captureControlFocus();
   if (page === 'logs') { renderLogsPage(); restoreControlFocus(focusIdentity); return; }
   const d = get(), scrollTop = app.scrollTop;
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="api-loading" role="status" aria-label="正在加载"><span class="api-spinner" aria-hidden="true"></span><span class="sr-only">正在加载</span></div></div>' : ''}</div></section><footer class="composer-area"><div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="api-loading" role="status" aria-label="正在加载"><span class="api-spinner" aria-hidden="true"></span><span class="sr-only">正在加载</span></div></div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
   mountFloatingMenu();
   syncFloatingNavigation();
   positionFloatingMenu();
@@ -374,15 +395,17 @@ async function send() {
   const d = get(); if (!d) return { status: 'not-sent', reason: 'select-workspace' };
   syncLogSecrets();
   const requestPage = page, text = d.draft.trim();
-  if (d.busy || !text) return { status: 'not-sent', reason: d.busy ? 'busy' : 'empty' };
+  if (d.busy || d.attachmentReading || (!text && !d.attachments.length)) return { status: 'not-sent', reason: d.busy ? 'busy' : 'empty' };
   closeMenus();
+  const attachments = [...d.attachments];
+  try { validateAttachments(attachments,d.api.protocol,d.model.inputs); } catch(e) { d.attachmentError=errorText(e); render(); return {status:'not-sent',reason:'attachments'}; }
   const pending = d.messages.find(m => m.id === d.pendingTextId);
-  if (!pending || pending.text !== text) { const m = { id: nextId++, type: 'user', text }; d.messages.push(m); d.pendingTextId = m.id; }
+  if (!pending || pending.text !== text || JSON.stringify(pending.attachments?.map(a=>a.id)) !== JSON.stringify(attachments.map(a=>a.id))) { const m = { id: nextId++, type: 'user', text, attachments }; d.messages.push(m); d.pendingTextId = m.id; }
   if (!isConfigured(d)) { addCard('api'); return { status: 'needs-configuration' }; }
   if (requestPage === 'image' && !matrixSupported(d)) { status(d, '此图片模型的参数尚未支持，请选择 Nano Banana 2.1 或 Seedream 5.0 Flash / Pro。', 'error'); return { status: 'not-sent', reason: 'unsupported-model' }; }
   const config = { ...d.api }, args = { prompt: text, aspectRatio: d.aspectRatio, imageSize: d.imageSize };
   if (requestPage === 'image' && !approveImage({ target: canonicalEndpoint(config.url), model: config.model, args })) { render(true); return { status: 'declined' }; }
-  d.busy = true; d.controller = new AbortController(); d.draft = ''; d.lastUsage = null; d.elapsed = null;
+  d.busy = true; d.controller = new AbortController(); d.draft = ''; d.attachments = []; d.attachmentError = ''; d.lastUsage = null; d.elapsed = null;
   const started = performance.now(); let checkpointed = false;
   render(true);
   try {
@@ -391,7 +414,7 @@ async function send() {
       appendImages(d, result, args); d.lastUsage = result.usage;
     } else {
       const result = await runConversation({
-        config, imageConfig: { ...data.image.api }, messages: [...d.history, { role: 'user', content: text }], settings: { ...d.model }, signal: d.controller.signal,
+        config, imageConfig: { ...data.image.api }, messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
         confirmTool: async invocation => approveImage(invocation),
         onHistory: history => { d.history = history; checkpointed = true; },
         onToolResult: ({ result, invocation }) => appendImages(d, result, invocation.args, true)
@@ -404,7 +427,7 @@ async function send() {
     return { status: 'completed', messageCount: d.messages.length };
   } catch (e) {
     status(d, errorText(e), 'error');
-    if (!checkpointed) d.draft = text;
+    if (!checkpointed) { d.draft = text; d.attachments = attachments; }
     else { d.pendingTextId = null; status(d, '已保留本轮工具上下文。你可以继续对话；已完成的图片不会自动重做。'); }
     return { status: e?.code === 'CANCELLED' ? 'cancelled' : 'failed', code: e instanceof AppError ? e.code : 'REQUEST_FAILED' };
   } finally { d.busy = false; d.controller = null; d.elapsed = (performance.now() - started) / 1000; if (get() === d) render(true); }
@@ -413,10 +436,15 @@ app.addEventListener('click', async e => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const action = el.dataset.action, d = get(), card = getCard(Number(el.dataset.id));
-  if (d?.busy && !['tab', 'cancel'].includes(action)) return;
+  if ((d?.busy || d?.attachmentReading) && !['tab', 'cancel'].includes(action)) return;
   switch (action) {
     case 'tab': page = el.dataset.tab; closeMenus(); render(); break;
     case 'plus': plusOpen = !plusOpen; sizeOpen = false; subMenu = ''; render(); if (plusOpen) focusFloatingMenu(); break;
+    case 'attach': selectAttachments(el.dataset.kind); break;
+    case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;render();break;
+    case 'clear-attachments': d.attachments=[]; d.attachmentError=''; render(); break;
+    case 'remove-attachment': d.attachments=d.attachments.filter(a=>a.id!==el.dataset.id); d.attachmentError=''; render(); break;
+    case 'toggle-input': { const kind=el.dataset.modality; if(card?.id !== activeCardId(d) || kind==='text' || !supportedModalities(d.api.protocol).includes(kind)) break; d.model.inputs=d.model.inputs.includes(kind)?d.model.inputs.filter(k=>k!==kind):[...d.model.inputs,kind]; render(); break; }
     case 'new-card': addCard(el.dataset.kind); break;
     case 'size-toggle': sizeOpen = !sizeOpen; plusOpen = false; subMenu = ''; render(); if (sizeOpen) focusFloatingMenu(); break;
     case 'set-image-options': if (matrixSupported(d) && getImageCapabilities(d.api).ratios.some(x => x.ratio === el.dataset.ratio) && getImageCapabilities(d.api).sizes.includes(el.dataset.imageSize)) { const scroll = app.querySelector('.matrix-scroll')?.scrollTop || 0; d.aspectRatio = el.dataset.ratio; d.imageSize = el.dataset.imageSize; render(); app.querySelector('.matrix-scroll').scrollTop = scroll; } break;
@@ -533,7 +561,7 @@ function publicSessionState() {
 let approvedSessionRequest = null;
 function sessionRequestSnapshot() {
   const d = get();
-  return d ? { page, draft: d.draft, api: { ...d.api }, settings: { ...d.model }, aspectRatio: d.aspectRatio, imageSize: d.imageSize } : null;
+  return d ? { page, draft: d.draft, attachments: d.attachments.map(a=>a.id), api: { ...d.api }, settings: { ...d.model }, aspectRatio: d.aspectRatio, imageSize: d.imageSize } : null;
 }
 const pageSession = createPageSession({
   state: publicSessionState,
@@ -555,10 +583,10 @@ const pageSession = createPageSession({
     render(); return publicSessionState();
   },
   confirmSend: () => {
-    const d = get(); if (!d || d.busy || !d.draft.trim() || approvedSessionRequest) return false;
+    const d = get(); if (!d || d.busy || d.attachmentReading || (!d.draft.trim() && !d.attachments.length) || approvedSessionRequest) return false;
     syncLogSecrets();
     const snapshot = sessionRequestSnapshot();
-    const approved = window.confirm(`允许已连接的页面控制工具发送当前${page === 'image' ? '图片' : '文本'}请求？\n\n目标：${sanitizeLogValue(d.api.url)}\n模型：${sanitizeLogValue(d.api.model)}\n提示词：${sanitizeLogValue(d.draft)}\n此操作可能消耗 API 额度。API 目标与图片生成确认仍然适用。`);
+    const approved = window.confirm(`允许已连接的页面控制工具发送当前${page === 'image' ? '图片生成' : '对话及附件'}请求？\n\n目标：${sanitizeLogValue(d.api.url)}\n模型：${sanitizeLogValue(d.api.model)}\n提示词：${sanitizeLogValue(d.draft)}\n附件：${d.attachments.length ? d.attachments.map(a=>`${sanitizeLogValue(a.name)} (${(a.size/1024).toFixed(1)} KiB)`).join('、') : '无'}\n此操作可能消耗 API 额度。API 目标与图片生成确认仍然适用。`);
     if (approved) approvedSessionRequest = snapshot;
     return approved;
   },

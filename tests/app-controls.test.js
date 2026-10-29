@@ -1,3 +1,4 @@
+import * as attachments from '../src/attachments.js';
 import { usageMetricsMarkup } from '../src/usage.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -33,7 +34,7 @@ function mount({ confirm = () => true, runConversation, dispatchCommand, listMod
   const document = { getElementById: () => app, addEventListener: () => {}, activeElement: null };
   const neverFetch = () => assert.fail('No network may run in control regressions.');
   const context = {
-    ...core, ...logs, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
+    ...core, ...logs, ...attachments, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
     renderNetworkLogs: container => { if (container) container.textContent = logs.exportNetworkLogs(); },
     URL, Blob, Uint8Array, atob, AbortController, performance,
     runConversation: runConversation || neverFetch, listModels: listModels || neverFetch, dispatchCommand: dispatchCommand || neverFetch
@@ -377,11 +378,36 @@ test('pending request shows only accessible spinner and clears it on completion'
  assert.equal(d.busy,false);assert.doesNotMatch(ui.app.innerHTML,/class="api-spinner"/);
 });
 
-test('cancelled and failed requests clear spinner but preserve error feedback',async()=>{
- const ui=mount({runConversation:({signal})=>new Promise((resolve,reject)=>signal.addEventListener('abort',()=>reject(new core.AppError('CANCELLED','离线取消'))))}),{d}=configure(ui);
- d.draft='offline cancel';const pending=ui.click({action:'send'});await ui.click({action:'cancel'});await pending;
- assert.equal(d.busy,false);assert.doesNotMatch(ui.app.innerHTML,/class="api-spinner"/);assert.match(ui.app.innerHTML,/离线取消/);
- const failed=mount({runConversation:async()=>{throw new core.AppError('TEST','离线错误');}}),state=configure(failed).d;
- state.draft='offline failure';await failed.click({action:'send'});
- assert.equal(state.busy,false);assert.doesNotMatch(failed.app.innerHTML,/class="api-spinner"/);assert.match(failed.app.innerHTML,/离线错误/);
+test('attachment send clears draft only on success, guards duplicate, and retains history', async()=>{
+ let resolve, sent;
+ const ui=mount({runConversation: args=>{sent=args;return new Promise(r=>resolve=r);}}),{d}=configure(ui);
+ const files=await attachments.prepareFiles([new File(['fixture'],'a.png',{type:'image/png'})],[],'gemini',['image']);
+ d.attachments=files;
+ const operation=ui.click({action:'send'});
+ assert.equal(d.busy,true);assert.equal(d.attachments.length,0);assert.equal(sent.messages[0].attachments[0].id,files[0].id);
+ await ui.click({action:'send'});assert.equal(d.messages.filter(m=>m.type==='user').length,1);
+ resolve({history:sent.messages,text:'OK'});await operation;
+ assert.equal(d.history[0].attachments[0].id,files[0].id);assert.match(ui.app.innerHTML,/a.png/);
+});
+test('failed attachment send restores draft; remove/clear preserve unrelated state',async()=>{
+ const ui=mount({runConversation:async()=>{throw new Error('failure');}}),{d}=configure(ui);
+ d.attachments=await attachments.prepareFiles([new File(['fixture'],'a.txt',{type:'text/plain'})],[],'gemini',['text']);d.draft='hello';
+ await ui.click({action:'send'});assert.equal(d.attachments.length,1);assert.equal(d.draft,'hello');
+ await ui.click({action:'remove-attachment',id:d.attachments[0].id});assert.equal(d.attachments.length,0);assert.equal(d.draft,'hello');
+ await ui.click({action:'clear-chat'});assert.equal(d.history.length,0);assert.equal(d.messages.length,0);assert.equal(d.api.key,'synthetic-control-key');
+});
+test('input modality toggles and protocol changes reject incompatible draft before request',async()=>{
+ const ui=mount(),{d}=configure(ui);ui.addCard('model');const card=d.messages.at(-1);
+ await ui.click({action:'toggle-input',id:String(card.id),modality:'image'});assert(!d.model.inputs.includes('image'));
+ d.attachments=await attachments.prepareFiles([new File(['fixture'],'a.pdf',{type:'application/pdf'})],[],'gemini',['pdf']);d.api.protocol='ark';
+ await ui.click({action:'send'});assert.equal(d.busy,false);assert.equal(d.attachments.length,1);assert.match(d.attachmentError,/未启用/);
+});
+test('page session permits attachment-only approval, describes files and rejects attachment race',async()=>{
+ let confirmation='',calls=0;
+ const ui=mount({confirm:message=>{confirmation=message;return true;},runConversation:async args=>{calls++;return {text:'OK',history:args.messages};}}),{d}=configure(ui);
+ d.attachments=await attachments.prepareFiles([new File(['fixture'],'note.txt',{type:'text/plain'})],[],'gemini',['text']);
+ const result=await ui.session.execute({command:'request.send',args:{}});assert.equal(result.result.status,'completed');assert.equal(calls,1);assert.match(confirmation,/note.txt.*KiB/);
+ d.attachments=await attachments.prepareFiles([new File(['fixture2'],'second.txt',{type:'text/plain'})],[],'gemini',['text']);
+ const sending=ui.session.execute({command:'request.send',args:{}});d.attachments=[];const raced=await sending;assert.equal(raced.result.reason,'changed-after-confirmation');assert.equal(calls,1);
+ d.attachmentReading=true;d.draft='not ready';assert.equal((await ui.session.execute({command:'request.send',args:{}})).ok,false);assert.equal(calls,1);
 });

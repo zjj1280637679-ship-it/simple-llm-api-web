@@ -122,7 +122,7 @@ export async function runConversation({
             } else {
               const result = await dispatchCommand(
                 { command: invocation.command, args: invocation.args },
-                { imageConfig, confirmed: true, signal, fetchImpl },
+                { imageConfig: {...imageConfig, attachmentContext: history.some(message => message.attachments?.length)}, confirmed: true, signal, fetchImpl },
               );
               summary = imageSummary(result);
               completed.set(fingerprint, summary);

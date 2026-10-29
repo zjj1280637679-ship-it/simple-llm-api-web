@@ -1,3 +1,4 @@
+import { attachmentParts, attachmentMetadata } from './attachments.js';
 import { usageFrom } from './usage.js';
 import { getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
 import { recordNetwork, setLogSecrets } from './logs.js';
@@ -87,8 +88,9 @@ function modelId(config) {
 
 /** Network errors deliberately omit upstream bodies/URLs/causes: they can echo credentials. */
 let nextRequestId = 0;
-async function requestJSON(config, path, {body, signal, fetchImpl = globalThis.fetch} = {}) {
+async function requestJSON(config, path, {body, logBody, signal, fetchImpl = globalThis.fetch} = {}) {
   const base = validateEndpoint(config);
+  if (config.attachmentContext && logBody === undefined) logBody = {model:config.model, note:'附件会话派生请求；正文不写入日志'};
   checkAbort(signal);
   if (typeof fetchImpl !== 'function') fail('FETCH', '运行环境不支持 fetch；请使用现代浏览器或 Node.js 20+。');
   const headers = {Accept:'application/json'};
@@ -99,7 +101,7 @@ async function requestJSON(config, path, {body, signal, fetchImpl = globalThis.f
   const event = {
     requestId:`request-${started}-${++nextRequestId}`, startedAt:new Date(started).toISOString(),
     method:body === undefined ? 'GET' : 'POST', endpoint:`${base}${path}`, provider:config.protocol,
-    source:fetchImpl === globalThis.fetch ? 'network' : 'mock', requestPayload:body,
+    source:fetchImpl === globalThis.fetch ? 'network' : 'mock', requestPayload:logBody ?? body,
     requestHeaders:{Accept:'application/json',...(body === undefined ? {} : {'Content-Type':'application/json'}),[config.protocol === 'gemini' ? 'x-goog-api-key' : 'Authorization']:'[REDACTED]'},
   };
   // Diagnostic failures must never affect a request, and credentials never enter log headers.
@@ -140,7 +142,7 @@ async function requestJSON(config, path, {body, signal, fetchImpl = globalThis.f
     if (!isRecord(json)) fail('RESPONSE', 'API 响应格式不正确。');
     const responsePayload = config.protocol === 'ark' && path === '/images/generations' && Array.isArray(json.data)
       ? {...json,data:json.data.map(item => isRecord(item) && Object.hasOwn(item,'url') ? {...item,url:'[OMITTED: image URL]'} : item)} : json;
-    record({status:response.status,responsePayload,responseHeaders:responseHeaders()});
+    record({status:response.status,responsePayload:logBody ? {omitted:'attachment request response content',usage:responsePayload?.usage || responsePayload?.usageMetadata || null} : responsePayload,responseHeaders:responseHeaders()});
     return json;
   } catch (error) {
     record({status:error?.code === 'CANCELLED' ? 'cancelled' : response?.status || 'error',responseHeaders:responseHeaders(),error:{code:error?.code || 'REQUEST',message:error instanceof AppError ? error.message : '请求未完成。'}});
@@ -188,9 +190,10 @@ function nativeMessages(messages, protocol) {
     }
     if (message.role === 'tool') fail('MESSAGES', '工具历史与当前协议不匹配；请开始新的对话。');
     const text = typeof message.content === 'string' ? message.content : '';
+    const attachments = attachmentParts(message.attachments || [], protocol);
     return protocol === 'gemini'
-      ? {role:message.role === 'assistant' ? 'model' : 'user',parts:[{text}]}
-      : {role:message.role,content:text};
+      ? {role:message.role === 'assistant' ? 'model' : 'user',parts:[...(text || !attachments.length ? [{text}] : []),...attachments]}
+      : {role:message.role,content:attachments.length ? [...(text ? [{type:'text',text}] : []),...attachments] : text};
   });
 }
 function geminiCandidate(json) {
@@ -218,7 +221,8 @@ export async function generateText({config, messages, settings = {}, tools = [],
     body = {model,messages:history,stream:false,...generation};
     if (tools.length) body.tools = tools.map(tool => ({type:'function',function:tool}));
   }
-  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:generateContent` : '/chat/completions', {body,signal,fetchImpl});
+  if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 16 * 1024 * 1024) fail('ATTACHMENT_LIMIT','对话附件累计过大，请清空对话后重新添加。');
+  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:generateContent` : '/chat/completions', {body,signal,fetchImpl, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
   if (config.protocol === 'gemini') {
     const candidate = geminiCandidate(json);
     const rawAssistant = candidate.content;

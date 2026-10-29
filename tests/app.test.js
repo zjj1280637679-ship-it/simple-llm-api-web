@@ -19,7 +19,7 @@ test('production has no simulated result or persistent key storage', async () =>
   assert.match(app, /runConversation/);
   assert.match(app, /key: ''/);
   assert.match(app, /esc\(m\.text\)/);
-  assert.match(app, /if \(d\.busy \|\| !text\) return/);
+  assert.match(app, /if \(d\.busy \|\| d\.attachmentReading/);
 });
 test('production starts with no pre-filled user or model history', async () => {
   assert.match(await read('src/app.js'), /messages: \[\], history: \[\]/);
