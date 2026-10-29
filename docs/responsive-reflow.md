@@ -37,3 +37,7 @@
 - [MDN overflow-wrap](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overflow-wrap)：避免不可断长字符串撑破容器。
 
 以上是设计依据，并非宣称网站达到完整WCAG合规。
+
+## 2026-10-29T11:54Z · CUA finding and correction
+
+Real CUA preview at 320 × 800 with synthetic long content and 200% text found no horizontal overflow, but the wrapped composer squeezed history to 42px. The history now reserves `min(18rem,45dvh)` and the outer shell scrolls when needed. This changes layout only; short-screen document-flow rules remain in effect. Correction requires a fresh browser check; the prior no-horizontal-overflow result is not sufficient acceptance.

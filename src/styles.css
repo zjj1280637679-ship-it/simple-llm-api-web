@@ -11,7 +11,9 @@
 .shell{overflow:auto}
 .main,.thread,.thread-inner,.composer-area,.compose,.formfield,.subgrid>*,
 .fieldrow>*,.compose-actions>*,.left-actions,.right-actions,.tabs,.top-right{min-width:0}
-.thread{min-height:0}
+/* Reserve a usable history viewport even when wrapping makes the footer tall.
+   The outer shell then scrolls instead of compressing history into a sliver. */
+.thread{min-height:min(18rem,45dvh)}
 .top{height:auto;min-height:69px;padding-block:12px;gap:12px;flex-wrap:wrap}
 .tabs{display:flex;flex-wrap:wrap;max-width:100%}
 .tab{min-width:0;white-space:normal;overflow-wrap:anywhere}
