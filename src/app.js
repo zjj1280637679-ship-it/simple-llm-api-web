@@ -340,15 +340,38 @@ function restoreControlFocus(identity) {
     .find(button => !button.disabled && Object.entries(identity).every(([key,value]) => button.dataset[key] === value));
   target?.focus({ preventScroll: true });
 }
+// View positions belong to each tab, not to the shared scrolling element.
+const viewPositions = new Map();
+let renderedPage = null, scrollRestoreVersion = 0;
+function rememberViewPosition() {
+  if (!renderedPage) return;
+  const top = Math.max(0, Number(app.scrollTop) || 0);
+  const maximum = Math.max(0, (Number(app.scrollHeight) || 0) - (Number(app.clientHeight) || 0));
+  viewPositions.set(renderedPage, { top, bottom: maximum > 0 && maximum - top <= 2 });
+}
+function restoreViewPosition(scrollEnd = false) {
+  const position = viewPositions.get(page) || {top:0,bottom:false};
+  if (scrollEnd) position.bottom = true;
+  renderedPage = page;
+  const destination = page, version = ++scrollRestoreVersion;
+  const apply = () => { app.scrollTop = position.bottom ? app.scrollHeight : position.top; };
+  apply();
+  const restoredTop = app.scrollTop;
+  // Account for measured floating clearances, without overriding intervening user scroll.
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => {
+    if (version === scrollRestoreVersion && renderedPage === destination && app.scrollTop === restoredTop) apply();
+  });
+}
 function render(scrollEnd = false) {
+  rememberViewPosition();
   const focusIdentity = captureControlFocus();
-  if (page === 'logs') { renderLogsPage(); restoreControlFocus(focusIdentity); return; }
-  const d = get(), scrollTop = app.scrollTop;
+  if (page === 'logs') { renderLogsPage(); restoreViewPosition(scrollEnd); restoreControlFocus(focusIdentity); return; }
+  const d = get();
   app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message"><div class="api-loading" role="status" aria-label="正在加载"><span class="api-spinner" aria-hidden="true"></span><span class="sr-only">正在加载</span></div></div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
   mountFloatingMenu();
   syncFloatingNavigation();
   positionFloatingMenu();
-  app.scrollTop = scrollEnd ? app.scrollHeight : scrollTop;
+  restoreViewPosition(scrollEnd);
   restoreControlFocus(focusIdentity);
 }
 function trustTarget(d, report = text => status(d, text, 'error'), apply = false) {

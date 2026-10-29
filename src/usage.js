@@ -19,5 +19,5 @@ export function usageMetrics(usage) {
 }
 export function usageMetricsMarkup(usage) {
   const m = usageMetrics(usage);
-  return `<span title="上游返回的末次模型请求总量；不是多轮工具任务累计量">末次请求 Token <strong>${m.total}</strong></span><span title="末次请求缓存输入 Token ÷ 输入 Token；未返回字段显示三个点占位，输入为零不计算比例">缓存命中 <strong>${m.cache}</strong></span><span title="末次请求的输入 Token，包含上游计入的历史与工具内容；不是当前草稿估算。模型窗口未核实时不计算占用百分比">上下文（末次输入） <strong>${m.context}</strong></span>`;
+  return `<span title="上游返回的末次模型请求总量；不是多轮工具任务累计量">词元 <strong>${m.total}</strong></span><span title="末次请求缓存输入 Token ÷ 输入 Token；未返回字段显示三个点占位，输入为零不计算比例">命中 <strong>${m.cache}</strong></span><span title="末次请求的输入 Token，包含上游计入的历史与工具内容；不是当前草稿估算。模型窗口未核实时不计算占用百分比">输入 <strong>${m.context}</strong></span>`;
 }

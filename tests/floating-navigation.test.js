@@ -35,7 +35,7 @@ test('rerender restores matching enabled action focus without forcing scroll',()
  const context={document:{activeElement:active},app:{contains:()=>true,querySelectorAll:()=>[other,target]}};
  vm.createContext(context);vm.runInContext(block+'\nrestoreControlFocus(captureControlFocus());',context);
  assert.equal(options.preventScroll,true);
- assert.match(source,/renderLogsPage\(\); restoreControlFocus\(focusIdentity\)/);
+ assert.match(source,/renderLogsPage\(\); restoreViewPosition\(scrollEnd\); restoreControlFocus\(focusIdentity\)/);
 });
 
 test('pending elapsed time uses the shared three-dot presentation',()=>{

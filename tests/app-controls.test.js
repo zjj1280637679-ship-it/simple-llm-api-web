@@ -138,7 +138,7 @@ test('image page accepts the shared core models/ prefix and still rejects other 
 
 test('Token metric identifies usage as the last request rather than a summed Agent turn', () => {
   const ui = mount();
-  assert.match(ui.app.innerHTML, /末次请求 Token/);
+  assert.match(ui.app.innerHTML, />词元 <strong>/);
 });
 
 
