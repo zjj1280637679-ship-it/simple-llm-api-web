@@ -94,7 +94,7 @@ export async function runConversation({
       pendingCalls = [...calls];
       if (!calls.length) {
         checkpoint();
-        return { text: response.text || '', history, usage: response.usage, toolResults };
+        return { text: response.text || '', history, usage: response.usage, metrics: response.metrics, toolResults };
       }
       toolRounds += 1;
       toolCallCount += calls.length;

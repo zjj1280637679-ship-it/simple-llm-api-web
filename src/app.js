@@ -1,6 +1,6 @@
 import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody } from './reasoning.js';
 import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
-import { usageMetricsMarkup } from './usage.js';
+import { replyMetricsMarkup, replyMetricsSnapshot } from './usage.js';
 import { icon } from './icons.js';
 import { AppError, DEFAULT_TEXT_MODEL, IMAGE_MODEL, ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_TEXT_MODEL, getImageCapabilities, normalizeImageOptions, canonicalEndpoint, listModels, dispatchCommand } from './core.js';
 import { runConversation } from './agent.js';
@@ -288,7 +288,7 @@ const makePage = type => ({
   api: { protocol: 'gemini', url: providers[0].url, key: '', model: type === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL, supplier: 'Google Gemini', trustedTarget: '' },
   model: { output: '', temperature: '', topP: '', inputs: ['text','image','pdf','audio','video'] }, draft: '', attachments: [], attachmentReading: false, attachmentError: '', pendingTextId: null,
   aspectRatio: '1:1', imageSize: '1K', messages: [], history: [], busy: false,
-  controller: null, lastUsage: null, elapsed: null
+  controller: null, lastUsage: null, lastMetrics: null
 });
 const data = { chat: makePage('chat'), image: makePage('image') };
 let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
@@ -390,13 +390,13 @@ function modelCard(m) {
   return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}<div class="card-type">模型设置</div><div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield"><label for="context${m.id}">上下文</label><output id="context${m.id}" class="block-value">本页内存中的对话</output></div>` : `<div class="formfield"><label for="count${m.id}">生成数量</label><output id="count${m.id}" class="block-value">1</output></div><div class="formfield"><label for="format${m.id}">输出格式</label><output id="format${m.id}" class="block-value">上游原始格式</output></div>`}</div>${page === 'chat' ? `<div class="fieldgroup"><span class="formlabel">输入模态</span><div class="chips">${Object.entries(MODALITIES).map(([kind,label]) => `<button type="button" class="chip ${x.inputs?.includes(kind) ? 'sel' : ''}" data-action="toggle-input" data-id="${m.id}" data-modality="${kind}" aria-pressed="${Boolean(x.inputs?.includes(kind))}" ${!supportedModalities(d.api.protocol).includes(kind) || kind === 'text' ? 'disabled' : ''}>${label}</button>`).join('')}</div></div>` : ''}<div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : d.api.protocol === 'anthropic' ? ' 输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div></div></fieldset></div>`;
 }
 function imageMarkup(m) {
-  return `<div class="message"><div class="assistant-message"><div class="assistant-label">${m.fromTool ? '图片工作台 · Agent 调用' : '图片结果'}</div>${m.images.map((im, i) => `<div class="img-result">${im.failed ? '<div class="mock-status" role="alert">返回的图片文件无法在浏览器中解码。请检查下载文件；不会自动重新生成。</div>' : `<img class="generated-image" data-image-message="${m.id}" data-image-index="${i}" src="${esc(im.url)}" alt="${esc(m.prompt)}" loading="lazy">`}<div class="sample-caption"><span>${esc(m.aspectRatio)} · ${esc(m.imageSize)}</span><a href="${esc(im.url)}" download="image-${m.id}-${i + 1}.${im.extension}">下载</a></div></div>`).join('')}${m.text ? `<div class="assistant-note">${esc(m.text)}</div>` : ''}</div></div>`;
+  return `<div class="message"><div class="assistant-message"><div class="assistant-label">${m.fromTool ? '图片工作台 · Agent 调用' : '图片结果'}</div>${m.images.map((im, i) => `<div class="img-result">${im.failed ? '<div class="mock-status" role="alert">返回的图片文件无法在浏览器中解码。请检查下载文件；不会自动重新生成。</div>' : `<img class="generated-image" data-image-message="${m.id}" data-image-index="${i}" src="${esc(im.url)}" alt="${esc(m.prompt)}" loading="lazy">`}<div class="sample-caption"><span>${esc(m.aspectRatio)} · ${esc(m.imageSize)}</span><a href="${esc(im.url)}" download="image-${m.id}-${i + 1}.${im.extension}">下载</a></div></div>`).join('')}${m.text ? `<div class="assistant-note">${esc(m.text)}</div>` : ''}${m.metrics ? `<div class="reply-metrics">${replyMetricsMarkup(m.metrics)}</div>` : ''}</div></div>`;
 }
 function messageMarkup(m) {
   if (m.type === 'card') return `<div class="message">${m.kind === 'api' ? apiCard(m) : modelCard(m)}</div>`;
   if (m.type === 'user') return `<div class="message user"><div class="bubble">${esc(m.text)}${attachmentsMarkup(m.attachments)}</div></div>`;
   if (m.type === 'imageResult') return imageMarkup(m);
-  if (m.type === 'chatResult') return `<div class="message" data-stream-message="${m.id}"><div class="assistant-message"><div class="assistant-label">${m.incomplete ? '未完成 · 未加入上下文' : m.streaming ? '正在回复…' : '模型回复'}</div><div class="assistant-note reply-text">${esc(m.text)}</div></div></div>`;
+  if (m.type === 'chatResult') return `<div class="message" data-stream-message="${m.id}"><div class="assistant-message"><div class="assistant-label">${m.incomplete ? '未完成 · 未加入上下文' : m.streaming ? '正在回复…' : '模型回复'}</div><div class="assistant-note reply-text">${esc(m.text)}</div>${m.metrics ? `<div class="reply-metrics">${replyMetricsMarkup(m.metrics)}</div>` : ''}</div></div>`;
   return `<div class="message"><div class="mock-status" role="${m.type === 'error' ? 'alert' : 'status'}">${esc(m.text)}</div></div>`;
 }
 function attachmentsMarkup(files = [], editable = false) {
@@ -477,7 +477,7 @@ function render(scrollEnd = false) {
   const focusIdentity = captureControlFocus();
   if (page === 'logs') { renderLogsPage(); restoreViewPosition(scrollEnd); restoreControlFocus(focusIdentity); return; }
   const d = get();
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message">'+loadingMarkup(d)+'</div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : reasoningMarkup()}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message">'+loadingMarkup(d)+'</div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : reasoningMarkup()}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${replyMetricsMarkup(d.lastMetrics)}</div></footer></main>`;
   recordScrollDiagnostic('render-dom-replaced');
   mountFloatingMenu();
   syncFloatingNavigation();
@@ -500,6 +500,7 @@ function paintStream(d, message) {
   }
   node.querySelector('.reply-text').textContent = message.text;
   node.querySelector('.assistant-label').textContent = message.incomplete ? '未完成 · 未加入上下文' : message.streaming ? '正在回复…' : '模型回复';
+  if (message.metrics && !node.querySelector('.reply-metrics')) node.querySelector('.assistant-message').insertAdjacentHTML('beforeend', `<div class="reply-metrics">${replyMetricsMarkup(message.metrics)}</div>`);
   if (follow) { recordScrollDiagnostic('stream-follow-write',app.scrollHeight-app.scrollTop); app.scrollTop = app.scrollHeight; }
 }
 // These phases describe observed transport evidence, never inferred private thinking.
@@ -583,7 +584,7 @@ function appendImages(d, result, args, fromTool = false) {
     const decoded = atob(im.data), bytes = Uint8Array.from(decoded, c => c.charCodeAt(0));
     return { url: URL.createObjectURL(new Blob([bytes], { type: mime })), extension };
   });
-  d.messages.push({ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', fromTool });
+  d.messages.push({ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', metrics:replyMetricsSnapshot(result.usage), fromTool });
   if (get() === d) render();
 }
 function modelListStatus(d, card, text) {
@@ -622,15 +623,15 @@ async function send() {
   if (requestPage === 'image' && !matrixSupported(d)) { status(d, '此图片模型的参数尚未支持，请选择 Nano Banana 2.1 或 Seedream 5.0 Flash / Pro。', 'error'); return { status: 'not-sent', reason: 'unsupported-model' }; }
   const config = { ...d.api }, args = { prompt: text, aspectRatio: d.aspectRatio, imageSize: d.imageSize };
   if (requestPage === 'image' && !approveImage({ target: canonicalEndpoint(config.url), model: config.model, args })) { render(true); return { status: 'declined' }; }
-  d.busy = true; d.controller = new AbortController(); d.draft = ''; d.attachments = []; d.attachmentError = ''; d.lastUsage = null; d.elapsed = null;
+  d.busy = true; d.controller = new AbortController(); d.draft = ''; d.attachments = []; d.attachmentError = ''; d.lastUsage = null; d.lastMetrics = null;
   const stopLoading=beginLoading(d);
-  const started = performance.now(); let checkpointed = false;
+  let checkpointed = false;
   const streamedReplies = new Map();
   render(true);
   try {
     if (requestPage === 'image') {
       const result = await dispatchCommand({ command: 'image.generate', args }, { imageConfig: config, signal: d.controller.signal, confirmed: true, onPhase:phase=>requestPhase(d,phase) });
-      appendImages(d, result, args); d.lastUsage = result.usage;
+      appendImages(d, result, args); d.lastUsage = result.usage; d.lastMetrics = replyMetricsSnapshot(result.usage);
     } else {
       const result = await runConversation({
         config, imageConfig: configuredImageSnapshot(), messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
@@ -646,15 +647,15 @@ async function send() {
         },
         onResponse: (response, {round}) => {
           const reply = streamedReplies.get(round);
-          if (reply) { reply.streaming = false; paintStream(d,reply); }
+          if (reply) { reply.streaming = false; reply.metrics = response.metrics; paintStream(d,reply); }
         },
         confirmTool: async invocation => approveImage(invocation),
         onHistory: history => { d.history = history; checkpointed = true; },
         onToolResult: ({ result, invocation }) => appendImages(d, result, invocation.args, true)
       });
       d.history = result.history;
-      if (result.text && !streamedReplies.size) d.messages.push({ id: nextId++, type: 'chatResult', text: result.text });
-      d.lastUsage = result.usage;
+      if (result.text && !streamedReplies.size) d.messages.push({ id: nextId++, type: 'chatResult', text: result.text, metrics: result.metrics });
+      d.lastUsage = result.usage; d.lastMetrics = result.metrics;
     }
     d.pendingTextId = null;
     return { status: 'completed', messageCount: d.messages.length };
@@ -667,7 +668,7 @@ async function send() {
     if (!checkpointed) { d.draft = text; d.attachments = attachments; }
     else { d.pendingTextId = null; status(d, '已保留本轮工具上下文。你可以继续对话；已完成的图片不会自动重做。', 'status', false); }
     return { status: e?.code === 'CANCELLED' ? 'cancelled' : 'failed', code: e instanceof AppError ? e.code : 'REQUEST_FAILED' };
-  } finally { stopLoading(); d.busy = false; d.controller = null; d.elapsed = (performance.now() - started) / 1000; if (get() === d) render(); }
+  } finally { stopLoading(); d.busy = false; d.controller = null; if (get() === d) render(); }
 }
 app.addEventListener('click', async e => {
   const el = e.target.closest('[data-action]');
@@ -701,7 +702,7 @@ app.addEventListener('click', async e => {
     }
     case 'plus': plusOpen = !plusOpen; sizeOpen = false; subMenu = ''; render(); if (plusOpen) focusFloatingMenu(); break;
     case 'attach': selectAttachments(el.dataset.kind); break;
-    case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;render();break;
+    case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;d.lastMetrics=null;render();break;
     case 'clear-attachments': d.attachments=[]; d.attachmentError=''; render(); break;
     case 'remove-attachment': d.attachments=d.attachments.filter(a=>a.id!==el.dataset.id); d.attachmentError=''; render(); break;
     case 'toggle-input': { const kind=el.dataset.modality; if(card?.id !== activeCardId(d) || kind==='text' || !supportedModalities(d.api.protocol).includes(kind)) break; d.model.inputs=d.model.inputs.includes(kind)?d.model.inputs.filter(k=>k!==kind):[...d.model.inputs,kind]; render(); break; }

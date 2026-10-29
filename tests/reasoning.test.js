@@ -52,3 +52,11 @@ test('core wire merges Gemini generation settings without touching stream/histor
  const choices=getReasoningTemplates(c('gemini','x'));choices[0].choices.push('bad');
  assert.equal(getReasoningTemplates(c('gemini','x'))[0].choices.includes('bad'),false);
 });
+test('unverified OpenAI exact models stay available as manual not recommended',()=>{
+ for(const model of ['gpt-5-mini','gpt-5-nano','o3','o4-mini']) {
+  const config=c('openai',model,'https://api.openai.com/v1');
+  assert.equal(getRecommendedReasoningTemplate(config),null);
+  assert.equal(getReasoningTemplates(config)[0].verifiedModel,false);
+  assert.deepEqual(reasoningBody(config,sel('openai-effort','low')),{reasoning_effort:'low'});
+ }
+});

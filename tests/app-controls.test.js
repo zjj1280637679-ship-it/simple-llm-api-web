@@ -1,6 +1,6 @@
 import * as reasoning from '../src/reasoning.js';
 import * as attachments from '../src/attachments.js';
-import { usageMetricsMarkup } from '../src/usage.js';
+import * as usage from '../src/usage.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -35,7 +35,7 @@ function mount({ confirm = () => true, runConversation, dispatchCommand, listMod
   const document = { getElementById: () => app, addEventListener: () => {}, activeElement: null };
   const neverFetch = () => assert.fail('No network may run in control regressions.');
   const context = {
-    ...core, ...logs, ...attachments, ...reasoning, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
+    ...core, ...logs, ...attachments, ...reasoning, ...usage, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
     renderNetworkLogs: container => { if (container) container.textContent = logs.exportNetworkLogs(); },
     URL, Blob, Uint8Array, atob, AbortController, performance, setTimeout, clearTimeout, setInterval, clearInterval,
     runConversation: runConversation || neverFetch, listModels: listModels || neverFetch, dispatchCommand: dispatchCommand || neverFetch
@@ -527,3 +527,31 @@ test('session approval rejects in-place reasoning value changes before dispatch'
  const pending=ui.session.execute({command:'request.send',args:{}});d.model.reasoning.value=2048;
  const result=await pending;assert.equal(calls,0);assert.equal(result.result.reason,'changed-after-confirmation');
 });
+
+test('each streamed round retains its own immutable metrics through later sends and failure',async()=>{
+ let send=0;
+ const ui=mount({runConversation:async({onDelta,onResponse})=>{
+   send++;
+   const first=usage.replyMetricsSnapshot({totalTokens:send*100,inputTokens:10,cachedTokens:0},{chunks:2,durationMs:1000},10);
+   onDelta('first',{round:0});onResponse({metrics:first},{round:0});
+   onDelta('second',{round:1});
+   if(send===2) throw new core.AppError('CANCELLED','cancelled fixture');
+   const final=usage.replyMetricsSnapshot({totalTokens:200,inputTokens:20,cachedTokens:0},{chunks:2,durationMs:2000},30);
+   onResponse({metrics:final},{round:1});return {text:'second',history:[],usage:final.usage,metrics:final};
+ }}),{d}=configure(ui);
+ d.draft='one';await ui.click({action:'send'});
+ let replies=d.messages.filter(m=>m.type==='chatResult');
+ assert.equal(replies.length,2);assert.equal(replies[0].metrics.speed,10);assert.equal(replies[1].metrics.speed,15);
+ const previous=replies[0].metrics;
+ assert.strictEqual(d.lastMetrics,replies[1].metrics);
+ d.draft='two';await ui.click({action:'send'});
+ replies=d.messages.filter(m=>m.type==='chatResult');
+ assert.strictEqual(replies[0].metrics,previous);assert.equal(previous.usage.totalTokens,100);
+ assert.equal(replies.at(-1).incomplete,true);assert.equal(replies.at(-1).metrics,undefined);assert.equal(d.lastMetrics,null);
+ assert.match(ui.app.innerHTML,/reply-metrics/);assert.doesNotMatch(ui.app.innerHTML,/耗时 <strong>/);
+});
+
+ test('clearing conversation also clears footer metrics snapshot',async()=>{
+ const ui=mount(),{d}=configure(ui);d.lastMetrics={usage:{totalTokens:10},speed:2};
+ await ui.click({action:'clear-chat'});assert.equal(d.lastMetrics,null);assert.equal(d.lastUsage,null);
+ });

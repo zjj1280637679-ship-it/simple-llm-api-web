@@ -38,8 +38,9 @@ test('rerender restores matching enabled action focus without forcing scroll',()
  assert.match(source,/renderLogsPage\(\); restoreViewPosition\(scrollEnd\); restoreControlFocus\(focusIdentity\)/);
 });
 
-test('pending elapsed time uses the shared three-dot presentation',()=>{
- assert.ok(source.includes("d.elapsed === null ? '...'"));
+test('bottom metrics use per-response speed rather than task elapsed time',()=>{
+ assert.ok(source.includes("replyMetricsMarkup(d.lastMetrics)"));
+ assert.ok(!source.includes("耗时 <strong>"));
  assert.ok(!source.includes("d.elapsed === null ? '—'"));
 });
 function mountComposer({height=800,composerHeight=160,visual=null}={}){

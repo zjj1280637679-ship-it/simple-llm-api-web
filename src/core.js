@@ -1,7 +1,7 @@
 import { reasoningBody } from './reasoning.js';
 import { collectTextStream } from './stream.js';
 import { attachmentParts, attachmentMetadata } from './attachments.js';
-import { usageFrom } from './usage.js';
+import { usageFrom, createTextTiming, visibleOutputTokens, replyMetricsSnapshot } from './usage.js';
 import { getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
 import { recordNetwork, setLogSecrets } from './logs.js';
 export { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, ARK_SIZE_LIMITS, getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
@@ -221,8 +221,10 @@ function geminiCandidate(json) {
   return candidate;
 }
 
-export async function generateText({config, messages, settings = {}, tools = [], signal, fetchImpl, onDelta, onPhase} = {}) {
+export async function generateText({config, messages, settings = {}, tools = [], signal, fetchImpl, onDelta, onPhase, now} = {}) {
   validateEndpoint(config);
+  const timing = createTextTiming(now);
+  const observedDelta = onDelta ? delta => { timing.observe(delta); onDelta(delta); } : undefined;
   const model = modelId(config);
   if (config.protocol === 'anthropic' && tools.length) fail('TOOLS_UNSUPPORTED','Anthropic 格式暂不支持工具调用。');
   const generation = settingsBody(settings, config.protocol);
@@ -244,7 +246,8 @@ export async function generateText({config, messages, settings = {}, tools = [],
   if (thinkingControls.generationConfig) body.generationConfig = {...body.generationConfig,...thinkingControls.generationConfig};
   else Object.assign(body,thinkingControls);
   if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 16 * 1024 * 1024) fail('ATTACHMENT_LIMIT','对话附件累计过大，请清空对话后重新添加。');
-  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : '/chat/completions', {body,signal,fetchImpl,onDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
+  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : '/chat/completions', {body,signal,fetchImpl,onDelta:observedDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
+  const complete = response => ({...response, metrics:replyMetricsSnapshot(response.usage, timing.snapshot(), visibleOutputTokens(json,config.protocol,{thinking:body.thinking}))});
   if (config.protocol === 'gemini') {
     const candidate = geminiCandidate(json);
     const rawAssistant = candidate.content;
@@ -253,7 +256,7 @@ export async function generateText({config, messages, settings = {}, tools = [],
     }));
     const text = rawAssistant.parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join('');
     if (!text && !toolCalls.length) fail('EMPTY','模型没有返回文本或工具调用。');
-    return {text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:candidate.finishReason || null};
+    return complete({text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:candidate.finishReason || null});
   }
   if (config.protocol === 'anthropic') {
     if (json.role !== 'assistant' || !Array.isArray(json.content)) fail('RESPONSE','Anthropic 响应格式不正确。');
@@ -261,7 +264,7 @@ export async function generateText({config, messages, settings = {}, tools = [],
     if (!['end_turn','stop_sequence'].includes(json.stop_reason)) fail('STREAM_INCOMPLETE','Anthropic 回复未完整结束；未加入历史。');
     const text = json.content.filter(block => block.type === 'text').map(block => block.text || '').join('');
     if (!text) fail('EMPTY','模型没有返回文本。');
-    return {text,toolCalls:[],rawAssistant:{role:'assistant',content:json.content},usage:usageFrom(json,'anthropic'),finishReason:json.stop_reason};
+    return complete({text,toolCalls:[],rawAssistant:{role:'assistant',content:json.content},usage:usageFrom(json,'anthropic'),finishReason:json.stop_reason});
   }
   const choice = json.choices?.[0];
   const rawAssistant = choice?.message;
@@ -277,7 +280,7 @@ export async function generateText({config, messages, settings = {}, tools = [],
     if (rawAssistant.refusal || choice.finish_reason === 'content_filter') fail('BLOCKED','供应商未返回内容，可能受安全策略限制。');
     fail('EMPTY','模型没有返回文本或工具调用。');
   }
-  return {text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:choice.finish_reason || null};
+  return complete({text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:choice.finish_reason || null});
 }
 
 export const IMAGE_TOOL = Object.freeze({

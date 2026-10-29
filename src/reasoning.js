@@ -26,7 +26,7 @@ function official(config) {
  }
  if(p==='openai') {
   // A conservative, documented common subset; expanding choices needs model evidence.
-  if(/^(gpt-5|gpt-5-mini|gpt-5-nano|gpt-5\.1|gpt-5\.2|gpt-5\.5|gpt-6-astra|gpt-6\.1-sol|o3|o4-mini)$/.test(m))
+  if(/^(gpt-5|gpt-5\.1|gpt-5\.2|gpt-5\.5|gpt-6-astra|gpt-6\.1-sol)$/.test(m))
    return [named('openai-effort',{choices:levels})];
  }
  if(p==='ark') {
