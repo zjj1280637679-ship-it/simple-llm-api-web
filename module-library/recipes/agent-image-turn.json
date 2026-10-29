@@ -1,0 +1,42 @@
+{
+  "id": "agent-image-turn",
+  "status": "candidate",
+  "implementation": "C-001",
+  "scenario": "workbench-v1",
+  "members": [
+    "F-001",
+    "F-002",
+    "F-003",
+    "R-001"
+  ],
+  "relations": [
+    {
+      "owner": "C-001",
+      "from": "F-002",
+      "to": "R-001",
+      "effect": "提取工具命令、绑定图片配置并确认"
+    },
+    {
+      "owner": "R-001",
+      "from": "R-001",
+      "to": "F-003",
+      "effect": "参数检查后执行图片功能"
+    },
+    {
+      "owner": "C-001",
+      "from": "F-003",
+      "to": "F-002",
+      "effect": "保存工具结果并回传原生对话历史"
+    }
+  ],
+  "notExecutableDSL": true,
+  "compositionObligations": [
+    "接口前后置条件匹配",
+    "状态与回调共享责任明确",
+    "任务归属与取消语义",
+    "已完成效果不因后续失败丢失",
+    "结果验收级别和声明相符"
+  ],
+  "admission": "UNKNOWN",
+  "note": "这是一份现有组合的关系目录，不是已通过四项准入的配方。尚未提取的关系由 C-001 持有；不能据此声称所有中转已独立验证。"
+}

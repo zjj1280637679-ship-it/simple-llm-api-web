@@ -1,0 +1,46 @@
+{
+  "id": "workbench-v1",
+  "status": "draft",
+  "requirements": [
+    "分别使用文本与图片工作台",
+    "Agent 可调用图片能力并取得结果",
+    "请求和结果正确归属",
+    "保留参数和错误的必要诊断语义"
+  ],
+  "conditions": [
+    "浏览器直连条件与 Node 执行条件分别验收",
+    "账号、额度、模型能力和 CORS 按具体场景确认"
+  ],
+  "observations": [
+    "request_mapping",
+    "result_ownership",
+    "diagnostic_fidelity",
+    "image_decode",
+    "actual_dimensions",
+    "tool_history",
+    "network_calls",
+    "billing_unknown_or_observed"
+  ],
+  "rewardChannels": [
+    "可用结果",
+    "请求忠实度",
+    "诊断价值"
+  ],
+  "penaltyChannels": [
+    "额外费用",
+    "错误归属",
+    "额外交互"
+  ],
+  "aggregation": null,
+  "driftTriggers": [
+    "模型或协议行为改变",
+    "权限、配额、来源或 CORS 条件改变",
+    "需求/效果阈值改变"
+  ],
+  "proofBudget": null,
+  "qualityThresholds": null,
+  "runtime": {
+    "build": "scripts/build.mjs",
+    "equivalence": "待定义观察容差和阶段验收；白名单拷贝不等于完整等效证明"
+  }
+}

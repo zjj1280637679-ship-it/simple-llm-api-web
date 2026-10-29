@@ -1,0 +1,43 @@
+{
+  "id": "F-000",
+  "kind": "function",
+  "title": "待填写的局部效果",
+  "goal": "replace.with.effect",
+  "tags": [],
+  "entry": "module-library/functions/replace-me/index.js",
+  "exports": [
+    "replaceMe"
+  ],
+  "contract": "module-library/functions/replace-me/CONTRACT.md",
+  "tests": [
+    "tests/replace-me.test.js"
+  ],
+  "gates": {
+    "F": {
+      "status": "UNKNOWN",
+      "evidence": [],
+      "reason": "尚无已检查的形式证明与实现对应"
+    },
+    "C": {
+      "status": "UNKNOWN",
+      "evidence": [],
+      "reason": "尚未完成整个契约范围内的条件验收"
+    },
+    "H": {
+      "status": "UNKNOWN",
+      "evidence": [],
+      "reason": "尚未固定成功候选池及距离门槛"
+    },
+    "Q": {
+      "status": "UNKNOWN",
+      "evidence": [],
+      "reason": "局部实验与历史观测不覆盖整个效果契约"
+    }
+  },
+  "alternatives": {
+    "pool": null,
+    "encoding": null,
+    "minCandidates": null,
+    "minDistance": null
+  }
+}

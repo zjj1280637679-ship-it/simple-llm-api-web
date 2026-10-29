@@ -180,3 +180,9 @@ VALIDATION.md           本次验证结果与尚未完成的真实环境验证
 - [OpenAI 模型列表](https://platform.openai.com/docs/api-reference/models/list)
 
 Google 当前同时提供较新的 Interactions 协议。本 MVP 有意使用仍有官方文档的 GenerateContent 接口，不能将 Interactions 的 `response_format` 参数混入此请求。
+
+## 开发态构件图书馆
+
+[模块目录与借用指南](module-library/README.md)将功能、关系和组合分别收录。首批六个独立入口复用唯一生产实现，附契约、条件、测试和已知限制。`npm run modules:list` 可按目标/类型/标签查找，`npm run modules:check` 检查证据指纹，`npm run modules:verify` 复现局部实验。修改后先评审，再用 `npm run modules:record` 刷新通过的本地证据；它不会将 F/C/H/Q 自动升级为通过。
+
+该目录不进入 Pages 的 11 文件运行产物。历史真实 Ark 图片成功保留具体场景范围，不转写为所有构件完整准入。
