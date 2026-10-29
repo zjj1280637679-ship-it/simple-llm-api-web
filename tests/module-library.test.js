@@ -108,7 +108,7 @@ test('catalogue rejects duplicate IDs and unsupported gate claims', async () => 
 });
 
 test('catalogue filters by relation, tag and effect without merging distinct goals', () => {
-  assert.equal(selectModules(catalog,{kind:'relation'}).length,2);
+  assert.deepEqual(selectModules(catalog,{kind:'relation'}).map(module=>module.id),['R-001','R-002','R-003','R-004']);
   assert.deepEqual(selectModules(catalog,{query:'image-options.normalize'}).map(m=>m.id),['F-001']);
   assert(selectModules(catalog,{tag:'image'}).every(m=>m.tags.includes('image')));
   assert.throws(()=>selectModules(catalog,{kind:'imaginary'}),/Unknown kind/);
@@ -225,7 +225,7 @@ test('revision transitions preserve creation, monotonic versions and update time
 });
 
 test('maintenance lifecycle is independently searchable from verification', () => {
-  assert.equal(selectModules(catalog,{lifecycle:'candidate'}).length,6);
+  assert.equal(selectModules(catalog,{lifecycle:'candidate'}).length,catalog.modules.length);
   assert.equal(selectModules(catalog,{lifecycle:'archived'}).length,0);
   assert.throws(()=>selectModules(catalog,{lifecycle:'PASS'}),/Unknown lifecycle/);
 });
@@ -380,4 +380,24 @@ test('configuration capability manifest pins a valid API/schema and a contained 
       await write({...manifest,...patch});await assert.rejects(validateTestResources(f.registry,f.root));
     }
   }finally{await rm(f.root,{recursive:true,force:true});}
+});
+
+
+test('shared engine implementations are ordinary independently callable catalog entries with pinned relation dependencies',async()=>{
+  const expected={
+    'F-004':{entry:'module-library/functions/fixture-contract/index.js',dependencies:[]},
+    'F-005':{entry:'module-library/functions/png-inspection/index.mjs',dependencies:[]},
+    'R-003':{entry:'module-library/relations/simulator-session/index.js',dependencies:['F-004']},
+    'R-004':{entry:'module-library/relations/configuration-profile/index.mjs',dependencies:['F-004','R-003']}
+  };
+  for(const [id,required] of Object.entries(expected)) {
+    const card=catalog.modules.find(module=>module.id===id);assert(card);
+    assert.equal(card.entry,required.entry);assert.equal(card.host.id,'H-'+id);
+    assert.deepEqual(card.dependencies.map(dependency=>dependency.id),required.dependencies);
+    const entry=await import(new URL('../'+card.entry,import.meta.url));
+    for(const name of card.exports) assert(Object.hasOwn(entry,name),id+' export '+name);
+    const source=await readFile(new URL('../'+card.entry,import.meta.url),'utf8');
+    assert(!source.includes('test-resources/shared/'),'ordinary entries must own implementation, not wrap old shared files');
+    assert(card.tests.some(file=>file.startsWith('tests/shared-')));
+  }
 });

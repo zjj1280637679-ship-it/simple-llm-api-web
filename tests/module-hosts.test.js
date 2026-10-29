@@ -49,6 +49,22 @@ for (const host of registry.hosts) {
         assert.equal(result.observed.toolHistoryMatched,true);
         assert(result.observed.checkpoints>0);
       }
+      if (host.module.id==='F-004') {
+        assert.equal(result.observed.fixtureUnchanged,true);assert.equal(result.observed.exactMatchAccepted,true);
+        assert.deepEqual(result.observed.mismatchFields,['url','body']);assert.equal(result.observed.valuesRedacted,true);
+      }
+      if (host.module.id==='F-005') {
+        assert.equal(result.observed.crcMismatchRejected,true);assert.equal(result.observed.byteLimitRejected,true);
+      }
+      if (host.module.id==='R-003') {
+        assert.deepEqual(result.observed.matchedOrder,[1,2]);assert.equal(result.observed.secondResponseWhileFirstPending,true);
+        assert.equal(result.observed.remainingTimers,0);assert.equal(result.observed.isolatedDisposed,true);
+      }
+      if (host.module.id==='R-004') {
+        assert.deepEqual(result.observed.revisions.map(value=>value.revision),[1,2,3]);
+        assert.equal(result.observed.parentChainVerified,true);assert.equal(result.observed.pinnedRevision,1);
+        assert.equal(result.observed.historicalRevision,2);assert.equal(result.observed.independentReset,true);
+      }
       for (const file of result.observed.files || []) {
         const data=await readFile(file.path);
         assert.equal(data.length,file.bytes);

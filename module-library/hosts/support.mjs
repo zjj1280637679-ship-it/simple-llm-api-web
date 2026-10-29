@@ -86,9 +86,9 @@ export async function runHost(moduleId, exercise) {
       previousFetch=realFetch; guarded=true;
       globalThis.fetch=()=>{throw Error('Unexpected real network in a local/synthetic host');};
     }
-    // Local state routing does not need an image/text provider or its shared state.
-    const provider=moduleId==='R-002'?null:moduleId==='F-001'
-      ?await import('../../src/image-capabilities.js'):await import('../../src/core.js');
+    // Only production-adapter hosts need a provider. Engine modules run independently.
+    const provider=moduleId==='F-001'?await import('../../src/image-capabilities.js')
+      :['F-002','F-003','R-001','C-001'].includes(moduleId)?await import('../../src/core.js'):null;
     const config=kind=>{
       if (mode!=='live') return {protocol:'ark',url:'https://host.example.com/api/v3',trustedTarget:'https://host.example.com/api/v3',
         key:'synthetic-host-key',model:kind==='image'?provider.ARK_FLASH_MODEL:provider.ARK_TEXT_MODEL};

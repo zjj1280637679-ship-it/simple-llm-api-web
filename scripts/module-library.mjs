@@ -153,7 +153,7 @@ async function regular(root, name) {
 }
 const json = async (root, name) => JSON.parse(await readFile(await regular(root, name), 'utf8'));
 
-// Shared simulator resources are separate from callable F/R/C production modules.
+// Versioned provider fixture data stays separate from ordinary callable F/R/C modules (including simulator modules).
 const RESOURCE_REGISTRY = 'module-library/test-resources/catalog.json';
 const sha256 = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 const nonempty = value => typeof value === 'string' && Boolean(value.trim());

@@ -2,7 +2,7 @@
 
 每个构件除了代码入口，还绑定一个能承载其目标效果的最小环境。目标可以是直接输出，也可以是参数转换、关系路由、状态联系或组合效果。宿主提供必要条件、刺激、结果承接和验收判据。
 
-## 首批宿主
+## 宿主目录
 
 | 模块 | 宿主 | 可观察效果 | 默认模式 |
 | --- | --- | --- | --- |
@@ -11,6 +11,10 @@
 | F-003 | [图片宿主](image-generation/README.md) | 图片字节提取、落盘和读回 | synthetic |
 | R-001 | [命令关系宿主](image-command/README.md) | 未确认不调用、确认后执行及结果传回 | synthetic |
 | R-002 | [状态关系宿主](page-session/README.md) | 命令改变最小状态，后续命令能观察该变化 | local |
+| F-004 | [请求契约宿主](fixture-contract/README.md) | 非变异参数绑定、精确匹配与字段脱敏 | local |
+| F-005 | [PNG 检查宿主](png-inspection/README.md) | 尺寸/解码字节及损坏/超界拒绝 | local |
+| R-003 | [会话关系宿主](simulator-session/README.md) | 顺序接纳、独立交付、取消/处置及隔离 | synthetic |
+| R-004 | [配置历史宿主](configuration-profile/README.md) | 追加修订、固定快照、历史 replay 及 reset | synthetic |
 | C-001 | [组合宿主](agent-image-turn/README.md) | 工具请求、图片结果、上下文保存、后续对话 | synthetic |
 
 `local` 表示本机实际执行目标功能；`synthetic` 表示执行真实模块，但外部服务由受控响应代替。四个联网构件另有 `live` 模式，运行相同宿主并接真实 Ark API。本次没有运行 live 模式。
@@ -67,3 +71,6 @@ npm run modules:host -- C-001 --live --prompt "Use image_generate to draw one bl
 隔离或归档构件仍可借助宿主做诊断，报告会显示其维护状态；测试通过不自动解除隔离。单个宿主只校验自身与被测模块的绑定，不要求无关模块或整套网页可运行。
 
 完整网页不是每个模块的必要宿主。R-002 使用内存状态即可检验关系效果，但它不证明网页 DOM 或 MCP 宿主已跑通。图片宿主目前验证字节传输和文件承接，不负责完整解码、实测尺寸或内容质量。
+
+
+共享模拟模块的四个宿主不导入生产 provider，不经 Gemini/Ark 宿主代测。F-004/F-005 只需内存输入；R-003 注入自己的脚本/手动 scheduler；R-004 注入自己的小型 adapter/fixture，并在 finally 删除临时配置目录。后两者的 SIMULATED 仅表明受控请求响应脚本，实际本地状态和文件关系确实执行。宿主 fixture/helper 同样由既有证据指纹绑定，不另建资源 registry。

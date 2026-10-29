@@ -221,6 +221,135 @@
         "不验收图片内容或尺寸"
       ],
       "minimality": "去掉聊天 UI，保留实现组合效果必须的工具往返、回调和结果交付。"
+    },
+    {
+      "id": "H-F-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "F-004",
+        "version": "0.1.0"
+      },
+      "goal": "fixture.request-contract",
+      "entry": "module-library/hosts/fixture-contract/run.mjs",
+      "instructions": "module-library/hosts/fixture-contract/README.md",
+      "defaultMode": "local",
+      "modes": [
+        "local"
+      ],
+      "requires": [
+        "有限可信 JSON fixture、string 参数和 Headers"
+      ],
+      "supplies": [
+        "单步参数化请求与错配输入"
+      ],
+      "criteria": [
+        "绑定不修改 fixture",
+        "完全匹配成功；错配字段脱敏并拒绝未知参数"
+      ],
+      "limits": [
+        "不承担请求归一化、排队或外部 API 语义"
+      ],
+      "minimality": "仅函数、JSON 输入、Headers 与断言，无模拟运行时、文件或网络。"
+    },
+    {
+      "id": "H-F-005",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "F-005",
+        "version": "0.1.0"
+      },
+      "goal": "png.inspect-bounded",
+      "entry": "module-library/hosts/png-inspection/run.mjs",
+      "instructions": "module-library/hosts/png-inspection/README.md",
+      "defaultMode": "local",
+      "modes": [
+        "local"
+      ],
+      "requires": [
+        "Node.js Buffer 与 node:zlib，可信正整数上界"
+      ],
+      "supplies": [
+        "单个内嵌 PNG 及损坏/超界反例"
+      ],
+      "criteria": [
+        "返回 1x1 尺寸及解码字节",
+        "CRC 损坏与字节上界被拒绝"
+      ],
+      "limits": [
+        "仅受限非隔行结构验证，不证明完整 PNG 规范或内容质量"
+      ],
+      "minimality": "仅单张字节样本、检查函数与反例，不依赖供应商、文件或 UI。"
+    },
+    {
+      "id": "H-R-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "R-003",
+        "version": "0.1.0"
+      },
+      "goal": "simulator.ordered-session",
+      "entry": "module-library/hosts/simulator-session/run.mjs",
+      "instructions": "module-library/hosts/simulator-session/README.md",
+      "defaultMode": "synthetic",
+      "modes": [
+        "synthetic"
+      ],
+      "requires": [
+        "Browser/Node Fetch 原语、可信 fixture",
+        "显式无同步回调虚拟 scheduler；clock 只读"
+      ],
+      "supplies": [
+        "两步请求脚本与手动虚拟时间",
+        "取消、处置和观察断言"
+      ],
+      "criteria": [
+        "按接纳次序消耗；第二响应完成时第一仍 pending",
+        "abort/dispose 清理 pending，隔离实例状态"
+      ],
+      "limits": [
+        "不是真实 HTTP 服务器；不保证生产 API 或恶意 fixture 安全"
+      ],
+      "minimality": "仅请求脚本、虚拟调度与生命周期观察，无供应商适配器或生产应用。"
+    },
+    {
+      "id": "H-R-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "R-004",
+        "version": "0.1.0"
+      },
+      "goal": "simulator.profile-history",
+      "entry": "module-library/hosts/configuration-profile/run.mjs",
+      "instructions": "module-library/hosts/configuration-profile/README.md",
+      "defaultMode": "synthetic",
+      "modes": [
+        "synthetic"
+      ],
+      "requires": [
+        "Node.js crypto/fs/path",
+        "可信私有 adapter、返回新对象的 getFixture、稳定 getManifest"
+      ],
+      "supplies": [
+        "单个本地协议 adapter 与 fixture",
+        "临时配置目录与固定快照执行"
+      ],
+      "criteria": [
+        "追加哈希链接历史、restore 为新修订",
+        "固定快照/reset 不受后续 profile 修改影响"
+      ],
+      "limits": [
+        "本机 append-only 不是签名或恶意并发文件系统安全",
+        "不声称所有供应商或真实 API 可用"
+      ],
+      "minimality": "只提供配置关系需要的私有 adapter、单步 fixture、临时存储和执行承接。"
     }
   ]
 }

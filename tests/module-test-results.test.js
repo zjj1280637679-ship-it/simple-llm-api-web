@@ -123,7 +123,7 @@ test('real record command migrates schema, preserves prior bytes on failure, and
     const record=JSON.parse(await readFile(evidencePath,'utf8'));
     assert.equal(record.schemaVersion,5);
     assert.equal(record.testResults.files.length,1);
-    assert.equal(record.testResults.modules.length,6);
+    assert.equal(record.testResults.modules.length,catalog.modules.length);
     const hosts=JSON.parse(await readFile(join(dir,'module-library/hosts/catalog.json'),'utf8')).hosts;
     assert.equal(evidenceState(record,record.fileHashes,catalog.modules,hosts,record.resourceRevisions),'PASS');
     for(const schemaVersion of [1,3,4]) assert.equal(evidenceState({...record,schemaVersion},record.fileHashes,catalog.modules,hosts,record.resourceRevisions),'STALE');

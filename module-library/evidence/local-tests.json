@@ -2,7 +2,7 @@
   "schemaVersion": 5,
   "kind": "local-tests",
   "status": "PASS",
-  "recordedAt": "2026-10-29T09:15:01.330Z",
+  "recordedAt": "2026-10-29T09:37:34.981Z",
   "baseCommit": "ce707d3815dce9e33cec372389b0437e465cbc62",
   "node": "v24.22.1",
   "platform": "linux",
@@ -18,7 +18,11 @@
     "F-003",
     "R-001",
     "R-002",
-    "C-001"
+    "C-001",
+    "F-004",
+    "F-005",
+    "R-003",
+    "R-004"
   ],
   "moduleRevisions": [
     {
@@ -56,6 +60,30 @@
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
       "updatedAt": "2026-10-29T09:08:00.000Z"
+    },
+    {
+      "id": "F-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z"
+    },
+    {
+      "id": "F-005",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z"
+    },
+    {
+      "id": "R-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z"
+    },
+    {
+      "id": "R-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z"
     }
   ],
   "hostRevisions": [
@@ -123,6 +151,50 @@
       "updatedAt": "2026-10-29T07:52:40.473Z",
       "module": {
         "id": "C-001",
+        "version": "0.1.0"
+      },
+      "mode": "synthetic"
+    },
+    {
+      "id": "H-F-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "F-004",
+        "version": "0.1.0"
+      },
+      "mode": "local"
+    },
+    {
+      "id": "H-F-005",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "F-005",
+        "version": "0.1.0"
+      },
+      "mode": "local"
+    },
+    {
+      "id": "H-R-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "R-003",
+        "version": "0.1.0"
+      },
+      "mode": "synthetic"
+    },
+    {
+      "id": "H-R-004",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T09:31:00.000Z",
+      "updatedAt": "2026-10-29T09:31:00.000Z",
+      "module": {
+        "id": "R-004",
         "version": "0.1.0"
       },
       "mode": "synthetic"
@@ -242,11 +314,31 @@
       "--test",
       "--test-reporter=./scripts/module-test-results.mjs",
       "tests/session.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/shared-configuration-profile.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/shared-fixture-contract.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/shared-png-inspection.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/shared-simulator-session.test.js"
     ]
   ],
   "stats": {
-    "tests": 241,
-    "pass": 241,
+    "tests": 276,
+    "pass": 276,
     "fail": 0,
     "cancelled": 0,
     "skipped": 0,
@@ -257,8 +349,8 @@
     "NODE_OPTIONS": "cleared",
     "NODE_TEST_CONTEXT": "cleared"
   },
-  "runStartedAt": "2026-10-29T09:14:45.342Z",
-  "runFinishedAt": "2026-10-29T09:15:01.227Z",
+  "runStartedAt": "2026-10-29T09:37:16.110Z",
+  "runFinishedAt": "2026-10-29T09:37:34.868Z",
   "testResults": {
     "schemaVersion": 1,
     "runner": "node:test",
@@ -285,7 +377,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "accd489a53656652ac120e97101d2c5f0c2fa87988db59acc06c6af1d9b8887b",
+          "outputSha256": "092a160e8e07754d016bb2d1dae098802798f74e5a58c2b468dcb7df19d71e0a",
           "status": "PASS"
         }
       },
@@ -311,7 +403,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "9d83eb6e1c7a3dbacfeadc2b3848a03db35c909b648be591e129f74aabf872ce",
+          "outputSha256": "1a47dac184b76e1b5b820e27af0644e08fe9663a59f0b1c4d810c779db221b7e",
           "status": "PASS"
         }
       },
@@ -319,7 +411,9 @@
         "file": "tests/ark-configuration.test.js",
         "moduleIds": [
           "F-002",
-          "F-003"
+          "F-003",
+          "F-005",
+          "R-004"
         ],
         "status": "PASS",
         "sourceSha256": "53023dd142782eebe786d82582a7ab0ef16b6cacb36cb8c23f234687eefa218e",
@@ -338,7 +432,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "f53a9f4d5285b4e2ac4961c8f68808dac24e4b9d68aa2f89fa4ca4c4ac00fc81",
+          "outputSha256": "5c3688362790cfc00686745adfcd6fe0083fb1d98e9cd77bfc5c8d97930d3598",
           "status": "PASS"
         }
       },
@@ -346,7 +440,8 @@
         "file": "tests/ark-hosts-live.test.js",
         "moduleIds": [
           "F-002",
-          "F-003"
+          "F-003",
+          "F-005"
         ],
         "status": "PASS",
         "sourceSha256": "b0e32c037830b8a99f2f1bb509ce768264a7db81ac19bdc272808118cef4f722",
@@ -365,7 +460,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "7c31721ba06ad164f050b4dace6d979beb1316982091e35bd05fe5739c2d914b",
+          "outputSha256": "f25246d8dae0b5c0725a82b3255785b3e7a3af784796889a9a929f7939902a2e",
           "status": "PASS"
         }
       },
@@ -373,7 +468,9 @@
         "file": "tests/ark-simulator.test.js",
         "moduleIds": [
           "F-002",
-          "F-003"
+          "F-003",
+          "F-005",
+          "R-003"
         ],
         "status": "PASS",
         "sourceSha256": "2f4d0fcf16a563da98e3379da7384ae6bc6fbd9446e918573cf4d93e6a65797c",
@@ -392,7 +489,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "5086709b765d2789ae33920647755454e81e29b8174afd66239291ad2d3c0f60",
+          "outputSha256": "13f8857d63597bf55c93abed56d900c54c6c24d2703973c1851abe33fc8d56fd",
           "status": "PASS"
         }
       },
@@ -418,7 +515,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "4917e3c0c6f2accf7838574ba5ea1c651b988198aa7dfdd69dfe757d887d2e18",
+          "outputSha256": "f7d2e06493415831dc95c39536c8c885ac4f244e1e01f07f31aa435d169f22ee",
           "status": "PASS"
         }
       },
@@ -446,14 +543,15 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "4327f393f2c229c22d0930f9e050134d5d29f935d77fef5a2469ec5053283d4a",
+          "outputSha256": "eba7381609caa190091af0d64e8e3612d7f04529444f785d8f5205da90c9b8ad",
           "status": "PASS"
         }
       },
       {
         "file": "tests/gemini-configuration.test.js",
         "moduleIds": [
-          "F-002"
+          "F-002",
+          "R-004"
         ],
         "status": "PASS",
         "sourceSha256": "384e854d6ccb5dee79cc0ecb5a866f9355723bd110e48bf7ff0368d7f0a59782",
@@ -472,14 +570,15 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "d274cddd50f224e05812018c5f6a8fc1de9deb4ac208c37bff36834ad779c6f5",
+          "outputSha256": "6afff4047269e694ace6f865881ecf27791dc0adb701f8763aedb088fc0d3a7f",
           "status": "PASS"
         }
       },
       {
         "file": "tests/gemini-simulator.test.js",
         "moduleIds": [
-          "F-002"
+          "F-002",
+          "R-003"
         ],
         "status": "PASS",
         "sourceSha256": "a94753481e683654302afbda95451ffa73e0c1fdef25d41fc3d95bb9fe7f1cde",
@@ -498,7 +597,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "ffb44962e4a9c1e436ea37be38e8dd14f772a36d95e1e98cff42960be2099ad3",
+          "outputSha256": "4eba068328d6556ab8ee2aaa8a2cea59fe1edc6acbb6f0550edca01df5dea3ed",
           "status": "PASS"
         }
       },
@@ -524,7 +623,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "46deb1b0b19271ef3f65ce40be885a04225a7e00bc3dc032df097cf3f6351ea9",
+          "outputSha256": "50614bb5dd8ba6374d200723510e443a74129e7dc7d8d74d61e9b68cedb2184f",
           "status": "PASS"
         }
       },
@@ -536,17 +635,21 @@
           "F-003",
           "R-001",
           "R-002",
-          "C-001"
+          "C-001",
+          "F-004",
+          "F-005",
+          "R-003",
+          "R-004"
         ],
         "status": "PASS",
-        "sourceSha256": "a3b5411487452520f1c076a37221381caa28cb38db952e3dfdfe7e45d0d1d1c3",
+        "sourceSha256": "23bf006de5a6adab485f7d2fa512acdb0037641ded6928e3827ff5c0f7f00764",
         "result": {
           "file": "tests/module-hosts.test.js",
           "completed": true,
           "exitCode": 0,
           "stats": {
-            "tests": 10,
-            "pass": 10,
+            "tests": 14,
+            "pass": 14,
             "fail": 0,
             "cancelled": 0,
             "skipped": 0,
@@ -555,7 +658,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "2f7b9b57bc2939df24222ebf2a506f495ccc8f436fca95a596ce864867f94430",
+          "outputSha256": "7e1da09ae31cad2fbaf647ea3c2447cebb4238667a4c5e1d7b396dc414c6214d",
           "status": "PASS"
         }
       },
@@ -567,17 +670,21 @@
           "F-003",
           "R-001",
           "R-002",
-          "C-001"
+          "C-001",
+          "F-004",
+          "F-005",
+          "R-003",
+          "R-004"
         ],
         "status": "PASS",
-        "sourceSha256": "3ae261776371052e8b57362d76c524fc7c11bb873385c757d89976c93de1ab02",
+        "sourceSha256": "00a51d14c079d613efe2563e820ddf17519219340d22b9a69f2680b20cb37153",
         "result": {
           "file": "tests/module-library.test.js",
           "completed": true,
           "exitCode": 0,
           "stats": {
-            "tests": 24,
-            "pass": 24,
+            "tests": 25,
+            "pass": 25,
             "fail": 0,
             "cancelled": 0,
             "skipped": 0,
@@ -586,7 +693,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "9036467a7429479a01989a537bbc19cae734621f9eb52ad2e35c9f324ca34f1f",
+          "outputSha256": "578c2268c83d08329e77744730f8bd727244f2b7ab1ea058dc4b3b217a065d66",
           "status": "PASS"
         }
       },
@@ -598,10 +705,14 @@
           "F-003",
           "R-001",
           "R-002",
-          "C-001"
+          "C-001",
+          "F-004",
+          "F-005",
+          "R-003",
+          "R-004"
         ],
         "status": "PASS",
-        "sourceSha256": "65680e435f218b786b57330ad01b186c21c828a28f76f59f175ef44263b243c5",
+        "sourceSha256": "a88e2384eeeef728eeb2c279283e2abc02a3c17ad3beb6c3337a63cd1c095850",
         "result": {
           "file": "tests/module-test-results.test.js",
           "completed": true,
@@ -617,7 +728,7 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "b1d89cbd318ac55267d4e4dd47b269d8bc8aad642afdb245a9e2db2c49be4857",
+          "outputSha256": "a17160757cfda2523372f0cc30ebefd95973ecf67b6aee216fb6557c5c4ab2bd",
           "status": "PASS"
         }
       },
@@ -643,7 +754,111 @@
           },
           "suiteFailures": 0,
           "wrappers": 0,
-          "outputSha256": "561ee5395b3102f7bab4108c13a3dab323f2e04afa7131be11b6fefeb4a3e2da",
+          "outputSha256": "d4e3115b1f19992a3a1cbf04371d5d383f730fcca4f2082cccf5286d16cbfd36",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/shared-configuration-profile.test.js",
+        "moduleIds": [
+          "R-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "fe7d1ee65c464b2583a4b2b340ad85c9bd32398166456785f8922ba2d2aaa0cc",
+        "result": {
+          "file": "tests/shared-configuration-profile.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 8,
+            "pass": 8,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "7856fc65f0564561cf3e045a8f6ae70f0cc546eca7cecdcf56becb868016ae80",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/shared-fixture-contract.test.js",
+        "moduleIds": [
+          "F-004"
+        ],
+        "status": "PASS",
+        "sourceSha256": "76b4cf87c4548a303eb3004645b75a377339638930c5bf3bee25b861e8ea1d7f",
+        "result": {
+          "file": "tests/shared-fixture-contract.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 6,
+            "pass": 6,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "14d440897ef140ee8447745afa3c0e8b341f682345df93686fde5dce2aea685f",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/shared-png-inspection.test.js",
+        "moduleIds": [
+          "F-005"
+        ],
+        "status": "PASS",
+        "sourceSha256": "227e53ddf9bba9ba6137aeec2dfc1836531499f9cb59d7e065848c53d77658a5",
+        "result": {
+          "file": "tests/shared-png-inspection.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 7,
+            "pass": 7,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "60bb696b321ff64696dda630bb98a45481a6bdbe47bc7dd14ac73f6253482e59",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/shared-simulator-session.test.js",
+        "moduleIds": [
+          "R-003"
+        ],
+        "status": "PASS",
+        "sourceSha256": "f679b2330556e9ced2214a48ecb22bb20d8547bfc7346e05b4a362ebaa03326f",
+        "result": {
+          "file": "tests/shared-simulator-session.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "c8a00099460c54f38caef48c98b41dce43493b0ff2c87f04e8589d524552bd27",
           "status": "PASS"
         }
       }
@@ -724,36 +939,96 @@
           "tests/module-test-results.test.js"
         ],
         "status": "PASS"
+      },
+      {
+        "id": "F-004",
+        "version": "0.1.0",
+        "files": [
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/shared-fixture-contract.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "F-005",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-configuration.test.js",
+          "tests/ark-hosts-live.test.js",
+          "tests/ark-simulator.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/shared-png-inspection.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "R-003",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-simulator.test.js",
+          "tests/gemini-simulator.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/shared-simulator-session.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "R-004",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-configuration.test.js",
+          "tests/gemini-configuration.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/shared-configuration-profile.test.js"
+        ],
+        "status": "PASS"
       }
     ]
   },
-  "testResultsSha256": "f6a95bb357ba96078e2b95d0c1303601e969b398b821fa94cd67ea9339e70110",
+  "testResultsSha256": "c252631e536b4ae663f6c33979a1197e8c8f26c56acef04af72b69d68db74268",
   "fileHashes": {
-    "README.md": "380091b357b219f54d0c8af3c72d446c3b0056b7e64c6bb0f41a431505708df7",
+    "README.md": "e2edc511b0c78c9858d621c7af55d41a3bd291b59217d4ca1b2a663092c11895",
     "VALIDATION.md": "9340daf3bdc4338b1e2b3958bbc536afd317d9fc7f442f7aee49385679fd4c4f",
     "WEB_SESSION.md": "1de60f964a9f5ac763008c6a9cc8bf3aef4432edff16c762a6ba26675bb5323d",
     "cli-mcp-transport.mjs": "4b8c4df1385c3198f34338585ff8e408fdf82c8056ce80823d91b397868c5afa",
     "cli.mjs": "a66cc071aa4a3ade199590faa75f568d811c1b2c9ea7b0594b7394275866ad8c",
     "design/REQUIREMENTS.md": "e5db97d741f4232d2c8cb4343c7173213198b3daf4baf4aef1294e7639ea054d",
-    "module-library/MAINTENANCE.md": "d1d2f963f421c2e81fde07eb02073cffcc65e731d6981b0081ae9eaadae20679",
-    "module-library/README.md": "023236a6261cec65be02077fe512492533a56297f3720952ff19a8d75bd11290",
-    "module-library/catalog.json": "cf788f258496794bfd87827e7d612e725d2e63403a4b5b287069bd692428b56c",
+    "module-library/MAINTENANCE.md": "d0b75311171610889dcb6aa6f4974eaf6dab1c1ec57b3ef4603a21d7f3c84676",
+    "module-library/README.md": "14e1c04e7e9abfd79f155b208b35eec1042b9a1ddf72c179fa32c84971e1f3b3",
+    "module-library/catalog.json": "c34ccdb1c37576523420b3752997b7c2efbd7e32074622668b4fd5edf273e268",
     "module-library/compositions/agent-image-turn/CONTRACT.md": "c68e0382984d081ba1a56be4a1df3b6103e57a400ab636b27c9a080a27eaafe2",
     "module-library/compositions/agent-image-turn/index.js": "e6d6ea4850a974edaa8a1e78857fda2bb2f97e9e2d98b375646a344466e38ee1",
     "module-library/evidence/ark-simulator.json": "5745403257fe8b111a32dde6bea51337da5f1d6c7cfa6ed386c895075d78f28f",
     "module-library/evidence/gemini-simulator.json": "79beeff11a6d4a8de8f1570fa9ad9ae30d828e4d7ee57aa6d8ca413c4edea496",
     "module-library/evidence/reported-ark-image.json": "da46f894b34c2f25ab41e76fe2f38060a60ffbec5eb8329ec60630486f4d7ae4",
     "module-library/experiments/README.md": "6ef35120cc0a2f9b953f83982c36fbf7c4f9be63357f5390bc6f2354f7c01995",
+    "module-library/functions/fixture-contract/CONTRACT.md": "46bdb54d5fe3a3fbb3aed992fdd201f706ea62e4bd21c1935c4015b4d88e3b8d",
+    "module-library/functions/fixture-contract/index.js": "16b38898c4a0558ec555ceddfbc02e434525ec2327080c908e9dcb4df16a4b16",
     "module-library/functions/image-generation/CONTRACT.md": "622f8cb0bf1618954b29a4d86283a251f896ab374b4ee8d5d4cab29f08387992",
     "module-library/functions/image-generation/index.js": "55be48ecbbc3b0fe879a48c3d49147c468417f58bfca3c71c2b3374ded0b1702",
     "module-library/functions/image-options/CONTRACT.md": "2ebfe7b82d0e733b8aefcfea171ce18b6ded6d1a67074873b3a249767039d068",
     "module-library/functions/image-options/index.js": "f27bf9fbfbc95d9303b3070e52f779eb95f16793924677278c4180ae06dc9060",
+    "module-library/functions/png-inspection/CONTRACT.md": "fa429c57388bf266929a7020f2a304919683837b7bcbffca622c163b24dc0e29",
+    "module-library/functions/png-inspection/index.mjs": "ac13fb5e8d6a0077a5312f0ba168c7ecf51496a3e02097995f7bbf5d3f1074cf",
     "module-library/functions/text-generation/CONTRACT.md": "04a12eae39a2792a03a276a949b04dbfa761bf47b907699f3472f3b4722c6b8e",
     "module-library/functions/text-generation/index.js": "c4ab527758c6a8e5c5ded962189083bb41a98dd98129b4cbec49e6e4255a2c99",
-    "module-library/hosts/README.md": "8620a5e17d38c73c3e08926dd079fd8e6c2f16d0a90983a130ec9598817d6fa9",
+    "module-library/hosts/README.md": "15d7da1377da800afae8c4e5a70e6ca077da375e6cd183f5238eba3b1049816b",
     "module-library/hosts/agent-image-turn/README.md": "240a3dc68a85139749f35f27adf4bb6bc7aa0c12186fc84790f9c08bf3dc7983",
     "module-library/hosts/agent-image-turn/run.mjs": "182a2bd6652c0d3eb89a224e4a464417515b7a65a14889164046e9e152076d69",
-    "module-library/hosts/catalog.json": "8efb07649d17bdcbae3c7b77f6588c09000782f559a0fb1b0f8d59a63fc0bc7a",
+    "module-library/hosts/catalog.json": "2fbe5a91554247df299068fe1e7ef8596806ddcb3b1729c78ce424167b77f719",
+    "module-library/hosts/configuration-profile/README.md": "55f69ae4a52db66631a9a9386def159330ef4830b1229c5bba7fff638dc0c6a9",
+    "module-library/hosts/configuration-profile/fixture.mjs": "3c606eadfba8dfdbc66ddf3e90fbed00dd6379d834bf352b696e925687346706",
+    "module-library/hosts/configuration-profile/run.mjs": "a218b99c668572617c3f32f57af662394b7881ea258edefe244be28491e82715",
+    "module-library/hosts/fixture-contract/README.md": "a286877ba2508fe3e82b0e778f2bc0e333f1e2b53b604b4e34d35cbadd8a68b9",
+    "module-library/hosts/fixture-contract/run.mjs": "67f29047c84d917476c61dba0c1359e91f38ce3b46cfdd3c5068a5794e8e2e6b",
     "module-library/hosts/image-command/README.md": "ba0559fcfd534f1b8eb9a522b7e665b2683902148128a734e5740f9b52ac9ba1",
     "module-library/hosts/image-command/run.mjs": "b456f5947506986e0bc496fa548468260f3430e0b5daee76204cbe375b43c296",
     "module-library/hosts/image-generation/README.md": "ca2dbdaf1cf5a25ead04995a1af15a56bb186d50deb9ed80d5b858c0569e5819",
@@ -763,15 +1038,23 @@
     "module-library/hosts/image-options/run.mjs": "9f991422ca4bf335433a86719046c908862dd48e14ccbc7ac869636f15d71eaf",
     "module-library/hosts/page-session/README.md": "cbc9fc46661122e892317c5dea310de926080643458a866d4d04277aee69a428",
     "module-library/hosts/page-session/run.mjs": "d381f2bda274d8398f907f70cf17753cda846b98628af214179b460f8b22c860",
-    "module-library/hosts/support.mjs": "849e0fbda0e66c67935845020971c9bb71816ae62a0d216913ce5abc9de9617c",
+    "module-library/hosts/png-inspection/README.md": "0b106c64b694c7aad084b53961ae80e4ac8339cceed8a13ed8d0af7800e23df6",
+    "module-library/hosts/png-inspection/run.mjs": "48f9687b398d304677d62bbfef829c98c73eb55f6b72137104d450db913cad13",
+    "module-library/hosts/simulator-session/README.md": "f44d52982a2288ead82b937d9d5572d8d2660667aa050e3d6e43bcf27c7dd5ef",
+    "module-library/hosts/simulator-session/run.mjs": "ed91c12cf57134593a3f1e2d10fc58f9f7cd96ec8c30f2a55ddee061788a4d6b",
+    "module-library/hosts/support.mjs": "b4adeee6df6bb59965bf46715c22cda29d25f157bf5662b0ebe28ccbb43d9f7f",
     "module-library/hosts/text-generation/README.md": "44c5d8662f6fa8b4444114e4315611b7211cce47a8fc8315dbb5c2dbd235dfb8",
     "module-library/hosts/text-generation/resources.lock.json": "f57867c37b4a69eac363bf8d0aff63b2dbba5f33edbad87a556a9c893f10b13f",
     "module-library/hosts/text-generation/run.mjs": "164b04b290985a4f9630137c300f3bd6fd0df586eb9663481a8d5450bf1265c6",
     "module-library/recipes/agent-image-turn.json": "6ce4477e23ab95ed09ef6b307e250472425fc98a33cd68b5714ee7775b27ea6f",
+    "module-library/relations/configuration-profile/CONTRACT.md": "b443377690391a05389ea21da286962beab9595748a0fb85a7ebca97e526a0d7",
+    "module-library/relations/configuration-profile/index.mjs": "88178c4923e26b27fbb7725663141fceb24f50eab74fe631b9a5abeae77bf4d3",
     "module-library/relations/image-command/CONTRACT.md": "ac8f14a15cb0b33bb2c16f2cf6d3da2146085c057bf87c548afb8e0cc3d69910",
     "module-library/relations/image-command/index.js": "baef4013a0c332fcd740e053e0ae2d28c4f2e357cbb6cdd87fe56d05c9e300b7",
     "module-library/relations/page-session/CONTRACT.md": "97a1838e0e000327f02a21ee4a9a37830d93f0f29d824d9682edb3c3e3e1a5a4",
     "module-library/relations/page-session/index.js": "1f207e5bdadd35257c966f532ab1f927c8f510df44c0331feb1f02e93f45f0fc",
+    "module-library/relations/simulator-session/CONTRACT.md": "7209a1175e2dd3cf95754dc411272c089d05a5d1d272338df0eed9558b2fbc01",
+    "module-library/relations/simulator-session/index.js": "c3ad6cc5ae264283c25515746eb0580b71f07ea7bdf31bc5f62ed5c7b872a49c",
     "module-library/scenarios/workbench-v1.json": "9bad506dc0457788acd400169a4a344886603c270723c11111ea03400f368b90",
     "module-library/templates/CONTRACT.md": "a9e91eb248fe126da866ad8c1ad5271dbe6beb419f949e8f474612e7cee58762",
     "module-library/templates/host-card.json": "ec498292c8f06c76c46ec9621f724ef40f87e6f1ccb6580a8f581ec21939ef5a",
@@ -828,16 +1111,16 @@
     "module-library/test-resources/gemini-native/fixtures/v1/transport.reject.json": "9f8e2f506d3604121894046f9d9589b28aaab6362f996266443d58d0c3ea6527",
     "module-library/test-resources/gemini-native/index.mjs": "a88661a53dc6d9bbd30dc2857831e87ad517df2c2aef8e6aa05521fd9d0046a7",
     "module-library/test-resources/gemini-native/manifest.json": "2b2d12e24a89ca90e9a2c3d6326a020f732a151fb14c8be8b7676c73a047fea0",
-    "module-library/test-resources/shared/README.md": "5df0cb5167e44f38fd23a90011523738046a9f4a209680a5a63b766e723e15ef",
-    "module-library/test-resources/shared/configuration.mjs": "c774622d0154e7e5b53f8250382b4281ac1fc9bc821b7a22523203c29b8ecf41",
-    "module-library/test-resources/shared/core.js": "c66b6aa3fbaf8731634572f16376d00c400b0105af9636579a479ca16b0d08ea",
-    "module-library/test-resources/shared/png.mjs": "ac13fb5e8d6a0077a5312f0ba168c7ecf51496a3e02097995f7bbf5d3f1074cf",
-    "package.json": "9ae175c26d58e3e7ee1c787f5aa06ca1dada022954e7b420e8bc78efef00fc43",
+    "module-library/test-resources/shared/README.md": "97179e826ddc74ea139ebb118070e77627934eb547e30bdb4f9c8009efa7a9c0",
+    "module-library/test-resources/shared/configuration.mjs": "3ea27897aa83d9d5454d7cb3a18db04dafd30551d09952a85e0165773e3ac1d3",
+    "module-library/test-resources/shared/core.js": "9ddee992934d0b6fabfc7f7eb7d1a4dd67c9b5c06c99dffbfa64efe59b308855",
+    "module-library/test-resources/shared/png.mjs": "5e79c12beb88366a07404b901d05312960a2d79d8f8e6ef7a62257f3ef1210db",
+    "package.json": "b4ca51b2135943a244fdb4e7e0e2f66236abfce4177a444c891775ef90323708",
     "scripts/ark-simulator.mjs": "e1bac847286cf361132701d4524cb6d7dfd5b9c9d4054176265ffecf2344e865",
     "scripts/build.mjs": "219ce4240ac3d64e2404d902ea5b9f484363349bc8902fe4c15be07913dbbb4c",
     "scripts/gemini-simulator.mjs": "b0f44ef7b7e609c0edb21f6c0272969c04d67a901fc0bcb1aea07a5eea9af93b",
     "scripts/module-host.mjs": "de968e56b0d35817319bac2c2ba90ee28e60d77b188d30c6a726d31ccd4f8cbd",
-    "scripts/module-library.mjs": "1fee668d5ca4706aa41424aca754c4a7b044dd2c5eee5eff92bffbe8fc15dbc3",
+    "scripts/module-library.mjs": "caba69540c328a1768d4acecd42fc929e1f029b6b0ec8cdcd64f610335580ba5",
     "scripts/module-test-results.mjs": "14baf7a52267e445e8212dffd351b949abb345aa230db10ee4dc9d870abfa713",
     "scripts/simulator-cli.mjs": "f3840b8807c4eca684ce197626bf5d85a2087b1a429ba5bf8b07eec4ad963348",
     "src/agent.js": "98d86c8e85f40c6c0339e474383c72144144af761c988454b02f00227f038d88",
@@ -864,10 +1147,14 @@
     "tests/image-capabilities.test.js": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
     "tests/logs.test.js": "23df7a420ffe19f86d9111d896a6e7ce6bff16a297f415671381accefd2c96d6",
     "tests/mcp-transport.test.js": "c2ddb36032fbdd5c5f248bf37ad216d9889af4eb900764e9fc05dc47b8c4b05c",
-    "tests/module-hosts.test.js": "a3b5411487452520f1c076a37221381caa28cb38db952e3dfdfe7e45d0d1d1c3",
-    "tests/module-library.test.js": "3ae261776371052e8b57362d76c524fc7c11bb873385c757d89976c93de1ab02",
-    "tests/module-test-results.test.js": "65680e435f218b786b57330ad01b186c21c828a28f76f59f175ef44263b243c5",
+    "tests/module-hosts.test.js": "23bf006de5a6adab485f7d2fa512acdb0037641ded6928e3827ff5c0f7f00764",
+    "tests/module-library.test.js": "00a51d14c079d613efe2563e820ddf17519219340d22b9a69f2680b20cb37153",
+    "tests/module-test-results.test.js": "a88e2384eeeef728eeb2c279283e2abc02a3c17ad3beb6c3337a63cd1c095850",
     "tests/session.test.js": "0fbe9dc987ca488bff6b9c482c3c11d004da4608a303ef66d8c037cf93a58a8c",
+    "tests/shared-configuration-profile.test.js": "fe7d1ee65c464b2583a4b2b340ad85c9bd32398166456785f8922ba2d2aaa0cc",
+    "tests/shared-fixture-contract.test.js": "76b4cf87c4548a303eb3004645b75a377339638930c5bf3bee25b861e8ea1d7f",
+    "tests/shared-png-inspection.test.js": "227e53ddf9bba9ba6137aeec2dfc1836531499f9cb59d7e065848c53d77658a5",
+    "tests/shared-simulator-session.test.js": "f679b2330556e9ced2214a48ecb22bb20d8547bfc7346e05b4a362ebaa03326f",
     "web-cli.mjs": "1eb6a4d4867b6cab99975a8b5f8df4b98aa5e2a9d7b99feea4c75b479b4e8b3b"
   }
 }

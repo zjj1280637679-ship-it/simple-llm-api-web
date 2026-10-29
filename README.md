@@ -183,7 +183,7 @@ Google 当前同时提供较新的 Interactions 协议。本 MVP 有意使用仍
 
 ## 开发态构件图书馆
 
-[模块目录与借用指南](module-library/README.md)将功能、关系和组合分别收录。首批六个独立入口复用唯一生产实现，附契约、条件、测试和已知限制。`npm run modules:list` 可按目标/类型/标签查找，`npm run modules:check` 检查证据指纹，`npm run modules:verify` 复现局部实验。修改后先评审，再用 `npm run modules:record` 刷新通过的本地证据；它不会将 F/C/H/Q 自动升级为通过。
+[模块目录与借用指南](module-library/README.md)将功能、关系和组合分别收录。首批六个独立入口复用唯一生产实现，后续四个普通 F/R 构件拥有共享模拟引擎的唯一实现（纯请求契约、有界 PNG、会话生命周期、配置历史），均附独立版本/UTC 时间、契约、最小宿主及严格证据。共享引擎不是测试宿主，旧 shared 路径仅兼容转发。`npm run modules:list` 可按目标/类型/标签查找，`npm run modules:check` 检查证据指纹，`npm run modules:verify` 复现局部实验。修改后先评审，再用 `npm run modules:record` 刷新通过的本地证据；它不会将 F/C/H/Q 自动升级为通过。
 
 该目录不进入 Pages 的 11 文件运行产物。历史真实 Ark 图片成功保留具体场景范围，不转写为所有构件完整准入。
 
