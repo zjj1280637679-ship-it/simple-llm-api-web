@@ -16,3 +16,31 @@ document.querySelector('#note').onclick=()=>download('../fixtures/attachments/no
 document.querySelector('#pdf').onclick=()=>download('../fixtures/attachments/sample.pdf','sample.pdf');
 document.querySelector('#png').onclick=async()=>{const text=await(await fetch('../fixtures/attachments/tiny.png.base64')).text();download('data:image/png;base64,'+text.trim(),'tiny.png');};
 </script></html>
+<section><h2>真实 File / FileList 生命周期诊断（仅本地合成资源）</h2>
+<button id="probe-fetch">读取同源 note.txt → 真实 File → prepareFiles</button>
+<label>原生对照选择器<input id="probe-native" type="file" multiple></label>
+<pre id="probe-result">未执行；此探针不调用 API，也不代替应用原生选择验收。</pre></section>
+<script type="module">
+import {prepareFiles,supportedModalities} from '../../src/attachments.js';
+const out=document.querySelector('#probe-result');
+const details=f=>({constructor:f?.constructor?.name,name:f?.name,type:f?.type,size:f?.size,sizeType:typeof f?.size,finite:Number.isFinite(f?.size),lastModified:f?.lastModified});
+async function probe(files,label) {
+ const captured=Array.from(files),before=captured.map(details);
+ try {
+  const byteLengths=await Promise.all(captured.map(async f=>(await f.arrayBuffer()).byteLength));
+  const prepared=await prepareFiles(captured,[],'gemini',supportedModalities('gemini'));
+  out.textContent=JSON.stringify({synthetic:true,network:'同源fixture读取，无外部API',label,before,byteLengths,prepared:prepared.map(({name,size,mimeType,kind})=>({name,size,mimeType,kind})),result:'PASS'},null,2);
+ }catch(e){out.textContent=JSON.stringify({synthetic:true,label,before,result:'FAIL',code:e.code,error:e.safeMessage||e.message},null,2);}
+}
+document.querySelector('#probe-fetch').onclick=async()=>{
+ try {const r=await fetch('../fixtures/attachments/note.txt',{cache:'no-store'});if(!r.ok)throw Error('Fixture HTTP '+r.status);const blob=await r.blob();await probe([new File([blob],'note.txt',{type:'text/plain'})],'fetch→Blob→File');}
+ catch(e){out.textContent='Fixture fetch failed: '+e.message;}
+};
+document.querySelector('#probe-native').onchange=async e=>{
+ const input=e.target,files=input.files,captured=Array.from(files),before=captured.map(details);
+ // Deliberately reproduce input removal and rerender before FileList consumption.
+ input.remove();const replacement=document.createElement('input');replacement.type='file';replacement.id='probe-native';replacement.multiple=true;replacement.onchange=input.onchange;document.querySelector('#probe-result').before(replacement);
+ await probe(files,'native input removed before prepareFiles');
+ const result=JSON.parse(out.textContent);result.beforeDetach=before;result.afterDetach=Array.from(files,details);out.textContent=JSON.stringify(result,null,2);
+};
+</script>
