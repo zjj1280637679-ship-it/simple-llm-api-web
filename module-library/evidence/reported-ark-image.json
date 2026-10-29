@@ -1,0 +1,28 @@
+{
+  "id": "reported-ark-image-20261029",
+  "kind": "reported-live-observation",
+  "status": "reported",
+  "source": "VALIDATION.md",
+  "sourceCommit": "ce707d3815dce9e33cec372389b0437e465cbc62",
+  "observedAt": "2026-10-29T12:50:00+08:00/2026-10-29T12:53:00+08:00",
+  "scope": {
+    "page": "https://zjj1280637679-ship-it.github.io/simple-llm-api-web/",
+    "model": "doubao-seedream-5-0-flash-260915",
+    "samples": 1,
+    "httpStatus": 200,
+    "format": "PNG",
+    "width": 2048,
+    "height": 2048,
+    "bytes": 4788089,
+    "rendered": true,
+    "downloaded": true
+  },
+  "limits": [
+    "由仓库记录转录，本次建库未重新调用 API",
+    "没有从该记录确定当时部署的源码 commit",
+    "不覆盖文本、Agent 或终端 CLI",
+    "不推断其他账号、模型、参数或来源",
+    "未核验账单金额"
+  ],
+  "promotesGates": false
+}
