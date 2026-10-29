@@ -26,5 +26,6 @@
   "limits": [
     "填写验证边界"
   ],
-  "minimality": "说明为什么这些环境足以承载目标且无需完整产品"
+  "minimality": "说明为什么这些环境足以承载目标且无需完整产品",
+  "resourceLock": null
 }

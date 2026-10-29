@@ -1,0 +1,73 @@
+{
+  "id": "image.output",
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T07:45:27.398Z",
+  "updatedAt": "2026-10-29T07:45:27.398Z",
+  "sourceRefs": [
+    "https://ai.google.dev/api/generate-content",
+    "https://ai.google.dev/api/models"
+  ],
+  "intent": "Existing image selector is mirrored solely to exercise native image adapter. Pixel is synthetic, no model availability/quality assertion.",
+  "steps": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
+        "headers": {
+          "accept": "application/json",
+          "content-type": "application/json",
+          "x-goog-api-key": "SIMULATOR_ONLY_NOT_A_REAL_KEY"
+        },
+        "body": {
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "Render the test pixel."
+                }
+              ]
+            }
+          ],
+          "generationConfig": {
+            "responseModalities": [
+              "TEXT",
+              "IMAGE"
+            ],
+            "imageConfig": {
+              "aspectRatio": "1:1",
+              "imageSize": "1K"
+            }
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "text": "SIMULATED pixel. "
+                  },
+                  {
+                    "inlineData": {
+                      "mimeType": "image/png",
+                      "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgaPj/HwAEggJ/59habAAAAABJRU5ErkJggg=="
+                    }
+                  },
+                  {
+                    "text": "Not a generated image."
+                  }
+                ]
+              },
+              "finishReason": "STOP"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

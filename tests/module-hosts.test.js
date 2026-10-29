@@ -24,7 +24,17 @@ for (const host of registry.hosts) {
       assert.equal(result.host.updatedAt,host.updatedAt);
       assert(Number.isFinite(Date.parse(result.verifiedAt)));
       if (host.module.id==='F-001') assert.equal(result.observed.options.size,'2048x2048');
-      if (host.module.id==='F-002') assert.equal(result.observed.text,'Host text reply.');
+      if (host.module.id==='F-002') {
+        assert.equal(result.observed.text,'Host text reply.');
+        assert.equal(result.evidenceType,'SIMULATED'); assert.equal(result.realApiCalled,false);
+        assert.equal(result.observed.realNetworkRequests,0);
+        assert.equal(result.resourceRevisions[0].resourceId,'TR-GEMINI-001');
+        assert.equal(result.resourceRevisions[0].scenarioId,'text.ok');
+        assert.match(result.resourceRevisions[0].fixtureSha256,/^[a-f0-9]{64}$/);
+        assert.equal(new Date(result.runStartedAt).toISOString(),result.runStartedAt);
+        assert.equal(new Date(result.runFinishedAt).toISOString(),result.runFinishedAt);
+        assert(Date.parse(result.runFinishedAt)>=Date.parse(result.runStartedAt));
+      }
       if (host.module.id==='R-001') {
         assert.equal(result.observed.unconfirmedRequests,0);
         assert.equal(result.observed.confirmedEffect,true);
@@ -86,7 +96,7 @@ test('host changes stale evidence and preserve host creation/version history',()
     moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),
     hostRevisions:hostRevisions(registry.hosts),fileHashes:hashes};
   assert.equal(evidenceState(record,hashes,catalog.modules,registry.hosts),'PASS');
-  for(const [field,value] of [['version','0.1.1'],['updatedAt','2027-01-01T00:00:00.000Z']]) {
+  for(const [field,value] of [['version','99.0.0'],['updatedAt','2027-01-01T00:00:00.000Z']]) {
     const changed=structuredClone(registry.hosts);changed[0][field]=value;
     assert.equal(evidenceState(record,hashes,catalog.modules,changed),'STALE');
   }

@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { getImageCapabilities, normalizeImageOptions } from '../module-library/functions/image-options/index.js';
 import { generateText } from '../module-library/functions/text-generation/index.js';
 import { generateImage } from '../module-library/functions/image-generation/index.js';
@@ -8,7 +11,8 @@ import { dispatchCommand } from '../module-library/relations/image-command/index
 import { createPageSession } from '../module-library/relations/page-session/index.js';
 import { runConversation } from '../module-library/compositions/agent-image-turn/index.js';
 import { validateCatalog, selectModules, evidenceState, moduleRevisions, validateDependencies,
-  validateRecipe, validateRevisionTransition } from '../scripts/module-library.mjs';
+  validateRecipe, validateRevisionTransition, validateTestResources, validateHostResourceLock,
+  loadResourceRevisions, validateResourceRevisionTransition } from '../scripts/module-library.mjs';
 
 const url = 'https://audit.example.com/v1';
 const config = {protocol:'openai',url,trustedTarget:url,key:'synthetic-library-key',model:'synthetic-model'};
@@ -210,4 +214,143 @@ test('maintenance lifecycle is independently searchable from verification', () =
   assert.equal(selectModules(catalog,{lifecycle:'candidate'}).length,6);
   assert.equal(selectModules(catalog,{lifecycle:'archived'}).length,0);
   assert.throws(()=>selectModules(catalog,{lifecycle:'PASS'}),/Unknown lifecycle/);
+});
+
+
+const resourceStamp = '2026-10-29T07:30:55.000Z';
+async function resourceFixture() {
+  const root = await mkdtemp(join(tmpdir(),'module-resource-test-'));
+  const path = 'module-library/test-resources/gemini-native';
+  await mkdir(join(root,path,'fixtures'),{recursive:true});
+  await mkdir(join(root,'module-library/hosts/text-generation'),{recursive:true});
+  const bytes = JSON.stringify({id:'text',version:'1.0.0',createdAt:resourceStamp,updatedAt:resourceStamp,
+    request:{method:'POST'},response:{text:'SIMULATED'}})+'\n';
+  const hash = createHash('sha256').update(bytes).digest('hex');
+  await writeFile(join(root,path,'fixtures/text.json'),bytes);
+  const manifest = {resourceId:'TR-GEMINI-001',resourceVersion:'0.1.0',schemaVersion:'1.0.0',
+    fixtureSetVersion:'1.0.0',protocolSnapshot:'gemini-developer-v1beta-generateContent@2026-10-29',
+    createdAt:resourceStamp,updatedAt:resourceStamp,evidenceType:'SIMULATED',realApiCalled:false,
+    fixtures:[{id:'text',version:'1.0.0',path:'fixtures/text.json',sha256:hash,
+      createdAt:resourceStamp,updatedAt:resourceStamp}],
+    scenarios:[{id:'text.ok',version:'1.0.0',fixtureId:'text',createdAt:resourceStamp,updatedAt:resourceStamp}]};
+  const registry = {schemaVersion:1,resources:[{id:manifest.resourceId,manifest:path+'/manifest.json'}]};
+  const lock = {schemaVersion:1,resources:[{resourceId:manifest.resourceId,resourceVersion:manifest.resourceVersion,
+    scenarioId:'text.ok',scenarioVersion:'1.0.0',fixtureSetVersion:manifest.fixtureSetVersion,
+    fixtureSha256:hash,protocolSnapshot:manifest.protocolSnapshot}]};
+  const lockPath = 'module-library/hosts/text-generation/resources.lock.json';
+  await writeFile(join(root,path,'manifest.json'),JSON.stringify(manifest));
+  await writeFile(join(root,'module-library/test-resources/catalog.json'),JSON.stringify(registry));
+  await writeFile(join(root,lockPath),JSON.stringify(lock));
+  return {root,path,manifest,registry,lock,lockPath};
+}
+
+test('test resources verify versioned manifests, fixture bytes and host scenario locks',async ()=>{
+  const f = await resourceFixture();
+  try {
+    const manifests = await validateTestResources(f.registry,f.root);
+    validateHostResourceLock(f.lock,manifests);
+    for (const [key,value] of [['resourceId','TR-NOPE-001'],['resourceVersion','9.0.0'],
+      ['scenarioId','unknown'],['scenarioVersion','9.0.0'],['fixtureSetVersion','9.0.0'],
+      ['fixtureSha256','0'.repeat(64)],['protocolSnapshot','wrong']]) {
+      const bad = structuredClone(f.lock); bad.resources[0][key] = value;
+      assert.throws(()=>validateHostResourceLock(bad,manifests),/lock mismatch/);
+    }
+    const absent = structuredClone(f.lock);absent.resources[0].scenarioId='unknown';
+    delete absent.resources[0].scenarioVersion;delete absent.resources[0].fixtureSha256;
+    assert.throws(()=>validateHostResourceLock(absent,manifests),/lock mismatch/);
+    const duplicate = structuredClone(f.lock);duplicate.resources.push(duplicate.resources[0]);
+    assert.throws(()=>validateHostResourceLock(duplicate,manifests),/lock mismatch/);
+    await writeFile(join(f.root,f.path,'fixtures/text.json'),'changed');
+    await assert.rejects(validateTestResources(f.registry,f.root),/fixture hash mismatch/);
+  } finally {await rm(f.root,{recursive:true,force:true});}
+});
+
+test('test resources reject malformed metadata, dangling scenarios and escaping fixture paths',async ()=>{
+  const f = await resourceFixture();
+  try {
+    for (const mutate of [m=>m.resourceVersion='bad',m=>m.createdAt='not UTC',
+      m=>m.realApiCalled=true,m=>m.evidenceType='REAL_API_VERIFIED',
+      m=>m.fixtures[0].version='1',m=>m.fixtures[0].updatedAt='2000-01-01T00:00:00.000Z',
+      m=>m.scenarios[0].fixtureId='missing',m=>m.scenarios[0].createdAt=undefined,
+      m=>m.scenarios[0].updatedAt='2000-01-01T00:00:00.000Z',m=>m.fixtures[0].path='../outside.json']) {
+      const bad = structuredClone(f.manifest);mutate(bad);
+      await writeFile(join(f.root,f.path,'manifest.json'),JSON.stringify(bad));
+      await assert.rejects(validateTestResources(f.registry,f.root));
+    }
+  } finally {await rm(f.root,{recursive:true,force:true});}
+});
+
+test('resource revisions bind package, scenario, fixture and lock hashes into evidence',async ()=>{
+  const f = await resourceFixture();
+  try {
+    const resources = await loadResourceRevisions({testResourceRegistry:'module-library/test-resources/catalog.json'},
+      [{id:'H-F-002',resourceLock:f.lockPath}],f.root);
+    assert.equal(resources.length,1);
+    assert.equal(resources[0].resourceId,'TR-GEMINI-001');
+    assert.match(resources[0].manifestSha256,/^[a-f0-9]{64}$/);
+    assert.match(resources[0].lockSha256,/^[a-f0-9]{64}$/);
+    const hashes={'same':'unchanged'};
+    const record={schemaVersion:4,kind:'local-tests',status:'PASS',moduleIds:catalog.modules.map(m=>m.id),
+      moduleRevisions:moduleRevisions(catalog.modules),hostRevisions:[],resourceRevisions:resources,fileHashes:hashes};
+    assert.equal(evidenceState(record,hashes,catalog.modules,[],resources),'PASS');
+    for(const field of ['resourceVersion','scenarioVersion','fixtureSetVersion','fixtureSha256',
+      'protocolSnapshot','createdAt','updatedAt','manifestSha256','lockSha256']) {
+      const changed=structuredClone(resources);changed[0][field]='changed';
+      assert.equal(evidenceState(record,hashes,catalog.modules,[],changed),'STALE');
+    }
+    const missing={...record};delete missing.resourceRevisions;
+    assert.equal(evidenceState(missing,hashes,catalog.modules,[],resources),'STALE');
+    validateResourceRevisionTransition(resources,resources);
+    const backwards=structuredClone(resources);backwards[0].resourceVersion='0.0.1';
+    assert.throws(()=>validateResourceRevisionTransition(resources,backwards),/version moved backwards/);
+    const recreated=structuredClone(resources);recreated[0].createdAt='2020-01-01T00:00:00.000Z';
+    assert.throws(()=>validateResourceRevisionTransition(resources,recreated),/Creation timestamp/);
+  } finally {await rm(f.root,{recursive:true,force:true});}
+});
+
+
+test('fixture descriptors must match embedded identity and timestamps even after rehashing',async ()=>{
+  const f = await resourceFixture();
+  try {
+    const fixturePath = join(f.root,f.path,'fixtures/text.json');
+    const original = JSON.parse(await readFile(fixturePath,'utf8'));
+    for (const field of ['id','version','createdAt','updatedAt']) {
+      const changed = {...original,[field]:'different'};
+      const bytes = JSON.stringify(changed);
+      const manifest = structuredClone(f.manifest);
+      manifest.fixtures[0].sha256 = createHash('sha256').update(bytes).digest('hex');
+      await writeFile(fixturePath,bytes);
+      await writeFile(join(f.root,f.path,'manifest.json'),JSON.stringify(manifest));
+      await assert.rejects(validateTestResources(f.registry,f.root),/fixture metadata mismatch/);
+    }
+  } finally {await rm(f.root,{recursive:true,force:true});}
+});
+
+test('resource assets pin valid revision metadata and exact bytes',async ()=>{
+  const f = await resourceFixture();
+  try {
+    const bytes = Buffer.from([1,2,3,4]);
+    await mkdir(join(f.root,f.path,'assets'));
+    const assetPath = join(f.root,f.path,'assets/sample.bin');
+    await writeFile(assetPath,bytes);
+    const asset = {id:'sample',version:'1.0.0',createdAt:resourceStamp,updatedAt:resourceStamp,
+      path:'assets/sample.bin',sha256:createHash('sha256').update(bytes).digest('hex'),mimeType:'application/octet-stream'};
+    const manifest = {...f.manifest,assets:[asset]};
+    const write = async value=>writeFile(join(f.root,f.path,'manifest.json'),JSON.stringify(value));
+    await write(manifest);
+    await validateTestResources(f.registry,f.root);
+    for (const mutate of [a=>a.id='',a=>a.version='bad',a=>a.createdAt='bad',
+      a=>a.updatedAt='2000-01-01T00:00:00.000Z',a=>a.sha256='bad',a=>a.mimeType=12,
+      a=>a.width=0,a=>a.height=1.5,a=>a.path='../outside']) {
+      const bad = structuredClone(manifest);mutate(bad.assets[0]);await write(bad);
+      await assert.rejects(validateTestResources(f.registry,f.root));
+    }
+    await write({...manifest,assets:[asset,asset]});
+    await assert.rejects(validateTestResources(f.registry,f.root),/Invalid resource asset/);
+    await write({...manifest,assets:{}});
+    await assert.rejects(validateTestResources(f.registry,f.root),/Invalid resource assets/);
+    await write(manifest);
+    await writeFile(assetPath,Buffer.from([9]));
+    await assert.rejects(validateTestResources(f.registry,f.root),/asset hash mismatch/);
+  } finally {await rm(f.root,{recursive:true,force:true});}
 });

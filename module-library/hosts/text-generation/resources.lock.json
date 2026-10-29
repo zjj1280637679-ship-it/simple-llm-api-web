@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "resources": [
+    {
+      "resourceId": "TR-GEMINI-001",
+      "resourceVersion": "0.1.0",
+      "scenarioId": "text.ok",
+      "scenarioVersion": "1.0.0",
+      "fixtureSetVersion": "1.0.0",
+      "fixtureSha256": "e48c95cc42508290cc16c9e6cf06f3076c2afc7994a46b826211ab493d371d64",
+      "protocolSnapshot": "gemini-developer-v1beta-generateContent@2026-10-29"
+    }
+  ]
+}

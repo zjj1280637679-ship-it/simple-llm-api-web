@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { readFile, mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
-import { validateHosts } from '../../scripts/module-library.mjs';
+import { validateHosts, loadResourceRevisions } from '../../scripts/module-library.mjs';
 
-export const PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7V8AAAAASUVORK5CYII=';
+export const PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgaPj/HwAEggJ/59habAAAAABJRU5ErkJggg==';
 export const imageReply = {data:[{b64_json:PNG}]};
 export const textReply = text => ({choices:[{message:{role:'assistant',content:text}}]});
 export function scriptedFetch(responses) {
@@ -50,7 +50,7 @@ export async function persistImages(result, options) {
 }
 
 export async function runHost(moduleId, exercise) {
-  const secrets=[];
+  const secrets=[], runStartedAt=new Date().toISOString();
   let metadata={moduleId}, previousFetch, guarded=false;
   try {
     const catalog=JSON.parse(await readFile(new URL('../catalog.json',import.meta.url),'utf8'));
@@ -59,10 +59,11 @@ export async function runHost(moduleId, exercise) {
     const host=registry.hosts.find(h=>h.id===module?.host.id);
     assert(module && host,'Unknown module host');
     await validateHosts({modules:[module]},{schemaVersion:1,hosts:[host]});
+    const resourceRevisions=host.resourceLock?await loadResourceRevisions(catalog,[host]):[];
     const options=parseOptions(process.argv.slice(2));
     const mode=options.live?'live':host.defaultMode;
     metadata={module:{id:module.id,version:module.version},host:{id:host.id,version:host.version,
-      createdAt:host.createdAt,updatedAt:host.updatedAt},mode,effect:host.goal,lifecycle:module.lifecycle.state};
+      createdAt:host.createdAt,updatedAt:host.updatedAt},mode,effect:host.goal,lifecycle:module.lifecycle.state,resourceRevisions};
     if (options.help) {
       console.log(JSON.stringify({...metadata,usage:'node '+host.entry+' [--live] [--prompt TEXT] [--out DIRECTORY]',supportedModes:host.modes},null,2));
       return;
@@ -87,8 +88,8 @@ export async function runHost(moduleId, exercise) {
         model:kind==='image'?(process.env.ARK_IMAGE_MODEL || provider.ARK_FLASH_MODEL):(process.env.ARK_TEXT_MODEL || provider.ARK_TEXT_MODEL)};
     };
     const observed=await exercise({mode,options,config,realFetch,signal:AbortSignal.timeout(120000)});
-    console.log(JSON.stringify({schemaVersion:1,status:'PASS',...metadata,verifiedAt:new Date().toISOString(),
-      observed,limits:host.limits},null,2));
+    console.log(JSON.stringify({schemaVersion:1,status:'PASS',...metadata,verifiedAt:new Date().toISOString(),runStartedAt,runFinishedAt:new Date().toISOString(),
+      evidenceType:mode==='synthetic'?'SIMULATED':mode==='live'?'LIVE_RUN':'LOCAL',realApiCalled:mode==='live',observed,limits:host.limits},null,2));
   } catch (error) {
     let message=error.message || 'Host failed';
     for (const key of secrets) message=message.split(key).join('[REDACTED]');

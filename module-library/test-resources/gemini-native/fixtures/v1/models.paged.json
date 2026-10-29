@@ -1,0 +1,69 @@
+{
+  "id": "models.paged",
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T07:45:27.398Z",
+  "updatedAt": "2026-10-29T07:45:27.398Z",
+  "sourceRefs": [
+    "https://ai.google.dev/api/generate-content",
+    "https://ai.google.dev/api/models"
+  ],
+  "intent": "Direct simulator pagination contract only; existing client reads one page and does not paginate.",
+  "steps": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models?pageSize=2",
+        "headers": {
+          "accept": "application/json",
+          "x-goog-api-key": "SIMULATOR_ONLY_NOT_A_REAL_KEY"
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "models": [
+            {
+              "name": "models/sim-gemini-text-v1",
+              "displayName": "SIMULATED text",
+              "supportedGenerationMethods": [
+                "generateContent"
+              ]
+            },
+            {
+              "name": "models/sim-embedding-v1",
+              "displayName": "SIMULATED embedding",
+              "supportedGenerationMethods": [
+                "embedContent"
+              ]
+            }
+          ],
+          "nextPageToken": "SIMULATED_PAGE_2"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models?pageSize=2&pageToken=SIMULATED_PAGE_2",
+        "headers": {
+          "accept": "application/json",
+          "x-goog-api-key": "SIMULATOR_ONLY_NOT_A_REAL_KEY"
+        }
+      },
+      "response": {
+        "status": 200,
+        "json": {
+          "models": [
+            {
+              "name": "models/sim-gemini-second-v1",
+              "displayName": "SIMULATED second text",
+              "supportedGenerationMethods": [
+                "generateContent"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
