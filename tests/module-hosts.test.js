@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { requiredTestFiles, bindTestResults, testResultsDigest, testCommands, summarizeTestResults } from '../scripts/module-test-results.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdtemp, rm } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
@@ -92,7 +93,15 @@ test('every module must bind an existing versioned host with explicit scope',asy
 
 test('host changes stale evidence and preserve host creation/version history',()=>{
   const hashes={'fixture':'same'};
-  const record={schemaVersion:3,kind:'local-tests',status:'PASS',
+  // Synthetic binding fixture; real runner coverage is exercised separately.
+  const results=requiredTestFiles(catalog.modules).map(file=>({file,status:'PASS',completed:true,exitCode:0,
+    stats:{tests:1,pass:1,fail:0,cancelled:0,skipped:0,todo:0,suites:0},
+    suiteFailures:0,wrappers:0,outputSha256:'b'.repeat(64)}));
+  for(const result of results) hashes[result.file]='a'.repeat(64);
+  const testResults=bindTestResults(catalog.modules,results,hashes);
+  const record={schemaVersion:5,kind:'local-tests',status:'PASS',
+    testResults,testResultsSha256:testResultsDigest(testResults),
+    stats:summarizeTestResults(results),commands:testCommands(catalog.modules),
     moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),
     hostRevisions:hostRevisions(registry.hosts),fileHashes:hashes};
   assert.equal(evidenceState(record,hashes,catalog.modules,registry.hosts),'PASS');

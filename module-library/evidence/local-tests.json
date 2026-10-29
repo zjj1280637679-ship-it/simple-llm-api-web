@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "kind": "local-tests",
   "status": "PASS",
-  "recordedAt": "2026-10-29T08:40:14.846Z",
+  "recordedAt": "2026-10-29T09:15:01.330Z",
   "baseCommit": "ce707d3815dce9e33cec372389b0437e465cbc62",
   "node": "v24.22.1",
   "platform": "linux",
@@ -25,37 +25,37 @@
       "id": "F-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "F-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T08:16:42.420Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "F-003",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "R-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "R-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     },
     {
       "id": "C-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z"
+      "updatedAt": "2026-10-29T09:08:00.000Z"
     }
   ],
   "hostRevisions": [
@@ -172,34 +172,562 @@
       "lockSha256": "b864c67d43551e613f91b3f787b06ec7a41346dec904d754b037f992cfca639c"
     }
   ],
-  "args": [
-    "--test",
-    "--test-reporter=tap",
-    "tests/agent.test.js",
-    "tests/app-controls.test.js",
-    "tests/ark-configuration.test.js",
-    "tests/ark-hosts-live.test.js",
-    "tests/ark-simulator.test.js",
-    "tests/cli.test.js",
-    "tests/core.test.js",
-    "tests/gemini-configuration.test.js",
-    "tests/gemini-simulator.test.js",
-    "tests/image-capabilities.test.js",
-    "tests/module-hosts.test.js",
-    "tests/module-library.test.js",
-    "tests/session.test.js"
+  "commands": [
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/agent.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/app-controls.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/ark-configuration.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/ark-hosts-live.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/ark-simulator.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/cli.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/core.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/gemini-configuration.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/gemini-simulator.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/image-capabilities.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/module-hosts.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/module-library.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/module-test-results.test.js"
+    ],
+    [
+      "--test",
+      "--test-reporter=./scripts/module-test-results.mjs",
+      "tests/session.test.js"
+    ]
   ],
   "stats": {
-    "tests": 221,
-    "pass": 221,
+    "tests": 241,
+    "pass": 241,
     "fail": 0,
-    "skipped": 0,
     "cancelled": 0,
-    "todo": 0
+    "skipped": 0,
+    "todo": 0,
+    "suites": 0
   },
-  "outputSha256": "fe32172fab201bdf705a14c3adf55e1f00a9edef9368a023d09516bc2286ae9e",
-  "runStartedAt": "2026-10-29T08:40:12.004Z",
-  "runFinishedAt": "2026-10-29T08:40:14.745Z",
+  "runnerEnvironment": {
+    "NODE_OPTIONS": "cleared",
+    "NODE_TEST_CONTEXT": "cleared"
+  },
+  "runStartedAt": "2026-10-29T09:14:45.342Z",
+  "runFinishedAt": "2026-10-29T09:15:01.227Z",
+  "testResults": {
+    "schemaVersion": 1,
+    "runner": "node:test",
+    "files": [
+      {
+        "file": "tests/agent.test.js",
+        "moduleIds": [
+          "C-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "4090f81ce6b25c2ba30186300efbc04a3a25ae494ca7a9ba6102411da4bd65fd",
+        "result": {
+          "file": "tests/agent.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 19,
+            "pass": 19,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "accd489a53656652ac120e97101d2c5f0c2fa87988db59acc06c6af1d9b8887b",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/app-controls.test.js",
+        "moduleIds": [
+          "R-002"
+        ],
+        "status": "PASS",
+        "sourceSha256": "d2ea264736c7666548880ef029f80b9a8d2ea07199919eb97771f3f362f81950",
+        "result": {
+          "file": "tests/app-controls.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 18,
+            "pass": 18,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "9d83eb6e1c7a3dbacfeadc2b3848a03db35c909b648be591e129f74aabf872ce",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/ark-configuration.test.js",
+        "moduleIds": [
+          "F-002",
+          "F-003"
+        ],
+        "status": "PASS",
+        "sourceSha256": "53023dd142782eebe786d82582a7ab0ef16b6cacb36cb8c23f234687eefa218e",
+        "result": {
+          "file": "tests/ark-configuration.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 11,
+            "pass": 11,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "f53a9f4d5285b4e2ac4961c8f68808dac24e4b9d68aa2f89fa4ca4c4ac00fc81",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/ark-hosts-live.test.js",
+        "moduleIds": [
+          "F-002",
+          "F-003"
+        ],
+        "status": "PASS",
+        "sourceSha256": "b0e32c037830b8a99f2f1bb509ce768264a7db81ac19bdc272808118cef4f722",
+        "result": {
+          "file": "tests/ark-hosts-live.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "7c31721ba06ad164f050b4dace6d979beb1316982091e35bd05fe5739c2d914b",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/ark-simulator.test.js",
+        "moduleIds": [
+          "F-002",
+          "F-003"
+        ],
+        "status": "PASS",
+        "sourceSha256": "2f4d0fcf16a563da98e3379da7384ae6bc6fbd9446e918573cf4d93e6a65797c",
+        "result": {
+          "file": "tests/ark-simulator.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 25,
+            "pass": 25,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "5086709b765d2789ae33920647755454e81e29b8174afd66239291ad2d3c0f60",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/cli.test.js",
+        "moduleIds": [
+          "R-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "d43964c5373f6c4aee239f72751865576aa3a079cf0f19ed0a0691c7cf9ea413",
+        "result": {
+          "file": "tests/cli.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 13,
+            "pass": 13,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "4917e3c0c6f2accf7838574ba5ea1c651b988198aa7dfdd69dfe757d887d2e18",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/core.test.js",
+        "moduleIds": [
+          "F-002",
+          "F-003",
+          "R-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "e184653a461a04fe8795350ad62ef313111f07aeebd130698d21e967bd9f9aab",
+        "result": {
+          "file": "tests/core.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 25,
+            "pass": 25,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "4327f393f2c229c22d0930f9e050134d5d29f935d77fef5a2469ec5053283d4a",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/gemini-configuration.test.js",
+        "moduleIds": [
+          "F-002"
+        ],
+        "status": "PASS",
+        "sourceSha256": "384e854d6ccb5dee79cc0ecb5a866f9355723bd110e48bf7ff0368d7f0a59782",
+        "result": {
+          "file": "tests/gemini-configuration.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 19,
+            "pass": 19,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "d274cddd50f224e05812018c5f6a8fc1de9deb4ac208c37bff36834ad779c6f5",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/gemini-simulator.test.js",
+        "moduleIds": [
+          "F-002"
+        ],
+        "status": "PASS",
+        "sourceSha256": "a94753481e683654302afbda95451ffa73e0c1fdef25d41fc3d95bb9fe7f1cde",
+        "result": {
+          "file": "tests/gemini-simulator.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 33,
+            "pass": 33,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "ffb44962e4a9c1e436ea37be38e8dd14f772a36d95e1e98cff42960be2099ad3",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/image-capabilities.test.js",
+        "moduleIds": [
+          "F-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
+        "result": {
+          "file": "tests/image-capabilities.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 5,
+            "pass": 5,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "46deb1b0b19271ef3f65ce40be885a04225a7e00bc3dc032df097cf3f6351ea9",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/module-hosts.test.js",
+        "moduleIds": [
+          "F-001",
+          "F-002",
+          "F-003",
+          "R-001",
+          "R-002",
+          "C-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "a3b5411487452520f1c076a37221381caa28cb38db952e3dfdfe7e45d0d1d1c3",
+        "result": {
+          "file": "tests/module-hosts.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 10,
+            "pass": 10,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "2f7b9b57bc2939df24222ebf2a506f495ccc8f436fca95a596ce864867f94430",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/module-library.test.js",
+        "moduleIds": [
+          "F-001",
+          "F-002",
+          "F-003",
+          "R-001",
+          "R-002",
+          "C-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "3ae261776371052e8b57362d76c524fc7c11bb873385c757d89976c93de1ab02",
+        "result": {
+          "file": "tests/module-library.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 24,
+            "pass": 24,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "9036467a7429479a01989a537bbc19cae734621f9eb52ad2e35c9f324ca34f1f",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/module-test-results.test.js",
+        "moduleIds": [
+          "F-001",
+          "F-002",
+          "F-003",
+          "R-001",
+          "R-002",
+          "C-001"
+        ],
+        "status": "PASS",
+        "sourceSha256": "65680e435f218b786b57330ad01b186c21c828a28f76f59f175ef44263b243c5",
+        "result": {
+          "file": "tests/module-test-results.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 20,
+            "pass": 20,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "b1d89cbd318ac55267d4e4dd47b269d8bc8aad642afdb245a9e2db2c49be4857",
+          "status": "PASS"
+        }
+      },
+      {
+        "file": "tests/session.test.js",
+        "moduleIds": [
+          "R-002"
+        ],
+        "status": "PASS",
+        "sourceSha256": "0fbe9dc987ca488bff6b9c482c3c11d004da4608a303ef66d8c037cf93a58a8c",
+        "result": {
+          "file": "tests/session.test.js",
+          "completed": true,
+          "exitCode": 0,
+          "stats": {
+            "tests": 10,
+            "pass": 10,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0,
+            "suites": 0
+          },
+          "suiteFailures": 0,
+          "wrappers": 0,
+          "outputSha256": "561ee5395b3102f7bab4108c13a3dab323f2e04afa7131be11b6fefeb4a3e2da",
+          "status": "PASS"
+        }
+      }
+    ],
+    "modules": [
+      {
+        "id": "F-001",
+        "version": "0.1.0",
+        "files": [
+          "tests/image-capabilities.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "F-002",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-configuration.test.js",
+          "tests/ark-hosts-live.test.js",
+          "tests/ark-simulator.test.js",
+          "tests/core.test.js",
+          "tests/gemini-configuration.test.js",
+          "tests/gemini-simulator.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "F-003",
+        "version": "0.1.0",
+        "files": [
+          "tests/ark-configuration.test.js",
+          "tests/ark-hosts-live.test.js",
+          "tests/ark-simulator.test.js",
+          "tests/core.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "R-001",
+        "version": "0.1.0",
+        "files": [
+          "tests/cli.test.js",
+          "tests/core.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "R-002",
+        "version": "0.1.0",
+        "files": [
+          "tests/app-controls.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js",
+          "tests/session.test.js"
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "C-001",
+        "version": "0.1.0",
+        "files": [
+          "tests/agent.test.js",
+          "tests/module-hosts.test.js",
+          "tests/module-library.test.js",
+          "tests/module-test-results.test.js"
+        ],
+        "status": "PASS"
+      }
+    ]
+  },
+  "testResultsSha256": "f6a95bb357ba96078e2b95d0c1303601e969b398b821fa94cd67ea9339e70110",
   "fileHashes": {
     "README.md": "380091b357b219f54d0c8af3c72d446c3b0056b7e64c6bb0f41a431505708df7",
     "VALIDATION.md": "9340daf3bdc4338b1e2b3958bbc536afd317d9fc7f442f7aee49385679fd4c4f",
@@ -207,9 +735,9 @@
     "cli-mcp-transport.mjs": "4b8c4df1385c3198f34338585ff8e408fdf82c8056ce80823d91b397868c5afa",
     "cli.mjs": "a66cc071aa4a3ade199590faa75f568d811c1b2c9ea7b0594b7394275866ad8c",
     "design/REQUIREMENTS.md": "e5db97d741f4232d2c8cb4343c7173213198b3daf4baf4aef1294e7639ea054d",
-    "module-library/MAINTENANCE.md": "b32e2a0a015feb86b83e608a58fed9b7f334419e6d824861b7d3021e2178a39c",
-    "module-library/README.md": "4a4258a2cc650ad725a1c6505078895f132d592f432519a71dbf8a2ead04297b",
-    "module-library/catalog.json": "36ea0fa905471fbb76cb6ba3ccd526b5c49b6caf4c80273fc5c16b23821f2ee9",
+    "module-library/MAINTENANCE.md": "d1d2f963f421c2e81fde07eb02073cffcc65e731d6981b0081ae9eaadae20679",
+    "module-library/README.md": "023236a6261cec65be02077fe512492533a56297f3720952ff19a8d75bd11290",
+    "module-library/catalog.json": "cf788f258496794bfd87827e7d612e725d2e63403a4b5b287069bd692428b56c",
     "module-library/compositions/agent-image-turn/CONTRACT.md": "c68e0382984d081ba1a56be4a1df3b6103e57a400ab636b27c9a080a27eaafe2",
     "module-library/compositions/agent-image-turn/index.js": "e6d6ea4850a974edaa8a1e78857fda2bb2f97e9e2d98b375646a344466e38ee1",
     "module-library/evidence/ark-simulator.json": "5745403257fe8b111a32dde6bea51337da5f1d6c7cfa6ed386c895075d78f28f",
@@ -245,7 +773,7 @@
     "module-library/relations/page-session/CONTRACT.md": "97a1838e0e000327f02a21ee4a9a37830d93f0f29d824d9682edb3c3e3e1a5a4",
     "module-library/relations/page-session/index.js": "1f207e5bdadd35257c966f532ab1f927c8f510df44c0331feb1f02e93f45f0fc",
     "module-library/scenarios/workbench-v1.json": "9bad506dc0457788acd400169a4a344886603c270723c11111ea03400f368b90",
-    "module-library/templates/CONTRACT.md": "31dc8662a39e995e5cc01ed0b5187423448739562e52db74549b1346628f3830",
+    "module-library/templates/CONTRACT.md": "a9e91eb248fe126da866ad8c1ad5271dbe6beb419f949e8f474612e7cee58762",
     "module-library/templates/host-card.json": "ec498292c8f06c76c46ec9621f724ef40f87e6f1ccb6580a8f581ec21939ef5a",
     "module-library/templates/module-card.json": "18a1c8dec98af682ff124a82acd2d6b41afc4004af5cd2889b25c51b9ac87c07",
     "module-library/test-resources/README.md": "55eab20f51564b13395a917a2413c9e0de228474fcc540a82ee59d85f5fcfdd1",
@@ -304,12 +832,13 @@
     "module-library/test-resources/shared/configuration.mjs": "c774622d0154e7e5b53f8250382b4281ac1fc9bc821b7a22523203c29b8ecf41",
     "module-library/test-resources/shared/core.js": "c66b6aa3fbaf8731634572f16376d00c400b0105af9636579a479ca16b0d08ea",
     "module-library/test-resources/shared/png.mjs": "ac13fb5e8d6a0077a5312f0ba168c7ecf51496a3e02097995f7bbf5d3f1074cf",
-    "package.json": "6af11d03d3dd5b4cdac7f974999c81f77506a6164dd65b20590a4bb2b79a70ca",
+    "package.json": "9ae175c26d58e3e7ee1c787f5aa06ca1dada022954e7b420e8bc78efef00fc43",
     "scripts/ark-simulator.mjs": "e1bac847286cf361132701d4524cb6d7dfd5b9c9d4054176265ffecf2344e865",
     "scripts/build.mjs": "219ce4240ac3d64e2404d902ea5b9f484363349bc8902fe4c15be07913dbbb4c",
     "scripts/gemini-simulator.mjs": "b0f44ef7b7e609c0edb21f6c0272969c04d67a901fc0bcb1aea07a5eea9af93b",
     "scripts/module-host.mjs": "de968e56b0d35817319bac2c2ba90ee28e60d77b188d30c6a726d31ccd4f8cbd",
-    "scripts/module-library.mjs": "4ee5d52fde026d39b2e06fc4d8cc1f6d18393675c7f5e139229904c962562f22",
+    "scripts/module-library.mjs": "1fee668d5ca4706aa41424aca754c4a7b044dd2c5eee5eff92bffbe8fc15dbc3",
+    "scripts/module-test-results.mjs": "14baf7a52267e445e8212dffd351b949abb345aa230db10ee4dc9d870abfa713",
     "scripts/simulator-cli.mjs": "f3840b8807c4eca684ce197626bf5d85a2087b1a429ba5bf8b07eec4ad963348",
     "src/agent.js": "98d86c8e85f40c6c0339e474383c72144144af761c988454b02f00227f038d88",
     "src/app.js": "bd01b5f8876e96c7d56a29dea43b5c747478e088016696e016285b2af825943b",
@@ -335,8 +864,9 @@
     "tests/image-capabilities.test.js": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
     "tests/logs.test.js": "23df7a420ffe19f86d9111d896a6e7ce6bff16a297f415671381accefd2c96d6",
     "tests/mcp-transport.test.js": "c2ddb36032fbdd5c5f248bf37ad216d9889af4eb900764e9fc05dc47b8c4b05c",
-    "tests/module-hosts.test.js": "f3b57061743694ad4b00affa7ae6fdd84aaeef7ef33e8cc5c967ffae452b11a4",
-    "tests/module-library.test.js": "b8b5b6004e2ebe81e61ad011b65d7297031a58ffac8a4f683f1ddfc06fc91001",
+    "tests/module-hosts.test.js": "a3b5411487452520f1c076a37221381caa28cb38db952e3dfdfe7e45d0d1d1c3",
+    "tests/module-library.test.js": "3ae261776371052e8b57362d76c524fc7c11bb873385c757d89976c93de1ab02",
+    "tests/module-test-results.test.js": "65680e435f218b786b57330ad01b186c21c828a28f76f59f175ef44263b243c5",
     "tests/session.test.js": "0fbe9dc987ca488bff6b9c482c3c11d004da4608a303ef66d8c037cf93a58a8c",
     "web-cli.mjs": "1eb6a4d4867b6cab99975a8b5f8df4b98aa5e2a9d7b99feea4c75b479b4e8b3b"
   }

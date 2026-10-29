@@ -1,8 +1,9 @@
-import { readFile, readdir, lstat, writeFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
+import { readFile, readdir, lstat, writeFile, rename, rm } from 'node:fs/promises';
+import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { resolve, relative, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { requiredTestFiles, normalizeTestRun, bindTestResults, testResultsDigest, testResultsMatch, testCommands, summarizeTestResults } from './module-test-results.mjs';
 
 export const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const CATALOG = 'module-library/catalog.json';
@@ -278,6 +279,8 @@ export async function validateCatalog(catalog, root = ROOT) {
       throw Error('Invalid module timestamps: ' + m.id);
     if (!TYPES[m.kind] || !m.id.startsWith({function:'F',relation:'R',composition:'C'}[m.kind])) throw Error('Invalid module kind');
     if (!m.title || !m.goal || !Array.isArray(m.tags) || !Array.isArray(m.exports) || !m.exports.length || !Array.isArray(m.tests) || !m.tests.length) throw Error('Incomplete module card');
+    if (m.tests.some(file=>relative(root,inside(root,file)).split(sep).join('/') !== file))
+      throw Error('Required test paths must be canonical: '+m.id);
     if (!m.entry?.startsWith('module-library/' + TYPES[m.kind] + '/') || entries.has(m.entry)) throw Error('Invalid or duplicate entry');
     entries.add(m.entry);
     for (const file of [m.entry, m.contract, ...m.tests]) await regular(root, file);
@@ -308,11 +311,12 @@ export function selectModules(catalog, {kind, tag, query, lifecycle} = {}) {
 
 export function evidenceState(record, hashes, modules, hosts = [], resources = []) {
   if (!record) return 'UNKNOWN';
-  if (![3,4].includes(record.schemaVersion) || record.kind !== 'local-tests' || record.status !== 'PASS' ||
+  if (record.schemaVersion !== 5 || record.kind !== 'local-tests' || record.status !== 'PASS' ||
       !Array.isArray(record.moduleIds) || record.moduleIds.join('|') !== modules.map(m => m.id).join('|')) return 'STALE';
   if (JSON.stringify(record.moduleRevisions) !== JSON.stringify(moduleRevisions(modules))) return 'STALE';
   if (JSON.stringify(record.hostRevisions) !== JSON.stringify(hostRevisions(hosts))) return 'STALE';
   if (JSON.stringify(record.resourceRevisions || []) !== JSON.stringify(resources)) return 'STALE';
+  if (!testResultsMatch(record,modules,hashes)) return 'STALE';
   const expected = record.fileHashes || {};
   const names = Object.keys(hashes).sort();
   return names.length === Object.keys(expected).length && names.every(name => hashes[name] === expected[name]) ? 'PASS' : 'STALE';
@@ -356,22 +360,35 @@ async function loadRecord(root) {
   try { return await json(root, RECORD); }
   catch (e) { if (e.code === 'ENOENT') return null; throw e; }
 }
-async function runLocal(catalog, root) {
+export async function runLocal(catalog, root) {
   const runStartedAt = new Date().toISOString();
-  const files = [...new Set(catalog.modules.flatMap(m => m.tests))].sort();
-  const args = ['--test','--test-reporter=tap',...files];
-  const result = spawnSync(process.execPath, args, {cwd:root,encoding:'utf8',maxBuffer:20*1024*1024,timeout:120000});
-  const output = (result.stdout || '') + (result.stderr || '');
-  process.stdout.write(output.split('\n').slice(-12).join('\n') + '\n');
-  if (result.error || result.status !== 0) throw Error('Local verification failed; evidence was not replaced');
-  const stats = {};
-  for (const key of ['tests','pass','fail','skipped','cancelled','todo']) {
-    const value = output.match(new RegExp('^# ' + key + ' (\\d+)$','m'));
-    if (!value) throw Error('Missing test summary: ' + key);
-    stats[key] = Number(value[1]);
+  const files = requiredTestFiles(catalog.modules), results = [], commands = [];
+  const env = {...process.env};
+  // Do not inherit an enclosing test runner's IPC mode or hidden test filters.
+  delete env.NODE_TEST_CONTEXT; delete env.NODE_OPTIONS;
+  // One process per required file gives unambiguous entry-file ownership even
+  // when it imports test cases from helpers, and works with Node 20 events.
+  for (const file of files) {
+    const args = testCommands(catalog.modules)[results.length];
+    const run = spawnSync(process.execPath,args,{cwd:root,encoding:'utf8',env,
+      maxBuffer:20*1024*1024,timeout:120000});
+    if (run.error) throw Error('Local verification failed for '+file+'; evidence was not replaced: '+run.error.message);
+    const result = normalizeTestRun(run.stdout || '',{file,root,exitCode:run.status});
+    results.push(result); commands.push(args);
+    console.log(file+' | '+result.status+' | '+JSON.stringify(result.stats));
+    if (result.status !== 'PASS') throw Error('Incomplete required tests: '+file+'; evidence was not replaced');
   }
-  if (!stats.pass || stats.fail || stats.cancelled) throw Error('Incomplete verification');
-  return {args, stats, outputSha256:digest(output),runStartedAt,runFinishedAt:new Date().toISOString()};
+  const stats = summarizeTestResults(results);
+  if (!files.length) throw Error('No required test files');
+  return {commands,stats,results,runnerEnvironment:{NODE_OPTIONS:'cleared',NODE_TEST_CONTEXT:'cleared'},runStartedAt,runFinishedAt:new Date().toISOString()};
+}
+
+export async function writeRecordAtomic(root, record) {
+  const target = inside(root,RECORD), temp = target+'.'+randomUUID()+'.tmp';
+  try {
+    await writeFile(temp,JSON.stringify(record,null,2)+'\n',{flag:'wx'});
+    await rename(temp,target);
+  } finally { await rm(temp,{force:true}); }
 }
 
 export async function main(args = process.argv.slice(2), root = ROOT) {
@@ -396,13 +413,18 @@ export async function main(args = process.argv.slice(2), root = ROOT) {
     const after = await inputHashes(root);
     if (JSON.stringify(hashes) !== JSON.stringify(after)) throw Error('Inputs changed during verification');
     if (command === 'record') {
-      record = {schemaVersion:4,kind:'local-tests',status:'PASS',recordedAt:new Date().toISOString(),
+      const {results,...execution} = result;
+      const testResults = bindTestResults(catalog.modules,results,after);
+      record = {schemaVersion:5,kind:'local-tests',status:'PASS',recordedAt:new Date().toISOString(),
         baseCommit:catalog.baseCommit,node:process.version,platform:process.platform,
         scope:'Local execution and synthetic network only; no automatic F/C/H/Q promotion.',
         evidenceTypes:['LOCAL','SIMULATED'],realApiCalled:false,
         moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),
-        hostRevisions:hostRevisions(hosts),resourceRevisions:resources,...result,fileHashes:after};
-      await writeFile(inside(root, RECORD), JSON.stringify(record,null,2)+'\n');
+        hostRevisions:hostRevisions(hosts),resourceRevisions:resources,...execution,
+        testResults,testResultsSha256:testResultsDigest(testResults),fileHashes:after};
+      if (evidenceState(record,after,catalog.modules,hosts,resources) !== 'PASS')
+        throw Error('Prospective evidence is invalid; previous evidence was not replaced');
+      await writeRecordAtomic(root,record);
     }
   }
   const local = evidenceState(record, hashes, catalog.modules, hosts, resources);
@@ -415,6 +437,7 @@ export async function main(args = process.argv.slice(2), root = ROOT) {
         '\n  创建：' + shanghai(m.createdAt) + ' | 更新：' + shanghai(m.updatedAt) + '（北京时间）' +
         '\n  宿主：' + host.id + '@' + host.version + ' | ' + host.defaultMode +
         ' | 创建：' + shanghai(host.createdAt) + ' | 更新：' + shanghai(host.updatedAt) + '（北京时间）' +
+        '\n  必需测试：' + new Set(m.tests).size + ' 个文件；归属及逐文件结果见 local-tests.json（local:' + local + '）' +
         '\n  ' + m.entry);
     }
     return;

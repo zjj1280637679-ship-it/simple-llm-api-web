@@ -7,7 +7,7 @@
       "id": "F-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "function",
       "title": "图片能力与参数映射",
       "goal": "image-options.normalize",
@@ -27,7 +27,8 @@
       "tests": [
         "tests/image-capabilities.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -72,7 +73,7 @@
       "id": "F-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T08:16:42.420Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "function",
       "title": "文本请求与协议适配",
       "goal": "text.request-response",
@@ -96,7 +97,8 @@
         "tests/gemini-configuration.test.js",
         "tests/ark-simulator.test.js",
         "tests/ark-configuration.test.js",
-        "tests/ark-hosts-live.test.js"
+        "tests/ark-hosts-live.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -141,7 +143,7 @@
       "id": "F-003",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "function",
       "title": "图片请求与响应提取",
       "goal": "image.request-response",
@@ -162,7 +164,8 @@
         "tests/module-hosts.test.js",
         "tests/ark-simulator.test.js",
         "tests/ark-configuration.test.js",
-        "tests/ark-hosts-live.test.js"
+        "tests/ark-hosts-live.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -212,7 +215,7 @@
       "id": "R-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "relation",
       "title": "图片命令到执行器的关系",
       "goal": "image-command.dispatch",
@@ -230,7 +233,8 @@
         "tests/core.test.js",
         "tests/cli.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -280,7 +284,7 @@
       "id": "R-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "relation",
       "title": "网页命令到页面处理器的关系",
       "goal": "page-command.route",
@@ -301,7 +305,8 @@
         "tests/session.test.js",
         "tests/app-controls.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
@@ -346,7 +351,7 @@
       "id": "C-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T07:52:40.473Z",
+      "updatedAt": "2026-10-29T09:08:00.000Z",
       "kind": "composition",
       "title": "对话 Agent 调图片并继续对话",
       "goal": "conversation.image-turn",
@@ -364,7 +369,8 @@
       "tests": [
         "tests/agent.test.js",
         "tests/module-library.test.js",
-        "tests/module-hosts.test.js"
+        "tests/module-hosts.test.js",
+        "tests/module-test-results.test.js"
       ],
       "gates": {
         "F": {
