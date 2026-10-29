@@ -1,0 +1,5 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Usage synthetic fixture</title><link rel="stylesheet" href="../../src/styles.css"><main style="padding:24px"><h1>合成指标验收（不调用 API）</h1><div id="fixtures"></div></main><script type="module">
+import {usageMetricsMarkup} from '../../src/usage.js';
+const cases=[['命中',{inputTokens:100,cachedTokens:25,totalTokens:125}],['真实零',{inputTokens:100,cachedTokens:0,totalTokens:120}],['缺失',null],['零分母',{inputTokens:0,cachedTokens:0,totalTokens:0}]];
+document.querySelector('#fixtures').innerHTML=cases.map(([name,usage])=>`<h2>${name}</h2><div class="compose-metrics">${usageMetricsMarkup(usage)}</div>`).join('');
+</script>

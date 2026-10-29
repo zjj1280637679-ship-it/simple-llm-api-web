@@ -1,3 +1,4 @@
+import { usageMetricsMarkup } from '../src/usage.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -32,7 +33,7 @@ function mount({ confirm = () => true, runConversation, dispatchCommand } = {}) 
   const document = { getElementById: () => app, addEventListener: () => {}, activeElement: null };
   const neverFetch = () => assert.fail('No network may run in control regressions.');
   const context = {
-    ...core, ...logs, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
+    ...core, ...logs, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
     renderNetworkLogs: container => { if (container) container.textContent = logs.exportNetworkLogs(); },
     URL, Blob, Uint8Array, atob, AbortController, performance,
     runConversation: runConversation || neverFetch, listModels: neverFetch, dispatchCommand: dispatchCommand || neverFetch

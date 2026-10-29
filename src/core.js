@@ -1,3 +1,4 @@
+import { usageFrom } from './usage.js';
 import { getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
 import { recordNetwork, setLogSecrets } from './logs.js';
 export { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, ARK_SIZE_LIMITS, getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
@@ -189,14 +190,6 @@ function nativeMessages(messages, protocol) {
       ? {role:message.role === 'assistant' ? 'model' : 'user',parts:[{text}]}
       : {role:message.role,content:text};
   });
-}
-function usageFrom(json, protocol) {
-  const usage = protocol === 'gemini' ? json.usageMetadata : json.usage;
-  if (!isRecord(usage)) return null;
-  const integer = value => Number.isFinite(value) && value >= 0 ? value : null;
-  return protocol === 'gemini'
-    ? {inputTokens:integer(usage.promptTokenCount),outputTokens:integer(usage.candidatesTokenCount),totalTokens:integer(usage.totalTokenCount),cachedTokens:integer(usage.cachedContentTokenCount)}
-    : {inputTokens:integer(usage.prompt_tokens),outputTokens:integer(usage.completion_tokens),totalTokens:integer(usage.total_tokens),cachedTokens:integer(usage.prompt_tokens_details?.cached_tokens)};
 }
 function geminiCandidate(json) {
   const candidate = json.candidates?.[0];
