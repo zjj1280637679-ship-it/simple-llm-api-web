@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createLocalStore, snapshotWorkspace } from '../src/persistence.js';
+import { createLocalStore, snapshotWorkspace, snapshotJournal } from '../src/persistence.js';
 
 const workspace=()=>({api:{protocol:'gemini',url:'https://example.com',model:'test',supplier:'test',key:''},model:{inputs:['text']},draft:'',attachments:[],pendingTextId:null,aspectRatio:'1:1',imageSize:'1K',messages:[],history:[],busy:false,lastUsage:null,lastMetrics:null});
 function snapshot(text='') { const data={chat:workspace(),image:workspace()};data.chat.draft=text;return snapshotWorkspace({data,page:'chat',nextId:1}); }
@@ -68,4 +68,41 @@ test('debounce flush saves latest snapshot exactly once and close prevents write
 
 test('unavailable IDB visibly falls back without claiming saved',async()=>{
  const {store,statuses}=instance(null);assert.equal(await store.load(),null);assert.equal(statuses.at(-1),'unavailable');store.schedule(snapshot('memory'),{immediate:true});await store.flush();assert.ok(!statuses.includes('saved'));store.close();
+});
+
+
+function fakeJournalStorage() { const entries=new Map();return {getItem:key=>entries.get(key)??null,setItem:(key,value)=>entries.set(key,String(value)),removeItem:key=>entries.delete(key),entries}; }
+function smallPatch(text='') {const data={chat:workspace(),image:workspace()};data.chat.draft=text;return snapshotJournal({data,page:'chat'});}
+const journalKey='llm-workbench-local-v1:draft-journal';
+function journalInstance(idb,storage) { const statuses=[];const store=createLocalStore({indexedDB:idb,journalStorage:storage,eventTarget:null,onStatus:s=>statuses.push(s),debounceMs:60000});return {store,statuses}; }
+
+test('synchronous journal restores immediate input before any IDB snapshot commit',async()=>{
+ const idb=fakeIDB(),storage=fakeJournalStorage(),a=journalInstance(idb,storage);await a.store.load(snapshot());assert.equal(a.store.journal(smallPatch('immediate draft')),true);a.store.close();
+ assert.equal(idb.state.record,undefined);const b=journalInstance(idb,storage);const result=await b.store.load(snapshot());assert.equal(result.workspaces.chat.draft,'immediate draft');assert.equal(b.statuses.at(-1),'restored');b.store.close();
+});
+
+test('foreign pending journal blocks second tab instead of replacing first draft',async()=>{
+ const idb=fakeIDB(),storage=fakeJournalStorage(),a=journalInstance(idb,storage),b=journalInstance(idb,storage);await Promise.all([a.store.load(snapshot()),b.store.load(snapshot())]);
+ assert.equal(a.store.journal(smallPatch('first tab')),true);const first=storage.getItem(journalKey);assert.equal(b.store.journal(smallPatch('second tab')),false);assert.equal(b.statuses.at(-1),'conflict');assert.equal(storage.getItem(journalKey),first);a.store.close();b.store.close();
+});
+
+test('older in-flight commit cannot erase a later synchronous draft journal',async()=>{
+ const idb=fakeIDB(),storage=fakeJournalStorage(),a=journalInstance(idb,storage);await a.store.load(snapshot());a.store.journal(smallPatch('first'));
+ const saving=a.store.schedule(snapshot('first'),{immediate:true});a.store.journal(smallPatch('later'));assert.equal(await saving,true);
+ assert.equal(idb.state.record.value.workspaces.chat.draft,'first');const pending=JSON.parse(storage.getItem(journalKey));assert.equal(pending.patch.workspaces.chat.draft,'later');assert.equal(pending.baseRevision,idb.state.record.revision);assert.ok(pending.sequence>idb.state.record.sequence);a.store.close();
+ const b=journalInstance(idb,storage);assert.equal((await b.store.load(snapshot())).workspaces.chat.draft,'later');b.store.close();
+});
+
+test('already consumed clear tombstone stays consumed across two immediate reloads',async()=>{
+ const saved=snapshot('saved');saved.workspaces.chat.messages=[{id:1,type:'user',text:'new message after clear'}];saved.workspaces.chat.history=[{role:'user',content:'new message after clear'}];saved.nextId=2;
+ const idb=fakeIDB({value:saved,revision:5}),storage=fakeJournalStorage();Object.assign(idb.state.record,{owner:'old-owner',sequence:5});
+ storage.setItem(journalKey,JSON.stringify({schema:1,owner:'old-owner',sequence:6,baseRevision:4,patch:smallPatch('later draft'),cleared:{chat:2}}));
+ const a=journalInstance(idb,storage);const once=await a.store.load(snapshot());assert.equal(once.workspaces.chat.messages.length,1);a.store.close();
+ const b=journalInstance(idb,storage);const twice=await b.store.load(snapshot());assert.equal(twice.workspaces.chat.messages.length,1);assert.equal(twice.workspaces.chat.draft,'later draft');b.store.close();
+});
+
+test('uncommitted clear tombstone remains effective across repeated reloads',async()=>{
+ const saved=snapshot('old');saved.workspaces.chat.messages=[{id:1,type:'user',text:'old'}];saved.workspaces.chat.history=[{role:'user',content:'old'}];saved.nextId=2;
+ const idb=fakeIDB({value:saved,revision:2}),storage=fakeJournalStorage(),a=journalInstance(idb,storage);await a.store.load(snapshot());a.store.journal(smallPatch(''),{clear:['chat']});a.store.close();
+ for(let i=0;i<2;i++){const b=journalInstance(idb,storage);const loaded=await b.store.load(snapshot());assert.deepEqual(loaded.workspaces.chat.messages,[]);assert.deepEqual(loaded.workspaces.chat.history,[]);b.store.close();}
 });

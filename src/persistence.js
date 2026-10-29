@@ -4,7 +4,7 @@ export const MAX_SNAPSHOT_BYTES = 48 * 1024 * 1024;
 const pick = (value, keys) => Object.fromEntries(keys.filter(k => value?.[k] !== undefined).map(k => [k, value[k]]));
 const apiKeys = ['protocol','url','model','supplier'];
 const modelKeys = ['output','temperature','topP','inputs','reasoning','reasoningFamily','reasoningMode','reasoningBudget'];
-const messageKeys = ['id','type','kind','text','prompt','aspectRatio','imageSize','fromTool','attachments','images','incomplete','metrics'];
+const messageKeys = ['id','type','kind','text','prompt','aspectRatio','imageSize','fromTool','attachments','images','incomplete','metrics','reasoningText','reasoningOpen'];
 const forbidden = /^(apiKey|api_key|authorization|trustedTarget|controller|diagnostics|__proto__|constructor|prototype)$/i;
 function clean(value, secrets = []) {
   if (typeof value === 'string') { for (const secret of secrets) if (secret) value = value.split(secret).join('[密钥已移除]'); return value; }
@@ -64,6 +64,8 @@ export function migrateSnapshot(value) {
       if(m.images!==undefined&&m.type!=='imageResult')invalid();
       if(m.type==='imageResult'&&(!Array.isArray(m.images)||!m.images.every(im=>object(im)&&typeof im.data==='string'&&/^[A-Za-z0-9+/]*={0,2}$/.test(im.data)&&/^image\/(png|jpeg|webp)$/.test(im.mimeType)&&['png','jpg','webp'].includes(im.extension))))invalid();
       if(m.text!==undefined&&typeof m.text!=='string')invalid();
+      if(m.reasoningText!==undefined&&typeof m.reasoningText!=='string')invalid();
+      if(m.reasoningOpen!==undefined&&typeof m.reasoningOpen!=='boolean')invalid();
     }
   }
   if(value.views!==undefined&&(!object(value.views)||!Object.values(value.views).every(v=>object(v)&&Number.isFinite(v.top)&&v.top>=0&&typeof v.bottom==='boolean')))invalid();
@@ -89,11 +91,63 @@ export function restoreWorkspace(snapshot,makePage) {
   return {data,page:['chat','image','logs'].includes(s.page)?s.page:'chat',nextId:Math.max(maximum+1,Number(s.nextId)||1),views:s.views||{}};
 }
 
-export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{},name='llm-workbench-local-v1',debounceMs=250}={}) {
+// A bounded synchronous safety journal, never a second history store.
+export const MAX_JOURNAL_BYTES=128*1024;
+export function snapshotJournal({data,page,secrets:archived=[]}) {
+  const secrets=[...archived,...Object.values(data).map(d=>d.api?.key)].filter(Boolean),workspaces={};
+  for(const name of ['chat','image']){
+    const d=data[name],pending=d.busy&&d.messages.find(m=>m.id===d.pendingTextId);
+    workspaces[name]={draft:pending?.text||d.draft,api:safeApi(d.api),model:pick(d.model,modelKeys),aspectRatio:d.aspectRatio,imageSize:d.imageSize};
+  }
+  const result=clean({page,workspaces},secrets);
+  if(new TextEncoder().encode(JSON.stringify(result)).byteLength>MAX_JOURNAL_BYTES)throw Object.assign(new Error('Journal too large'),{code:'JOURNAL'});
+  return result;
+}
+export function replayJournal(snapshot,journal,record={revision:0}) {
+  if(!journal?.patch)return {status:'none',value:snapshot};
+  if(journal.schema!==1||typeof journal.owner!=='string'||!journal.owner||!Number.isSafeInteger(journal.sequence)||journal.sequence<1||!Number.isSafeInteger(journal.baseRevision)||journal.baseRevision<0)invalid();
+  const same=journal.owner===record.owner,applied=Number(record.sequence)||0;
+  if(same&&applied>=journal.sequence)return {status:'stale',value:snapshot};
+  if(record.revision!==journal.baseRevision&&!(same&&record.revision>=journal.baseRevision&&applied<journal.sequence))return {status:'conflict',value:snapshot};
+  if(!snapshot)invalid();
+  const value=structuredClone(snapshot);
+  for(const name of ['chat','image']){
+    const patch=journal.patch.workspaces?.[name],d=value.workspaces[name];
+    if(patch!==undefined&&(!object(patch)||typeof patch.draft!=='string'||!object(patch.api)||!object(patch.model)))invalid();
+    const clear=journal.cleared?.[name];
+    if(clear!==undefined&&(!Number.isSafeInteger(clear)||clear<1||clear>journal.sequence))invalid();
+    if(clear&&(!same||clear>applied)){d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.interrupted=false;value.metrics[name]={lastUsage:null,lastMetrics:null,messages:{}};}
+    if(patch===undefined)continue;
+    Object.assign(d,pick(patch,['draft','aspectRatio','imageSize']));d.api=safeApi(patch.api);d.model=pick(patch.model,modelKeys);
+  }
+  if(['chat','image','logs'].includes(journal.patch.page))value.page=journal.patch.page;
+  return {status:'replayed',value:migrateSnapshot(value)};
+}
+
+export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{},name='llm-workbench-local-v1',debounceMs=250,journalStorage=null,eventTarget=globalThis}={}) {
   let db,ready=false,revision=0,timer,pending,blocked=false,queue=Promise.resolve();
-  const status=(state)=>onStatus(state);
+  const journalKey=name+':draft-journal';
+  const owner=globalThis.crypto?.randomUUID?.()||`tab-${Date.now()}-${Math.random()}`;
+  let sequence=0,journalFailure=false;
+  const readJournal=()=>{const raw=journalStorage?.getItem(journalKey);return raw?JSON.parse(raw):null;};
+  const putJournal=value=>journalStorage.setItem(journalKey,JSON.stringify(value));
+  const status=(state)=>onStatus(journalFailure&&state==='saved'?'saved-journal-error':journalFailure&&['saving','restored','ready'].includes(state)?'journal-error':state);
   const fail=e=>{status(e?.code==='CONFLICT'?'conflict':e?.code==='SIZE_LIMIT'?'size-limit':'error');};
-  const load=async()=>{
+  const journal=(patch,{clear=[]}={})=>{
+    if(!ready||blocked)return false;
+    try {
+      if(!journalStorage)throw new Error('Journal unavailable');
+      const previous=readJournal();
+      if(previous?.patch&&previous.owner!==owner || previous?.baseRevision>revision&&previous.owner!==owner){blocked=true;status('conflict');return false;}
+      const entry={schema:1,owner,sequence:++sequence,baseRevision:revision,patch,cleared:{...(previous?.owner===owner?previous.cleared:{})}};
+      for(const name of clear)if(['chat','image'].includes(name))entry.cleared[name]=sequence;
+      const encoded=JSON.stringify(entry);if(new TextEncoder().encode(encoded).byteLength>MAX_JOURNAL_BYTES)throw new Error('Journal too large');
+      journalStorage.setItem(journalKey,encoded);journalFailure=false;return true;
+    }catch{journalFailure=true;status('journal-error');return false;}
+  };
+  const storageListener=event=>{if(!ready||blocked||event.key!==journalKey||!event.newValue)return;try{const other=JSON.parse(event.newValue);if(other.owner!==owner&&(other.patch||other.baseRevision>revision)){blocked=true;status('conflict');}}catch{journalFailure=true;status('journal-error');}};
+  eventTarget?.addEventListener?.('storage',storageListener);
+  const load=async(fallback=null)=>{
     try {
       if(!indexedDB)throw new Error('Unavailable');
       db=await new Promise((resolve,reject)=>{
@@ -108,26 +162,37 @@ export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{}
       db.onversionchange=()=>{db.close();blocked=true;status('blocked');};
       const record=await new Promise((resolve,reject)=>{const t=db.transaction('snapshots','readonly');const r=t.objectStore('snapshots').get('workspace');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
       revision=record?.revision||0;
-      const result=record?migrateSnapshot(record.value):null;
-      ready=true;status(record?'restored':'ready');return result;
+      let result=record?migrateSnapshot(record.value):null;
+      ready=true;
+      if(journalStorage){
+        try{
+          const pending=readJournal(),replay=replayJournal(result||fallback,pending,record||{revision:0});
+          if(replay.status==='conflict'){blocked=true;status('conflict');return result;}
+          if(replay.status==='replayed'){result=replay.value;sequence=0;const patch=pending.patch;putJournal({schema:1,owner,sequence:++sequence,baseRevision:revision,patch,cleared:Object.fromEntries(Object.keys(pending.cleared||{}).filter(k=>record?.owner!==pending.owner||pending.cleared[k]>(record.sequence||0)).map(k=>[k,sequence]))});}
+          else if(pending?.patch)putJournal({schema:1,owner:'',baseRevision:revision,sequence:0,patch:null});
+        }catch{journalFailure=true;status('journal-error');}
+      }
+      status(record||result?'restored':'ready');return result;
     }catch(e){blocked=true;status(e?.code==='SCHEMA'?'schema':e?.code==='BLOCKED'?'blocked':'unavailable');return null;}
   };
-  const write=async value=>{
+  const write=async ({value,commitSequence})=>{
     if(!ready||blocked||!db)return false;
     try {
       await new Promise((resolve,reject)=>{
         let t;try{t=db.transaction('snapshots','readwrite',{durability:'strict'});}catch{t=db.transaction('snapshots','readwrite');}
         const store=t.objectStore('snapshots'),r=store.get('workspace');let conflict=false;
-        r.onsuccess=()=>{if((r.result?.revision||0)!==revision){conflict=true;t.abort();return;}store.put({revision:revision+1,value},'workspace');};
+        r.onsuccess=()=>{if((r.result?.revision||0)!==revision){conflict=true;t.abort();return;}store.put({revision:revision+1,owner,sequence:commitSequence,value},'workspace');};
         t.oncomplete=()=>{revision++;resolve();};t.onabort=()=>reject(conflict?Object.assign(new Error('Conflict'),{code:'CONFLICT'}):t.error);t.onerror=()=>{};
-      });status('saved');return true;
+      });
+      if(journalStorage)try{const current=readJournal();if(current?.owner===owner){if(current.sequence<=commitSequence)putJournal({schema:1,owner:'',baseRevision:revision,sequence:0,patch:null});else putJournal({...current,baseRevision:revision});}}catch{journalFailure=true;}
+      status('saved');return true;
     }catch(e){if(e?.code==='CONFLICT')blocked=true;fail(e);return false;}
   };
   const flush=()=>{clearTimeout(timer);if(!pending)return queue;const value=pending;pending=null;queue=queue.then(()=>write(value));return queue;};
-  return {load,flush,
-    schedule(value,{immediate=false}={}){if(!ready||blocked)return;pending=value;clearTimeout(timer);status('saving');if(immediate)return flush();timer=setTimeout(flush,debounceMs);},
+  return {load,flush,journal,
+    schedule(value,{immediate=false}={}){if(!ready||blocked)return;pending={value,commitSequence:sequence};clearTimeout(timer);status('saving');if(immediate)return flush();timer=setTimeout(flush,debounceMs);},
     reportError:fail,
-    close(){clearTimeout(timer);db?.close();blocked=true;},
+    close(){clearTimeout(timer);db?.close();blocked=true;eventTarget?.removeEventListener?.('storage',storageListener);},
     get ready(){return ready;}
   };
 }

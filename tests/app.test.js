@@ -13,11 +13,13 @@ test('production uses local modules and defensive browser policy', async () => {
 });
 test('production has no simulated result or persistent key storage', async () => {
   const app = await read('src/app.js');
-  assert.doesNotMatch(app, /localStorage|sessionStorage|document\.cookie|eval\(|new Function\(/);
+  assert.doesNotMatch(app, /sessionStorage|document\.cookie|eval\(|new Function\(/);
   assert.doesNotMatch(app, /已收到你的消息|sample-art|抽象城市夜景/);
   assert.match(app, /dispatchCommand/);
   assert.match(app, /runConversation/);
   assert.match(app, /key: ''/);
+  assert.match(app, /snapshotJournal/); // bounded no-key draft journal, separately allowlist-tested
+  assert.doesNotMatch(app, /localStorage\.(setItem|clear|removeItem)/);
   assert.match(app, /esc\(m\.text\)/);
   assert.match(app, /if \(d\.busy \|\| d\.attachmentReading/);
 });

@@ -173,3 +173,8 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 .reasoning-family-list{display:flex;flex-direction:column;gap:6px}.reasoning-family-list [aria-checked=true]{background:var(--hover);font-weight:650}.reasoning-budget-row{display:flex;flex-wrap:wrap;gap:6px}.reasoning-budget-row input{flex:1 1 6rem;min-width:0;width:100%;max-width:100%}
 
 .local-loading{padding:2rem;text-align:center}.local-save-notice{position:fixed;z-index:2000;top:8px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 24px);padding:8px 12px;border:1px solid #b87720;border-radius:12px;background:#fff7df;color:#583900;font:inherit;font-size:12px}.local-storage-panel{box-sizing:border-box;width:min(520px,calc(100vw - 24px));max-height:85dvh;overflow:auto;border:1px solid #ddd;border-radius:18px;padding:24px;color:#333;background:#fff;font:14px/1.6 system-ui}.local-storage-panel::backdrop{background:#0005}.local-storage-panel h2{font-size:18px}.local-storage-actions{display:flex;flex-wrap:wrap;gap:8px}.local-storage-actions button{font:inherit;padding:6px 10px;border:1px solid #ddd;border-radius:8px;background:#f7f7f7}
+
+/* Public provider reasoning, separate from final answer and opaque signatures. */
+.reasoning-content{margin:10px 0 16px;border-left:2px solid var(--border,#ddd);padding-left:12px;min-width:0;color:var(--muted,#666)}
+.reasoning-content summary{cursor:pointer;font-size:13px;line-height:1.6;user-select:none}
+.reasoning-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.65;padding-top:10px}

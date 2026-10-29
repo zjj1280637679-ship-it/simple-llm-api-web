@@ -1,4 +1,4 @@
-import { createLocalStore, snapshotWorkspace, restoreWorkspace, migrateSnapshot, MAX_SNAPSHOT_BYTES } from './persistence.js';
+import { createLocalStore, snapshotWorkspace, snapshotJournal, restoreWorkspace, migrateSnapshot, MAX_SNAPSHOT_BYTES } from './persistence.js';
 import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody, REASONING_FAMILIES, reasoningFamilyFor, resolveReasoningFamily } from './reasoning.js';
 import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
 import { replyMetricsMarkup, replyMetricsSnapshot } from './usage.js';
@@ -310,8 +310,9 @@ const makePage = type => ({
 const data = { chat: makePage('chat'), image: makePage('image') };
 let localHydrated=false,storageState='loading',localSaveTimer,localRestored=false;
 const localSecrets=new Set();
-const storageLabels={loading:'正在读取本机存档',ready:'本机自动保存已启用',restored:'已恢复本机存档；API Key 请重新填写',saving:'正在保存…',saved:'已保存到本机；API Key 不保存',error:'本机保存失败；当前改动尚未保存，请导出备份后重试', 'size-limit':'本机存档超过 48 MiB；当前改动尚未保存，请备份',conflict:'另一标签页已更新存档；本页暂停保存，请先导出备份',blocked:'存储版本已变化或被占用；请备份后刷新',schema:'本机存档版本不支持或损坏；已停止覆盖',unavailable:'本机存储不可用；仅内存运行，刷新会丢失，请导出备份'};
-const localStore=createLocalStore({name:`llm-workbench-local-v1:${(window.location?.pathname || '/').replace(/index\.html$/,'')}`,onStatus:setStorageStatus});
+const storageLabels={loading:'正在读取本机存档',ready:'本机自动保存已启用',restored:'已恢复本机存档；API Key 请重新填写',saving:'正在保存…',saved:'已保存到本机；API Key 不保存',error:'本机保存失败；当前改动尚未保存，请导出备份后重试', 'size-limit':'本机存档超过 48 MiB；当前改动尚未保存，请备份',conflict:'另一标签页已更新存档；本页暂停保存，请先导出备份',blocked:'存储版本已变化或被占用；请备份后刷新',schema:'本机存档版本不支持或损坏；已停止覆盖',unavailable:'本机存储不可用；仅内存运行，刷新会丢失，请导出备份','saved-journal-error':'完整存档已提交；即时草稿保护不可用，后续改动请等提交后刷新','journal-error':'即时草稿保护失败或超过 128 KiB；请等待完整存档提交后再刷新，或导出备份'};
+let journalStorage=null;try{journalStorage=window.localStorage;}catch{}
+const localStore=createLocalStore({journalStorage,name:`llm-workbench-local-v1:${(window.location?.pathname || '/').replace(/index\.html$/,'')}`,onStatus:setStorageStatus});
 
 let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
 let reasoningAnchorId = null;
@@ -436,11 +437,15 @@ function modelCard(m) {
 function imageMarkup(m) {
   return `<div class="message"><div class="assistant-message"><div class="assistant-label">${m.fromTool ? '图片工作台 · Agent 调用' : '图片结果'}</div>${m.images.map((im, i) => `<div class="img-result">${im.failed ? '<div class="mock-status" role="alert">返回的图片文件无法在浏览器中解码。请检查下载文件；不会自动重新生成。</div>' : `<img class="generated-image" data-image-message="${m.id}" data-image-index="${i}" src="${esc(im.url)}" alt="${esc(m.prompt)}" loading="lazy">`}<div class="sample-caption"><span>${esc(m.aspectRatio)} · ${esc(m.imageSize)}</span><a href="${esc(im.url)}" download="image-${m.id}-${i + 1}.${im.extension}">下载</a></div></div>`).join('')}${m.text ? `<div class="assistant-note">${esc(m.text)}</div>` : ''}${m.metrics ? `<div class="reply-metrics">${replyMetricsMarkup(m.metrics)}</div>` : ''}</div></div>`;
 }
+function reasoningContentMarkup(m) {
+  if (!m.reasoningText) return '';
+  return `<details class="reasoning-content" data-reasoning-message="${m.id}" ${m.reasoningOpen !== false ? 'open' : ''}><summary>模型公开思考${m.incomplete ? ' · 未完成' : ''}</summary><div class="reasoning-text">${esc(m.reasoningText)}</div></details>`;
+}
 function messageMarkup(m) {
   if (m.type === 'card') return `<div class="message">${m.kind === 'api' ? apiCard(m) : modelCard(m)}</div>`;
   if (m.type === 'user') return `<div class="message user"><div class="bubble">${esc(m.text)}${attachmentsMarkup(m.attachments)}</div></div>`;
   if (m.type === 'imageResult') return imageMarkup(m);
-  if (m.type === 'chatResult') return `<div class="message" data-stream-message="${m.id}"><div class="assistant-message"><div class="assistant-label">${m.incomplete ? '未完成 · 未加入上下文' : m.streaming ? '正在回复…' : '模型回复'}</div><div class="assistant-note reply-text">${esc(m.text)}</div>${m.metrics ? `<div class="reply-metrics">${replyMetricsMarkup(m.metrics)}</div>` : ''}</div></div>`;
+  if (m.type === 'chatResult') return `<div class="message" data-stream-message="${m.id}"><div class="assistant-message"><div class="assistant-label">${m.incomplete ? '未完成 · 未加入上下文' : m.streaming ? '正在回复…' : '模型回复'}</div>${reasoningContentMarkup(m)}<div class="assistant-note reply-text">${esc(m.text)}</div>${m.metrics ? `<div class="reply-metrics">${replyMetricsMarkup(m.metrics)}</div>` : ''}</div></div>`;
   return `<div class="message"><div class="mock-status" role="${m.type === 'error' ? 'alert' : 'status'}">${esc(m.text)}</div></div>`;
 }
 function attachmentsMarkup(files = [], editable = false) {
@@ -516,7 +521,7 @@ function restoreViewPosition(scrollEnd = false) {
   });
 }
 function render(scrollEnd = false) {
-  saveLocal();
+  saveLocal(false,true);
   recordScrollDiagnostic(scrollEnd ? 'render-send-end' : 'render-start');
   rememberViewPosition();
   const focusIdentity = captureControlFocus();
@@ -543,6 +548,15 @@ function paintStream(d, message) {
     loading.insertAdjacentHTML('beforebegin',messageMarkup(message));
     node=app.querySelector(`[data-stream-message="${message.id}"]`);
     if(!node)return;
+  }
+  if (message.reasoningText) {
+    let reasoning = node.querySelector('.reasoning-content');
+    if (!reasoning) {
+      node.querySelector('.reply-text').insertAdjacentHTML('beforebegin', reasoningContentMarkup(message));
+      reasoning = node.querySelector('.reasoning-content');
+    }
+    reasoning.querySelector('.reasoning-text').textContent = message.reasoningText;
+    reasoning.querySelector('summary').textContent = message.incomplete ? '模型公开思考 · 未完成' : '模型公开思考';
   }
   node.querySelector('.reply-text').textContent = message.text;
   node.querySelector('.assistant-label').textContent = message.incomplete ? '未完成 · 未加入上下文' : message.streaming ? '正在回复…' : '模型回复';
@@ -675,6 +689,14 @@ async function send() {
   const stopLoading=beginLoading(d);
   let checkpointed = false;
   const streamedReplies = new Map();
+  const streamingReply = round => {
+    let reply = streamedReplies.get(round);
+    if (!reply) {
+      reply = {id:nextId++,type:'chatResult',text:'',reasoningText:'',reasoningOpen:true,streaming:true};
+      streamedReplies.set(round,reply); d.messages.push(reply);
+    }
+    return reply;
+  };
   render(true);
   if(localHydrated)await saveLocal(true);
   try {
@@ -687,12 +709,13 @@ async function send() {
         onPhase:phase=>requestPhase(d,phase),
         onDelta: (delta, {round}) => {
           if (!delta) return;
-          let reply = streamedReplies.get(round);
-          if (!reply) {
-            reply = {id:nextId++,type:'chatResult',text:'',streaming:true};
-            streamedReplies.set(round,reply); d.messages.push(reply);
-          }
+          const reply = streamingReply(round);
           reply.text += delta; paintStream(d,reply);
+        },
+        onReasoningDelta: (delta, {round}) => {
+          if (!delta) return;
+          const reply = streamingReply(round);
+          reply.reasoningText += delta; paintStream(d,reply);
         },
         onResponse: (response, {round}) => {
           const reply = streamedReplies.get(round);
@@ -719,6 +742,13 @@ async function send() {
     return { status: e?.code === 'CANCELLED' ? 'cancelled' : 'failed', code: e instanceof AppError ? e.code : 'REQUEST_FAILED' };
   } finally { stopLoading(); d.busy = false; d.controller = null; await saveLocal(true); if (get() === d) render(); }
 }
+// Native details retain focus/selection and open state during streamed text updates.
+app.addEventListener('toggle', e => {
+  const details = e.target;
+  if (!details.matches?.('details[data-reasoning-message]')) return;
+  const message = get()?.messages.find(m => String(m.id) === details.dataset.reasoningMessage);
+  if (message) { message.reasoningOpen = details.open; saveLocal(); }
+}, true);
 app.addEventListener('click', async e => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
@@ -769,7 +799,7 @@ app.addEventListener('click', async e => {
     }
     case 'plus': plusOpen = !plusOpen; sizeOpen = false; subMenu = ''; render(); if (plusOpen) focusFloatingMenu(); break;
     case 'attach': selectAttachments(el.dataset.kind); break;
-    case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;d.lastMetrics=null;await saveLocal(true);render();break;
+    case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;d.lastMetrics=null;await saveLocal(true,true,[page]);render();break;
     case 'clear-attachments': d.attachments=[]; d.attachmentError=''; render(); break;
     case 'remove-attachment': d.attachments=d.attachments.filter(a=>a.id!==el.dataset.id); d.attachmentError=''; render(); break;
     case 'toggle-input': { const kind=el.dataset.modality; if(card?.id !== activeCardId(d) || kind==='text' || !supportedModalities(d.api.protocol).includes(kind)) break; d.model.inputs=d.model.inputs.includes(kind)?d.model.inputs.filter(k=>k!==kind):[...d.model.inputs,kind]; render(); break; }
@@ -818,7 +848,7 @@ function updateField(e) {
   const t = e.target, d = get();
   resizeSettingField(t);
   if (!d) return;
-  if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); saveLocal(); return; }
+  if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); saveLocal(false,true); return; }
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
   if (card.kind === 'api') {
@@ -845,7 +875,7 @@ function updateField(e) {
     if (page === 'image') resetImageOptions(d);
     refreshApiStatus(d, id);
   } else { d.model[key] = t.value; card.values[key] = t.value; }
-  saveLocal();
+  saveLocal(false,true);
 }
 app.addEventListener('error', e => {
   const image = e.target;
@@ -952,17 +982,18 @@ render();
 // Hydration completes before controls or page-session tools become available.
 async function initializeLocal() {
   app.innerHTML='<p role="status" class="local-loading">正在恢复本机数据…</p>';
-  const saved=await localStore.load();
+  const saved=await localStore.load(snapshotWorkspace({data,page,nextId}));
   if(saved) {
     try { const restored=restoreWorkspace(saved,makePage); Object.assign(data,restored.data);page=restored.page;nextId=restored.nextId;
-      localRestored=Object.values(data).some(d=>d.messages.length||d.draft);setStorageStatus('restored');
+      localRestored=Object.values(data).some(d=>d.messages.length||d.draft);if(['ready','restored','saved'].includes(storageState))setStorageStatus('restored');
       for(const [key,value] of Object.entries(restored.views))if(['chat','image','logs'].includes(key)&&Number.isFinite(value?.top))viewPositions.set(key,{top:Math.max(0,value.top),bottom:Boolean(value.bottom)});
     } catch { localStore.close(); setStorageStatus('schema'); }
   }
   localHydrated=true;
 }
-function saveLocal(immediate=false) {
+function saveLocal(immediate=false,protectDraft=false,clear=[]) {
   if(!localHydrated)return;
+  if(protectDraft)try{localStore.journal(snapshotJournal({data,page,secrets:[...localSecrets]}),{clear});}catch{if(clear.length)localStore.journal({page,workspaces:{}},{clear});setStorageStatus('journal-error');}
   clearTimeout(localSaveTimer);
   const capture=()=>{
     try { rememberViewPosition(); return localStore.schedule(snapshotWorkspace({data,page,nextId,views:Object.fromEntries(viewPositions),secrets:[...localSecrets]}),{immediate:true}); }
@@ -973,7 +1004,7 @@ function saveLocal(immediate=false) {
 }
 function setStorageStatus(state) {
   storageState=state;
-  const warning=['error','size-limit','conflict','blocked','schema','unavailable'].includes(state);
+  const warning=['saved-journal-error','journal-error','error','size-limit','conflict','blocked','schema','unavailable'].includes(state);
   const show=warning||localRestored;
   let notice=document.getElementById('local-save-notice');
   if(show&&!notice){notice=document.createElement('button');notice.id='local-save-notice';notice.className='local-save-notice';notice.setAttribute('role','status');notice.onclick=openStoragePanel;document.body.append(notice);}
@@ -984,7 +1015,7 @@ function openStoragePanel() {
   localRestored=false;setStorageStatus(storageState);
   document.getElementById('local-storage-panel')?.remove();
   const dialog=document.createElement('dialog');dialog.id='local-storage-panel';dialog.className='local-storage-panel';
-  dialog.innerHTML=`<h2>本机保存与备份</h2><p id="local-storage-status">${esc(storageLabels[storageState])}</p><p>自动保留本机的对话、草稿、附件、模型设置和独立指标。API Key 与目标确认不保存；刷新后请重新填写密钥。通讯日志不保存。含账号、密码、查询参数或片段的 API 地址不保存。</p><p>仅限当前浏览器与网站地址。无痕模式、清理浏览器或系统回收空间可能删除数据；这不是永久备份。单份快照上限 48 MiB，超限或配额不足时保留上一份成功存档，不会悄悄删除附件。</p><p>多标签页版本冲突后不会覆盖另一页；先导出本页备份，再刷新读取最新存档。</p><div class="local-storage-actions"><button data-local="export">导出本页备份</button><button data-local="import">恢复备份</button><button data-local="retry">重试保存</button><button data-local="close">关闭</button></div><p id="local-backup-status" role="status"></p>`;
+  dialog.innerHTML=`<h2>本机保存与备份</h2><p id="local-storage-status">${esc(storageLabels[storageState])}</p><p>自动保留本机的对话、草稿、附件、模型设置和独立指标。草稿与安全设置有 128 KiB 同步保护；大历史/附件仍须等待完整存档提交。API Key 与目标确认不保存；刷新后请重新填写密钥。通讯日志不保存。含账号、密码、查询参数或片段的 API 地址不保存。</p><p>仅限当前浏览器与网站地址。无痕模式、清理浏览器或系统回收空间可能删除数据；这不是永久备份。单份快照上限 48 MiB，超限或配额不足时保留上一份成功存档，不会悄悄删除附件。</p><p>多标签页版本冲突后不会覆盖另一页；先导出本页备份，再刷新读取最新存档。</p><div class="local-storage-actions"><button data-local="export">导出本页备份</button><button data-local="import">恢复备份</button><button data-local="retry">重试保存</button><button data-local="close">关闭</button></div><p id="local-backup-status" role="status"></p>`;
   dialog.addEventListener('click',async event=>{
     const action=event.target.dataset.local;if(!action)return;
     const result=dialog.querySelector('#local-backup-status');

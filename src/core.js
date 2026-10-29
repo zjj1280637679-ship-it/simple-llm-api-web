@@ -90,7 +90,7 @@ function modelId(config) {
 
 /** Network errors deliberately omit upstream bodies/URLs/causes: they can echo credentials. */
 let nextRequestId = 0;
-async function requestJSON(config, path, {body, logBody, signal, onDelta, onPhase, fetchImpl = globalThis.fetch} = {}) {
+async function requestJSON(config, path, {body, logBody, signal, onDelta, onReasoningDelta, onPhase, fetchImpl = globalThis.fetch} = {}) {
   const base = validateEndpoint(config);
   if (config.attachmentContext && logBody === undefined) logBody = {model:config.model, note:'附件会话派生请求；正文不写入日志'};
   checkAbort(signal);
@@ -142,7 +142,7 @@ async function requestJSON(config, path, {body, logBody, signal, onDelta, onPhas
     }
     onPhase?.('headers_received');
     let json;
-    try { json = onDelta ? await collectTextStream(response, {protocol:config.protocol,signal,onDelta,onPhase,error:(code,message)=>new AppError(code,message)}) : await response.json(); } catch (error) {
+    try { json = onDelta ? await collectTextStream(response, {protocol:config.protocol,signal,onDelta,onReasoningDelta,onPhase,error:(code,message)=>new AppError(code,message)}) : await response.json(); } catch (error) {
       if (onDelta && error instanceof AppError) throw error;
       if (signal?.aborted) throw cancelled();
       fail('RESPONSE', 'API 返回了无法解析的 JSON。');
@@ -221,7 +221,7 @@ function geminiCandidate(json) {
   return candidate;
 }
 
-export async function generateText({config, messages, settings = {}, tools = [], signal, fetchImpl, onDelta, onPhase, now} = {}) {
+export async function generateText({config, messages, settings = {}, tools = [], signal, fetchImpl, onDelta, onReasoningDelta, onPhase, now} = {}) {
   validateEndpoint(config);
   const timing = createTextTiming(now);
   const observedDelta = onDelta ? delta => { timing.observe(delta); onDelta(delta); } : undefined;
@@ -251,7 +251,7 @@ export async function generateText({config, messages, settings = {}, tools = [],
   if (thinkingControls.generationConfig) body.generationConfig = {...body.generationConfig,...thinkingControls.generationConfig};
   else Object.assign(body,thinkingControls);
   if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 16 * 1024 * 1024) fail('ATTACHMENT_LIMIT','对话附件累计过大，请清空对话后重新添加。');
-  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : '/chat/completions', {body,signal,fetchImpl,onDelta:observedDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
+  const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : '/chat/completions', {body,signal,fetchImpl,onDelta:observedDelta,onReasoningDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});
   const complete = response => ({...response, metrics:replyMetricsSnapshot(response.usage, timing.snapshot(), visibleOutputTokens(json,config.protocol,{thinking:body.thinking}))});
   if (config.protocol === 'gemini') {
     const candidate = geminiCandidate(json);

@@ -58,8 +58,8 @@ export async function readSSE(response, { signal, onEvent, error, onPhase }) {
 }
 
 /** Build the same native assistant shape as the nonstream transport. */
-export async function collectTextStream(response, {protocol, signal, onDelta, error, onPhase}) {
-  if (protocol === 'anthropic') return collectAnthropicStream(response,{signal,onDelta,error,onPhase});
+export async function collectTextStream(response, {protocol, signal, onDelta, onReasoningDelta, error, onPhase}) {
+  if (protocol === 'anthropic') return collectAnthropicStream(response,{signal,onDelta,onReasoningDelta,error,onPhase});
   const gemini = protocol === 'gemini';
   const parts = [], calls = new Map();
   let text = '', finish = null, usage = null, refusal = '', reasoning = '', encrypted = '', ended = false;
@@ -84,6 +84,7 @@ export async function collectTextStream(response, {protocol, signal, onDelta, er
         parts.push(part);
         if (typeof part.text === 'string' && part.text.length) onPhase?.(part.thought ? 'reasoning' : 'output');
         if (part.functionCall?.name) onPhase?.('output');
+        if (typeof part.text === 'string' && part.thought === true && part.text) onReasoningDelta?.(part.text);
         if (typeof part.text === 'string' && !part.thought) { text += part.text; onDelta?.(part.text); }
       }
     } else {
@@ -101,7 +102,7 @@ export async function collectTextStream(response, {protocol, signal, onDelta, er
         encrypted = delta.encrypted_content;
       }
       if (typeof delta.content === 'string') { text += delta.content; onDelta?.(delta.content); }
-      if (typeof delta.reasoning_content === 'string') reasoning += delta.reasoning_content;
+      if (typeof delta.reasoning_content === 'string') { reasoning += delta.reasoning_content; if (delta.reasoning_content) onReasoningDelta?.(delta.reasoning_content); }
       if (typeof delta.refusal === 'string') refusal += delta.refusal;
       for (const fragment of delta.tool_calls || []) {
         if (fragment.id || fragment.function?.name || fragment.function?.arguments) onPhase?.('output');
@@ -127,7 +128,7 @@ export async function collectTextStream(response, {protocol, signal, onDelta, er
 }
 
 /** Messages SSE: preserve native block boundaries and opaque thinking signatures. */
-async function collectAnthropicStream(response, {signal,onDelta,error,onPhase}) {
+async function collectAnthropicStream(response, {signal,onDelta,onReasoningDelta,error,onPhase}) {
   let message = null, ended = false;
   const blocks = new Map(), closed = new Set();
   const malformed = () => error('STREAM_FORMAT','Anthropic 流式事件格式或顺序不正确；未加入历史。');
@@ -146,6 +147,7 @@ async function collectAnthropicStream(response, {signal,onDelta,error,onPhase}) 
         const block = value.content_block;
         if (!['text','thinking','redacted_thinking'].includes(block?.type)) throw error('CONTENT_UNSUPPORTED','Anthropic 返回了尚未支持的内容或工具调用；未加入历史。');
         blocks.set(value.index,{...block});
+        if (block.type === 'thinking' && typeof block.thinking === 'string' && block.thinking) { onPhase?.('reasoning'); onReasoningDelta?.(block.thinking); }
         if (block.type === 'text' && block.text) { onPhase?.('output'); onDelta?.(block.text); }
         break;
       }
@@ -157,7 +159,7 @@ async function collectAnthropicStream(response, {signal,onDelta,error,onPhase}) 
           if (delta.text) { onPhase?.('output'); onDelta?.(delta.text); }
         } else if (delta.type === 'thinking_delta' && block.type === 'thinking' && typeof delta.thinking === 'string') {
           block.thinking = (block.thinking || '') + delta.thinking;
-          if (delta.thinking) onPhase?.('reasoning');
+          if (delta.thinking) { onPhase?.('reasoning'); onReasoningDelta?.(delta.thinking); }
         } else if (delta.type === 'signature_delta' && block.type === 'thinking' && typeof delta.signature === 'string') {
           block.signature = (block.signature || '') + delta.signature;
         } else throw error('CONTENT_UNSUPPORTED','Anthropic 返回了尚未支持的内容增量；未加入历史。');

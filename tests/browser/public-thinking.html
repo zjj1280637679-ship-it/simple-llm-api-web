@@ -1,0 +1,48 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>公开思考区 · 离线验收</title>
+<style>body{font:14px system-ui;margin:16px}iframe{width:430px;height:760px;max-width:100%;border:1px solid #888}button,select{margin:5px}pre{white-space:pre-wrap}</style>
+<h1>公开思考增量 · 合成离线验收</h1><p>真实 app，fetch 全部截获，无外部 API。前3段公开思考每900ms到达，然后正文。思考途中折叠/切页/取消，观察状态保持、未完成标记。无思考时不显示假思考。opaque字段从不渲染。</p>
+<select id="protocol"><option>gemini</option><option>openai</option><option>ark</option></select><select id="mode"><option value="thinking" selected>公开思考→正文</option><option value="thinking-error">思考后断流</option><option value="ok">无思考正文</option><option value="error">半途流内错误</option><option value="cut">半途断流</option><option value="headers">延迟响应头60秒</option><option value="silent">响应头后静默60秒</option><option value="heartbeat">仅心跳后回复</option><option value="http">HTTP 503</option></select><label><input id="official-usage" type="checkbox">合成官方Gemini缺省cache字段（仍零外部请求）</label><button id="setup">设置并发送</button><button id="animation-probe">采样动画连续性3秒</button><pre id="animation-report">未采样</pre><pre id="report">等待</pre><iframe id="view" src="../../index.html" title="真实应用"></iframe>
+<script>
+const view=document.querySelector('#view'), report=document.querySelector('#report');let sent=0;
+view.onload=()=>{view.contentWindow.fetch=async(url,options={})=>{
+ const protocol=document.querySelector('#protocol').value,mode=document.querySelector('#mode').value;const body=JSON.parse(options.body||'{}');const began=performance.now();let timer,step=0,thoughtStep=0,cancelled=false;
+ if(mode==='headers')await new Promise((resolve,reject)=>{const timer=setTimeout(resolve,60000);options.signal?.addEventListener('abort',()=>{clearTimeout(timer);reject(new DOMException('Aborted','AbortError'))},{once:true})});
+ if(mode==='http')return new Response('{}',{status:503});
+ const fragments=['第一段已经到达。\n','现在第二段才从合成服务到达。\n','第三段：无需等待完整回复。\n','第四段：中文和 emoji 🙂 保持完整。\n','第五段：完成后才保存上下文。'];
+ const frame=value=>new TextEncoder().encode('data: '+(typeof value==='string'?value:JSON.stringify(value))+'\r\n\r\n');
+ const stream=new ReadableStream({start(c){
+  const tick=()=>{if(cancelled)return;
+   if(mode.startsWith('thinking')&&thoughtStep<3){thoughtStep++;const text='公开思考第'+thoughtStep+'段：这是供应商明确返回的合成文本🙂。\n';c.enqueue(frame(protocol==='gemini'?{candidates:[{content:{parts:[{thought:true,text},{text:'',thoughtSignature:'OPAQUE-SHOULD-NOT-DISPLAY'}]}}]}:{choices:[{index:0,delta:{reasoning_content:text,encrypted_content:'OPAQUE-SHOULD-NOT-DISPLAY'}}]}));report.textContent='公开思考 '+thoughtStep+'/3；正文尚未到达；无外部API';timer=setTimeout(tick,900);return;}
+   if(mode==='thinking-error'){c.close();return;}step++;
+   if(step===3&&['error','cut'].includes(mode)){if(mode==='error')c.enqueue(frame({error:{message:'synthetic stream failure'}}));c.close();return;}
+   if(step<=fragments.length){const last=step===fragments.length;const value=protocol==='gemini'?{candidates:[{index:0,content:{role:'model',parts:[{text:fragments[step-1]}]},...(last?{finishReason:'STOP'}:{})}]}:{choices:[{index:0,delta:{content:fragments[step-1]},finish_reason:last?'stop':null}]};c.enqueue(frame(value));
+    report.textContent=JSON.stringify({synthetic:true,outboundNetwork:false,request:sent,step,elapsedMs:Math.round(performance.now()-began),upstreamComplete:false,nativeHistoryCount:body.contents?.length||body.messages?.length,requestedStreaming:body.stream??url.includes('streamGenerateContent')},null,2);timer=setTimeout(tick,900);
+   }else{c.enqueue(frame(protocol==='gemini'?{usageMetadata:{promptTokenCount:20,candidatesTokenCount:30,totalTokenCount:50}}:{choices:[],usage:{prompt_tokens:20,completion_tokens:30,total_tokens:50}}));if(protocol!=='gemini')c.enqueue(frame('[DONE]'));c.close();report.textContent+='\n上游结束：现在才允许最终成功。';}
+  };
+  
+  if(mode==='heartbeat')c.enqueue(new TextEncoder().encode(': heartbeat\n\n'));
+  timer=setTimeout(tick,mode==='silent'?60000:mode==='heartbeat'?8000:200);
+ },cancel(){cancelled=true;clearTimeout(timer);report.textContent+='\nreader 已取消。'}});
+ sent++;return new Response(stream,{headers:{'content-type':'text/event-stream'}});
+};};
+document.querySelector('#setup').onclick=()=>{const d=view.contentDocument,w=view.contentWindow;d.querySelector('[data-action="tab"][data-tab="chat"]').click();d.querySelector('[data-action=plus]').click();d.querySelector('[data-action=new-card][data-kind=api]').click();
+ const protocol=document.querySelector('#protocol').value;
+ d.querySelector('fieldset:not([disabled]) [data-action=supplier]').click();d.querySelector('[data-action=choose-supplier][data-index="'+({gemini:2,openai:3,ark:4,anthropic:7})[protocol]+'"]').click();
+ for(const [key,value]of Object.entries({url:protocol==='gemini'&&document.querySelector('#official-usage').checked?'https://generativelanguage.googleapis.com/v1beta':'https://api.example.com/v1',key:'SYNTHETIC-NOT-A-REAL-KEY',model:'fixture-model'})){const n=d.querySelector('fieldset:not([disabled]) [data-key='+key+']');n.value=value;n.dispatchEvent(new w.Event('input',{bubbles:true}));}
+ const input=d.querySelector('#draft');input.value='请用五段展示真实增量输出，第 '+(sent+1)+' 轮';input.dispatchEvent(new w.Event('input',{bubbles:true}));d.querySelector('[data-action=send]').click();
+};
+
+document.querySelector('#animation-probe').onclick=()=>{
+ const w=view.contentWindow,d=view.contentDocument,first=d.querySelector('.api-spinner');
+ const rows=[];let previous=null,changed=0,regressions=0,maxGap=0;const start=performance.now();
+ function sample(now){
+  const node=d.querySelector('.api-spinner'),animation=node?.getAnimations?.().find(a=>a.animationName==='api-spin');
+  const time=animation?.currentTime;
+  if(node!==first)changed++;
+  if(previous&&typeof time==='number'&&previous.time!==null){if(time<previous.time)regressions++;maxGap=Math.max(maxGap,now-previous.now);}
+  previous={now,time:typeof time==='number'?time:null};rows.push({time,rate:animation?.playbackRate});
+  if(now-start<3000)requestAnimationFrame(sample);
+  else document.querySelector('#animation-report').textContent=JSON.stringify({synthetic:true,frames:rows.length,nodeIdentityChanges:changed,timelineRegressions:regressions,maxFrameGapMs:maxGap,first:rows[0],last:rows.at(-1),reducedMotion:w.matchMedia('(prefers-reduced-motion:reduce)').matches},null,2);
+ }requestAnimationFrame(sample);
+};
+</script></html>

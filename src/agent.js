@@ -64,7 +64,7 @@ function imageSummary(result) {
  */
 export async function runConversation({
   config, imageConfig, messages, settings = {}, signal,
-  confirmTool, onToolResult, onHistory, fetchImpl, onDelta, onResponse, onPhase,
+  confirmTool, onToolResult, onHistory, fetchImpl, onDelta, onReasoningDelta, onResponse, onPhase,
 }) {
   const history = messages.map(message => ({ ...message }));
   const toolResults = [];
@@ -85,6 +85,7 @@ export async function runConversation({
       const response = await generateText({
         config, messages: history, settings, tools, signal, fetchImpl, onPhase,
         onDelta: onDelta ? delta => onDelta(delta, {round}) : undefined,
+        onReasoningDelta: onReasoningDelta ? delta => onReasoningDelta(delta, {round}) : undefined,
       });
       stopped(signal);
       onResponse?.(response, {round});
