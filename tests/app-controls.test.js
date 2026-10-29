@@ -1,3 +1,4 @@
+import { usageMetricsMarkup } from '../src/usage.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -19,7 +20,6 @@ function mount({ confirm = () => true, runConversation, dispatchCommand } = {}) 
     set innerHTML(value) {
       html = value; renders += 1; nodes = new Map();
       if (value.includes('id="network-logs"')) nodes.set('#network-logs', { textContent: '' });
-      nodes.set('.top-right', { innerHTML: value.match(/<div class="top-right"[^>]*>(.*?)<\/div>/)?.[1] || '' });
       for (const match of value.matchAll(/<span id="(api-trust\d+)">(.*?)<\/span>/g)) nodes.set(`#${match[1]}`, { textContent: match[2] });
       for (const match of value.matchAll(/<input\b[^>]*\bid="([^"]+)"[^>]*>/g)) {
         const attrs = Object.fromEntries([...match[0].matchAll(/([\w-]+)="([^"]*)"/g)].map(m => [m[1], m[2]]));
@@ -33,13 +33,13 @@ function mount({ confirm = () => true, runConversation, dispatchCommand } = {}) 
   const document = { getElementById: () => app, addEventListener: () => {}, activeElement: null };
   const neverFetch = () => assert.fail('No network may run in control regressions.');
   const context = {
-    ...core, ...logs, icon, document, window: { confirm }, createPageSession, registerPageSessionTools: () => {},
+    ...core, ...logs, usageMetricsMarkup, icon, document, window: { confirm, addEventListener: () => {} }, createPageSession, registerPageSessionTools: () => {},
     renderNetworkLogs: container => { if (container) container.textContent = logs.exportNetworkLogs(); },
     URL, Blob, Uint8Array, atob, AbortController, performance,
     runConversation: runConversation || neverFetch, listModels: neverFetch, dispatchCommand: dispatchCommand || neverFetch
   };
   vm.createContext(context);
-  vm.runInContext(`${source}\nglobalThis.controlTests = { data, addCard, render, matrixSupported, setPage: p => { page = p; } };`, context);
+  vm.runInContext(`${source}\nglobalThis.controlTests = { isConfigured, data, addCard, render, matrixSupported, setPage: p => { page = p; } };`, context);
   return {
     ...context.controlTests, app, document, session: context.window.llmWorkbench,
     input: target => listeners.input({ target }),
@@ -55,19 +55,19 @@ function configure(ui, page = 'chat') {
   return { d, card };
 }
 
-test('URL input immediately revokes visible trust and badge without rebuilding the focused input', () => {
+test('URL input immediately revokes visible trust without rebuilding the focused input', () => {
   const ui = mount(), { d, card } = configure(ui);
   const input = ui.app.querySelector(`#url${card.id}`), renders = ui.app.renders;
   input.value = 'https://new.example.com/v1';
   input.selectionStart = input.selectionEnd = 12;
   ui.document.activeElement = input;
-  assert.match(ui.app.querySelector('.top-right').innerHTML, /API 已配置/);
+  assert.equal(ui.isConfigured(ui.data.chat), true);
   assert.match(ui.app.querySelector(`#api-trust${card.id}`).textContent, /已确认目标/);
   ui.input(input);
   assert.equal(d.api.key, ''); assert.equal(d.api.trustedTarget, '');
   assert.equal(ui.app.querySelector(`#key${card.id}`).value, '');
-  assert.match(ui.app.querySelector('.top-right').innerHTML, /API 未配置/);
-  assert.doesNotMatch(ui.app.querySelector('.top-right').innerHTML, /ready/);
+  assert.equal(ui.isConfigured(ui.data.chat), false);
+  assert.equal(ui.app.querySelector('.top-right'), null);
   assert.match(ui.app.querySelector(`#api-trust${card.id}`).textContent, /调用前需确认目标/);
   assert.equal(ui.app.renders, renders);
   assert.equal(ui.app.querySelector(`#url${card.id}`), input);
@@ -75,15 +75,15 @@ test('URL input immediately revokes visible trust and badge without rebuilding t
   assert.equal(input.selectionStart, 12); assert.equal(input.selectionEnd, 12);
 });
 
-test('key and model edits immediately keep configuration badge accurate without a full render', () => {
+test('key and model edits immediately keep configuration validation accurate without a full render', () => {
   const ui = mount(), { card } = configure(ui), renders = ui.app.renders;
   const key = ui.app.querySelector(`#key${card.id}`), model = ui.app.querySelector(`#model${card.id}`);
   key.value = ''; ui.input(key);
-  assert.match(ui.app.querySelector('.top-right').innerHTML, /API 未配置/);
+  assert.equal(ui.isConfigured(ui.data.chat), false);
   key.value = 'synthetic-replacement-key'; ui.input(key);
-  assert.match(ui.app.querySelector('.top-right').innerHTML, /API 已配置/);
+  assert.equal(ui.isConfigured(ui.data.chat), true);
   model.value = ''; ui.input(model);
-  assert.match(ui.app.querySelector('.top-right').innerHTML, /API 未配置/);
+  assert.equal(ui.isConfigured(ui.data.chat), false);
   assert.equal(ui.app.renders, renders);
 });
 

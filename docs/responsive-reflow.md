@@ -16,7 +16,7 @@
 
 ## 验证及边界
 
-`npm test` 包含三项静态策略回归；静态检查不能证明像素布局。`npm run check` 与 `npm run build` 检查脚本并构建原有11文件白名单。
+`npm test` 包含三项静态策略回归；静态检查不能证明像素布局。`npm run check` 与 `npm run build` 检查脚本并构建12文件白名单（后续加入usage模块；历史初版为11文件）。
 
 本地静态服务器根目录打开 `tests/browser/reflow.html`：
 

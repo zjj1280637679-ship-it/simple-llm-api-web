@@ -130,14 +130,14 @@ node cli.mjs image.generate --protocol ark \
 3. `.github/workflows/pages.yml` 会先执行语法检查与合成测试，再运行 `npm run build`，仅发布 `dist/` 白名单产物。
 4. 等待 **build + deploy** 成功，再打开实际站点检查。若设置完成前初次运行失败，可从 Actions 手动重新运行。
 
-白名单只有 `index.html`、`.nojekyll`、`src/{app,core,agent,icons,image-capabilities,logs,session,session-webmcp}.js` 和 `src/styles.css`，共 11 个文件。**不发布 design、tests、CLI、README、配置文件或仓库的其他内容**。不要使用全仓库根目录上传或 `main / (root)` 的分支发布来绕过这层隔离。
+白名单只有 `index.html`、`.nojekyll`、`src/{app,core,agent,icons,image-capabilities,logs,session,session-webmcp,usage}.js` 和 `src/styles.css`，共 12 个文件。**不发布 design、tests、CLI、README、配置文件或仓库的其他内容**。不要使用全仓库根目录上传或 `main / (root)` 的分支发布来绕过这层隔离。
 
 ```sh
 npm run build
 python3 -m http.server 8000 --directory dist
 ```
 
-构建只复制上述 11 个文件，不下载依赖、不读取环境密钥。工作流参考 [GitHub 官方 Pages 自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
+构建只复制上述 12 个文件，不下载依赖、不读取环境密钥。工作流参考 [GitHub 官方 Pages 自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
 CSS/JS 均使用相对路径，兼容 `https://<owner>.github.io/<repository>/`。GitHub 私有仓库的 Pages 可用性和访问范围依账号计划/组织设置而定；启用前检查站点是否会公开。**不要在页面、配置或提交中放共享 API Key。**
 
 若 GitHub 要求重新登录或 2FA，应由账号持有人完成，不能通过代码绕过。代码提交成功不等于 Pages 已部署成功。
@@ -146,7 +146,8 @@ CSS/JS 均使用相对路径，兼容 `https://<owner>.github.io/<repository>/`�
 
 ```text
 index.html              生产入口（真实 transport，无模拟回复）
-src/app.js              原设计风格 UI，内存配置及费用确认
+src/app.js              全屏滚动、悬浮导航、内存配置及费用确认
+src/usage.js            可追溯用量归一化与缓存/末次输入指标
 src/core.js             Gemini/OpenAI/Ark 文本、图片核心、typed command dispatcher
 src/image-capabilities.js 按 provider/model 分离的图片能力与尺寸
 src/logs.js             脱敏、限量的内存通讯日志
@@ -159,7 +160,7 @@ docs/ark-api.md         官方 API 来源与版本化集成摘要
 docs/ark-model-catalog.md 当前模型目录与生命周期依据
 docs/credentials.md    密钥容器、授权消费者与静态站点边界
 .env.example           空凭据字段与非秘密参考默认值
-scripts/build.mjs       仅复制 11 个生产文件到 dist
+scripts/build.mjs       仅复制 12 个生产文件到 dist
 .github/workflows/      测试通过后发布 dist 的 Pages 工作流
 design/index.html       原始交互设计，原样保留，不作为生产入口
 design/REQUIREMENTS.md   当时的设计需求记录（保留历史语境）
@@ -180,3 +181,5 @@ VALIDATION.md           本次验证结果与尚未完成的真实环境验证
 - [OpenAI 模型列表](https://platform.openai.com/docs/api-reference/models/list)
 
 Google 当前同时提供较新的 Interactions 协议。本 MVP 有意使用仍有官方文档的 GenerateContent 接口，不能将 Interactions 的 `response_format` 参数混入此请求。
+
+响应式与悬浮导航验证见 [布局说明](docs/floating-navigation.md)；缓存命中、末次输入与未知值语义见 [用量说明](docs/USAGE_METRICS.md)。
