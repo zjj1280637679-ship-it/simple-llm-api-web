@@ -52,3 +52,14 @@ test('core emits only chosen DeepSeek field and default sends none',async()=>{
   assert.equal(body.reasoning_effort,selection?.template==='deepseek-effort'?'high':undefined);
  }
 });
+
+test('explicit family on unknown gateway chooses stable schema, known legacy model keeps budget',async()=>{
+ const {resolveReasoningFamily}=await import('../src/reasoning.js');
+ for(const [protocol,family,schema]of [['anthropic','anthropic','anthropic-effort'],['gemini','gemini','gemini-level'],['openai','deepseek','deepseek-effort']]){
+  const config={protocol,url:'https://gateway.example/v1',model:'unknown-custom-model'};
+  const selected=resolveReasoningFamily(config,family);assert.equal(selected.template.id,schema);assert.deepEqual(reasoningBody(config,undefined),{});
+  assert.ok(Object.keys(reasoningBody(config,{template:schema,value:'high'})).length);
+ }
+ assert.equal(resolveReasoningFamily({protocol:'anthropic',url:'https://gateway.example/v1',model:'claude-sonnet-4-5'},'anthropic').template.id,'anthropic-budget');
+ assert.equal(resolveReasoningFamily({protocol:'gemini',url:'https://gateway.example/v1',model:'gemini-2.5-flash'},'gemini').template.id,'gemini-budget');
+});

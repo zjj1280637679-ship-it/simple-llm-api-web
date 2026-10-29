@@ -104,3 +104,31 @@ export function reasoningBody(config={},selection,settings={}) {
  }
  fail('未实现该思考模板。');
 }
+
+export const REASONING_FAMILIES=Object.freeze([
+ {id:'anthropic',label:'Claude 模板',protocol:'anthropic'},
+ {id:'deepseek',label:'DeepSeek 模板',protocol:'openai'},
+ {id:'openai',label:'OpenAI 模板',protocol:'openai'},
+ {id:'gemini',label:'Gemini 模板',protocol:'gemini'},
+ {id:'ark',label:'火山方舟模板',protocol:'ark'},
+ {id:'zhipu',label:'智谱模板',protocol:'openai'}
+].map(Object.freeze));
+export function reasoningFamilyFor(config={},templateId) {
+ const explicit=templates.find(t=>t.id===templateId);
+ if(explicit)return explicit.provider||explicit.protocol;
+ return identity(config);
+}
+export function resolveReasoningFamily(config={},familyId) {
+ const family=REASONING_FAMILIES.find(f=>f.id===familyId);
+ if(!family || family.protocol!==config.protocol)fail('该模板与当前接口格式不匹配，请先在 API 设置选择对应格式；没有自动修改接口。');
+ const candidates=getReasoningTemplates(config).filter(t=>(t.provider||t.protocol)===familyId);
+ if(!candidates.length)fail('该模板与当前供应商地址或模型不匹配；没有修改现有设置。');
+ const recommended=getRecommendedReasoningTemplate(config);
+ const referenceUrls={anthropic:'https://api.anthropic.com/v1',gemini:'https://generativelanguage.googleapis.com/v1beta',openai:'https://api.openai.com/v1',deepseek:'https://api.deepseek.com',zhipu:'https://open.bigmodel.cn/api/paas/v4',ark:'https://ark.cn-beijing.volces.com/api/v3'};
+ const modelSchema=official({...config,url:referenceUrls[familyId]})[0];
+ const known=candidates.find(t=>t.id===recommended)||candidates.find(t=>t.verifiedModel)||candidates.find(t=>t.id===modelSchema?.id);
+ // Explicit family selection chooses a stable request schema, not a claim of upstream model support.
+ const canonical={anthropic:'anthropic-effort',gemini:'gemini-level',openai:'openai-effort',deepseek:'deepseek-effort',zhipu:'zhipu-effort',ark:'ark-effort'};
+ const selected=known || candidates.find(t=>t.id===canonical[familyId]) || candidates[0];
+ return {family,template:selected||null};
+}

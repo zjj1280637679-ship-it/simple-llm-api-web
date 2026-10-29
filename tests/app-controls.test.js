@@ -493,15 +493,14 @@ test('manual endpoint edits remove misleading official supplier identity',()=>{
  assert.equal(d.api.supplier,'Google Gemini');
 });
 
-test('model mode config stays omitted until quick choice; unset preserves mode and options',async()=>{
- const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='custom-model';ui.addCard('model');const id=String(d.messages.at(-1).id);
- await ui.click({action:'reasoning-toggle',id});await ui.click({action:'reasoning-template',template:'openai-effort'});
- await ui.click({action:'tab',tab:'image'});await ui.click({action:'tab',tab:'chat'});assert.equal(d.model.reasoningMode,undefined);
- await ui.click({action:'reasoning-toggle',id});await ui.click({action:'reasoning-template',template:'openai-effort'});await ui.click({action:'reasoning-apply'});
- assert.equal(d.model.reasoningMode,'openai-effort');assert.equal(d.model.reasoning,undefined);
- await ui.click({action:'reasoning-toggle'});assert.match(ui.app.innerHTML,/reasoning-quick/);assert.doesNotMatch(ui.app.innerHTML,/<h3>思考强度/);
- await ui.click({action:'reasoning-quick',template:'openai-effort',value:'high'});assert.equal(d.model.reasoning.value,'high');
- await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-quick',value:''});assert.equal(d.model.reasoning,undefined);assert.equal(d.model.reasoningMode,'openai-effort');
+test('pure family choice never enables strength; unset keeps family quick values',async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='custom';ui.addCard('model');const id=String(d.messages.at(-1).id);
+ await ui.click({action:'reasoning-toggle',id});
+ const menu=ui.app.innerHTML.match(/<section class="reasoning-menu reasoning-family-list"[\s\S]*?<\/section>/)[0];
+ assert.match(menu,/Claude 模板/);assert.match(menu,/DeepSeek 模板/);assert.doesNotMatch(menu,/不指定|推荐|思考开关|high|预算|应用|取消/);
+ await ui.click({action:'reasoning-family',family:'openai'});assert.equal(d.model.reasoningFamily,'openai');assert.equal(d.model.reasoning,undefined);
+ await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-quick',template:'openai-effort',value:'high'});assert.equal(d.model.reasoning.value,'high');
+ await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-quick',value:''});assert.equal(d.model.reasoning,undefined);assert.equal(d.model.reasoningFamily,'openai');
  await ui.click({action:'reasoning-toggle'});assert.match(ui.app.innerHTML,/data-value="high"/);
 });
 test('reasoning incompatible protocol selection is cleared when changing supplier',async()=>{
@@ -510,12 +509,10 @@ test('reasoning incompatible protocol selection is cleared when changing supplie
  assert.equal(d.api.protocol,'anthropic');assert.equal(d.model.reasoning,undefined);
 });
 
-test('clearing a reasoning budget is not coerced into zero or applied',async()=>{
- const ui=mount(),{d}=configure(ui);d.api.model='gemini-2.5-flash';ui.addCard('model');
- await ui.click({action:'reasoning-toggle',id:String(d.messages.at(-1).id)});await ui.click({action:'reasoning-template',template:'gemini-budget'});
- ui.app.querySelector('#reasoning-budget').value='';
- await ui.click({action:'reasoning-apply'});
- assert.equal(d.model.reasoning,undefined);assert.match(ui.app.innerHTML,/请输入思考预算/);
+test('cross-protocol family fails visibly without changing protocol or configuration',async()=>{
+ const ui=mount(),{d}=configure(ui);ui.addCard('model');const id=String(d.messages.at(-1).id);
+ await ui.click({action:'reasoning-toggle',id});await ui.click({action:'reasoning-family',family:'anthropic'});
+ assert.equal(d.api.protocol,'gemini');assert.equal(d.model.reasoningFamily,undefined);assert.match(d.reasoningIssue,/接口格式不匹配/);
 });
 test('session approval rejects in-place reasoning value changes before dispatch',async()=>{
  let calls=0;const ui=mount({runConversation:async()=>{calls++;return {text:'no',history:[]}}}),{d}=configure(ui);
@@ -552,22 +549,30 @@ test('each streamed round retains its own immutable metrics through later sends 
  await ui.click({action:'clear-chat'});assert.equal(d.lastMetrics,null);assert.equal(d.lastUsage,null);
  });
 
-test('model-card reasoning entry shares footer selection and historical entries cannot write',async()=>{
- const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='custom';
- ui.addCard('model');const card=d.messages.at(-1);
- assert.match(ui.app.innerHTML,/自定义思考模板/);
- await ui.click({action:'reasoning-toggle',id:String(card.id)});assert.match(ui.app.innerHTML,new RegExp('data-menu-card="'+card.id+'" role="dialog"'));
- await ui.click({action:'reasoning-template',template:'openai-effort'});await ui.click({action:'reasoning-value',value:'high'});await ui.click({action:'reasoning-apply'});
- assert.equal(d.model.reasoningMode,'openai-effort');assert.equal(d.model.reasoning,undefined);assert.match(ui.app.innerHTML,/OpenAI Chat 思考强度 · 不指定/);
- ui.addCard('model');const latest=d.messages.at(-1);await ui.click({action:'reasoning-toggle',id:String(card.id)});
- assert.doesNotMatch(ui.app.innerHTML,/class="reasoning-menu"/);
- await ui.click({action:'reasoning-toggle',id:String(latest.id)});await ui.click({action:'reasoning-template',template:''});await ui.click({action:'reasoning-apply'});
- assert.equal(d.model.reasoning,undefined);
+test('historical family card cannot change current family and supplier change clears incompatible family',async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';ui.addCard('model');const old=String(d.messages.at(-1).id);
+ await ui.click({action:'reasoning-toggle',id:old});await ui.click({action:'reasoning-family',family:'deepseek'});assert.equal(d.model.reasoningFamily,'deepseek');
+ ui.addCard('model');await ui.click({action:'reasoning-toggle',id:old});await ui.click({action:'reasoning-family',family:'openai'});assert.equal(d.model.reasoningFamily,'deepseek');
+ ui.addCard('api');await ui.click({action:'choose-supplier',id:String(d.messages.at(-1).id),index:'0'});assert.equal(d.model.reasoningFamily,undefined);
 });
-
 test('quick setting validation failure is visible once without sending or silently changing selection',async()=>{
- const ui=mount(),{d}=configure(ui);d.api.protocol='anthropic';d.api.url='https://gateway.example/v1';d.api.model='custom';d.model.reasoningMode='anthropic-effort';d.model.temperature='0.7';
+ const ui=mount(),{d}=configure(ui);d.api.protocol='anthropic';d.api.url='https://gateway.example/v1';d.api.model='claude-opus-4-6';d.api.url='https://api.anthropic.com/v1';d.model.reasoningMode='anthropic-effort';d.model.temperature='0.7';
  for(let i=0;i<5;i++)await ui.click({action:'reasoning-quick',template:'anthropic-effort',value:'high'});
  assert.equal(d.model.reasoning,undefined);assert.match(d.reasoningIssue,/温度/);assert.equal((ui.app.innerHTML.match(/class="reasoning-error"/g)||[]).length,1);
  await ui.click({action:'reasoning-quick',value:''});assert.equal(d.reasoningIssue,'');
+});
+
+test('budget is editable only in composer intensity layer and blank never becomes zero',async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.model='gemini-2.5-flash';ui.addCard('model');
+ await ui.click({action:'reasoning-toggle',id:String(d.messages.at(-1).id)});assert.doesNotMatch(ui.app.innerHTML,/id="reasoning-quick-budget"/);
+ await ui.click({action:'reasoning-family',family:'gemini'});assert.equal(d.model.reasoning,undefined);
+ await ui.click({action:'reasoning-toggle'});const field=ui.app.querySelector('#reasoning-quick-budget');field.value='';
+ await ui.click({action:'reasoning-budget-apply'});assert.equal(d.model.reasoning,undefined);assert.match(d.reasoningIssue,/请输入/);
+ ui.app.querySelector('#reasoning-quick-budget').value='1024';await ui.click({action:'reasoning-budget-apply'});assert.equal(d.model.reasoning.value,'1024');
+});
+
+test('historical unselected custom family does not inherit a later official provider',async()=>{
+ const ui=mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='x';ui.addCard('model');const old=d.messages.at(-1);
+ ui.addCard('api');await ui.click({action:'choose-supplier',id:String(d.messages.at(-1).id),index:'0'});
+ assert.equal(old.values.reasoningFamily,null);assert.match(ui.app.innerHTML,new RegExp('id="reasoning-model'+old.id+'"[^>]*>选择模板</button>'));
 });

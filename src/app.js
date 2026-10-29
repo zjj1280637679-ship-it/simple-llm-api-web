@@ -1,4 +1,4 @@
-import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody } from './reasoning.js';
+import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody, REASONING_FAMILIES, reasoningFamilyFor, resolveReasoningFamily } from './reasoning.js';
 import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
 import { replyMetricsMarkup, replyMetricsSnapshot } from './usage.js';
 import { icon } from './icons.js';
@@ -292,7 +292,7 @@ const makePage = type => ({
 });
 const data = { chat: makePage('chat'), image: makePage('image') };
 let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
-let reasoningDraft = null, reasoningError = '', reasoningAnchorId = null;
+let reasoningAnchorId = null;
 const get = () => data[page];
 function syncLogSecrets() { updateActiveLogSecrets(Object.values(data).map(d => d.api.key)); }
 function archiveWorkspaceKey(d) { if (d) setLogSecrets([d.api.key]); }
@@ -303,27 +303,27 @@ function selectedPixels(d, ratio, size) { return getImageCapabilities(d.api)?.ra
 function clearIncompatibleReasoning(d) {
   if (!d) return;
   d.reasoningIssue='';
+  if(d.model.reasoningFamily){try{resolveReasoningFamily(d.api,d.model.reasoningFamily);}catch{delete d.model.reasoningFamily;delete d.model.reasoningMode;delete d.model.reasoningBudget;delete d.model.reasoning;}}
   const available=getReasoningTemplates(d.api);
   if(d.model.reasoningMode && !available.some(t=>t.id===d.model.reasoningMode)){delete d.model.reasoningMode;delete d.model.reasoningBudget;}
   if (!d.model.reasoning) return;
   try { reasoningBody(d.api, d.model.reasoning, d.model); }
   catch { delete d.model.reasoning; }
 }
+function selectedReasoningFamily(d) { return d.model.reasoningFamily || reasoningFamilyFor(d.api,d.model.reasoningMode || d.model.reasoning?.template); }
 function selectedReasoningMode(d) {
-  return getReasoningTemplates(d.api).find(t=>t.id===(d.model.reasoningMode || d.model.reasoning?.template || getRecommendedReasoningTemplate(d.api)));
+  const family=selectedReasoningFamily(d);if(!family)return null;
+  try{return resolveReasoningFamily(d.api,family).template;}catch{return null;}
 }
 function reasoningQuickMarkup(d) {
   const mode=selectedReasoningMode(d), current=d.model.reasoning;
   const values=mode?.values || [...new Set([...(mode?.specialValues||[]),...(d.model.reasoningBudget!==undefined?[d.model.reasoningBudget]:[])].map(String))].map(value=>({value,label:value==='-1'?'动态':value==='0'?'关闭':String(value)}));
-  return `<section class="reasoning-menu reasoning-quick" data-floating-menu="reasoning-toggle" role="menu" aria-label="思考强度"><button type="button" role="menuitemradio" aria-checked="${!current}" data-action="reasoning-quick" data-value="">不指定</button>${values.map(v=>`<button type="button" role="menuitemradio" aria-checked="${current?.template===mode.id && String(current.value)===String(v.value)}" data-action="reasoning-quick" data-template="${esc(mode.id)}" data-value="${esc(v.value)}">${esc(v.label||v.value)}</button>`).join('')}</section>`;
+  return `<section class="reasoning-menu reasoning-quick" data-floating-menu="reasoning-toggle" role="menu" aria-label="思考强度"><button type="button" role="menuitemradio" aria-checked="${!current}" data-action="reasoning-quick" data-value="">不指定</button>${values.map(v=>`<button type="button" role="menuitemradio" aria-checked="${current?.template===mode.id && String(current.value)===String(v.value)}" data-action="reasoning-quick" data-template="${esc(mode.id)}" data-value="${esc(v.value)}">${esc(v.label||v.value)}</button>`).join('')}${mode?.kind==='number'?`<div class="reasoning-budget-row"><input type="number" id="reasoning-quick-budget" aria-label="思考预算 Token" placeholder="Token" min="${mode.min}" max="${mode.max}" step="1" value="${esc(d.model.reasoningBudget??'')}"><button type="button" data-action="reasoning-budget-apply">确定</button></div>`:''}</section>`;
 }
 function reasoningMarkup() {
-  const d=get(), templates=getReasoningTemplates(d.api), selected=d.model.reasoning;
-  const open=subMenu==='reasoning';
-  const chosen=templates.find(t=>t.id===reasoningDraft?.template);
-  const recommendation=getRecommendedReasoningTemplate(d.api);
-  if(open && reasoningAnchorId===null)return `<div class="reasoning-control"><button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度" aria-haspopup="menu" aria-expanded="true">思考${selected?' · 已设':''}</button>${reasoningQuickMarkup(d)}</div>`;
-  return `<div class="reasoning-control"><button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度${selected?'，已指定':'，不指定'}" aria-haspopup="menu" aria-expanded="${open && reasoningAnchorId===null}" ${d.busy?'disabled':''}>思考${selected?' · 已设':''}</button>${open?`<section class="reasoning-menu" data-floating-menu="reasoning-toggle" ${reasoningAnchorId!==null?`data-menu-card="${reasoningAnchorId}"`: ''} role="dialog" aria-label="思考强度"><h3>思考强度</h3><p>默认不指定，不发送思考参数。${recommendation?'已识别官方模型模板。':'未知模型或自定义地址，请按上游文档选择模板。'}</p><button type="button" data-action="reasoning-template" data-template="" aria-pressed="${!reasoningDraft?.template}">不指定</button><div class="reasoning-templates">${templates.map(t=>`<button type="button" data-action="reasoning-template" data-template="${esc(t.id)}" aria-pressed="${reasoningDraft?.template===t.id}">${esc(t.label)}${recommendation===t.id?' · 推荐':''}</button>`).join('')}</div>${chosen?`<p>${esc(chosen.note||'参数按所选模板发送；兼容网关的实际支持由上游决定。')}</p>${chosen.values?.length?'':`${chosen.specialValues?.length?`<div class="reasoning-values">${chosen.specialValues.map(v=>`<button type="button" data-action="reasoning-value" data-value="${v}">${v===-1?'动态预算 (-1)':v===0?'关闭 (0)':v}</button>`).join('')}</div>`:''}<label for="reasoning-budget">思考预算（Token）</label><input type="number" id="reasoning-budget" min="${chosen.min??0}" max="${chosen.max??1000000}" step="${chosen.step??1}" value="${esc(reasoningDraft.value??'')}">`}`:''}<p role="status">${esc(reasoningError)}</p><div class="reasoning-footer"><button type="button" data-action="reasoning-cancel">取消</button><button type="button" data-action="reasoning-apply">应用</button></div></section>`:''}</div>`;
+  const d=get(), open=subMenu==='reasoning', current=d.model.reasoning;
+  const picker=open ? reasoningAnchorId===null ? reasoningQuickMarkup(d) : `<section class="reasoning-menu reasoning-family-list" data-floating-menu="reasoning-toggle" data-menu-card="${reasoningAnchorId}" role="menu" aria-label="思考模板">${REASONING_FAMILIES.map(f=>`<button type="button" role="menuitemradio" aria-checked="${selectedReasoningFamily(d)===f.id}" data-action="reasoning-family" data-family="${f.id}">${f.label}</button>`).join('')}</section>` : '';
+  return `<div class="reasoning-control"><button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度${current?'，已指定':'，不指定'}" aria-haspopup="menu" aria-expanded="${open&&reasoningAnchorId===null}" ${d.busy?'disabled':''}>思考${current?' · 已设':''}</button>${picker}</div>`;
 }
 function resetImageOptions(d, force = false) {
   const cap = getImageCapabilities(d.api); if (!cap) return;
@@ -357,9 +357,9 @@ function closeMenus() { plusOpen = sizeOpen = false; subMenu = ''; }
 function addCard(kind) {
   const d = get();
   const previous = d.messages.find(m => m.id === activeCardId(d));
-  if (previous) previous.values = previous.kind === 'api' ? { ...d.api, key: '' } : { ...d.model };
+  if (previous) previous.values = previous.kind === 'api' ? { ...d.api, key: '' } : { ...d.model, reasoningFamily:selectedReasoningFamily(d) };
   // Historical cards never retain an API-key snapshot.
-  const values = kind === 'api' ? { ...d.api, key: '' } : { ...d.model };
+  const values = kind === 'api' ? { ...d.api, key: '' } : { ...d.model, reasoningFamily:selectedReasoningFamily(d) };
   d.messages.push({ id: nextId++, type: 'card', kind, values, showKey: false, models: [] });
   closeMenus(); render(true);
 }
@@ -400,7 +400,7 @@ function apiCard(m) {
 function modelCard(m) {
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.model;
   const field = (label, key, placeholder) => `<div class="formfield"><label for="${key}${m.id}">${label}</label><input class="block-input" type="number" id="${key}${m.id}" data-card="${m.id}" data-key="${key}" placeholder="${placeholder}" value="${esc(x[key])}" step="any"></div>`;
-  return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}<div class="card-type">模型设置</div><div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield"><label for="reasoning-model${m.id}">自定义思考模板</label><button type="button" id="reasoning-model${m.id}" class="block-value reasoning-model-trigger" data-action="reasoning-toggle" data-id="${m.id}" aria-haspopup="dialog" aria-expanded="${subMenu==='reasoning' && reasoningAnchorId===m.id}">${esc(x.reasoning ? `${getReasoningTemplates(d.api).find(t=>t.id===x.reasoning.template)?.label || x.reasoning.template} · ${x.reasoning.value}` : (getReasoningTemplates(d.api).find(t=>t.id===x.reasoningMode)?.label || (!old && selectedReasoningMode(d)?.label)) ? `${getReasoningTemplates(d.api).find(t=>t.id===x.reasoningMode)?.label || selectedReasoningMode(d)?.label} · 不指定` : '自定义模板 · 不指定')}</button></div><div class="formfield"><label for="context${m.id}">上下文</label><output id="context${m.id}" class="block-value">本页内存中的对话</output></div>` : `<div class="formfield"><label for="count${m.id}">生成数量</label><output id="count${m.id}" class="block-value">1</output></div><div class="formfield"><label for="format${m.id}">输出格式</label><output id="format${m.id}" class="block-value">上游原始格式</output></div>`}</div>${page === 'chat' ? `<div class="fieldgroup"><span class="formlabel">输入模态</span><div class="chips">${Object.entries(MODALITIES).map(([kind,label]) => `<button type="button" class="chip ${x.inputs?.includes(kind) ? 'sel' : ''}" data-action="toggle-input" data-id="${m.id}" data-modality="${kind}" aria-pressed="${Boolean(x.inputs?.includes(kind))}" ${!supportedModalities(d.api.protocol).includes(kind) || kind === 'text' ? 'disabled' : ''}>${label}</button>`).join('')}</div></div>` : ''}<div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : d.api.protocol === 'anthropic' ? ' 输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div></div></fieldset></div>`;
+  return `<div class="card-wrap"><fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset"><div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}<div class="card-type">模型设置</div><div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield"><label for="reasoning-model${m.id}">自定义思考模板</label><button type="button" id="reasoning-model${m.id}" class="block-value reasoning-model-trigger" data-action="reasoning-toggle" data-id="${m.id}" aria-haspopup="menu" aria-expanded="${subMenu==='reasoning' && reasoningAnchorId===m.id}">${esc(REASONING_FAMILIES.find(f=>f.id===(old ? x.reasoningFamily : x.reasoningFamily || reasoningFamilyFor(d.api,x.reasoningMode || x.reasoning?.template)))?.label || '选择模板')}</button></div><div class="formfield"><label for="context${m.id}">上下文</label><output id="context${m.id}" class="block-value">本页内存中的对话</output></div>` : `<div class="formfield"><label for="count${m.id}">生成数量</label><output id="count${m.id}" class="block-value">1</output></div><div class="formfield"><label for="format${m.id}">输出格式</label><output id="format${m.id}" class="block-value">上游原始格式</output></div>`}</div>${page === 'chat' ? `<div class="fieldgroup"><span class="formlabel">输入模态</span><div class="chips">${Object.entries(MODALITIES).map(([kind,label]) => `<button type="button" class="chip ${x.inputs?.includes(kind) ? 'sel' : ''}" data-action="toggle-input" data-id="${m.id}" data-modality="${kind}" aria-pressed="${Boolean(x.inputs?.includes(kind))}" ${!supportedModalities(d.api.protocol).includes(kind) || kind === 'text' ? 'disabled' : ''}>${label}</button>`).join('')}</div></div>` : ''}<div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : d.api.protocol === 'anthropic' ? ' 输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div></div></fieldset></div>`;
 }
 function imageMarkup(m) {
   return `<div class="message"><div class="assistant-message"><div class="assistant-label">${m.fromTool ? '图片工作台 · Agent 调用' : '图片结果'}</div>${m.images.map((im, i) => `<div class="img-result">${im.failed ? '<div class="mock-status" role="alert">返回的图片文件无法在浏览器中解码。请检查下载文件；不会自动重新生成。</div>' : `<img class="generated-image" data-image-message="${m.id}" data-image-index="${i}" src="${esc(im.url)}" alt="${esc(m.prompt)}" loading="lazy">`}<div class="sample-caption"><span>${esc(m.aspectRatio)} · ${esc(m.imageSize)}</span><a href="${esc(im.url)}" download="image-${m.id}-${i + 1}.${im.extension}">下载</a></div></div>`).join('')}${m.text ? `<div class="assistant-note">${esc(m.text)}</div>` : ''}${m.metrics ? `<div class="reply-metrics">${replyMetricsMarkup(m.metrics)}</div>` : ''}</div></div>`;
@@ -451,7 +451,7 @@ function renderLogsPage() {
 function captureControlFocus() {
   const active = document.activeElement;
   if (active?.tagName !== 'BUTTON' || !app.contains(active) || !active.dataset.action) return null;
-  return Object.fromEntries(['action','tab','ratio','imageSize','id','kind','card','template','value']
+  return Object.fromEntries(['action','tab','ratio','imageSize','id','kind','card','template','value','family']
     .filter(key => active.dataset[key] !== undefined).map(key => [key, active.dataset[key]]));
 }
 function restoreControlFocus(identity) {
@@ -695,8 +695,18 @@ app.addEventListener('click', async e => {
       if(el.dataset.id && (card?.id!==activeCardId(d) || card.kind!=='model'))break;
       const anchorId=el.dataset.id?Number(el.dataset.id):null;
       const open=subMenu!=='reasoning' || reasoningAnchorId!==anchorId;closeMenus();reasoningAnchorId=anchorId;
-      if(open){reasoningDraft=d.model.reasoning?{...d.model.reasoning}:d.model.reasoningMode?{template:d.model.reasoningMode,value:d.model.reasoningBudget}:null;reasoningError='';subMenu='reasoning';}
+      if(open)subMenu='reasoning';
       render();if(open)focusFloatingMenu();break;
+    }
+    case 'reasoning-budget-apply': {
+      const mode=selectedReasoningMode(d), field=app.querySelector('#reasoning-quick-budget');
+      if(mode?.kind!=='number' || !field)break;
+      try{
+        if(!field.value.trim())throw new AppError('REASONING_SETTINGS','请输入思考预算，或选择不指定。');
+        const selection={template:mode.id,value:field.value};reasoningBody(d.api,selection,d.model);
+        d.model.reasoning=selection;d.model.reasoningBudget=field.value;d.reasoningIssue='';
+        closeMenus();render();app.querySelector('[data-action="reasoning-toggle"]:not([data-id])')?.focus({preventScroll:true});
+      }catch(error){d.reasoningIssue=error.message;render();}break;
     }
     case 'reasoning-quick': {
       const mode=selectedReasoningMode(d);
@@ -707,21 +717,17 @@ app.addEventListener('click', async e => {
       }
       d.reasoningIssue='';closeMenus();render();app.querySelector('[data-action="reasoning-toggle"]:not([data-id])')?.focus({preventScroll:true});break;
     }
-    case 'reasoning-template': {
-      const t=getReasoningTemplates(d.api).find(t=>t.id===el.dataset.template);
-      reasoningDraft=t?{template:t.id,value:t.defaultValue??t.values?.[0]?.value??t.min??0}:null;
-      reasoningError='';render();break;
-    }
-    case 'reasoning-value': reasoningDraft={...reasoningDraft,value:el.dataset.value};reasoningError='';render();break;
-    case 'reasoning-cancel': dismissFloatingMenu(true);break;
-    case 'reasoning-apply': {
-      try {
-        const budget=app.querySelector('#reasoning-budget');
-        if(budget && reasoningDraft){if(budget.value.trim()==='')throw new AppError('REASONING_SETTINGS','请输入思考预算，或选择不指定。');reasoningDraft.value=budget.value;}
-        reasoningBody(d.api,reasoningDraft,d.model);
-        if(reasoningDraft){if(d.model.reasoning?.template!==reasoningDraft.template)delete d.model.reasoning;d.model.reasoningMode=reasoningDraft.template;const t=getReasoningTemplates(d.api).find(t=>t.id===reasoningDraft.template);if(t?.kind==='number'){d.model.reasoningBudget=reasoningDraft.value;if(d.model.reasoning && String(d.model.reasoning.value)!==String(reasoningDraft.value) && !t.specialValues?.some(v=>String(v)===String(d.model.reasoning.value)))delete d.model.reasoning;}else delete d.model.reasoningBudget;}else {delete d.model.reasoning;delete d.model.reasoningMode;delete d.model.reasoningBudget;}
-        d.reasoningIssue='';closeMenus();render();app.querySelector(`[data-action="reasoning-toggle"]${reasoningAnchorId!==null?`[data-id="${reasoningAnchorId}"]`:':not([data-id])'}`)?.focus({preventScroll:true});
-      } catch(error){reasoningError=error?.code==='REASONING_SETTINGS'?error.message:errorText(error);render();}
+    case 'reasoning-family': {
+      if(reasoningAnchorId===null || reasoningAnchorId!==activeCardId(d))break;
+      try{
+        const resolved=resolveReasoningFamily(d.api,el.dataset.family);
+        const changed=d.model.reasoningFamily!==resolved.family.id || d.model.reasoningMode!==resolved.template?.id;
+        d.model.reasoningFamily=resolved.family.id;
+        if(resolved.template)d.model.reasoningMode=resolved.template.id;else delete d.model.reasoningMode;
+        if(changed){delete d.model.reasoning;delete d.model.reasoningBudget;}
+        d.reasoningIssue=resolved.template?'':'该模型尚未确定此模板的参数结构；未发送思考参数。';
+        closeMenus();render();app.querySelector(`[data-action="reasoning-toggle"][data-id="${reasoningAnchorId}"]`)?.focus({preventScroll:true});
+      }catch(error){d.reasoningIssue=error.message;render();}
       break;
     }
     case 'plus': plusOpen = !plusOpen; sizeOpen = false; subMenu = ''; render(); if (plusOpen) focusFloatingMenu(); break;
@@ -776,7 +782,6 @@ function updateField(e) {
   resizeSettingField(t);
   if (!d) return;
   if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); return; }
-  if(t.id==='reasoning-budget'){if(reasoningDraft)reasoningDraft.value=t.value;return;}
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
   if (card.kind === 'api') {
@@ -818,8 +823,8 @@ app.addEventListener('error', e => {
 app.addEventListener('input', updateField);
 app.addEventListener('change', e => { updateField(e); if (e.target.dataset?.key === 'key') archiveWorkspaceKey(get()); if (e.target.tagName === 'SELECT') render(); });
 document.addEventListener('keydown', e => {
-  if(e.target.dataset?.action==='reasoning-quick' && ['ArrowDown','ArrowUp','Home','End'].includes(e.key)){
-    e.preventDefault();const choices=[...app.querySelectorAll('.reasoning-quick [role="menuitemradio"]')];
+  if(['reasoning-quick','reasoning-family'].includes(e.target.dataset?.action) && ['ArrowDown','ArrowUp','Home','End'].includes(e.key)){
+    e.preventDefault();const choices=[...app.querySelectorAll('[data-floating-menu="reasoning-toggle"] [role="menuitemradio"]')];
     const index=choices.indexOf(e.target),next=e.key==='Home'?0:e.key==='End'?choices.length-1:(index+(e.key==='ArrowDown'?1:-1)+choices.length)%choices.length;
     choices[next]?.focus({preventScroll:true});choices[next]?.scrollIntoView({block:'nearest'});
   }
