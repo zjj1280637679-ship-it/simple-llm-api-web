@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "hosts": [
+    {
+      "id": "H-F-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "F-001",
+        "version": "0.1.0"
+      },
+      "goal": "image-options.normalize",
+      "entry": "module-library/hosts/image-options/run.mjs",
+      "instructions": "module-library/hosts/image-options/README.md",
+      "defaultMode": "local",
+      "modes": [
+        "local"
+      ],
+      "requires": [
+        "Node.js 20+ 与仓库源码",
+        "当前图片能力表"
+      ],
+      "supplies": [
+        "协议/模型/选项输入",
+        "结果观察与异常检查"
+      ],
+      "criteria": [
+        "默认 Ark 选项映射为 2048x2048",
+        "未知模型及不支持尺寸被明确拒绝"
+      ],
+      "limits": [
+        "仅验证参数映射，不证明账户或模型生成能力"
+      ],
+      "minimality": "不需要网页、密钥、服务或文件；只保留输入、函数执行及结果判据。"
+    },
+    {
+      "id": "H-F-002",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "F-002",
+        "version": "0.1.0"
+      },
+      "goal": "text.request-response",
+      "entry": "module-library/hosts/text-generation/run.mjs",
+      "instructions": "module-library/hosts/text-generation/README.md",
+      "defaultMode": "synthetic",
+      "modes": [
+        "synthetic",
+        "live"
+      ],
+      "requires": [
+        "Node.js 20+ 与仓库源码",
+        "真实模式需要可用 Ark 文本 API 条件和 ARK_API_KEY"
+      ],
+      "supplies": [
+        "最小单轮用户消息",
+        "受控 fetch 或真实传输",
+        "非空文本结果观察"
+      ],
+      "criteria": [
+        "合成模式实际运行适配器并检查输入映射",
+        "真实模式收到非空模型文本"
+      ],
+      "limits": [
+        "合成回复不是真实模型能力证据",
+        "只覆盖单轮文本，参数与模型范围由具体实验决定"
+      ],
+      "minimality": "去掉对话 UI、长期会话和 Agent，只保留单请求和文本输出。"
+    },
+    {
+      "id": "H-F-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "F-003",
+        "version": "0.1.0"
+      },
+      "goal": "image.request-response",
+      "entry": "module-library/hosts/image-generation/run.mjs",
+      "instructions": "module-library/hosts/image-generation/README.md",
+      "defaultMode": "synthetic",
+      "modes": [
+        "synthetic",
+        "live"
+      ],
+      "requires": [
+        "Node.js 20+ 与可写目录",
+        "真实模式需要 Ark 图片 API 及额度"
+      ],
+      "supplies": [
+        "单条图片提示词",
+        "受控响应或真实传输",
+        "字节落盘和读回"
+      ],
+      "criteria": [
+        "收到图片字节",
+        "文件写入后读回字节一致"
+      ],
+      "limits": [
+        "默认响应是 1x1 PNG 夹具",
+        "请求为 2048x2048 不代表实际文件尺寸",
+        "不完整解码，不验收内容拟合度；真实模式未在本次执行"
+      ],
+      "minimality": "不需要图片页，只保留提示词、传输和可检查的返回文件。"
+    },
+    {
+      "id": "H-R-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "R-001",
+        "version": "0.1.0"
+      },
+      "goal": "image-command.dispatch",
+      "entry": "module-library/hosts/image-command/run.mjs",
+      "instructions": "module-library/hosts/image-command/README.md",
+      "defaultMode": "synthetic",
+      "modes": [
+        "synthetic",
+        "live"
+      ],
+      "requires": [
+        "Node.js 20+ 与可写目录",
+        "真实模式需要 Ark 图片 API 条件"
+      ],
+      "supplies": [
+        "命令与独立 context",
+        "未确认/已确认两种条件",
+        "下游响应与结果文件"
+      ],
+      "criteria": [
+        "未确认时零传输",
+        "确认后命令到图片执行器的关系成立，结果可读回"
+      ],
+      "limits": [
+        "默认下游响应受控，不能证明外部服务可用",
+        "不是操作系统 shell 或授权系统的完整验证"
+      ],
+      "minimality": "只提供命令、上下文和可观察下游，不需要 UI 或 Agent。"
+    },
+    {
+      "id": "H-R-002",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "R-002",
+        "version": "0.1.0"
+      },
+      "goal": "page-command.route",
+      "entry": "module-library/hosts/page-session/run.mjs",
+      "instructions": "module-library/hosts/page-session/README.md",
+      "defaultMode": "local",
+      "modes": [
+        "local"
+      ],
+      "requires": [
+        "Node.js 20+ 与仓库源码"
+      ],
+      "supplies": [
+        "内存页面状态",
+        "少量真实状态处理器",
+        "拒绝发送的确认处理器"
+      ],
+      "criteria": [
+        "设置草稿与导航后可读取同一状态",
+        "拒绝发送不触发 send 处理器"
+      ],
+      "limits": [
+        "验证命令到处理器的关系，不是 DOM、浏览器或 MCP 连接验收"
+      ],
+      "minimality": "不用完整网页，用最小状态和处理器使间接效果可观察。"
+    },
+    {
+      "id": "H-C-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "C-001",
+        "version": "0.1.0"
+      },
+      "goal": "conversation.image-turn",
+      "entry": "module-library/hosts/agent-image-turn/run.mjs",
+      "instructions": "module-library/hosts/agent-image-turn/README.md",
+      "defaultMode": "synthetic",
+      "modes": [
+        "synthetic",
+        "live"
+      ],
+      "requires": [
+        "Node.js 20+ 与可写目录",
+        "真实模式需要 Ark 文本工具能力和图片生成条件"
+      ],
+      "supplies": [
+        "单轮消息与文本/图片配置",
+        "确认、历史、结果回调",
+        "受控工具往返或真实 API"
+      ],
+      "criteria": [
+        "工具调用产生一份图片结果",
+        "工具历史被保存",
+        "后续文本回复非空"
+      ],
+      "limits": [
+        "合成模式的工具调用由夹具提供",
+        "真实模式文本模型未调用图片工具时本次目标失败，不伪装成功",
+        "宿主仅批准首次图片调用；不证明所有轮次或计费恰好一次",
+        "不验收图片内容或尺寸"
+      ],
+      "minimality": "去掉聊天 UI，保留实现组合效果必须的工具往返、回调和结果交付。"
+    }
+  ]
+}

@@ -48,5 +48,9 @@
     "reason": "填写维护理由与当前验收边界",
     "replacement": null
   },
-  "dependencies": []
+  "dependencies": [],
+  "host": {
+    "id": "H-F-000",
+    "version": "0.1.0"
+  }
 }

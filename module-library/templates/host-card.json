@@ -1,0 +1,30 @@
+{
+  "id": "H-F-000",
+  "version": "0.1.0",
+  "createdAt": null,
+  "updatedAt": null,
+  "module": {
+    "id": "F-000",
+    "version": "0.1.0"
+  },
+  "goal": "replace.with.effect",
+  "entry": "module-library/hosts/replace-me/run.mjs",
+  "instructions": "module-library/hosts/replace-me/README.md",
+  "defaultMode": "local",
+  "modes": [
+    "local"
+  ],
+  "requires": [
+    "填写必要条件"
+  ],
+  "supplies": [
+    "填写宿主提供的最小环境"
+  ],
+  "criteria": [
+    "填写效果判据"
+  ],
+  "limits": [
+    "填写验证边界"
+  ],
+  "minimality": "说明为什么这些环境足以承载目标且无需完整产品"
+}

@@ -9,6 +9,42 @@ const CATALOG = 'module-library/catalog.json';
 const RECORD = 'module-library/evidence/local-tests.json';
 const TYPES = {function:'functions',relation:'relations',composition:'compositions'};
 const STATES = ['PASS','FAIL','UNKNOWN','STALE'];
+export const hostRevisions = hosts => hosts.map(({id,version,createdAt,updatedAt,module,defaultMode}) =>
+  ({id,version,createdAt,updatedAt,module:{...module},mode:defaultMode}));
+
+export async function validateHosts(catalog, registry, root = ROOT) {
+  if (registry.schemaVersion !== 1 || !Array.isArray(registry.hosts)) throw Error('Invalid host registry');
+  const modules = new Map(catalog.modules.map(m=>[m.id,m])), hosts = new Map(), entries = new Set();
+  for (const host of registry.hosts) {
+    if (!/^H-[FRC]-\d{3}$/.test(host.id) || hosts.has(host.id)) throw Error('Invalid or duplicate host ID');
+    hosts.set(host.id,host);
+    if (typeof host.version !== 'string' || !stableVersion.test(host.version) ||
+        !utcTimestamp(host.createdAt) || !utcTimestamp(host.updatedAt) ||
+        Date.parse(host.updatedAt)<Date.parse(host.createdAt)) throw Error('Invalid host revision');
+    const module=modules.get(host.module?.id);
+    if (!module || module.version!==host.module.version || host.goal!==module.goal)
+      throw Error('Host module revision mismatch');
+    if (!host.entry?.startsWith('module-library/hosts/') || !host.entry.endsWith('/run.mjs') || entries.has(host.entry))
+      throw Error('Invalid host entry');
+    entries.add(host.entry); await regular(root,host.entry); await regular(root,host.instructions);
+    if (!Array.isArray(host.modes) || !host.modes.length || new Set(host.modes).size!==host.modes.length ||
+        !host.modes.every(mode=>['local','synthetic','live'].includes(mode)) ||
+        !host.modes.includes(host.defaultMode) || host.defaultMode==='live') throw Error('Invalid host modes');
+    for (const field of ['requires','supplies','criteria','limits']) {
+      if (!Array.isArray(host[field]) || !host[field].length || !host[field].every(x=>typeof x==='string' && x.trim()))
+        throw Error('Incomplete host scope: '+field);
+    }
+    if (typeof host.minimality!=='string' || !host.minimality.trim()) throw Error('Missing host minimality');
+  }
+  const borrowed=new Set();
+  for (const module of modules.values()) {
+    const host=hosts.get(module.host?.id);
+    if (!host || host.module.id!==module.id || host.version!==module.host.version || borrowed.has(host.id))
+      throw Error('Missing or mismatched module host: '+module.id);
+    borrowed.add(host.id);
+  }
+  if (borrowed.size!==hosts.size) throw Error('Unreferenced host');
+}
 const digest = value => createHash('sha256').update(value).digest('hex');
 const stableVersion = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const utcTimestamp = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) &&
@@ -116,7 +152,7 @@ async function regular(root, name) {
 const json = async (root, name) => JSON.parse(await readFile(await regular(root, name), 'utf8'));
 
 export async function validateCatalog(catalog, root = ROOT) {
-  if (catalog.schemaVersion !== 3 || !Array.isArray(catalog.modules) || !catalog.modules.length) throw Error('Invalid catalogue');
+  if (catalog.schemaVersion !== 4 || !Array.isArray(catalog.modules) || !catalog.modules.length) throw Error('Invalid catalogue');
   await regular(root, catalog.maintenancePolicy);
   const ids = new Set(), entries = new Set();
   for (const m of catalog.modules) {
@@ -143,6 +179,7 @@ export async function validateCatalog(catalog, root = ROOT) {
   validateDependencies(catalog.modules);
   const recipe = await json(root, 'module-library/recipes/agent-image-turn.json');
   validateRecipe(recipe, catalog, scenario);
+  await validateHosts(catalog, await json(root, catalog.hostRegistry), root);
   return catalog;
 }
 
@@ -154,11 +191,12 @@ export function selectModules(catalog, {kind, tag, query, lifecycle} = {}) {
     (!query || [m.id,m.version,m.title,m.goal,...m.tags].join(' ').toLowerCase().includes(query.toLowerCase())));
 }
 
-export function evidenceState(record, hashes, modules) {
+export function evidenceState(record, hashes, modules, hosts = []) {
   if (!record) return 'UNKNOWN';
-  if (record.schemaVersion !== 2 || record.kind !== 'local-tests' || record.status !== 'PASS' ||
+  if (record.schemaVersion !== 3 || record.kind !== 'local-tests' || record.status !== 'PASS' ||
       !Array.isArray(record.moduleIds) || record.moduleIds.join('|') !== modules.map(m => m.id).join('|')) return 'STALE';
   if (JSON.stringify(record.moduleRevisions) !== JSON.stringify(moduleRevisions(modules))) return 'STALE';
+  if (JSON.stringify(record.hostRevisions) !== JSON.stringify(hostRevisions(hosts))) return 'STALE';
   const expected = record.fileHashes || {};
   const names = Object.keys(hashes).sort();
   return names.length === Object.keys(expected).length && names.every(name => hashes[name] === expected[name]) ? 'PASS' : 'STALE';
@@ -178,7 +216,7 @@ export async function inputHashes(root = ROOT) {
   }
   // Deliberately conservative: changes anywhere in these inputs stale the local batch.
   for (const name of ['src','tests','module-library','package.json','scripts/build.mjs',
-    'scripts/module-library.mjs','cli.mjs','web-cli.mjs','cli-mcp-transport.mjs',
+    'scripts/module-library.mjs','scripts/module-host.mjs','cli.mjs','web-cli.mjs','cli-mcp-transport.mjs',
     'README.md','VALIDATION.md','WEB_SESSION.md','design/REQUIREMENTS.md']) await walk(name);
   // Follow literal local ESM imports, including files newly added outside src/.
   const visited = new Set();
@@ -229,28 +267,34 @@ export async function main(args = process.argv.slice(2), root = ROOT) {
     filters[key] = args[i+1];
   }
   const catalog = await validateCatalog(await json(root, CATALOG), root);
+  const hosts = (await json(root, catalog.hostRegistry)).hosts;
   const hashes = await inputHashes(root);
   let record = await loadRecord(root);
   validateRevisionTransition(record, catalog.modules);
+  validateRevisionTransition({moduleRevisions:record?.hostRevisions}, hosts);
   if (['verify','record'].includes(command)) {
     const result = await runLocal(catalog, root);
     const after = await inputHashes(root);
     if (JSON.stringify(hashes) !== JSON.stringify(after)) throw Error('Inputs changed during verification');
     if (command === 'record') {
-      record = {schemaVersion:2,kind:'local-tests',status:'PASS',recordedAt:new Date().toISOString(),
+      record = {schemaVersion:3,kind:'local-tests',status:'PASS',recordedAt:new Date().toISOString(),
         baseCommit:catalog.baseCommit,node:process.version,platform:process.platform,
         scope:'Local execution and synthetic network only; no automatic F/C/H/Q promotion.',
-        moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),...result,fileHashes:after};
+        moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),
+        hostRevisions:hostRevisions(hosts),...result,fileHashes:after};
       await writeFile(inside(root, RECORD), JSON.stringify(record,null,2)+'\n');
     }
   }
-  const local = evidenceState(record, hashes, catalog.modules);
+  const local = evidenceState(record, hashes, catalog.modules, hosts);
   if (command === 'list') {
     for (const m of selectModules(catalog, filters)) {
       const gates = ['F','C','H','Q'].map(k=>k+':'+m.gates[k].status).join(' ');
       const shanghai = stamp => new Date(stamp).toLocaleString('zh-CN', {timeZone:'Asia/Shanghai',hour12:false});
+      const host = hosts.find(h=>h.id===m.host.id);
       console.log(m.id + '@' + m.version + ' | ' + m.kind + ' | ' + m.title + ' | ' + m.lifecycle.state + ' | local:' + local + ' | ' + gates +
         '\n  创建：' + shanghai(m.createdAt) + ' | 更新：' + shanghai(m.updatedAt) + '（北京时间）' +
+        '\n  宿主：' + host.id + '@' + host.version + ' | ' + host.defaultMode +
+        ' | 创建：' + shanghai(host.createdAt) + ' | 更新：' + shanghai(host.updatedAt) + '（北京时间）' +
         '\n  ' + m.entry);
     }
     return;

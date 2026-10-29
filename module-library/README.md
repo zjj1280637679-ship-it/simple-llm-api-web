@@ -4,6 +4,8 @@
 
 日常操作遵循 [维护规则](MAINTENANCE.md)：入库、升版、依赖与配方、证据失效、隔离、弃用和归档。维护状态独立于验证等级。
 
+每个模块现已绑定 [最简测试宿主](hosts/README.md)：提供实现其直接、间接或关系性效果所需的最小环境、输入和结果承接。宿主有独立版本及创建/更新时间，验证记录同时绑定模块与宿主修订。
+
 ## 分类目录
 
 | ID / 类别 | 构件契约 | 局部实验范围 |
@@ -36,12 +38,14 @@ npm run modules:list -- --kind relation
 npm run modules:list -- --tag image
 npm run modules:list -- --query image-options.normalize
 npm run modules:list -- --lifecycle candidate
+npm run modules:host -- R-002
+npm run hosts:verify
 npm run modules:check
 npm run modules:verify
 ```
 
 - list：按类型、标签、目标、名称或维护状态检索，逐项展示版本、时间、局部证据和 F/C/H/Q。
-- check：检查登记、文件、配方引用、证据指纹，不运行 API。
+- check：检查模块和宿主登记、版本绑定、文件、配方引用、证据指纹，不运行 API。
 - verify：重跑登记的本地测试并检查证据匹配，不写记录。
 - record：评审变更后运行 `npm run modules:record`；测试通过且期间输入未变，才刷新本地证据。失败不覆盖旧记录。
 
@@ -76,7 +80,7 @@ const options = normalizeImageOptions({
 
 版本策略及维护状态以 [维护规则](MAINTENANCE.md) 为准。升级保留 createdAt，版本和 updatedAt 不倒退；只重跑测试只产生新的证据 recordedAt。依赖与配方固定准确版本，更新依赖后重新验收使用者。
 
-验证记录的 moduleRevisions 逐项绑定 ID、版本、创建及更新时间，同时保留源码指纹。旧版本的 PASS 不会自动传给新版本；任一绑定变化会显示 STALE。旧版本和时间可通过 Git 历史追溯，record 不自动改版本、时间或四项准入状态。
+验证记录的 moduleRevisions 和 hostRevisions 分别绑定模块与宿主的 ID、版本、创建及更新时间，宿主还固定被测模块和实验模式，同时保留源码指纹。旧版本的 PASS 不会自动传给新版本；任一绑定变化会显示 STALE。旧版本和时间可通过 Git 历史追溯，record 不自动改版本、时间或四项准入状态。
 
 ## 验证等级
 

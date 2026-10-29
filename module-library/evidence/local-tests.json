@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "kind": "local-tests",
   "status": "PASS",
-  "recordedAt": "2026-10-29T06:39:27.024Z",
+  "recordedAt": "2026-10-29T07:07:07.725Z",
   "baseCommit": "ce707d3815dce9e33cec372389b0437e465cbc62",
   "node": "v24.22.1",
   "platform": "linux",
@@ -20,37 +20,105 @@
       "id": "F-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T06:37:57.558Z"
+      "updatedAt": "2026-10-29T07:04:49.518Z"
     },
     {
       "id": "F-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T06:37:57.558Z"
+      "updatedAt": "2026-10-29T07:04:49.518Z"
     },
     {
       "id": "F-003",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T06:37:57.558Z"
+      "updatedAt": "2026-10-29T07:04:49.518Z"
     },
     {
       "id": "R-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T06:37:57.558Z"
+      "updatedAt": "2026-10-29T07:04:49.518Z"
     },
     {
       "id": "R-002",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T06:37:57.558Z"
+      "updatedAt": "2026-10-29T07:04:49.518Z"
     },
     {
       "id": "C-001",
       "version": "0.1.0",
       "createdAt": "2026-10-29T06:05:20.000Z",
-      "updatedAt": "2026-10-29T06:37:57.558Z"
+      "updatedAt": "2026-10-29T07:04:49.518Z"
+    }
+  ],
+  "hostRevisions": [
+    {
+      "id": "H-F-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "F-001",
+        "version": "0.1.0"
+      },
+      "mode": "local"
+    },
+    {
+      "id": "H-F-002",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "F-002",
+        "version": "0.1.0"
+      },
+      "mode": "synthetic"
+    },
+    {
+      "id": "H-F-003",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "F-003",
+        "version": "0.1.0"
+      },
+      "mode": "synthetic"
+    },
+    {
+      "id": "H-R-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "R-001",
+        "version": "0.1.0"
+      },
+      "mode": "synthetic"
+    },
+    {
+      "id": "H-R-002",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "R-002",
+        "version": "0.1.0"
+      },
+      "mode": "local"
+    },
+    {
+      "id": "H-C-001",
+      "version": "0.1.0",
+      "createdAt": "2026-10-29T06:59:24.112Z",
+      "updatedAt": "2026-10-29T07:07:05.294Z",
+      "module": {
+        "id": "C-001",
+        "version": "0.1.0"
+      },
+      "mode": "synthetic"
     }
   ],
   "args": [
@@ -61,18 +129,19 @@
     "tests/cli.test.js",
     "tests/core.test.js",
     "tests/image-capabilities.test.js",
+    "tests/module-hosts.test.js",
     "tests/module-library.test.js",
     "tests/session.test.js"
   ],
   "stats": {
-    "tests": 108,
-    "pass": 108,
+    "tests": 118,
+    "pass": 118,
     "fail": 0,
     "skipped": 0,
     "cancelled": 0,
     "todo": 0
   },
-  "outputSha256": "3e653e78200fd8a065e9fdefbe19d06eb95c7b373d31fde8eafc606f7681ed88",
+  "outputSha256": "391563a1207cf0684b23c3fa57da08d44c9b66c1c2c1c86cba001d9b8c37a6ce",
   "fileHashes": {
     "README.md": "178889a2d552e89aa881b936049d80ba42765de8e96a6c4042ba1977adb1377c",
     "VALIDATION.md": "9340daf3bdc4338b1e2b3958bbc536afd317d9fc7f442f7aee49385679fd4c4f",
@@ -80,30 +149,47 @@
     "cli-mcp-transport.mjs": "4b8c4df1385c3198f34338585ff8e408fdf82c8056ce80823d91b397868c5afa",
     "cli.mjs": "a66cc071aa4a3ade199590faa75f568d811c1b2c9ea7b0594b7394275866ad8c",
     "design/REQUIREMENTS.md": "e5db97d741f4232d2c8cb4343c7173213198b3daf4baf4aef1294e7639ea054d",
-    "module-library/MAINTENANCE.md": "c6771ad552d25c508bfc6fea660687869e9cb2b713d49ddd12d60e262a7e78e7",
-    "module-library/README.md": "7a67fac3a4ad9d9211718e00cbc95529397be4bb99580213823285dcfe63aa69",
-    "module-library/catalog.json": "a47cf48fc68e78b686197f34f80b23f29e1ef5b18bb784cfdbfb755c1f339707",
-    "module-library/compositions/agent-image-turn/CONTRACT.md": "d0be21c6440647238477a36d15553fac7b282878438eafadaf7756750568139f",
+    "module-library/MAINTENANCE.md": "b999c1c221dc5aa67f5cc21e6eb9f2c84d3ffb0dfa803be735e27ea88519aa22",
+    "module-library/README.md": "4a4258a2cc650ad725a1c6505078895f132d592f432519a71dbf8a2ead04297b",
+    "module-library/catalog.json": "2f103cdf632b2e92f42db43402da7ece1d3e1f13027ea599eb1bab1e8aa939a6",
+    "module-library/compositions/agent-image-turn/CONTRACT.md": "c68e0382984d081ba1a56be4a1df3b6103e57a400ab636b27c9a080a27eaafe2",
     "module-library/compositions/agent-image-turn/index.js": "e6d6ea4850a974edaa8a1e78857fda2bb2f97e9e2d98b375646a344466e38ee1",
     "module-library/evidence/reported-ark-image.json": "da46f894b34c2f25ab41e76fe2f38060a60ffbec5eb8329ec60630486f4d7ae4",
     "module-library/experiments/README.md": "6ef35120cc0a2f9b953f83982c36fbf7c4f9be63357f5390bc6f2354f7c01995",
-    "module-library/functions/image-generation/CONTRACT.md": "640fa6a2be9854989a731d5ac110adf23bc102b689fbc08bccfea4d9335a4fd2",
+    "module-library/functions/image-generation/CONTRACT.md": "622f8cb0bf1618954b29a4d86283a251f896ab374b4ee8d5d4cab29f08387992",
     "module-library/functions/image-generation/index.js": "55be48ecbbc3b0fe879a48c3d49147c468417f58bfca3c71c2b3374ded0b1702",
-    "module-library/functions/image-options/CONTRACT.md": "962818e617e9ffd1be6eb5c3fb7c3edbaed3320680119ec75ac3f47f8dfcc724",
+    "module-library/functions/image-options/CONTRACT.md": "2ebfe7b82d0e733b8aefcfea171ce18b6ded6d1a67074873b3a249767039d068",
     "module-library/functions/image-options/index.js": "f27bf9fbfbc95d9303b3070e52f779eb95f16793924677278c4180ae06dc9060",
-    "module-library/functions/text-generation/CONTRACT.md": "9ced804575de58b569601cc3de94626622f96698b56e7914b1b331cbfba577a9",
+    "module-library/functions/text-generation/CONTRACT.md": "04a12eae39a2792a03a276a949b04dbfa761bf47b907699f3472f3b4722c6b8e",
     "module-library/functions/text-generation/index.js": "c4ab527758c6a8e5c5ded962189083bb41a98dd98129b4cbec49e6e4255a2c99",
+    "module-library/hosts/README.md": "8620a5e17d38c73c3e08926dd079fd8e6c2f16d0a90983a130ec9598817d6fa9",
+    "module-library/hosts/agent-image-turn/README.md": "240a3dc68a85139749f35f27adf4bb6bc7aa0c12186fc84790f9c08bf3dc7983",
+    "module-library/hosts/agent-image-turn/run.mjs": "182a2bd6652c0d3eb89a224e4a464417515b7a65a14889164046e9e152076d69",
+    "module-library/hosts/catalog.json": "ec21b7a93d52320cf28f5a551794afa29401cead891ce9ee457c9d7db5da6e64",
+    "module-library/hosts/image-command/README.md": "ba0559fcfd534f1b8eb9a522b7e665b2683902148128a734e5740f9b52ac9ba1",
+    "module-library/hosts/image-command/run.mjs": "b456f5947506986e0bc496fa548468260f3430e0b5daee76204cbe375b43c296",
+    "module-library/hosts/image-generation/README.md": "a3812921885411cfc96de9a384ed30c86e299701bd64f8f7b822bedb7e493982",
+    "module-library/hosts/image-generation/run.mjs": "09e0a148cc44a2cec4e59bc34ff0edf7e2625da3da4709aba5340192bec9103e",
+    "module-library/hosts/image-options/README.md": "8350776d89d449b32bdfe5bcda8fa0d801564f23bbfda734bfecb2bfeaac363a",
+    "module-library/hosts/image-options/run.mjs": "9f991422ca4bf335433a86719046c908862dd48e14ccbc7ac869636f15d71eaf",
+    "module-library/hosts/page-session/README.md": "cbc9fc46661122e892317c5dea310de926080643458a866d4d04277aee69a428",
+    "module-library/hosts/page-session/run.mjs": "d381f2bda274d8398f907f70cf17753cda846b98628af214179b460f8b22c860",
+    "module-library/hosts/support.mjs": "1fbaafdd16c27ec1578b0af401f442256d902dd94b6b86dfb662764fb24ec4b7",
+    "module-library/hosts/text-generation/README.md": "840a4fbf5c92ab4e7d43ecb09521010abe9f6371fa8b087667ef727dcc505d88",
+    "module-library/hosts/text-generation/run.mjs": "9662afe59c18af20287f0532606ab69bd7571096be370560b22501282b63612a",
     "module-library/recipes/agent-image-turn.json": "6ce4477e23ab95ed09ef6b307e250472425fc98a33cd68b5714ee7775b27ea6f",
-    "module-library/relations/image-command/CONTRACT.md": "64939930fb5dfaa045e3003433c9b419f616f1a9a019a181c65e9fedde5c6e08",
+    "module-library/relations/image-command/CONTRACT.md": "ac8f14a15cb0b33bb2c16f2cf6d3da2146085c057bf87c548afb8e0cc3d69910",
     "module-library/relations/image-command/index.js": "baef4013a0c332fcd740e053e0ae2d28c4f2e357cbb6cdd87fe56d05c9e300b7",
-    "module-library/relations/page-session/CONTRACT.md": "0d87017214a8acfb67e802e79d4ac97880c778743abc1b424c21dd2b4888effd",
+    "module-library/relations/page-session/CONTRACT.md": "97a1838e0e000327f02a21ee4a9a37830d93f0f29d824d9682edb3c3e3e1a5a4",
     "module-library/relations/page-session/index.js": "1f207e5bdadd35257c966f532ab1f927c8f510df44c0331feb1f02e93f45f0fc",
     "module-library/scenarios/workbench-v1.json": "9bad506dc0457788acd400169a4a344886603c270723c11111ea03400f368b90",
-    "module-library/templates/CONTRACT.md": "64bf7307051577c733688b9e8f76c3a24bb546db0a0c8fc45bf3f92f8d457763",
-    "module-library/templates/module-card.json": "a09216f989e72c3629f1cb40535c014dc19d43d8529001a355208c049f0114b0",
-    "package.json": "3eac47f87800c897135aedf748de1f78ab3ba61ab222d31d959b5342b8fffc54",
+    "module-library/templates/CONTRACT.md": "31dc8662a39e995e5cc01ed0b5187423448739562e52db74549b1346628f3830",
+    "module-library/templates/host-card.json": "a3ee8be86a8c7dfd5e79a5a279a43547a6332ee6fc78f2caa64f616b2c487c5f",
+    "module-library/templates/module-card.json": "18a1c8dec98af682ff124a82acd2d6b41afc4004af5cd2889b25c51b9ac87c07",
+    "package.json": "a388006a0f6f1565306c9a3f21d597c7b723572412b1cf1900543ba8ce4236fe",
     "scripts/build.mjs": "219ce4240ac3d64e2404d902ea5b9f484363349bc8902fe4c15be07913dbbb4c",
-    "scripts/module-library.mjs": "bb828ae0522c09a8d0df61b7839144c95771d4521bac294f44cc3f357c29b7e9",
+    "scripts/module-host.mjs": "d16f42f038dce05b1ffd9c54970af9e5c2f06e721b85af0c13400c1ca4826d89",
+    "scripts/module-library.mjs": "4ee683879014ec16fff3ad13d6eaee0fed943ad891b45288deb0f49dd838cc0b",
     "src/agent.js": "98d86c8e85f40c6c0339e474383c72144144af761c988454b02f00227f038d88",
     "src/app.js": "bd01b5f8876e96c7d56a29dea43b5c747478e088016696e016285b2af825943b",
     "src/core.js": "e750e7c7a26461569da8c399edec5b3fee7720b8cc21a1763ac6847fb5e476f4",
@@ -123,7 +209,8 @@
     "tests/image-capabilities.test.js": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
     "tests/logs.test.js": "23df7a420ffe19f86d9111d896a6e7ce6bff16a297f415671381accefd2c96d6",
     "tests/mcp-transport.test.js": "c2ddb36032fbdd5c5f248bf37ad216d9889af4eb900764e9fc05dc47b8c4b05c",
-    "tests/module-library.test.js": "632986354b8632139118cd8345a51224fe7627ba813e490e136d4e8412c4063a",
+    "tests/module-hosts.test.js": "adeca0f4f3522123d91c442124b6e41c25698d3aa018ea378c5bc68083924869",
+    "tests/module-library.test.js": "644120ab41f28707d51796031bb55c56b7c7bbdd5ada901b9a18092980713356",
     "tests/session.test.js": "0fbe9dc987ca488bff6b9c482c3c11d004da4608a303ef66d8c037cf93a58a8c",
     "web-cli.mjs": "1eb6a4d4867b6cab99975a8b5f8df4b98aa5e2a9d7b99feea4c75b479b4e8b3b"
   }

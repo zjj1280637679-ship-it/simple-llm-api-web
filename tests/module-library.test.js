@@ -98,7 +98,7 @@ test('catalogue filters by relation, tag and effect without merging distinct goa
 test('local evidence becomes stale for changed, removed or added inputs and never fills proof gates', () => {
   const before = JSON.stringify(catalog.modules.map(m=>m.gates));
   const hashes={'src/a.js':'abc'};
-  const record={schemaVersion:2,kind:'local-tests',status:'PASS',moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),fileHashes:hashes};
+  const record={schemaVersion:3,kind:'local-tests',status:'PASS',moduleIds:catalog.modules.map(m=>m.id),moduleRevisions:moduleRevisions(catalog.modules),hostRevisions:[],fileHashes:hashes};
   assert.equal(evidenceState(record,hashes,catalog.modules),'PASS');
   assert.equal(evidenceState(record,{'src/a.js':'def'},catalog.modules),'STALE');
   assert.equal(evidenceState(record,{},catalog.modules),'STALE');
@@ -113,7 +113,7 @@ test('module cards require a stable three-part version', async () => {
     await assert.rejects(validateCatalog(copy), /Invalid module version/);
   }
   const copy = structuredClone(catalog); copy.modules.find(m=>m.id==='R-002').version = '2.10.3';
-  await validateCatalog(copy);
+  await assert.rejects(validateCatalog(copy), /Host module revision mismatch/);
 });
 
 test('module timestamps must be canonical UTC and cannot precede creation', async () => {
@@ -128,8 +128,8 @@ test('module timestamps must be canonical UTC and cannot precede creation', asyn
 
 test('verification binds the exact module version and timestamps, not just its ID', () => {
   const hashes = {'sample.js':'unchanged'};
-  const record = {schemaVersion:2,kind:'local-tests',status:'PASS',moduleIds:catalog.modules.map(m=>m.id),
-    moduleRevisions:moduleRevisions(catalog.modules),fileHashes:hashes};
+  const record = {schemaVersion:3,kind:'local-tests',status:'PASS',moduleIds:catalog.modules.map(m=>m.id),
+    moduleRevisions:moduleRevisions(catalog.modules),hostRevisions:[],fileHashes:hashes};
   assert.equal(evidenceState(record,hashes,catalog.modules),'PASS');
   for (const [field,value] of [['version','0.1.1'],['createdAt','2026-10-29T00:00:00.000Z'],
     ['updatedAt','2026-10-30T00:00:00.000Z']]) {

@@ -8,12 +8,14 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/app.js && node --check src/core.js && node --check src/agent.js && node --check src/image-capabilities.js && node --check src/logs.js && node --check src/session.js && node --check src/session-webmcp.js && node --check cli.mjs && node --check web-cli.mjs && node --check cli-mcp-transport.mjs && node --check scripts/build.mjs && node --check scripts/module-library.mjs && npm run modules:check",
+    "check": "node --check src/app.js && node --check src/core.js && node --check src/agent.js && node --check src/image-capabilities.js && node --check src/logs.js && node --check src/session.js && node --check src/session-webmcp.js && node --check cli.mjs && node --check web-cli.mjs && node --check cli-mcp-transport.mjs && node --check scripts/build.mjs && node --check scripts/module-library.mjs && node --check scripts/module-host.mjs && npm run modules:check",
     "serve": "python3 -m http.server 8000",
     "build": "node scripts/build.mjs",
     "modules:list": "node scripts/module-library.mjs list",
     "modules:check": "node scripts/module-library.mjs check",
     "modules:verify": "node scripts/module-library.mjs verify",
-    "modules:record": "node scripts/module-library.mjs record"
+    "modules:record": "node scripts/module-library.mjs record",
+    "modules:host": "node scripts/module-host.mjs",
+    "hosts:verify": "node --test tests/module-hosts.test.js"
   }
 }
