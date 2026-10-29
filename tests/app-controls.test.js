@@ -21,9 +21,9 @@ function mount({ confirm = () => true, runConversation, dispatchCommand } = {}) 
       html = value; renders += 1; nodes = new Map();
       if (value.includes('id="network-logs"')) nodes.set('#network-logs', { textContent: '' });
       for (const match of value.matchAll(/<span id="(api-trust\d+)">(.*?)<\/span>/g)) nodes.set(`#${match[1]}`, { textContent: match[2] });
-      for (const match of value.matchAll(/<input\b[^>]*\bid="([^"]+)"[^>]*>/g)) {
+      for (const match of value.matchAll(/<(?:input|textarea)\b[^>]*\bid="([^"]+)"[^>]*>(?:([^<]*)<\/textarea>)?/g)) {
         const attrs = Object.fromEntries([...match[0].matchAll(/([\w-]+)="([^"]*)"/g)].map(m => [m[1], m[2]]));
-        nodes.set(`#${match[1]}`, { id: match[1], value: attrs.value || '', dataset: { card: attrs['data-card'], key: attrs['data-key'] }, selectionStart: 0, selectionEnd: 0 });
+        nodes.set(`#${match[1]}`, { id: match[1], value: attrs.value || match[2] || '', dataset: { card: attrs['data-card'], key: attrs['data-key'] }, selectionStart: 0, selectionEnd: 0 });
       }
     },
     get renders() { return renders; },

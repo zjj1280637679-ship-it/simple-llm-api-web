@@ -38,7 +38,7 @@ function checkAbort(signal) { if (signal?.aborted) throw cancelled(); }
 
 /** URL approval is bound to the full canonical base URL, never just a provider label. */
 export function canonicalEndpoint(value) {
-  if (typeof value !== 'string' || !value.trim() || /[\s\\]/.test(value.trim()))
+  if (typeof value !== 'string' || /[\r\n]/.test(value) || !value.trim() || /[\s\\]/.test(value.trim()))
     fail('ENDPOINT', '请填写不含空白字符的 HTTPS API 基础地址。');
   let url;
   try { url = new URL(value.trim()); } catch { fail('ENDPOINT', 'API 基础地址格式不正确。'); }
@@ -75,7 +75,9 @@ export function validateEndpoint(config) {
   return base;
 }
 function modelId(config) {
-  const model = String(config.model || '').trim();
+  const rawModel = String(config.model || '');
+  if (/[\r\n]/.test(rawModel)) fail('MODEL', '模型 ID 不能含换行符。');
+  const model = rawModel.trim();
   if (!model || model.length > 200) fail('MODEL', '请填写模型 ID。');
   const id = config.protocol === 'gemini' ? model.replace(/^models\//, '') : model;
   if (config.protocol === 'gemini' && !/^[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(id))

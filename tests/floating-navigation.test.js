@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
-const layout=source.slice(source.indexOf('// Measure the real floating group'),source.indexOf('const esc = value =>'));
+const layout=source.slice(source.indexOf('// Measure the real floating group'),source.indexOf('// Native Popover supplies'));
 function mount(height=60,viewport=800){
  const classes=new Set(),styles={},events={};let disconnected=0,observed=0,scroll=0;
  const nav={getBoundingClientRect:()=>({height,bottom:height+10}),contains:()=>false};
@@ -62,4 +62,17 @@ test('keyboard viewport updates inset; pinch zoom does not masquerade as keyboar
  const visual={height:400,offsetTop:20,scale:1,addEventListener:()=>{}};
  const m=mountComposer({visual});assert.equal(m.styles['--keyboard-inset'],'380px');
  visual.scale=2;vm.runInContext('syncFloatingNavigation()',m.context);assert.equal(m.styles['--keyboard-inset'],'0px');
+});
+
+test('chat placeholder is empty but image hint and accessible labels remain',()=>{
+ assert.ok(source.includes("page === 'image' ? '描述你想生成的图片…' : ''"));
+ assert.doesNotMatch(source,/输入消息…/);
+ assert.ok(source.includes("page === 'image' ? '图片提示词' : '聊天消息'"));
+});
+test('floating captions have no shared panel while input retains translucent panel',async()=>{
+ const css=await readFile(new URL('../src/styles.css',import.meta.url),'utf8');
+ const rules=css.slice(css.indexOf('/* Transparent floating wrapper:'));
+ assert.match(rules,/padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none/);
+ assert.match(rules,/\.composer-area \.compose\{padding:12px;border:1px solid var\(--line2\);border-radius:28px;background:rgba/);
+ assert.match(rules,/\.compose-metrics\{padding:8px 8px 0;background:transparent;border:0;box-shadow:none/);
 });
