@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Canvas geometry QA</title>
+<style>body{font:14px system-ui}button{margin:4px}iframe{width:375px;height:800px;max-width:100%;border:1px solid #aaa}pre{white-space:pre-wrap}</style>
+<p>合成请求，禁止供应商网络。测试嵌套浏览器几何，不等同 Safari 真机工具栏。</p>
+<button id="start">生成长对话并等待</button><button id="finish">结束合成等待</button><button id="short">视口 400px</button><button id="tall">视口 800px</button><button id="bottom">滚至底部</button><button id="read">读取几何</button><pre id="report"></pre><iframe id="view" src="../../index.html" title="真实应用离线测试"></iframe>
+<script>
+const frame=document.querySelector('#view'),report=document.querySelector('#report');let release;
+const doc=()=>frame.contentDocument,win=()=>frame.contentWindow;
+const answer=()=>new Response('data: '+JSON.stringify({candidates:[{content:{role:'model',parts:[{text:'合成对话，无真实 API。\n'.repeat(80)}]},finishReason:'STOP'}]})+'\n\n',{headers:{'Content-Type':'text/event-stream'}});
+frame.onload=()=>{win().fetch=()=>Promise.reject(Error('QA network disabled'))};
+function read(){const d=doc(),w=win(),rect=s=>{const r=d.querySelector(s)?.getBoundingClientRect();return r?{top:r.top,bottom:r.bottom,height:r.height}:null};const a=d.querySelector('#app');report.textContent=JSON.stringify({synthetic:true,app:rect('#app'),main:rect('.main'),composer:rect('.composer-area'),appScroll:a.scrollTop,appHeight:a.scrollHeight,rootScroll:d.scrollingElement.scrollTop,innerHeight:w.innerHeight,visualHeight:w.visualViewport?.height,hits:[.25,.5,.75].map(f=>({y:w.innerHeight*f,tag:d.elementFromPoint(w.innerWidth/2,w.innerHeight*f)?.tagName})),trace:w.__llmScrollDiagnostics?.().slice(-10)},null,2)}
+function send(text){const d=doc(),n=d.querySelector('#draft');n.value=text;n.dispatchEvent(new (win().Event)('input',{bubbles:true}));d.querySelector('[data-action="send"]').click()}
+document.querySelector('#start').onclick=async()=>{const d=doc(),w=win();try{d.querySelector('[data-tab="chat"]').click();d.querySelector('[data-action="plus"]').click();d.querySelector('[data-action="new-card"][data-kind="api"]').click();d.querySelector('fieldset:not([disabled]) [data-action="supplier"]').click();d.querySelector('[data-action="choose-supplier"][data-index="0"]').click();for(const [k,v]of Object.entries({url:'https://generativelanguage.googleapis.com/v1beta',key:'SYNTHETIC-QA-ONLY',model:'fixture'})){const n=d.querySelector('fieldset:not([disabled]) [data-key="'+k+'"]');n.value=v;n.dispatchEvent(new w.Event('input',{bubbles:true}))}w.fetch=async()=>answer();send('合成长对话');while(d.querySelector('[data-action="cancel"]'))await new Promise(r=>setTimeout(r,20));w.fetch=()=>new Promise(resolve=>{release=()=>resolve(answer())});send('合成等待');read()}catch(e){report.textContent=e.message}};
+document.querySelector('#finish').onclick=()=>{release?.();setTimeout(read,100)};
+for(const [id,height]of [['short',400],['tall',800]])document.querySelector('#'+id).onclick=()=>{frame.style.height=height+'px';setTimeout(read,50)};
+document.querySelector('#bottom').onclick=()=>{doc().querySelector('#app').scrollTop=doc().querySelector('#app').scrollHeight;read()};document.querySelector('#read').onclick=read;
+</script>

@@ -18,3 +18,11 @@ test('pending clipboard completion after leaving logs cannot touch stale nodes',
   c.page='chat';c.app.querySelector=()=>null;finish();await pending;
  }
 });
+
+test('canvas snapshot distinguishes body exposure from a full-size hit-tested main without reading content',()=>{
+ const {c,app}=setup();const body={get textContent(){throw Error('content read')}},main={getBoundingClientRect:()=>({top:-500,bottom:120,width:375,height:620,left:0,right:375})};
+ app.getBoundingClientRect=()=>({top:0,bottom:700,width:375,height:700,left:0,right:375});app.querySelector=()=>main;c.document.body=body;c.document.elementFromPoint=()=>body;c.window.innerWidth=375;c.window.visualViewport.height=700;
+ const surface=c.canvasSurfaceSnapshot();assert.equal(surface.main.bottom,120);assert.equal(surface.app.bottom,700);assert.ok(surface.hits.every(h=>h.surface==='body'));
+ c.document.elementFromPoint=()=>main;assert.ok(c.canvasSurfaceSnapshot().hits.every(h=>h.surface==='main'));
+ c.recordScrollDiagnostic('viewport-resize');const before=c.window.__llmScrollDiagnostics();before[0].mainRect.bottom=999;assert.equal(c.window.__llmScrollDiagnostics()[0].mainRect.bottom,120);
+});

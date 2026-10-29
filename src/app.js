@@ -13,6 +13,21 @@ const app = document.getElementById('app');
 // Optional read-only diagnostics: geometry and node identity only, never content.
 const scrollDiagnostics = [];
 let lastScrollAction = null, diagnosticSequence = 0, frozenScrollReport = null;
+function canvasRect(node) {
+  const rect=node?.getBoundingClientRect?.();
+  return rect ? Object.fromEntries(['top','bottom','left','right','width','height'].map(k=>[k,Number.isFinite(rect[k])?Math.round(rect[k]*10)/10:null])) : null;
+}
+function canvasSurfaceSnapshot() {
+  const main=app.querySelector?.('.main'), composer=app.querySelector?.('.composer-area');
+  const style=typeof getComputedStyle==='function'?getComputedStyle(app):null;
+  const classify=node=>node===document.body?'body':node===document.documentElement?'html':node===app?'app':node===main?'main':node?.closest?.('.composer-area')?'composer':node?.closest?.('.top')?'navigation':node?.closest?.('.thread')?'thread':node?'other':'none';
+  const width=window.innerWidth||0,height=window.visualViewport?.height||window.innerHeight||0;
+  const hits=[.25,.5,.75].map(f=>({x:Math.round(width/2),y:Math.round(height*f),surface:classify(document.elementFromPoint?.(width/2,height*f))}));
+  return {app:canvasRect(app),main:canvasRect(main),composer:canvasRect(composer),hits,
+    navigationClearance:parseFloat(style?.getPropertyValue?.('--navigation-clearance'))||0,
+    composerClearance:parseFloat(style?.getPropertyValue?.('--composer-clearance'))||0,
+    keyboardInset:parseFloat(style?.getPropertyValue?.('--keyboard-inset'))||0};
+}
 function recordScrollDiagnostic(reason, delta = 0) {
   const visual = window.visualViewport, active = document.activeElement, root = document.scrollingElement;
   const now = Date.now();
@@ -24,13 +39,14 @@ function recordScrollDiagnostic(reason, delta = 0) {
     innerHeight:Number(window.innerHeight)||0,visualHeight:visual?.height ?? null,
     visualTop:visual?.offsetTop ?? null,visualScale:visual?.scale ?? null,
     visibility:document.visibilityState || null,
+    appRect:canvasRect(app),mainRect:canvasRect(app.querySelector?.('.main')),
     navigationInFlow:app.classList?.contains('navigation-in-flow') ?? null,
     composerInFlow:app.classList?.contains('composer-in-flow') ?? null,
     focusTag:active?.tagName || null,focusId:active?.id?.slice(0,64) || null,
     recentAction:lastScrollAction && now-lastScrollAction.at < 1000 ? {...lastScrollAction,age:now-lastScrollAction.at} : null});
   if (scrollDiagnostics.length > 80) scrollDiagnostics.shift();
 }
-window.__llmScrollDiagnostics = () => scrollDiagnostics.map(entry => ({...entry,recentAction:entry.recentAction?{...entry.recentAction}:null}));
+window.__llmScrollDiagnostics = () => scrollDiagnostics.map(entry => ({...entry,appRect:entry.appRect?{...entry.appRect}:null,mainRect:entry.mainRect?{...entry.mainRect}:null,recentAction:entry.recentAction?{...entry.recentAction}:null}));
 app.addEventListener('scroll', () => recordScrollDiagnostic('app-scroll'), {passive:true});
 window.addEventListener?.('scroll', () => recordScrollDiagnostic('window-scroll'), {passive:true});
 window.addEventListener?.('resize', () => recordScrollDiagnostic('window-resize'), {passive:true});
@@ -38,10 +54,10 @@ window.addEventListener?.('pageshow', () => recordScrollDiagnostic('pageshow'));
 window.addEventListener?.('focus', () => recordScrollDiagnostic('window-focus'));
 function scrollDiagnosticReport() {
   const version = selector => (document.querySelector?.(selector)?.getAttribute?.(selector.startsWith('script')?'src':'href') || '').match(/[?&]v=([a-f0-9]{8,64})(?:&|$)/)?.[1] || 'unversioned';
-  return {schema:'scroll-diagnostic-v1',capturedAt:new Date().toISOString(),
+  return {schema:'scroll-diagnostic-v2',capturedAt:new Date().toISOString(),
     build:{app:version('script[type="module"][src]'),css:version('link[rel="stylesheet"][href]')},
     note:'Geometry only. recentAction is temporal correlation, not proof of cause. No input values, messages, URLs or credentials.',
-    events:window.__llmScrollDiagnostics()};
+    surface:canvasSurfaceSnapshot(),events:window.__llmScrollDiagnostics()};
 }
 function freezeScrollReport() { frozenScrollReport = scrollDiagnosticReport(); }
 function exportScrollReport() {

@@ -10,6 +10,21 @@ function officialGeminiZero(u, endpoint) {
       && count(u.promptTokenCount) !== null && count(u.totalTokenCount) !== null && u.promptTokenCount <= u.totalTokenCount;
   } catch { return false; }
 }
+function deepSeekCache(u, endpoint) {
+  try { const url = new URL(endpoint);
+    if(url.protocol !== 'https:' || url.hostname !== 'api.deepseek.com' || url.port) return null;
+  } catch { return null; }
+  const detail = u.prompt_tokens_details;
+  const hasHit = Object.hasOwn(u,'prompt_cache_hit_tokens');
+  const hasNested = detail && Object.hasOwn(detail,'cached_tokens');
+  if(!hasHit) return {cachedTokens:count(detail?.cached_tokens)};
+  const hit=count(u.prompt_cache_hit_tokens), input=count(u.prompt_tokens);
+  const conflict = hit === null || (input !== null && hit > input)
+    || (hasNested && count(detail.cached_tokens) !== hit)
+    || (Object.hasOwn(u,'prompt_cache_miss_tokens') && (count(u.prompt_cache_miss_tokens) === null
+      || (input !== null && hit + u.prompt_cache_miss_tokens !== input)));
+  return {cachedTokens:conflict ? null : hit,cacheCountSource:conflict ? 'deepseek-cache-inconsistent' : 'deepseek-prompt-cache-hit'};
+}
 export function usageFrom(json, protocol, {endpoint} = {}) {
   const u = protocol === 'gemini' ? json?.usageMetadata : json?.usage;
   if (!u || typeof u !== 'object' || Array.isArray(u)) return null;
@@ -20,7 +35,7 @@ export function usageFrom(json, protocol, {endpoint} = {}) {
   }
   return protocol === 'gemini'
     ? {inputTokens:count(u.promptTokenCount),outputTokens:count(u.candidatesTokenCount),totalTokens:count(u.totalTokenCount),cachedTokens:officialGeminiZero(u,endpoint) ? 0 : count(u.cachedContentTokenCount),...(officialGeminiZero(u,endpoint) ? {cacheCountSource:"gemini-proto-default-zero"} : {})}
-    : {inputTokens:count(u.prompt_tokens),outputTokens:count(u.completion_tokens),totalTokens:count(u.total_tokens),cachedTokens:count(u.prompt_tokens_details?.cached_tokens)};
+    : {inputTokens:count(u.prompt_tokens),outputTokens:count(u.completion_tokens),totalTokens:count(u.total_tokens),...((protocol === 'openai' ? deepSeekCache(u,endpoint) : null) ?? {cachedTokens:count(u.prompt_tokens_details?.cached_tokens)})};
 }
 export function usageMetrics(usage) {
   const input = count(usage?.inputTokens), cached = count(usage?.cachedTokens);
