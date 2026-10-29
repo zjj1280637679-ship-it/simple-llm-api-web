@@ -10,16 +10,41 @@ import { registerPageSessionTools } from './session-webmcp.js';
 const app = document.getElementById('app');
 // Optional read-only diagnostics: geometry and node identity only, never content.
 const scrollDiagnostics = [];
+let lastScrollAction = null, diagnosticSequence = 0, frozenScrollReport = null;
 function recordScrollDiagnostic(reason, delta = 0) {
-  const visual = window.visualViewport, active = document.activeElement;
-  scrollDiagnostics.push({at:Date.now(),reason,delta,top:Number(app.scrollTop)||0,
+  const visual = window.visualViewport, active = document.activeElement, root = document.scrollingElement;
+  const now = Date.now();
+  if (/write|focus-restore|menu-reveal/.test(reason)) lastScrollAction = {id:++diagnosticSequence,reason,at:now};
+  scrollDiagnostics.push({at:now,reason,delta,top:Number(app.scrollTop)||0,
     height:Number(app.scrollHeight)||0,viewport:Number(app.clientHeight)||0,
-    visualHeight:visual?.height ?? null,visualTop:visual?.offsetTop ?? null,
-    focusTag:active?.tagName || null,focusId:active?.id?.slice(0,64) || null});
+    rootTop:Number(root?.scrollTop)||0,rootHeight:Number(root?.scrollHeight)||0,
+    rootViewport:Number(root?.clientHeight)||0,windowY:Number(window.scrollY)||0,
+    innerHeight:Number(window.innerHeight)||0,visualHeight:visual?.height ?? null,
+    visualTop:visual?.offsetTop ?? null,visualScale:visual?.scale ?? null,
+    visibility:document.visibilityState || null,
+    navigationInFlow:app.classList?.contains('navigation-in-flow') ?? null,
+    composerInFlow:app.classList?.contains('composer-in-flow') ?? null,
+    focusTag:active?.tagName || null,focusId:active?.id?.slice(0,64) || null,
+    recentAction:lastScrollAction && now-lastScrollAction.at < 1000 ? {...lastScrollAction,age:now-lastScrollAction.at} : null});
   if (scrollDiagnostics.length > 80) scrollDiagnostics.shift();
 }
-window.__llmScrollDiagnostics = () => scrollDiagnostics.map(entry => ({...entry}));
+window.__llmScrollDiagnostics = () => scrollDiagnostics.map(entry => ({...entry,recentAction:entry.recentAction?{...entry.recentAction}:null}));
 app.addEventListener('scroll', () => recordScrollDiagnostic('app-scroll'), {passive:true});
+window.addEventListener?.('scroll', () => recordScrollDiagnostic('window-scroll'), {passive:true});
+window.addEventListener?.('resize', () => recordScrollDiagnostic('window-resize'), {passive:true});
+window.addEventListener?.('pageshow', () => recordScrollDiagnostic('pageshow'));
+window.addEventListener?.('focus', () => recordScrollDiagnostic('window-focus'));
+function scrollDiagnosticReport() {
+  const version = selector => (document.querySelector?.(selector)?.getAttribute?.(selector.startsWith('script')?'src':'href') || '').match(/[?&]v=([a-f0-9]{8,64})(?:&|$)/)?.[1] || 'unversioned';
+  return {schema:'scroll-diagnostic-v1',capturedAt:new Date().toISOString(),
+    build:{app:version('script[type="module"][src]'),css:version('link[rel="stylesheet"][href]')},
+    note:'Geometry only. recentAction is temporal correlation, not proof of cause. No input values, messages, URLs or credentials.',
+    events:window.__llmScrollDiagnostics()};
+}
+function freezeScrollReport() { frozenScrollReport = scrollDiagnosticReport(); }
+function exportScrollReport() {
+  return JSON.stringify(frozenScrollReport || scrollDiagnosticReport(),null,2);
+}
 
 // Measure the real floating groups, including wrapping and font changes.
 // If the combined overlays crowd the readable viewport, use normal flow.
@@ -93,11 +118,13 @@ function protectFloatingFocus(target) {
   const rect = target.getBoundingClientRect();
   const floor = nav && !app.classList.contains('navigation-in-flow') ? nav.getBoundingClientRect().bottom + 12 : 0;
   const ceiling = composer && !app.classList.contains('composer-in-flow') ? composer.getBoundingClientRect().top - 12 : window.innerHeight;
-  if (rect.top < floor) { recordScrollDiagnostic('explicit-focus', rect.top - floor); app.scrollBy({ top: rect.top - floor, behavior: 'instant' }); }
-  else if (rect.bottom > ceiling) { recordScrollDiagnostic('explicit-focus', rect.bottom - ceiling); app.scrollBy({ top: rect.bottom - ceiling, behavior: 'instant' }); }
+  if (rect.top < floor) { recordScrollDiagnostic('explicit-focus-write', rect.top - floor); app.scrollBy({ top: rect.top - floor, behavior: 'instant' }); }
+  else if (rect.bottom > ceiling) { recordScrollDiagnostic('explicit-focus-write', rect.bottom - ceiling); app.scrollBy({ top: rect.bottom - ceiling, behavior: 'instant' }); }
 }
 function syncFloatingNavigation() {
+  recordScrollDiagnostic('geometry-before-fields');
   syncSettingFields();
+  recordScrollDiagnostic('geometry-after-fields');
   navigationObserver?.disconnect();
   const nav = app.querySelector('.top');
   if (!nav) return;
@@ -121,6 +148,7 @@ function syncFloatingNavigation() {
     const bottom = !composer || composerInFlow ? 0 : Math.ceil(window.innerHeight - composer.getBoundingClientRect().top + 12);
     app.style.setProperty('--navigation-clearance', `${top}px`);
     app.style.setProperty('--composer-clearance', `${bottom}px`);
+    recordScrollDiagnostic('geometry-measured');
     restoreScrollGeometry(before);
   };
   measure();
@@ -133,7 +161,7 @@ function syncFloatingNavigation() {
 window.addEventListener('resize', syncFloatingNavigation);
 // Viewport/chrome/screenshot events are geometry changes, not a request to
 // reveal whatever old control happens to remain focused.
-const refreshVisualViewport = () => { recordScrollDiagnostic('viewport'); syncFloatingNavigation(); };
+const refreshVisualViewport = event => { recordScrollDiagnostic(event?.type === 'scroll' ? 'viewport-scroll' : 'viewport-resize'); syncFloatingNavigation(); };
 window.visualViewport?.addEventListener('resize', refreshVisualViewport);
 window.visualViewport?.addEventListener('scroll', refreshVisualViewport);
 const focusableSelector = 'input,textarea,select,button,a[href],summary,[tabindex],[contenteditable="true"]';
@@ -379,8 +407,9 @@ function tabsMarkup() {
 }
 function renderLogsPage() {
   syncLogSecrets();
-  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread"><div class="thread-inner"><div class="log-actions"><button class="chip" data-action="export-logs">导出 JSON</button><button class="chip" data-action="clear-logs">清空日志</button></div><div id="network-logs"></div></div></section></main>`;
+  app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread"><div class="thread-inner"><div class="log-actions"><button class="chip" data-action="export-logs">导出 JSON</button><button class="chip" data-action="clear-logs">清空日志</button></div><details class="scroll-diagnostics"><summary>滚动诊断（不含对话与密钥）</summary><p>发生回弹后打开这里，复制或导出进入日志页前的记录。仅保存最近 80 条位置和事件，不会自动上传。</p><button class="chip" data-action="copy-scroll-diagnostics">复制滚动诊断</button><button class="chip" data-action="export-scroll-diagnostics">导出滚动诊断</button><span id="scroll-diagnostic-status" role="status"></span><textarea id="scroll-diagnostic-text" aria-label="滚动诊断 JSON" readonly rows="5">${esc(exportScrollReport())}</textarea></details><div id="network-logs"></div></div></section></main>`;
   renderNetworkLogs(app.querySelector('#network-logs'));
+  recordScrollDiagnostic('render-dom-replaced');
   mountFloatingMenu();
   syncFloatingNavigation();
 }
@@ -395,12 +424,14 @@ function restoreControlFocus(identity) {
   if (!identity) return;
   const target = [...app.querySelectorAll('button[data-action]')]
     .find(button => !button.disabled && Object.entries(identity).every(([key,value]) => button.dataset[key] === value));
+  if(target)recordScrollDiagnostic('control-focus-restore');
   target?.focus({ preventScroll: true });
 }
 // View positions belong to each tab, not to the shared scrolling element.
 const viewPositions = new Map();
 let renderedPage = null, scrollRestoreVersion = 0;
 function rememberViewPosition() {
+  recordScrollDiagnostic('remember-view');
   if (!renderedPage) return;
   const top = Math.max(0, Number(app.scrollTop) || 0);
   const maximum = Math.max(0, (Number(app.scrollHeight) || 0) - (Number(app.clientHeight) || 0));
@@ -411,7 +442,7 @@ function restoreViewPosition(scrollEnd = false) {
   if (scrollEnd) position.bottom = true;
   renderedPage = page;
   const destination = page, version = ++scrollRestoreVersion;
-  const apply = () => { app.scrollTop = position.bottom ? app.scrollHeight : position.top; };
+  const apply = () => { recordScrollDiagnostic('view-restore-write', (position.bottom ? app.scrollHeight : position.top)-app.scrollTop); app.scrollTop = position.bottom ? app.scrollHeight : position.top; };
   apply();
   const restoredTop = app.scrollTop;
   // Account for measured floating clearances, without overriding intervening user scroll.
@@ -420,26 +451,35 @@ function restoreViewPosition(scrollEnd = false) {
   });
 }
 function render(scrollEnd = false) {
+  recordScrollDiagnostic(scrollEnd ? 'render-send-end' : 'render-start');
   rememberViewPosition();
   const focusIdentity = captureControlFocus();
   if (page === 'logs') { renderLogsPage(); restoreViewPosition(scrollEnd); restoreControlFocus(focusIdentity); return; }
   const d = get();
   app.innerHTML = `<main class="main"><header class="top">${tabsMarkup()}</header><section class="thread" id="thread" aria-label="${page === 'chat' ? '对话' : '图片'}历史"><div class="thread-inner">${d.messages.map(messageMarkup).join('')}${d.busy ? '<div class="message">'+loadingMarkup(d)+'</div>' : ''}</div></section><footer class="composer-area">${page === 'chat' ? `<div class="attachment-draft">${attachmentsMarkup(d.attachments,true)}${d.attachmentReading ? '<span role="status">正在读取附件…</span>' : ''}${d.attachmentError ? `<span role="alert">${esc(d.attachmentError)}</span>` : ''}</div>` : ''}<div class="compose"><textarea id="draft" rows="1" placeholder="${page === 'image' ? '描述你想生成的图片…' : ''}" aria-label="${page === 'image' ? '图片提示词' : '聊天消息'}" ${d.busy ? 'disabled' : ''}>${esc(d.draft)}</textarea><div class="compose-actions"><div class="left-actions">${plusMarkup()}</div><div class="right-actions">${page === 'image' ? sizeMarkup() : ''}${d.busy ? '<button class="send" data-action="cancel" aria-label="取消请求" title="取消请求">■</button>' : `<button class="send" data-action="send" aria-label="${page === 'image' ? '生成图片' : '发送消息'}" title="${page === 'image' ? '生成图片' : '发送消息'}">${icon('up')}</button>`}</div></div></div><div class="compose-metrics">${usageMetricsMarkup(d.lastUsage)}<span>耗时 <strong>${d.elapsed === null ? '...' : `${d.elapsed.toFixed(1)}s`}</strong></span></div></footer></main>`;
+  recordScrollDiagnostic('render-dom-replaced');
   mountFloatingMenu();
   syncFloatingNavigation();
   positionFloatingMenu();
   restoreViewPosition(scrollEnd);
   restoreControlFocus(focusIdentity);
+  if(d.busy)paintLoading(d);
 }
 // Update only the active reply node: do not rebuild composer or displace readers.
 function paintStream(d, message) {
   if (get() !== d) return;
-  const node = app.querySelector(`[data-stream-message="${message.id}"]`);
-  if (!node) { render(); return; }
   const follow = app.scrollHeight - app.clientHeight - app.scrollTop <= 32;
+  let node = app.querySelector(`[data-stream-message="${message.id}"]`);
+  if (!node) {
+    const loading=app.querySelector('.api-loading')?.closest?.('.message');
+    if(!loading?.insertAdjacentHTML){render();return;}
+    loading.insertAdjacentHTML('beforebegin',messageMarkup(message));
+    node=app.querySelector(`[data-stream-message="${message.id}"]`);
+    if(!node)return;
+  }
   node.querySelector('.reply-text').textContent = message.text;
   node.querySelector('.assistant-label').textContent = message.incomplete ? '未完成 · 未加入上下文' : message.streaming ? '正在回复…' : '模型回复';
-  if (follow) app.scrollTop = app.scrollHeight;
+  if (follow) { recordScrollDiagnostic('stream-follow-write',app.scrollHeight-app.scrollTop); app.scrollTop = app.scrollHeight; }
 }
 // These phases describe observed transport evidence, never inferred private thinking.
 const REQUEST_DEADLINE_MS = 30 * 60 * 1000;
@@ -449,19 +489,28 @@ function loadingPresentation(d, now = Date.now()) {
   const waited = Math.max(0, (now - (d.requestPhaseAt || now)) / 1000);
   const label = ({waiting_headers:'等待响应头',headers_received:'已收到响应头，等待回复',first_chunk:'已收到数据，等待回复',reasoning:'已收到模型思考信号',output:'正在接收输出'})[phase] || '等待回复';
   return {phase, active, slow:!active && waited >= 15, long:!active && waited >= 45,
-    duration:active ? Math.max(.35,.8-Math.min(waited,20)*.0225) : Math.min(3,.8+waited/25),
+    duration:active ? .5 : 1.25,
     label:label + (!active && waited>=45 ? '；等待较久，尚未判定失败，可取消' : '；可随时取消')};
 }
 function loadingMarkup(d) {
   const x=loadingPresentation(d);
-  return `<div class="api-loading" data-phase="${x.phase}" data-active="${x.active}" data-slow="${x.slow}" data-long="${x.long}" title="${esc(x.label)}" style="--loading-speed:${x.duration}s" role="status" aria-label="${esc(x.label)}"><span class="api-spinner" aria-hidden="true"></span><span class="api-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span><span class="sr-only">${esc(x.label)}</span></div>`;
+  return `<div class="api-loading" data-phase="${x.phase}" data-active="${x.active}" data-slow="${x.slow}" data-long="${x.long}" title="${esc(x.label)}" role="status" aria-label="${esc(x.label)}"><span class="api-spinner" aria-hidden="true"></span><span class="api-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span><span class="sr-only">${esc(x.label)}</span></div>`;
 }
 function paintLoading(d, announce=false) {
   if (get() !== d) return;
   const node=app.querySelector('.api-loading'); if(!node) return;
   const x=loadingPresentation(d);
   node.dataset.phase=x.phase;node.dataset.active=String(x.active);node.dataset.slow=String(x.slow);node.dataset.long=String(x.long);
-  node.style.setProperty('--loading-speed', x.duration+'s');node.title=x.label;
+  node.title=x.label;
+  const spinner=node.querySelector('.api-spinner');
+  // CSS duration remains constant. Synchronize the existing animation timeline
+  // before changing rate, rather than recomputing its phase on each timer tick.
+  if(spinner?.dataset?.speed !== String(x.duration)){
+    for(const animation of spinner?.getAnimations?.() || []){
+      if(animation.animationName === 'api-spin' && typeof animation.updatePlaybackRate === 'function') animation.updatePlaybackRate(.8/x.duration);
+    }
+    if(spinner?.dataset)spinner.dataset.speed=String(x.duration);
+  }
   if(announce){node.setAttribute('aria-label',x.label);const live=node.querySelector('.sr-only');if(live)live.textContent=x.label;}
 }
 function requestPhase(d, phase) {
@@ -605,7 +654,7 @@ app.addEventListener('click', async e => {
   const action = el.dataset.action, d = get(), card = getCard(Number(el.dataset.id));
   if ((d?.busy || d?.attachmentReading) && !['tab', 'cancel'].includes(action)) return;
   switch (action) {
-    case 'tab': page = el.dataset.tab; closeMenus(); render(); break;
+    case 'tab': if(el.dataset.tab === 'logs')freezeScrollReport(); page = el.dataset.tab; closeMenus(); render(); break;
     case 'plus': plusOpen = !plusOpen; sizeOpen = false; subMenu = ''; render(); if (plusOpen) focusFloatingMenu(); break;
     case 'attach': selectAttachments(el.dataset.kind); break;
     case 'clear-chat': d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;render();break;
@@ -614,7 +663,7 @@ app.addEventListener('click', async e => {
     case 'toggle-input': { const kind=el.dataset.modality; if(card?.id !== activeCardId(d) || kind==='text' || !supportedModalities(d.api.protocol).includes(kind)) break; d.model.inputs=d.model.inputs.includes(kind)?d.model.inputs.filter(k=>k!==kind):[...d.model.inputs,kind]; render(); break; }
     case 'new-card': addCard(el.dataset.kind); break;
     case 'size-toggle': sizeOpen = !sizeOpen; plusOpen = false; subMenu = ''; render(); if (sizeOpen) focusFloatingMenu(); break;
-    case 'set-image-options': if (matrixSupported(d) && getImageCapabilities(d.api).ratios.some(x => x.ratio === el.dataset.ratio) && getImageCapabilities(d.api).sizes.includes(el.dataset.imageSize)) { const scroll = app.querySelector('.matrix-scroll')?.scrollTop || 0; d.aspectRatio = el.dataset.ratio; d.imageSize = el.dataset.imageSize; render(); app.querySelector('.matrix-scroll').scrollTop = scroll; } break;
+    case 'set-image-options': if (matrixSupported(d) && getImageCapabilities(d.api).ratios.some(x => x.ratio === el.dataset.ratio) && getImageCapabilities(d.api).sizes.includes(el.dataset.imageSize)) { const scroll = app.querySelector('.matrix-scroll')?.scrollTop || 0; d.aspectRatio = el.dataset.ratio; d.imageSize = el.dataset.imageSize; render(); recordScrollDiagnostic('matrix-write',scroll); app.querySelector('.matrix-scroll').scrollTop = scroll; } break;
     case 'supplier': plusOpen = sizeOpen = false; subMenu = subMenu === `supplier:${card.id}` ? '' : `supplier:${card.id}`; render(); if (subMenu) focusFloatingMenu(); break;
     case 'protocol-menu':
       plusOpen = sizeOpen = false; subMenu = subMenu === `protocol:${card.id}` ? '' : `protocol:${card.id}`;
@@ -640,6 +689,18 @@ app.addEventListener('click', async e => {
     case 'choose-model': d.api.model = el.dataset.model; if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
     case 'send': await send(); break;
     case 'cancel': d.controller?.abort(); break;
+    case 'copy-scroll-diagnostics': {
+      const text=exportScrollReport(), field=app.querySelector('#scroll-diagnostic-text');
+      const currentStatus=()=>page==='logs' && app.querySelector('#scroll-diagnostic-text')===field ? app.querySelector('#scroll-diagnostic-status') : null;
+      try { await navigator.clipboard.writeText(text); const target=currentStatus();if(target)target.textContent='已复制'; }
+      catch { const target=currentStatus();if(target){if(field?.isConnected){field.focus({preventScroll:true});field.select();}target.textContent='请长按文本框复制，或使用导出';} }
+      break;
+    }
+    case 'export-scroll-diagnostics': {
+      const url=URL.createObjectURL(new Blob([exportScrollReport()],{type:'application/json'}));
+      const link=document.createElement('a');link.href=url;link.download='scroll-diagnostic.json';link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);break;
+    }
     case 'clear-logs': clearNetworkLogs(); break;
     case 'export-logs': {
       const url = URL.createObjectURL(new Blob([exportNetworkLogs()], { type: 'application/json' }));
@@ -698,7 +759,7 @@ document.addEventListener('keydown', e => {
   } else if (e.target.dataset?.action === 'choose-protocol' && ['ArrowDown','ArrowUp','Home','End'].includes(e.key)) {
     e.preventDefault(); const choices = [...app.querySelectorAll('[data-floating-menu="protocol-menu"] [role="option"]')];
     const index = choices.indexOf(e.target), next = e.key === 'Home' ? 0 : e.key === 'End' ? choices.length-1 : (index + (e.key === 'ArrowDown' ? 1 : -1) + choices.length) % choices.length;
-    choices[next]?.focus({preventScroll:true}); choices[next]?.scrollIntoView({block:'nearest'});
+    choices[next]?.focus({preventScroll:true}); recordScrollDiagnostic('menu-reveal'); choices[next]?.scrollIntoView({block:'nearest'});
   }
   if (e.key === 'Escape' && (plusOpen || sizeOpen)) { e.preventDefault(); dismissFloatingMenu(true); }
   else if (e.key === 'Escape' && subMenu) { e.preventDefault(); dismissFloatingMenu(true); }
@@ -727,7 +788,7 @@ function sessionRequestSnapshot() {
 const pageSession = createPageSession({
   state: publicSessionState,
   logs: () => { syncLogSecrets(); return getNetworkLogs(); },
-  navigate: ({ page: destination }) => { page = destination; closeMenus(); render(); return publicSessionState(); },
+  navigate: ({ page: destination }) => { if(destination === 'logs')freezeScrollReport(); page = destination; closeMenus(); render(); return publicSessionState(); },
   draft: ({ text }) => { const d = get(); if (!d || d.busy) throw new Error('No editable workspace'); d.draft = text; render(); return { updated: true }; },
   settings: args => {
     const d = get(); if (!d || d.busy) throw new Error('No editable workspace');

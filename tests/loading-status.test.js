@@ -14,14 +14,14 @@ function setup(){
  vm.createContext(c);vm.runInContext(code,c);
  return {c,d,timers,node,announcements:()=>announcements};
 }
-test('elapsed waiting only slows animation, never infers thinking or failure',()=>{
+test('elapsed waiting changes only delay indication, never infers thinking or failure',()=>{
  const {c}=setup();
  for(const phase of ['waiting_headers','headers_received','first_chunk']){
   const x=c.loadingPresentation({requestPhase:phase,requestPhaseAt:1000},61000);
-  assert.equal(x.active,false);assert.equal(x.long,true);assert.equal(x.duration,3);assert.match(x.label,/尚未判定失败/);
+  assert.equal(x.active,false);assert.equal(x.long,true);assert.equal(x.duration,1.25);assert.match(x.label,/尚未判定失败/);
  }
  const thought=c.loadingPresentation({requestPhase:'reasoning',requestPhaseAt:1000},21000);
- assert.equal(thought.active,true);assert.equal(thought.long,false);assert.ok(Math.abs(thought.duration-.35)<1e-9);
+ assert.equal(thought.active,true);assert.equal(thought.long,false);assert.ok(Math.abs(thought.duration-.5)<1e-9);
 });
 test('phase announcements are discrete and heartbeats do not overwrite actual output',()=>{
  const {c,d,announcements}=setup();c.beginLoading(d);c.requestPhase(d,'headers_received');c.requestPhase(d,'headers_received');
@@ -43,4 +43,30 @@ test('normal completion and manual cancellation clear timers without relabeling 
 
 test('user cancellation is an informational status, not a red error',()=>{
  assert.match(source,/status\(d, errorText\(e\), e\?\.code === 'CANCELLED' \? 'status' : 'error', false\)/);
+});
+test('fixed CSS timeline changes playback rate once per stage without per-tick duration edits',()=>{
+ const calls=[],animation={animationName:'api-spin',currentTime:1234,updatePlaybackRate(rate){calls.push(rate)}};
+ const spinner={dataset:{},getAnimations:()=>[animation]};
+ const d={busy:true,requestPhase:'waiting_headers',requestPhaseAt:Date.now()};
+ const node={dataset:{},style:{setProperty(){assert.fail('must not change duration')}},setAttribute(){},querySelector:s=>s==='.api-spinner'?spinner:{textContent:''}};
+ const c={Date,Math,get:()=>d,app:{querySelector:()=>node},esc:s=>s};vm.createContext(c);vm.runInContext(code,c);
+ for(let i=0;i<30;i++)c.paintLoading(d);
+ assert.deepEqual(calls,[.64]);assert.equal(animation.currentTime,1234);
+ d.requestPhase='output';c.paintLoading(d);c.paintLoading(d);
+ assert.deepEqual(calls,[.64,1.6]);assert.equal(animation.currentTime,1234);
+});
+test('first streaming delta inserts reply beside the existing spinner, subsequent deltas only paint text',()=>{
+ const paint=source.slice(source.indexOf('function paintStream('),source.indexOf('// These phases describe'));
+ let reply=null,renders=0,inserts=0;const text={},label={};
+ const spinner={closest:()=>({insertAdjacentHTML(){inserts++;reply={querySelector:s=>s==='.reply-text'?text:label}}})};
+ const app={scrollHeight:1000,clientHeight:500,scrollTop:500,querySelector:s=>s==='.api-loading'?spinner:reply};
+ const d={};const c={recordScrollDiagnostic:()=>{},get:()=>d,app,render:()=>renders++,messageMarkup:()=>'<div></div>'};vm.createContext(c);vm.runInContext(paint,c);
+ for(let i=0;i<20;i++)c.paintStream(d,{id:1,text:'chunk'+i,streaming:true});
+ assert.equal(renders,0);assert.equal(inserts,1);assert.equal(app.querySelector('.api-loading'),spinner);assert.equal(text.textContent,'chunk19');
+});
+test('ordinary waiting never uses failure-red and reduced motion remains supported',async()=>{
+ const css=await readFile(new URL('../src/styles.css',import.meta.url),'utf8');
+ assert.match(css,/api-spin \.8s linear/);assert.doesNotMatch(css,/animation:api-spin var/);
+ assert.match(css,/\.api-loading\[data-long="true"\]\{color:#a66b12\}/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
 });

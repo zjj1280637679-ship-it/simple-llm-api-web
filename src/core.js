@@ -235,7 +235,7 @@ export async function generateText({config, messages, settings = {}, tools = [],
     }));
     const text = rawAssistant.parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join('');
     if (!text && !toolCalls.length) fail('EMPTY','模型没有返回文本或工具调用。');
-    return {text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol),finishReason:candidate.finishReason || null};
+    return {text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:candidate.finishReason || null};
   }
   const choice = json.choices?.[0];
   const rawAssistant = choice?.message;
@@ -251,7 +251,7 @@ export async function generateText({config, messages, settings = {}, tools = [],
     if (rawAssistant.refusal || choice.finish_reason === 'content_filter') fail('BLOCKED','供应商未返回内容，可能受安全策略限制。');
     fail('EMPTY','模型没有返回文本或工具调用。');
   }
-  return {text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol),finishReason:choice.finish_reason || null};
+  return {text,toolCalls,rawAssistant,usage:usageFrom(json,config.protocol,{endpoint:config.url}),finishReason:choice.finish_reason || null};
 }
 
 export const IMAGE_TOOL = Object.freeze({
@@ -300,7 +300,7 @@ export async function generateImage({config, prompt, aspectRatio, imageSize, sig
       if (typeof item.size === 'string' && /^[0-9]{1,6}x[0-9]{1,6}$/.test(item.size)) image.size = item.size;
       return image;
     });
-    return {images,text:'',usage:usageFrom(json,config.protocol),...options,model};
+    return {images,text:'',usage:usageFrom(json,config.protocol,{endpoint:config.url}),...options,model};
   }
   const json = await requestJSON(config, `/models/${model}:generateContent`, {
     body:{contents:[{role:'user',parts:[{text:prompt.trim()}]}],generationConfig:{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:options.aspectRatio,imageSize:options.imageSize}}},signal,fetchImpl,onPhase,
@@ -309,7 +309,7 @@ export async function generateImage({config, prompt, aspectRatio, imageSize, sig
   const parts = candidate.content.parts;
   const images = parts.filter(part => part.inlineData && !part.thought).map(part => checkedRaster(part.inlineData.mimeType,part.inlineData.data));
   if (!images.length) fail('NO_IMAGE', '供应商没有返回图片；此次请求可能仍计费，请检查提示词、额度或模型响应。');
-  return {images,text:parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join(''),usage:usageFrom(json,config.protocol),...options,model};
+  return {images,text:parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join(''),usage:usageFrom(json,config.protocol,{endpoint:config.url}),...options,model};
 }
 
 /** The only executable command. API keys/endpoint/model cannot come from model tool arguments. */

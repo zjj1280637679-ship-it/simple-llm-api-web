@@ -7,7 +7,7 @@
 - 文本或工具调用增量：正在接收输出。opaque thoughtSignature / encrypted_content 本身不触发思考动画；保留其上下文原值，但不显示明文或写日志。
 - 成功、HTTP/网络/流格式错误、取消：结束动画，沿用现有回复/错误处理，不自动重试。
 
-等待15/45秒的慢转、黄/红只是界面延迟提示，不是服务端故障阈值。明确推理/输出信号才绿色加速与三点。无显式信号的闭链模型只显示等待。屏幕阅读器只在阶段变化通知；每秒动画时钟不重写live region。减少动态效果时不旋转、不跳动；颜色之外有可访问状态名称及悬停说明。
+等待15/45秒仅中性/琥珀提示，不使用失败红色，不是服务端故障阈值。明确推理/输出信号才绿色加速与三点。等待阶段固定1.25秒目标周期，活动阶段固定0.5秒目标周期；CSS始终0.8秒时间轴，使用updatePlaybackRate同步切换倍率，缺失此能力时保持固定速度。无显式信号的闭链模型只显示等待。屏幕阅读器只在阶段变化通知；每秒动画时钟不重写live region。减少动态效果时不旋转、不跳动；颜色之外有可访问状态名称及悬停说明。
 
 ## 客户端截止与清理
 网页单次发送/拉取最多等待30分钟，可随时取消。截止由本地计时器终止，错误明确为 CLIENT_TIMEOUT，说明供应商可能已计费，未自动重试。此数值是本产品保守上限，不是模型完成时间承诺；Ark官方提示长思考客户端需较长超时，所以没有采用“几十秒没文字就失败”的策略。请求结束/错误/取消 finally 清除deadline和动画时钟。工具确认等待也计入整体请求时间；用户可重新发起。
@@ -26,3 +26,12 @@
 
 ## 验证边界
 tests/browser/streaming.html提供零外部网络的响应头延迟、headers后静默、显式思考、仅心跳、正常输出、流错误、断流、HTTP503。它验证真实浏览器渲染而非真实供应商可用性。30分钟deadline以可控时钟单元验证，不要求测试实际等待30分钟。iPhone真实键盘仍需单独验收。
+
+
+## 2026-10-29 手机动画修正
+源码根因一：旧等待45秒直接映射红色，会误导正常长推理；改等待仅中性/琥珀，真实失败沿用错误信息。
+源码根因二：旧每秒改animation-duration，CSS规范会按新duration重算从开始的进度，能跳角；改固定CSS周期，阶段切换用updatePlaybackRate保当前时间，不每秒改速度。首个stream回复由插入新节点完成，不再重建整个app与spinner；后续chunk仅改回复文本。
+运行中切页仍可创建该页新节点，非每token重建。只动画transform及点的opacity；reduced-motion保持静止。QA新增三秒rAF观察节点身份和CSSAnimation时间轴，帧数/间隔是当前浏览器测量，不是iPhone性能保证。
+- W3C animation修改语义：https://www.w3.org/TR/css-animations-1/
+- MDN同步调速：https://developer.mozilla.org/en-US/docs/Web/API/Animation/updatePlaybackRate
+- 动画性能：https://web.dev/articles/animations-guide

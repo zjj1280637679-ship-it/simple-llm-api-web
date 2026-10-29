@@ -32,7 +32,7 @@ test('rerender restores matching enabled action focus without forcing scroll',()
  const active={tagName:'BUTTON',dataset:{action:'tab',tab:'logs'}};let options;
  const other={dataset:{action:'tab',tab:'chat'},focus:()=>assert.fail('Wrong tab focused')};
  const target={dataset:{action:'tab',tab:'logs'},focus:o=>options=o};
- const context={document:{activeElement:active},app:{contains:()=>true,querySelectorAll:()=>[other,target]}};
+ const context={recordScrollDiagnostic:()=>{},document:{activeElement:active},app:{contains:()=>true,querySelectorAll:()=>[other,target]}};
  vm.createContext(context);vm.runInContext(block+'\nrestoreControlFocus(captureControlFocus());',context);
  assert.equal(options.preventScroll,true);
  assert.match(source,/renderLogsPage\(\); restoreViewPosition\(scrollEnd\); restoreControlFocus\(focusIdentity\)/);

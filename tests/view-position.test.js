@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
 const code=source.slice(source.indexOf('const viewPositions ='),source.indexOf('function render(scrollEnd'));
-function setup(){const frames=[],app={scrollTop:0,scrollHeight:3000,clientHeight:800};const c={app,page:'chat',Map,Math,Number,requestAnimationFrame:fn=>frames.push(fn)};vm.createContext(c);vm.runInContext(code,c);return {app,c,frames};}
+function setup(){const frames=[],app={scrollTop:0,scrollHeight:3000,clientHeight:800};const c={recordScrollDiagnostic:()=>{},app,page:'chat',Map,Math,Number,requestAnimationFrame:fn=>frames.push(fn)};vm.createContext(c);vm.runInContext(code,c);return {app,c,frames};}
 test('each tab restores independent reading position rather than the short-page clamped offset',()=>{
  const {app,c}=setup();c.restoreViewPosition();app.scrollTop=735;c.rememberViewPosition();
  c.page='image';app.scrollHeight=800;app.scrollTop=0;c.restoreViewPosition();assert.equal(app.scrollTop,0);

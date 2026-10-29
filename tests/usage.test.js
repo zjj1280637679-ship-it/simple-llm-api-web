@@ -37,3 +37,40 @@ test('missing visible metrics use three dots while true zero stays numeric',()=>
  const visible=usageMetricsMarkup(null).replace(/<[^>]+>/g,'');
  assert.doesNotMatch(visible,/未知|—/);assert.equal((visible.match(/\.\.\./g)||[]).length,3);
 });
+
+test('official Gemini omitted zero cache is distinguished from missing telemetry and compatibility endpoints',()=>{
+ const endpoint='https://generativelanguage.googleapis.com/v1beta';
+ const raw={usageMetadata:{promptTokenCount:16,candidatesTokenCount:1343,totalTokenCount:1359}};
+ assert.equal(usageMetrics(usageFrom(raw,'gemini',{endpoint})).cache,'0 Token · 0.0%');
+ assert.equal(usageFrom(raw,'gemini').cachedTokens,null);
+ assert.equal(usageFrom(raw,'gemini',{endpoint:'https://proxy.example/v1beta'}).cachedTokens,null);
+ assert.equal(usageFrom({},'gemini',{endpoint}),null);
+ assert.equal(usageFrom({usageMetadata:{}},'gemini',{endpoint}).cachedTokens,null);
+ for(const cachedContentTokenCount of [null,'0',-1]){
+  assert.equal(usageFrom({usageMetadata:{...raw.usageMetadata,cachedContentTokenCount}},'gemini',{endpoint}).cachedTokens,null);
+ }
+ assert.equal(usageFrom({usageMetadata:{...raw.usageMetadata,cachedContentTokenCount:8}},'gemini',{endpoint}).cachedTokens,8);
+});
+test('official completed GenerateContent maps absent cache to zero through dispatcher',async()=>{
+ const url='https://generativelanguage.googleapis.com/v1beta';
+ const result=await generateText({config:{protocol:'gemini',url,trustedTarget:url,key:'synthetic',model:'fixture'},messages:[{role:'user',content:'hi'}],fetchImpl:async()=>new Response(JSON.stringify({candidates:[{content:{parts:[{text:'ok'}]}}],usageMetadata:{promptTokenCount:16,totalTokenCount:1359}}),{status:200})});
+ assert.equal(result.usage.cachedTokens,0);
+ assert.equal(result.usage.cacheCountSource,'gemini-proto-default-zero');
+});
+test('Gemini streamed final usage drives zero/matched cache without accumulating snapshots',async()=>{
+ const url='https://generativelanguage.googleapis.com/v1beta';
+ for(const cached of [undefined,8]){
+  const finalUsage={promptTokenCount:16,candidatesTokenCount:1343,totalTokenCount:1359,...(cached===undefined?{}:{cachedContentTokenCount:cached})};
+  const frames=[
+   {candidates:[{content:{role:'model',parts:[{text:'a'}]}}],usageMetadata:{promptTokenCount:16,cachedContentTokenCount:4,totalTokenCount:18}},
+   {candidates:[{content:{role:'model',parts:[{text:'b'}]},finishReason:'STOP'}],usageMetadata:finalUsage}
+  ];
+  const result=await generateText({config:{protocol:'gemini',url,trustedTarget:url,key:'synthetic',model:'fixture'},messages:[{role:'user',content:'hi'}],onDelta:()=>{},fetchImpl:async()=>new Response(frames.map(j=>'data: '+JSON.stringify(j)+'\n\n').join(''),{headers:{'content-type':'text/event-stream'}})});
+  assert.equal(result.usage.cachedTokens,cached??0);
+  assert.equal(result.usage.totalTokens,1359);
+ }
+});
+
+test('contradictory official Gemini counts do not imply zero cache',()=>{
+ assert.equal(usageFrom({usageMetadata:{promptTokenCount:20,totalTokenCount:10}},'gemini',{endpoint:'https://generativelanguage.googleapis.com/v1beta'}).cachedTokens,null);
+});

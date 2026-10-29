@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>真实流式界面 · 离线验收</title>
 <style>body{font:14px system-ui;margin:16px}iframe{width:430px;height:760px;max-width:100%;border:1px solid #888}button,select{margin:5px}pre{white-space:pre-wrap}</style>
 <h1>延迟 SSE · 合成离线验收</h1><p>真实 app，fetch 全部截获，无外部 API。每 900ms 新到一段；观察首段早于完成且始终一个回复节点。可取消、切页和发送下一轮。</p>
-<select id="protocol"><option>gemini</option><option>openai</option><option>ark</option></select><select id="mode"><option value="ok">正常</option><option value="error">半途流内错误</option><option value="cut">半途断流</option><option value="headers">延迟响应头60秒</option><option value="silent">响应头后静默60秒</option><option value="thinking">显式思考信号</option><option value="heartbeat">仅心跳后回复</option><option value="http">HTTP 503</option></select><button id="setup">设置并发送</button><pre id="report">等待</pre><iframe id="view" src="../../index.html" title="真实应用"></iframe>
+<select id="protocol"><option>gemini</option><option>openai</option><option>ark</option></select><select id="mode"><option value="ok">正常</option><option value="error">半途流内错误</option><option value="cut">半途断流</option><option value="headers">延迟响应头60秒</option><option value="silent">响应头后静默60秒</option><option value="thinking">显式思考信号</option><option value="heartbeat">仅心跳后回复</option><option value="http">HTTP 503</option></select><label><input id="official-usage" type="checkbox">合成官方Gemini缺省cache字段（仍零外部请求）</label><button id="setup">设置并发送</button><button id="animation-probe">采样动画连续性3秒</button><pre id="animation-report">未采样</pre><pre id="report">等待</pre><iframe id="view" src="../../index.html" title="真实应用"></iframe>
 <script>
 const view=document.querySelector('#view'), report=document.querySelector('#report');let sent=0;
 view.onload=()=>{view.contentWindow.fetch=async(url,options={})=>{
@@ -26,7 +26,21 @@ view.onload=()=>{view.contentWindow.fetch=async(url,options={})=>{
 document.querySelector('#setup').onclick=()=>{const d=view.contentDocument,w=view.contentWindow;d.querySelector('[data-action="tab"][data-tab="chat"]').click();d.querySelector('[data-action=plus]').click();d.querySelector('[data-action=new-card][data-kind=api]').click();
  const protocol=document.querySelector('#protocol').value;
  d.querySelector('fieldset:not([disabled]) [data-action=protocol-menu]').click();d.querySelector('[data-action=choose-protocol][data-protocol='+protocol+']').click();
- for(const [key,value]of Object.entries({url:'https://api.example.com/v1',key:'SYNTHETIC-NOT-A-REAL-KEY',model:'fixture-model'})){const n=d.querySelector('fieldset:not([disabled]) [data-key='+key+']');n.value=value;n.dispatchEvent(new w.Event('input',{bubbles:true}));}
+ for(const [key,value]of Object.entries({url:protocol==='gemini'&&document.querySelector('#official-usage').checked?'https://generativelanguage.googleapis.com/v1beta':'https://api.example.com/v1',key:'SYNTHETIC-NOT-A-REAL-KEY',model:'fixture-model'})){const n=d.querySelector('fieldset:not([disabled]) [data-key='+key+']');n.value=value;n.dispatchEvent(new w.Event('input',{bubbles:true}));}
  const input=d.querySelector('#draft');input.value='请用五段展示真实增量输出，第 '+(sent+1)+' 轮';input.dispatchEvent(new w.Event('input',{bubbles:true}));d.querySelector('[data-action=send]').click();
+};
+
+document.querySelector('#animation-probe').onclick=()=>{
+ const w=view.contentWindow,d=view.contentDocument,first=d.querySelector('.api-spinner');
+ const rows=[];let previous=null,changed=0,regressions=0,maxGap=0;const start=performance.now();
+ function sample(now){
+  const node=d.querySelector('.api-spinner'),animation=node?.getAnimations?.().find(a=>a.animationName==='api-spin');
+  const time=animation?.currentTime;
+  if(node!==first)changed++;
+  if(previous&&typeof time==='number'&&previous.time!==null){if(time<previous.time)regressions++;maxGap=Math.max(maxGap,now-previous.now);}
+  previous={now,time:typeof time==='number'?time:null};rows.push({time,rate:animation?.playbackRate});
+  if(now-start<3000)requestAnimationFrame(sample);
+  else document.querySelector('#animation-report').textContent=JSON.stringify({synthetic:true,frames:rows.length,nodeIdentityChanges:changed,timelineRegressions:regressions,maxFrameGapMs:maxGap,first:rows[0],last:rows.at(-1),reducedMotion:w.matchMedia('(prefers-reduced-motion:reduce)').matches},null,2);
+ }requestAnimationFrame(sample);
 };
 </script></html>

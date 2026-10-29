@@ -124,7 +124,7 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 
 /* Loading is visual-only text-wise; assistive technology still gets status. */
 .api-loading{display:flex;align-items:center;min-height:28px;padding:4px 0;color:var(--muted)}
-.api-spinner{display:block;width:20px;height:20px;border:2px solid var(--line2);border-top-color:currentColor;border-radius:50%;animation:api-spin var(--loading-speed,.8s) linear infinite}
+.api-spinner{display:block;width:20px;height:20px;border:2px solid var(--line2);border-top-color:currentColor;border-radius:50%;animation:api-spin .8s linear infinite}
 @keyframes api-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.api-spinner{animation:none;border-style:dotted;border-top-style:solid}}
 
@@ -143,7 +143,7 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 
 /* Delay color is a wait indicator, not a fabricated connection failure. */
 .api-loading[data-slow="true"]{color:#a66b12}
-.api-loading[data-long="true"]{color:#b8463e}
+.api-loading[data-long="true"]{color:#a66b12}
 .api-loading[data-active="true"]{color:#23854b}
 .api-dots{display:none;font-size:20px;line-height:1}
 .api-loading[data-active="true"] .api-dots{display:flex;gap:2px}
@@ -151,4 +151,8 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 .api-dots i:nth-child(2){animation-delay:.2s}.api-dots i:nth-child(3){animation-delay:.4s}
 @keyframes loading-dot{0%,70%,100%{opacity:.3}35%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.api-dots i{animation:none;opacity:1}}
-@media(prefers-color-scheme:dark){.api-loading[data-slow="true"]{color:#e8bb68}.api-loading[data-long="true"]{color:#f58c84}.api-loading[data-active="true"]{color:#70d59a}}
+@media(prefers-color-scheme:dark){.api-loading[data-slow="true"]{color:#e8bb68}.api-loading[data-long="true"]{color:#e8bb68}.api-loading[data-active="true"]{color:#70d59a}}
+
+.scroll-diagnostics{margin:12px 0;padding:10px;border:1px solid var(--line2);border-radius:12px;overflow-wrap:anywhere}
+.scroll-diagnostics textarea{display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin-top:8px;font:inherit;resize:vertical}
+.scroll-diagnostics button{margin:4px 6px 4px 0}
