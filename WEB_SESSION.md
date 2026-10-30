@@ -1,4 +1,6 @@
-# Live-page agent interface (MVP)
+# Live-page agent interface — EXPERIMENTAL
+
+**实验性 / Experimental.** WebMCP、`cli/web-cli.mjs` 与 `cli/cli-mcp-transport.mjs` 尚未完成真实 CLI → 浏览器宿主 → 页面 → 供应商的闭环验收。页面注册和部分 UI 往返已有观察；等待确认的工具调用曾超时，不能概括成“完全没有浏览器验证”，也不能称为完整链路通过。见 [实验范围](docs/EXPERIMENTAL.md) 与 [实网验收表](docs/LIVE_ACCEPTANCE.md)。普通网页使用不依赖这些能力。
 
 This interface operates on **one live webpage's in-memory state**, unlike
 `cli/cli.mjs`, which calls a provider independently. Reloading creates a new live session;
@@ -6,7 +8,7 @@ saved conversations/settings may restore under the local persistence policy, whi
 keys, request controllers and approvals do not. No listener, localhost service, browser-debugging port, credentials
 store, arbitrary JavaScript evaluation or shell tool is introduced.
 
-## Working browser path: WebMCP
+## Experimental browser adapter: WebMCP
 
 The app registers these tools when the browser provides native WebMCP:
 
@@ -41,7 +43,7 @@ Official API references (checked 2026-10-29):
 - https://developer.chrome.com/docs/modern-web-guidance/guides/webmcp/agentic-javascript-tools
 - https://developer.chrome.com/docs/modern-web-guidance/guides/webmcp/webmcp
 
-## Node CLI: built-in MCP stdio transport
+## Experimental Node CLI: MCP stdio transport
 
 `--mcp-config` is a concrete transport for a standard **Playwright MCP extension
 host**. It does not need a custom JavaScript adapter. Prerequisites:
