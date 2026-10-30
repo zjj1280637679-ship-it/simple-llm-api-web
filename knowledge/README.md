@@ -1,8 +1,8 @@
 # 项目快照知识图
 
-知识版本 **1.1.0**；项目版本 **0.3.0**；记录日期 **2026-10-30（北京时间）**。当前图冻结在 `d0b794896092c2b68fb40e0be33697a7d8a528e4`，包含 213 个项目文件（排除 AGENTS.md 与 knowledge 发布附加项）、21 个登记模块及各自宿主，共 329 个节点、822 条有来源的关系。
+知识版本 **1.2.0**；项目版本 **0.4.0**；2026-10-30（北京时间）。源提交 `6a2e6c012766936653b312181181a667ec1f16bb`；235 个项目文件、26 个登记模块及宿主、364 节点、963 条关系。
 
-**先读 [快照导览](snapshots/v0.3.0-d0b794896092/README.md)**。机器入口是 [current.json](current.json)，完整关系在 [graph.json](snapshots/v0.3.0-d0b794896092/graph.json)，字段语义见 [schema.md](schema.md)。无需将整个 JSON 塞进上下文。
+**先读 [当前快照导览](snapshots/v0.4.0-6a2e6c012766/README.md)**。机器入口 [current.json](current.json)，[完整图](snapshots/v0.4.0-6a2e6c012766/graph.json)，[字段语义](schema.md)。新增 `route cards` 导航交互卡的位置、动作与保存。
 
 ## 两种阅读深度
 
