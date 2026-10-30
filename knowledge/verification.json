@@ -1,11 +1,11 @@
 {
   "toolVersion": "1.0.0",
   "hostVersion": "1.0.0",
-  "startedAt": "2026-10-30T05:38:00.613Z",
-  "finishedAt": "2026-10-30T05:38:01.552Z",
+  "startedAt": "2026-10-30T06:41:18.627Z",
+  "finishedAt": "2026-10-30T06:41:19.668Z",
   "runtime": "v24.22.1",
-  "snapshotId": "v0.4.0-6a2e6c012766",
-  "sourceCommit": "6a2e6c012766936653b312181181a667ec1f16bb",
+  "snapshotId": "v0.4.0-306e2abbfc39",
+  "sourceCommit": "306e2abbfc398ce11327b7c8371d9a590d85bfbc",
   "status": "PASS",
   "observed": {
     "cleanCopy": "MATCH",
@@ -23,7 +23,7 @@
     "knowledge/check.mjs": "d6adf601dacde89a1f078833398e141a7a1606090e129b951f24d35e25485ca1",
     "knowledge/query.mjs": "080c2ea7b893bf21cf859debe40fa5511ed1858d1af5ed466a298867ac74d685",
     "knowledge/verify.mjs": "e822840ca56df330e272f2a9639d4064e71e9150066c9a7ef82a1b876c9d561a",
-    "knowledge/snapshots/v0.4.0-6a2e6c012766/graph.json": "cdffbf27f0470176a24dc746357595cf9623b7b80ae4fe8f14c8a468e883af85"
+    "knowledge/snapshots/v0.4.0-306e2abbfc39/graph.json": "f2a5afb6485d30b9b21154e76501154bcc67fb4a3d63ecae96cb967d5392c57d"
   },
   "scope": "Offline disposable-copy host. Checks navigation and structural/file-drift detection; no proof of complete semantic knowledge, original test truth or provider availability."
 }

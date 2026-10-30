@@ -1,8 +1,8 @@
 # 使用与接口参考
 
-v0.4.0。首次使用见 [项目首页](../README.md)，交互规则见 [交互卡](INTERACTION_CARDS.md)。本文保留详细参数、部署和带日期的历史验收说明。
+v0.4.0。首次使用见 [项目首页](../README.md)，交互规则见 [交互卡](INTERACTION_CARDS.md)。本文保留详细参数与部署方法；按路径查证据见 [实网验收表](LIVE_ACCEPTANCE.md)，连接器成熟度见 [实验范围](EXPERIMENTAL.md)。
 
-## 已实现
+## 已实现的入口（不等于实网已验收）
 
 - **对话**：Gemini 原生、OpenAI 兼容、火山方舟普通 API、Anthropic Messages 文本流式。初始文本模型保留 `gemini-flash-lite-latest`；选择 Ark 后使用 `doubao-seed-2-1-lite-260915`，也可手填账号已开通的文本模型。
 - **图片**：保留 Gemini Nano Banana 2.1 的 14×3 矩阵；新增 Ark Seedream 5.0 Flash/Pro 的 8×3 矩阵（`1K / 1.5K / 2K`，默认 2K）。显示 API 实际返回的图片，可下载。
@@ -12,9 +12,9 @@ v0.4.0。首次使用见 [项目首页](../README.md)，交互规则见 [交互�
 - **请求状态**：防重复点击，取消请求，不自动重试。已到达供应商的请求即使取消也可能计费。
 - **本机保存**：IndexedDB 保存对话、草稿、附件、模型设置及指标；API Key、目标确认和自动通讯日志不持久化；主动插入的日志快照作为卡片随历史保存。失败会显示状态，详情见 [保存边界](../docs/LOCAL_PERSISTENCE.md)。
 - **通讯日志**：在 fetch 调用边界记录地址、方法、脱敏头、请求/响应、状态和耗时，可导出 JSON。当前来源标签依据传输函数选择，不能单独证明发生过真实网络请求。
-- **网页会话命令**：`window.llmWorkbench` 和 WebMCP 提供七个受控命令，独立 `cli/web-cli.mjs` 通过用户授权的浏览器宿主调用；不会启动任意 shell 或绕过网页确认。
+- **网页会话命令（实验性）**：`window.llmWorkbench` 和 WebMCP 提供七个受控命令，独立 `cli/web-cli.mjs` 通过用户授权的浏览器宿主调用；不会启动任意 shell 或绕过网页确认。
 
-不将网页模型输出作为 HTML、JavaScript 或 shell 执行。CLI 是可用的独立 Node 入口；浏览器内的 Agent 调用受控 JS 命令分发器，**不会启动操作系统 shell**。
+不将网页模型输出作为 HTML、JavaScript 或 shell 执行。图片 CLI 是独立 Node 入口，但实网记录仍缺失；网页会话 CLI 属于实验性连接；浏览器内的 Agent 调用受控 JS 命令分发器，**不会启动操作系统 shell**。
 
 ## 本地运行
 
@@ -85,7 +85,7 @@ node cli/cli.mjs --help
 - API 模型名可变，拉取列表不代表账号拥有该模型的生成权限。**免费额度、项目配额、地区、计费激活及模型可用性均由供应商决定**，本项目不承诺某模型可免费调用。
 - Agent 工具需文本模型支持 function calling；先在图片页填好并确认图片 API，才向文本模型开放工具。工具向对话返回图片参数、数量、格式及供应商文字，不把图片字节送回文本模型做视觉检查。每轮有有限工具调用次数，无任意命令执行。拒绝确认不会生成图片。
 
-## 通讯日志与网页会话控制
+## 通讯日志与网页会话控制（控制接口为实验性）
 
 「日志」页面保留最多 100 条内存记录，可展开查看或导出。日志在 fetch 调用前后生成：网络失败记录为未取得响应。当前 `source` 根据 global/injected fetch 判断；替换全局 fetch、注入真实 transport 时不可靠，不能作为真实验收证据。已登记凭据及已识别敏感字段按规则脱敏，图片数据省略，大文本截断；这不保证识别任意秘密。HTTP 错误体最多读取 8 KiB、等待 1.2 秒；只保留脱敏后的 message/code/type/request_id，并标为上游说明、未独立核实。宿主可通过 declareTransport 绑定传输来源声明；声明本身也不是实网证明。导出仍可能包含私人对话。
 
@@ -95,9 +95,9 @@ node cli/cli.mjs --help
 node cli/web-cli.mjs --help
 ```
 
-真实 CLI→浏览器连接需要用户已安装、明确授权并选择的浏览器宿主；本次只完成代码和无网络合成测试，**没有验证真实浏览器宿主闭环**。普通浏览器未提供 WebMCP 时不会假装注册成功。详细安装/连接方式及权限边界见 [WEB_SESSION.md](../WEB_SESSION.md)。
+真实 CLI→浏览器连接需要用户已安装、明确授权并选择的浏览器宿主；已有合成测试、页面注册与部分 UI 往返观察，**没有验证真实 CLI 宿主闭环**；等待确认时的工具响应曾超时，详见 [实验范围](EXPERIMENTAL.md)。普通浏览器未提供 WebMCP 时不会假装注册成功。详细安装/连接方式及权限边界见 [WEB_SESSION.md](../WEB_SESSION.md)。
 
-## Node 图片 CLI
+## Node 图片 CLI（实网待验收）
 
 ```sh
 node cli/cli.mjs --help
@@ -169,7 +169,7 @@ src/logs.js             脱敏、限量的内存通讯日志
 src/session*.js         受控网页会话命令及可选 WebMCP 注册
 src/agent.js            模型 function call ↔ dispatcher ↔ 模型结果循环
 cli/cli.mjs             Node CLI（同一 dispatcher）
-cli/web-cli.mjs         真实页面命令 CLI（需要授权浏览器宿主）
+cli/web-cli.mjs         实验性页面命令 CLI（宿主闭环待验收）
 cli/cli-mcp-transport.mjs 可选标准 MCP 传输，不自动安装或连接
 docs/ark-api.md         官方 API 来源与版本化集成摘要
 docs/ark-model-catalog.md 带日期的历史模型目录与复核条件
@@ -206,6 +206,6 @@ VALIDATION.md           本次验证结果与尚未完成的真实环境验证
 
 ## 本机刷新恢复
 
-对话、草稿、附件、模型设置和独立指标自动保存到当前网站路径的 IndexedDB；API Key/目标确认与通讯日志不保存。失败/配额不足/多标签页冲突会明确提示，不会静默删附件或覆盖其他标签页。+ 菜单可查看状态、导出和恢复本地备份。浏览器清理、无痕结束或系统回收空间仍可能丢失数据，详见 [本机持久化说明](../docs/LOCAL_PERSISTENCE.md)。
+对话、草稿、附件、模型设置和独立指标自动保存到当前网站路径的 IndexedDB；API Key/目标确认与自动通讯日志不保存；主动插入的日志卡随历史保存。失败/配额不足/多标签页冲突会明确提示，不会静默删附件或覆盖其他标签页。+ 菜单可查看状态、导出和恢复本地备份。浏览器清理、无痕结束或系统回收空间仍可能丢失数据，详见 [本机持久化说明](../docs/LOCAL_PERSISTENCE.md)。
 
 当前开发态库与维护规则见 [模块图书馆](../module-library/README.md)，状态归属见 [组合说明](../docs/WORKBENCH_MODULES.md)。运行 `npm run hosts` 检查全部 26 个独立宿主；`npm run review:sources` 输出资料复核状态，不据此宣称模型可用。

@@ -9,9 +9,10 @@
 | 看代码职责与状态归属 | [工作台模块](WORKBENCH_MODULES.md) |
 | 理解目标、条件、策略与证据为何分开 | [认识论设计](../design/EPISTEMIC_DESIGN.md) |
 | 查找已登记模块、版本和最简宿主 | [模块目录](../module-library/README.md) |
-| 运行验证、查看实际证据范围 | [验证入口](../VALIDATION.md) |
+| 看哪些路径真正跑通过 | [实网验收表与执行步骤](LIVE_ACCEPTANCE.md) |
+| 运行本地验证、查看证据范围 | [验证入口](../VALIDATION.md) |
 | 让 Agent 按课题理解当前版本 | [知识图](../knowledge/README.md) |
-| 连接网页会话命令 | [会话 CLI](../WEB_SESSION.md) |
+| 探索网页会话控制（实验性） | [实验功能范围](EXPERIMENTAL.md)、[会话 CLI](../WEB_SESSION.md) |
 | 了解本机保存与旧存档迁移 | [保存说明](LOCAL_PERSISTENCE.md) |
 
 ## 仓库目录各负责什么

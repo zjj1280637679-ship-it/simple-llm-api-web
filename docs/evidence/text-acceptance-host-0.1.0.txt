@@ -1,0 +1,11 @@
+✔ plan needs no credential or fetch; malformed options are rejected (2.263283ms)
+✔ JSON, partial ending and mismatched deltas cannot count as streamed sample success (0.353541ms)
+✔ one synthetic request persists a bounded report; existing path blocks any next request (46.979824ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 171.870442
