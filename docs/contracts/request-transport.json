@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "R-015",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "kind": "relation",
+    "goal": "transport.observe-http-and-frame-without-business-inference",
+    "source": "src/request-transport.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-R-015",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "entry": "development/hosts/request-transport.mjs",
+    "moduleId": "R-015",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+    "Injected effects and observed provider reports do not independently verify the external environment"
+  ],
+  "observations": [
+    "注入 transport 不等于模拟；HTTP429 不证明额度耗尽"
+  ],
+  "tests": [
+    "tests/epistemic-boundaries.test.js",
+    "tests/development-hosts.test.js",
+    "tests/credential-transport.test.js",
+    "tests/response-evidence.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+  ],
+  "question": "实际传输边界观察到什么，哪些只是上游说明？",
+  "stateModel": {
+    "budget": "请求计数与页面/进程观察者集合；每调用 reader/信号；完整响应大小未全域界定",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "注入 transport 不等于模拟；HTTP429 不证明额度耗尽"
+  ],
+  "extensionSeam": "替换 fetch/协议收集器保留声明、取消、脱敏与不自动重试的当前策略",
+  "proofObligations": [
+    {
+      "id": "R-015.effect",
+      "statement": "实际传输边界观察到什么，哪些只是上游说明？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/request-transport.mjs"
+    },
+    {
+      "id": "R-015.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "注入 transport 不等于模拟；HTTP429 不证明额度耗尽"
+    ],
+    "assumptions": [
+      "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+      "Injected effects and observed provider reports do not independently verify the external environment"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+    ]
+  }
+}

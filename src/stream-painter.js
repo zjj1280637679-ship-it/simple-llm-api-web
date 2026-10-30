@@ -1,3 +1,8 @@
+/** 开发态课题：增量文本怎样更新而不重置阅读和折叠状态？
+ * 状态/边界：不拥有业务历史；DOM/读取位置来自组合。
+ * 扩展：扩展内容呈现时分别验收文本转义与视图连续性。
+ * 契约：docs/contracts/stream-painter.json；局部宿主不替代完整 F/C/H/Q。
+ */
 import { replyMetricsMarkup } from './usage.js';
 import { reasoningContentMarkup } from './view-markup.js';
 /** Updates only the current reply DOM; preserves reader position and disclosure state. */

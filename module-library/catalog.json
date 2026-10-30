@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "createdAt": "2026-10-29T20:08:58.524Z",
-  "updatedAt": "2026-10-29T20:18:57.630Z",
+  "updatedAt": "2026-10-30T04:46:28.642Z",
   "entries": [
     {
       "id": "R-007",
       "kind": "relation",
       "source": "src/canvas-geometry.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/canvas-geometry.json",
       "host": {
         "id": "H-R-007",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/canvas-geometry.mjs",
         "moduleId": "R-007",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -25,16 +25,16 @@
       "id": "R-011",
       "kind": "relation",
       "source": "src/clipboard-report.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/clipboard-report.json",
       "host": {
         "id": "H-R-011",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/clipboard-report.mjs",
         "moduleId": "R-011",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -42,16 +42,16 @@
       "id": "F-008",
       "kind": "function",
       "source": "src/error-diagnostic.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/error-diagnostic.json",
       "host": {
         "id": "H-F-008",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/error-diagnostic.mjs",
         "moduleId": "F-008",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -59,16 +59,16 @@
       "id": "F-007",
       "kind": "function",
       "source": "src/image-delivery.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/image-delivery.json",
       "host": {
         "id": "H-F-007",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/image-delivery.mjs",
         "moduleId": "F-007",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -76,16 +76,16 @@
       "id": "R-006",
       "kind": "relation",
       "source": "src/lifecycle.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/lifecycle.json",
       "host": {
         "id": "H-R-006",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/lifecycle.mjs",
         "moduleId": "R-006",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -93,16 +93,16 @@
       "id": "F-006",
       "kind": "function",
       "source": "src/native-json.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/native-json.json",
       "host": {
         "id": "H-F-006",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-29T20:18:57.630Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/native-json.mjs",
         "moduleId": "F-006",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -110,16 +110,16 @@
       "id": "R-005",
       "kind": "relation",
       "source": "src/provider-identity.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/provider-identity.json",
       "host": {
         "id": "H-R-005",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-29T20:18:57.630Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/provider-identity.mjs",
         "moduleId": "R-005",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -127,16 +127,16 @@
       "id": "R-009",
       "kind": "relation",
       "source": "src/request-lifecycle.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/request-lifecycle.json",
       "host": {
         "id": "H-R-009",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/request-lifecycle.mjs",
         "moduleId": "R-009",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -144,16 +144,16 @@
       "id": "R-012",
       "kind": "relation",
       "source": "src/stream-painter.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/stream-painter.json",
       "host": {
         "id": "H-R-012",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/stream-painter.mjs",
         "moduleId": "R-012",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -161,16 +161,16 @@
       "id": "R-013",
       "kind": "relation",
       "source": "src/transport-evidence.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/transport-evidence.json",
       "host": {
         "id": "H-R-013",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/transport-evidence.mjs",
         "moduleId": "R-013",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -178,16 +178,16 @@
       "id": "F-009",
       "kind": "function",
       "source": "src/view-markup.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/view-markup.json",
       "host": {
         "id": "H-F-009",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/view-markup.mjs",
         "moduleId": "F-009",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -195,16 +195,16 @@
       "id": "R-008",
       "kind": "relation",
       "source": "src/view-position.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/view-position.json",
       "host": {
         "id": "H-R-008",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/view-position.mjs",
         "moduleId": "R-008",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -212,16 +212,16 @@
       "id": "C-002",
       "kind": "composition",
       "source": "src/workbench.js",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "contract": "docs/contracts/workbench.json",
       "host": {
         "id": "H-C-002",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/workbench.mjs",
         "moduleId": "C-002",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.2.0",
         "mode": "local"
       }
     },
@@ -229,15 +229,134 @@
       "id": "R-010",
       "kind": "relation",
       "source": "src/workspace-storage.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/workspace-storage.json",
       "host": {
         "id": "H-R-010",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/workspace-storage.mjs",
         "moduleId": "R-010",
+        "moduleVersion": "0.1.1",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-010",
+      "kind": "function",
+      "source": "src/completion-evidence.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/completion-evidence.json",
+      "host": {
+        "id": "H-F-010",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/completion-evidence.mjs",
+        "moduleId": "F-010",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "R-014",
+      "kind": "relation",
+      "source": "src/completion-policy.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/completion-policy.json",
+      "host": {
+        "id": "H-R-014",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/completion-policy.mjs",
+        "moduleId": "R-014",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-011",
+      "kind": "function",
+      "source": "src/image-evidence.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/image-evidence.json",
+      "host": {
+        "id": "H-F-011",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/image-evidence.mjs",
+        "moduleId": "F-011",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-012",
+      "kind": "function",
+      "source": "src/request-outcome.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/request-outcome.json",
+      "host": {
+        "id": "H-F-012",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/request-outcome.mjs",
+        "moduleId": "F-012",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-013",
+      "kind": "function",
+      "source": "src/api-target.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/api-target.json",
+      "host": {
+        "id": "H-F-013",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/api-target.mjs",
+        "moduleId": "F-013",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "R-015",
+      "kind": "relation",
+      "source": "src/request-transport.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/request-transport.json",
+      "host": {
+        "id": "H-R-015",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/request-transport.mjs",
+        "moduleId": "R-015",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-014",
+      "kind": "function",
+      "source": "src/app-error.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/app-error.json",
+      "host": {
+        "id": "H-F-014",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/app-error.mjs",
+        "moduleId": "F-014",
         "moduleVersion": "0.1.0",
         "mode": "local"
       }

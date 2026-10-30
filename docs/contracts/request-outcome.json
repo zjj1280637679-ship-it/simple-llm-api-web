@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-012",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "kind": "function",
+    "goal": "request.project-operation-and-separate-unknown-effects",
+    "source": "src/request-outcome.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-012",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "entry": "development/hosts/request-outcome.mjs",
+    "moduleId": "F-012",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+    "Injected effects and observed provider reports do not independently verify the external environment"
+  ],
+  "observations": [
+    "completed 不推导目标达成；不转发配置或任意上游字段"
+  ],
+  "tests": [
+    "tests/epistemic-boundaries.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+  ],
+  "question": "send 返回向调用者证明了哪一层完成？",
+  "stateModel": {
+    "budget": "无持久状态；有限 kind/completion/receipt 字段投影",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "completed 不推导目标达成；不转发配置或任意上游字段"
+  ],
+  "extensionSeam": "增加结果维度先定义依据，不用一个 ok 代表全部效果",
+  "proofObligations": [
+    {
+      "id": "F-012.effect",
+      "statement": "send 返回向调用者证明了哪一层完成？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/request-outcome.mjs"
+    },
+    {
+      "id": "F-012.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "completed 不推导目标达成；不转发配置或任意上游字段"
+    ],
+    "assumptions": [
+      "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+      "Injected effects and observed provider reports do not independently verify the external environment"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+    ]
+  }
+}

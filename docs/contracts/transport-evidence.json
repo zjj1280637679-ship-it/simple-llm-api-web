@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-013",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "relation",
-    "goal": "transport-evidence.declared-effect",
+    "goal": "transport.bind-declaration-to-function-identity",
     "source": "src/transport-evidence.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-R-013",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/transport-evidence.mjs",
     "moduleId": "R-013",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "传输函数身份对应哪份宿主声明？",
+  "stateModel": {
+    "budget": "WeakMap 声明随函数身份，宿主控制对象数",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "新 fetch 函数不得继承旧声明"
+  ],
+  "extensionSeam": "增加证据来源保留 basis 与 verified，声明不晋级实网证明",
+  "proofObligations": [
+    {
+      "id": "R-013.effect",
+      "statement": "传输函数身份对应哪份宿主声明？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/transport-evidence.mjs"
+    },
+    {
+      "id": "R-013.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{functionBoundDeclaration:true,noVerificationPromotion:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

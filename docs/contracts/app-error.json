@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-014",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "kind": "function",
+    "goal": "diagnostic.preserve-local-code-and-optional-http-status",
+    "source": "src/app-error.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-014",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "entry": "development/hosts/app-error.mjs",
+    "moduleId": "F-014",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+    "Injected effects and observed provider reports do not independently verify the external environment"
+  ],
+  "observations": [
+    "同一HTTP状态可有不同根因；代码不承担秘密自动识别"
+  ],
+  "tests": [
+    "tests/epistemic-boundaries.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+  ],
+  "question": "如何保留本地错误类别而不冒称根因？",
+  "stateModel": {
+    "budget": "单个 Error 实例，无共享状态；code/message 为调用者提供的字符串",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "同一HTTP状态可有不同根因；代码不承担秘密自动识别"
+  ],
+  "extensionSeam": "新增 code 描述本地边界，消息不应携带请求秘密",
+  "proofObligations": [
+    {
+      "id": "F-014.effect",
+      "statement": "如何保留本地错误类别而不冒称根因？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/app-error.mjs"
+    },
+    {
+      "id": "F-014.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "同一HTTP状态可有不同根因；代码不承担秘密自动识别"
+    ],
+    "assumptions": [
+      "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+      "Injected effects and observed provider reports do not independently verify the external environment"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+    ]
+  }
+}

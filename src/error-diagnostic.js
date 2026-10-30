@@ -1,3 +1,8 @@
+/** 开发态课题：错误响应中哪些有限字段可作为上游报告保留？
+ * 状态/边界：一次读取器；8 KiB / 1.2 秒预算；响应主体与时钟为外部条件。
+ * 扩展：新增诊断字段须说明其证据意义及脱敏规则。
+ * 契约：docs/contracts/error-diagnostic.json；局部宿主不替代完整 F/C/H/Q。
+ */
 /** Bounded upstream-reported error fields. Content is untrusted and never a verified root cause. */
 export async function readErrorDiagnostic(response,{sanitize,signal,maxBytes=8192,timeoutMs=1200}={}) {
   if(typeof response?.body?.getReader!=='function')return null;

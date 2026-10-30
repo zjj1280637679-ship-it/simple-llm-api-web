@@ -1,40 +1,36 @@
 # 当前验证范围
 
-更新：2026-10-30；版本 0.2.0。主分支审查起点 `05b78784`，首轮修订 `da0a27e6`。本轮源码/测试/宿主身份绑定在 [本地证据](development/evidence/review.json)，发现逐项处置见 [整改记录](docs/reviews/2026-10-30-update.md)。
+项目 v0.3.0；2026-10-30（北京时间）。审查基线 `25edb6b861de1766cd2b3097241cc79df92e071a`，认识论结构修订见 [记录](docs/reviews/2026-10-30-epistemic.md)，设计依据见 [EPISTEMIC_DESIGN](design/EPISTEMIC_DESIGN.md)。
 
-| 验证 | 实际结果和边界 |
+| 验证 | 当前结果与范围 |
 | --- | --- |
-| 原始主分支 | 334 通过、1 跳过、0 失败 |
-| 当前完整回归 | 377 通过、1 跳过、0 失败；Node 24.22.1；[原始输出](development/evidence/review-tests.txt) |
-| 语法检查 | 生产模块、开发宿主、脚本与 CLI 通过 |
-| 构建 | 30 个白名单文件；重复构建一致性、版本引用和部署依赖闭包检查通过 |
-| 最简宿主 | 14 个分别运行通过；源代码、传递导入、宿主和契约均有指纹 |
-| 证据对应 | 当前输入集和日志指纹 MATCH；它不鉴定日志真实性或证明正确性 |
-| 资料复核 | 逐项列出复核日期、缺少的原始快照和实测；日期以内不代表已验证 |
-| 已部署浏览器验收 | main `fb155f9335e5` 发布成功；云端 Chrome 的刷新恢复、设置卡片、图片参数及备份导入导出通过有限场景观察；[具体条件与限制](docs/reviews/2026-10-30-browser.md) |
+| 完整回归 | 392 项：391 通过、1 跳过、0 失败；Node 24.22.1；[原始输出](development/evidence/review-tests.txt) |
+| 语法 / 构建 | 生产、宿主、有限模型、脚本及 CLI 通过；37 个白名单产物；相对依赖与重复构建一致性通过 |
+| 最简宿主 | 21 个分别通过；源、契约、宿主及字面传递导入有指纹 |
+| 有限模型 | 结束解释/接纳 680 类组合；图片效果 820 个列表组合及伪造回执；[条件与未证明义务](development/models/README.md) |
+| 证据对应 | 154 个输入与命令输出的指纹 MATCH；[记录](development/evidence/review.json)；不独立鉴定记录真实性 |
+| 资料复核 | 保留旧来源、时间、缺失快照与实测；本轮未重新验证上游模型能力 |
+| 知识图 | 冻结到本轮具体源提交，另有结构/漂移检测宿主；当前入口见 [knowledge](knowledge/README.md) |
 
-跳过项是原有可选 MCP SDK 对合成 peer 的互操作测试，未安装 SDK，不计通过。行为测试已使用真实模块 import；工作台宿主等待完整初始化，不删 `initializeLocal` 或按字符串切函数。静态文案/CSS 断言仍仅是辅助检查。DOM、时钟、解码器、网络替身按各宿主明确标注。
+唯一跳过项是可选 MCP SDK 对合成 peer 的互操作测试，未安装 SDK，不计通过。没有真实密钥或付费模型请求。完整形式证明、抽象对应、真实宿主条件、成功替代途径池和阶段投影等效性并未由上述测试完成；21 块完整 F/C/H/Q 保持 UNKNOWN。
 
-图片文件签名、浏览器解码、实际像素、工作区存入和用户目标分别记录。尺寸不符仍保留下载。`runConversation` 透传 completion，缺少结束字段仍是 unknown，正常结束也不是任务正确性证明。
-
-HTTP 状态是直接观察；有界脱敏错误字段是上游报告；传输函数绑定的来源是宿主声明。三者不能互相冒充证明。已登记凭据按规则脱敏；无法从任意业务字段名识别所有秘密。
-
-本轮没有真实密钥或付费模型调用。完整实现形式证明、成功替代路线池与阶段投影等效性没有因为局部测试通过而自动完成。各模块 F/C/H/Q 保留其真实范围。
-
-## 复现
+新增回归同时检查：未来结束标记与明确截断的不同解释、缺 JSON 标记的兼容接纳与 SSE framing、空图片集合不全绿、工作区回执不能升级持久化/可见/目标，以及真实工作台组合在正常返回时继续传递 unknown。
 
 ```sh
 npm run check
 npm test
-npm run build
 npm run hosts
+npm run models
+npm run build
 npm run review:health
 npm run review:sources
 npm run review:evidence
+node knowledge/check.mjs
+node knowledge/verify.mjs
 ```
 
-PR 和 main 均执行检查；main 流程只部署白名单 dist。线上部署/浏览器结果见 [发布后观察](docs/reviews/2026-10-30-browser.md)，单独记录，不从本机结果推断。
+PR/main 均执行以上本地检查；main 仅发布 dist。有限模型不会发网络请求。部署成功和实际浏览器观察另行记录于本轮知识快照；不能从本地通过推断浏览器或上游调用已通过。
 
-## 历史观察
+## 历史范围
 
-[初始验证](docs/evidence/2026-10-29-initial-validation.md)中的 Ark 图片 HTTP 200、2048×2048 PNG 是当时的真实报告。本轮未重新调用；其他 UI/模型研究文档也按其明确日期、提交和条件阅读。原 PR #1/#2/#4 的候选能力及结果不自动覆盖最新主分支。
+[v0.2.0 验证入口](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/70290ba6f00b9035f94ecde7ac95849b5ea190a5/VALIDATION.md)记录 377 通过、1 跳过及 14 宿主；[当时浏览器观察](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/70290ba6f00b9035f94ecde7ac95849b5ea190a5/docs/reviews/2026-10-30-browser.md)的构建身份不覆盖本轮。更早的 Ark 图片真实报告及旧 PR 候选均保留其原条件，没有通过改写日期延续到当前版本。

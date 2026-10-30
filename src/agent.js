@@ -1,3 +1,4 @@
+import {receivedImageSummary,applyImageReceipt} from './image-evidence.js';
 import {
   AppError, canonicalEndpoint, dispatchCommand, generateText, getImageTool, makeToolResult, normalizeImageOptions,
 } from './core.js';
@@ -40,21 +41,6 @@ function imageInvocation(call, imageConfig) {
     target,
     model: imageConfig.model,
     protocol: imageConfig.protocol,
-  };
-}
-
-function imageSummary(result) {
-  return {
-    ok: true,
-    message: '图片 API 已返回候选文件，待宿主交付；此结果尚未证明解码成功、尺寸达标或用户满意。若需再次生成，按宿主的再次调用授权流程处理。',
-    stage: 'received',
-    checks: { rasterSignature: 'matched', decoded: 'unknown', delivered: 'unknown', goalSatisfied: 'unknown' },
-    text: result.text || '',
-    imageCount: result.images.length,
-    images: result.images.map(image => ({ mimeType: image.mimeType })),
-    model: result.model,
-    aspectRatio: result.aspectRatio,
-    imageSize: result.imageSize,
   };
 }
 
@@ -131,7 +117,7 @@ export async function runConversation({
                 { command: invocation.command, args: invocation.args },
                 { imageConfig: {...imageConfig, attachmentContext: history.some(message => message.attachments?.length)}, confirmed: true, signal, fetchImpl, onPhase },
               );
-              summary = imageSummary(result);
+              summary = receivedImageSummary(result);
               completed.set(fingerprint, summary);
               const event = { call, result, invocation };
               toolResults.push(event);
@@ -142,11 +128,7 @@ export async function runConversation({
               if (!pendingCalls.length) checkpoint();
               const receipt=await onToolResult?.(event);
               if(receipt?.stage==='stored' && receipt.checks?.delivered==='workspace') {
-                summary={...summary,stage:'stored',message:'候选图片已存入工作区；解码与尺寸检查见 checks，未据此判断用户目标满足。',checks:{
-                  ...summary.checks,delivered:'workspace',
-                  decoded:['passed','failed'].includes(receipt.checks.decoded)?receipt.checks.decoded:'unknown',
-                  dimensions:['matched','mismatch'].includes(receipt.checks.dimensions)?receipt.checks.dimensions:'unknown'
-                }};
+                summary=applyImageReceipt(summary,receipt);
                 completed.set(fingerprint,summary);
                 history[history.length-1]=makeToolResult(config,call,summary);
                 if(!pendingCalls.length)checkpoint();

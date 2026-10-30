@@ -1,6 +1,6 @@
 # 工作台的状态和效果归属
 
-版本 0.2.0；2026-10-30。`app.js` 只创建和启动一个 `createWorkbench` 组合；宿主须等待 `ready`，销毁时调用 `dispose`。浏览器页面生命周期内只挂载一个实例。Node 的最简 DOM 宿主直接导入同一组合，不删除初始化语句。
+版本 0.3.0；2026-10-30。`app.js` 只创建和启动一个 `createWorkbench` 组合；宿主须等待 `ready`，销毁时调用 `dispose`。浏览器页面生命周期内只挂载一个实例。Node 的最简 DOM 宿主直接导入同一组合，不删除初始化语句。
 
 | 模块 | 拥有的状态/资源 | 对外关系 |
 | --- | --- | --- |
@@ -16,10 +16,17 @@
 | transport-evidence | 以传输函数为键的 WeakMap 声明 | 宿主声明的来源和证据 ID；不自行升级为真实网络证明 |
 | error-diagnostic | 单次读取器、字节与时间预算 | 最多 8 KiB/1.2 秒，选择 message/code/type/request_id 后脱敏 |
 
-`logs.js` 的凭据脱敏集合与通讯记录、`core.js` 的凭据观察者是当前页面/Node 进程的共享实例。工作区依赖此共享范围进行跨旧日志脱敏；页面组合销毁会取消其订阅。它们不适合直接承担多租户隔离，另一个多租户宿主要提供各自实例或进程。这一限制有具体作用域，不能写成产品永久禁止多租户。
+`logs.js` 的凭据脱敏集合与通讯记录、`request-transport.js` 的凭据观察者是当前页面/Node 进程的共享实例。工作区依赖此共享范围进行跨旧日志脱敏；页面组合销毁会取消其订阅。它们不适合直接承担多租户隔离，另一个多租户宿主要提供各自实例或进程。这一限制有具体作用域，不能写成产品永久禁止多租户。
 
 图片证据沿接收→解码→存入工作区分别记录。协议签名匹配不能代替解码；像素与预设不同可以保留并下载；工作区存入不能代替屏幕可见或用户满意。Agent 在收到宿主回执后更新工具结果，再提供给后续模型。先前已经发生的图片 API 调用不因 UI 失败而自动重做。
 
 当前模板的未知结束状态保留为 unknown，并由 `runConversation` 传给消费者；显式截断或拒绝不会成为完整历史。接收完成、格式有效和业务效果达成都不是同一判断。
 
 本分解减少了隐式生命周期耦合；没有据此声称整个 UI 已满足完全形式证明。F/C/H/Q 未完成部分保留 UNKNOWN。纯行为测试已移除源码切片/VM 执行；既有静态文案/CSS 检查仍是辅助检查，不算功能证明。
+
+
+## 判断链的独立责任（v0.3.0）
+
+api-target 管当前公共宿主目标策略，request-transport 管传输观察；completion-evidence 解释本地结束标记，completion-policy 决定当前入口的接纳；image-evidence 汇总已观察的图片坐标；request-outcome 投影发送结果。这些块不拥有 DOM 或业务历史。
+
+页面发送继续返回兼容 status=completed，同时提供 outcome.operation/protocolCompletion/workspaceDelivery/durablePersistence/visibleToUser/goalSatisfied。后五者不会因控制流返回而统一为成功。详见 [认识论设计](../design/EPISTEMIC_DESIGN.md)。

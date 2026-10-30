@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-011",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "kind": "function",
+    "goal": "image.project-independent-effect-predicates",
+    "source": "src/image-evidence.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-011",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "entry": "development/hosts/image-evidence.mjs",
+    "moduleId": "F-011",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+    "Injected effects and observed provider reports do not independently verify the external environment"
+  ],
+  "observations": [
+    "空数组不是全部成功；回执中的 goal/persisted/visible 不自动采信"
+  ],
+  "tests": [
+    "tests/epistemic-boundaries.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+  ],
+  "question": "签名、解码、尺寸、工作区交付能支持哪些效果结论？",
+  "stateModel": {
+    "budget": "无持久状态；finite普通数组；检查器穷举0..3项的9类状态，任意长度另有归纳义务",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "空数组不是全部成功；回执中的 goal/persisted/visible 不自动采信"
+  ],
+  "extensionSeam": "新增效果必须有自己的观察者与判据；候选签名摘要以 core 已检查为前提",
+  "proofObligations": [
+    {
+      "id": "F-011.effect",
+      "statement": "签名、解码、尺寸、工作区交付能支持哪些效果结论？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/image-evidence.mjs"
+    },
+    {
+      "id": "F-011.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "boundedModel": {
+    "entry": "development/models/image-evidence-model.mjs",
+    "claim": "Finite-class exhaustive checks only",
+    "unproved": [
+      "abstraction refinement for all implementation inputs",
+      "JS/runtime trust base",
+      "external protocol or effect truth"
+    ]
+  },
+  "epistemicBoundary": {
+    "observations": [
+      "空数组不是全部成功；回执中的 goal/persisted/visible 不自动采信"
+    ],
+    "assumptions": [
+      "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+      "Injected effects and observed provider reports do not independently verify the external environment"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+    ]
+  }
+}

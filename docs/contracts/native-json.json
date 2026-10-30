@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-006",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T19:15:54.000Z",
-    "updatedAt": "2026-10-29T19:15:54.000Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "function",
     "goal": "native-context.copy-without-semantic-filtering",
     "source": "src/native-json.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-006",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-29T19:15:54.000Z",
-    "updatedAt": "2026-10-29T20:18:57.630Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/native-json.mjs",
     "moduleId": "F-006",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -42,5 +42,43 @@
   },
   "limits": [
     "Full F/C/H/Q remain UNKNOWN; local host observations and transitive input fingerprints are separate evidence."
-  ]
+  ],
+  "question": "原生业务 JSON 能否在声明输入范围内无语义删改地复制？",
+  "stateModel": {
+    "budget": "活动路径与节点计数；深度 <=64、节点 <=100000；字符串字节由组合控制",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "普通业务键含 apiKey；共享分支不应误作循环"
+  ],
+  "extensionSeam": "扩展输入类型时先定义保真关系、资源预算与失败出口",
+  "proofObligations": [
+    {
+      "id": "F-006.effect",
+      "statement": "原生业务 JSON 能否在声明输入范围内无语义删改地复制？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/native-json.mjs"
+    },
+    {
+      "id": "F-006.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "Own business property names and primitive values survive",
+      "Copied branches share no mutable input references",
+      "Unsupported input fails without returning a modified context"
+    ],
+    "assumptions": [
+      "Finite plain JSON, dense arrays, no Proxy or concurrent mutation",
+      "Depth <= 64, visited nodes <= 100000 per copy",
+      "Caller enforces total snapshot byte budget and submitted-credential collision policy"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Full F/C/H/Q remain UNKNOWN; local host observations and transitive input fingerprints are separate evidence."
+    ]
+  }
 }

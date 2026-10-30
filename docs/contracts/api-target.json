@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-013",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "kind": "function",
+    "goal": "target.validate-current-public-web-policy",
+    "source": "src/api-target.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-013",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "entry": "development/hosts/api-target.mjs",
+    "moduleId": "F-013",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+    "Injected effects and observed provider reports do not independently verify the external environment"
+  ],
+  "observations": [
+    "确认的目标改变不能继续使用旧授权"
+  ],
+  "tests": [
+    "tests/epistemic-boundaries.test.js",
+    "tests/development-hosts.test.js",
+    "tests/core.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+  ],
+  "question": "当前公共网页允许哪个规范化目标及凭据绑定？",
+  "stateModel": {
+    "budget": "无持久状态；URL解析器为信任基，任意URL输入未完整形式化",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "确认的目标改变不能继续使用旧授权"
+  ],
+  "extensionSeam": "另一个本机/私有宿主单独定义网络策略；无需把当前范围升为永久禁令",
+  "proofObligations": [
+    {
+      "id": "F-013.effect",
+      "statement": "当前公共网页允许哪个规范化目标及凭据绑定？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/api-target.mjs"
+    },
+    {
+      "id": "F-013.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "确认的目标改变不能继续使用旧授权"
+    ],
+    "assumptions": [
+      "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+      "Injected effects and observed provider reports do not independently verify the external environment"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+    ]
+  }
+}

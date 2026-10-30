@@ -1,3 +1,8 @@
+/** 开发态课题：候选图片能否解码，实际像素是什么，谁释放 URL？
+ * 状态/边界：disposed 布尔值 + 当前拥有的 URL 集；图片数量/内存由调用宿主约束。
+ * 扩展：替换解码器及 URL 宿主，保留观测与质量判断分离。
+ * 契约：docs/contracts/image-delivery.json；局部宿主不替代完整 F/C/H/Q。
+ */
 /** Browser decoding is a separate observation from MIME/signature checks.
  * A successful decode establishes dimensions, not semantic task quality.
  */

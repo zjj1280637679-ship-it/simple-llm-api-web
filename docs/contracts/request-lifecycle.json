@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-009",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "relation",
-    "goal": "request-lifecycle.declared-effect",
+    "goal": "request.own-timers-and-report-observed-phase",
     "source": "src/request-lifecycle.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-R-009",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/request-lifecycle.mjs",
     "moduleId": "R-009",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "请求显示的是哪种可观察阶段，谁终止计时？",
+  "stateModel": {
+    "budget": "每活动工作区一个计时器租约，默认2个工作区；30分钟截止",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "长时间无数据不等于模型正在思考或已失败"
+  ],
+  "extensionSeam": "新增阶段须有实际传输/内容信号，截止策略另行论证",
+  "proofObligations": [
+    {
+      "id": "R-009.effect",
+      "statement": "请求显示的是哪种可观察阶段，谁终止计时？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/request-lifecycle.mjs"
+    },
+    {
+      "id": "R-009.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{timersReleased:true,requestAborted:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

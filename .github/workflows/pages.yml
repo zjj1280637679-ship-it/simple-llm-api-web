@@ -24,11 +24,14 @@ jobs:
         with:
           node-version: '24'
           package-manager-cache: false
+      - run: node knowledge/check.mjs
+      - run: node knowledge/verify.mjs
       - run: npm run check
       - run: npm run review:health
       - run: npm run review:evidence
       - run: npm run review:sources
       - run: npm run hosts
+      - run: npm run models
       - run: npm test
       - run: npm run build
       - uses: actions/configure-pages@v5

@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-008",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "relation",
-    "goal": "view-position.declared-effect",
+    "goal": "view.restore-own-position-with-stale-callback-invalidation",
     "source": "src/view-position.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-R-008",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/view-position.mjs",
     "moduleId": "R-008",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "每页阅读位置与晚到布局回调怎样对应？",
+  "stateModel": {
+    "budget": "页位置表 + 回调版本；默认3个页面，宿主动画帧为外部条件",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "过时恢复回调不得覆盖新页或新滚动"
+  ],
+  "extensionSeam": "新页面声明位置身份与失效条件",
+  "proofObligations": [
+    {
+      "id": "R-008.effect",
+      "statement": "每页阅读位置与晚到布局回调怎样对应？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/view-position.mjs"
+    },
+    {
+      "id": "R-008.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{independentReadingPositions:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

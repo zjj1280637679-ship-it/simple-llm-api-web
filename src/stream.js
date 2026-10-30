@@ -1,3 +1,6 @@
+import {observeCompletion} from './completion-evidence.js';
+import {decideCompletion,completionMessage} from './completion-policy.js';
+
 /** SSE framing is independent of network chunks and UTF-8 character boundaries. */
 export async function readSSE(response, { signal, onEvent, error, onPhase }) {
   if (!response.body?.getReader) throw error('STREAM_UNSUPPORTED', '供应商没有返回可读取的流；未自动重试。');
@@ -116,8 +119,8 @@ export async function collectTextStream(response, {protocol, signal, onDelta, on
       }
     }
   }});
-  if (!finish || (!gemini && !ended)) throw error('STREAM_INTERRUPTED','流式回复未正常结束；部分内容未加入对话上下文。');
-  if (!['STOP','stop','tool_calls','function_call'].includes(finish)) throw error('STREAM_INCOMPLETE','模型未完整结束回复（可能达到输出限制或被拦截）；部分内容未加入对话上下文。');
+  const admission=decideCompletion(observeCompletion({protocol,reason:finish,refusal:Boolean(refusal)}),{channel:'sse',terminalObserved:ended});
+  if(!admission.admitted)throw error(admission.code,completionMessage(admission));
   if (gemini) return {...metadata,candidates:[{content:{role:'model',parts},finishReason:finish}],usageMetadata:usage};
   const message = {role:'assistant',content:text};
   if (calls.size) message.tool_calls = [...calls].sort(([a],[b]) => a-b).map(([,call]) => call);

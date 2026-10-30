@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-007",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "function",
-    "goal": "image-delivery.declared-effect",
+    "goal": "image.decode-observe-pixels-and-own-urls",
     "source": "src/image-delivery.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-F-007",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/image-delivery.mjs",
     "moduleId": "F-007",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "候选图片能否解码，实际像素是什么，谁释放 URL？",
+  "stateModel": {
+    "budget": "disposed 布尔值 + 当前拥有的 URL 集；图片数量/内存由调用宿主约束",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "尺寸不符保留下载；解码晚到且已销毁释放 URL"
+  ],
+  "extensionSeam": "替换解码器及 URL 宿主，保留观测与质量判断分离",
+  "proofObligations": [
+    {
+      "id": "F-007.effect",
+      "statement": "候选图片能否解码，实际像素是什么，谁释放 URL？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/image-delivery.mjs"
+    },
+    {
+      "id": "F-007.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{syntheticDecoder:true,dimensionMismatchRetained:true,objectURLReleased:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

@@ -1,3 +1,10 @@
+/** 开发态课题：各工作区如何组合请求、交付、保存和页面生命周期？
+ * 状态/边界：默认2工作区、3页；DOM、协议、存档等外部状态未全部有限化。
+ * 扩展：新增服务通过显式 services 注入，先定义观察/回执与资源归属。
+ * 契约：docs/contracts/workbench.json；局部宿主不替代完整 F/C/H/Q。
+ */
+import {imageWorkspaceReceipt} from './image-evidence.js';
+import {requestOutcome} from './request-outcome.js';
 import { createImageDelivery } from './image-delivery.js';
 import { esc, tabsMarkup, reasoningContentMarkup } from './view-markup.js';
 import { createStreamPainter } from './stream-painter.js';
@@ -424,11 +431,7 @@ async function appendImages(d, result, args, fromTool = false) {
   d.messages.push({ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', metrics:replyMetricsSnapshot(result.usage), fromTool });
   saveLocal(true);
   if (get() === d) render();
-  return {stage:'stored',checks:{
-    decoded:images.every(image=>image.checks.decoded==='passed')?'passed':images.some(image=>image.checks.decoded==='failed')?'failed':'unknown',
-    dimensions:images.every(image=>image.checks.dimensions==='matched')?'matched':images.some(image=>image.checks.dimensions==='mismatch')?'mismatch':'unknown',
-    delivered:'workspace',goalSatisfied:'unknown'
-  }};
+  return imageWorkspaceReceipt(images);
 }
 
 function modelListStatus(d, card, text) {
@@ -471,6 +474,7 @@ async function send() {
   d.busy = true; d.controller = new AbortController(); d.draft = ''; d.attachments = []; d.attachmentError = ''; d.lastUsage = null; d.lastMetrics = null;
   const stopLoading=beginLoading(d);
   let checkpointed = false;
+  let outcome;
   const streamedReplies = new Map();
   const streamingReply = round => {
     let reply = streamedReplies.get(round);
@@ -485,7 +489,9 @@ async function send() {
   try {
     if (requestPage === 'image') {
       const result = await dispatchCommand({ command: 'image.generate', args }, { imageConfig: config, signal: d.controller.signal, confirmed: true, onPhase:phase=>requestPhase(d,phase) });
-      await appendImages(d, result, args); d.lastUsage = result.usage; d.lastMetrics = replyMetricsSnapshot(result.usage);
+      const receipt=await appendImages(d,result,args);
+      outcome=requestOutcome({kind:'image',receipt});
+      d.lastUsage = result.usage; d.lastMetrics = replyMetricsSnapshot(result.usage);
     } else {
       const result = await runConversation({
         config, imageConfig:configuredImageSnapshot(), messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
@@ -508,12 +514,14 @@ async function send() {
         onHistory: history => { d.history = history; checkpointed = true; saveLocal(true); },
         onToolResult: ({ result, invocation }) => appendImages(d, result, invocation.args, true)
       });
+      outcome=requestOutcome({kind:'text',completion:result.completion});
       d.history = result.history;
       if (result.text && !streamedReplies.size) d.messages.push({ id: nextId++, type: 'chatResult', text: result.text, metrics: result.metrics });
       d.lastUsage = result.usage; d.lastMetrics = result.metrics;
     }
     d.pendingTextId = null;
-    return { status: 'completed', messageCount: d.messages.length };
+    // Compatibility status describes control flow; outcome carries separate predicates.
+    return { status:'completed',messageCount:d.messages.length,outcome };
   } catch (e) {
     e=requestError(d,e);
     for (const reply of streamedReplies.values()) {
