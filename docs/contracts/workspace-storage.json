@@ -12,9 +12,9 @@
   },
   "host": {
     "id": "H-R-010",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
     "entry": "development/hosts/workspace-storage.mjs",
     "moduleId": "R-010",
     "moduleVersion": "0.1.1",

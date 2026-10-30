@@ -2,12 +2,12 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { ARK_ENDPOINT, ARK_FLASH_MODEL, IMAGE_MODEL, canonicalEndpoint, dispatchCommand, normalizeImageOptions, validateEndpoint } from './src/core.js';
+import { ARK_ENDPOINT, ARK_FLASH_MODEL, IMAGE_MODEL, canonicalEndpoint, dispatchCommand, normalizeImageOptions, validateEndpoint } from '../src/core.js';
 
 const HELP = `极简 LLM · 受控图片工作台 CLI
 
 Usage:
-  GEMINI_API_KEY=… node cli.mjs image.generate --prompt "提示词" \\
+  GEMINI_API_KEY=… node cli/cli.mjs image.generate --prompt "提示词" \\
     --endpoint https://generativelanguage.googleapis.com/v1beta \\
     --model ${IMAGE_MODEL} --aspect-ratio 1:1 --image-size 1K \\
     --out ./generated --yes
@@ -24,7 +24,7 @@ Options:
   --help           仅显示帮助，不读取密钥、不发起请求
 
 Ark 示例：
-  ARK_API_KEY=… node cli.mjs image.generate --protocol ark --prompt "提示词" \\
+  ARK_API_KEY=… node cli/cli.mjs image.generate --protocol ark --prompt "提示词" \\
     --endpoint ${ARK_ENDPOINT} --image-size 2K --out ./generated --yes
 
 Gemini 密钥只读 GEMINI_API_KEY；Ark 密钥只读 ARK_API_KEY，不回退或互相复制。

@@ -1,5 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.3.0 review:sources
+> simple-llm-api-web@0.4.0 review:sources
 > node scripts/review-sources.mjs
 
 {

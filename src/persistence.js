@@ -1,9 +1,11 @@
 import { copyNativeJSON } from './native-json.js';
+import {persistCard,validCard} from './card-types.js';
+import {isLiveCard} from './interaction-cards.js';
 
 /** Project local snapshots from workspace state. API/card allowlists exclude credentials;
  * submitted secrets are supplied separately for collision checks, never persisted.
  */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export const MAX_SNAPSHOT_BYTES = 48 * 1024 * 1024;
 const pick = (value, keys) => Object.fromEntries(keys.filter(k => value?.[k] !== undefined).map(k => [k, value[k]]));
 const apiKeys = ['protocol','url','model','supplier'];
@@ -28,7 +30,8 @@ function copySnapshot(value) {
       if (raw !== undefined) copied.raw = copyNativeJSON(raw);
       return copied;
     });
-    return [name, {...clean({...workspace, history:[]}), history}];
+    const messages=workspace.messages?.map(message=>{const copied=clean(message);if(message.type==='card')copied.values=copyNativeJSON(message.values);return copied;});
+    return [name, {...clean({...workspace, history:[],messages:[]}), history,...(messages?{messages}:{})}];
   }));
   return {...clean({...value, workspaces:{}}), workspaces};
 }
@@ -72,7 +75,7 @@ export function snapshotWorkspace({data,page,nextId,views={},secrets:archivedSec
         const out=pick(m,messageKeys);
         delete out.metrics;
         if(m.streaming)out.incomplete=true;
-        if(m.type==='card'){out.values=m.kind==='api'?safeApi(m.values):pick(m.values,modelKeys);}
+        if(m.type==='card')return persistCard(m,isLiveCard(d.messages,m.id)?d:undefined);
         if(m.images)out.images=m.images.map(im=>pick(im,['data','mimeType','extension','failed','width','height','checks']));
         return out;
       })
@@ -90,7 +93,7 @@ function filesValid(files) {
   return Array.isArray(files) && files.every(f=>object(f)&&typeof f.id==='string'&&typeof f.name==='string'&&typeof f.mimeType==='string'&&['text','image','pdf','audio','video'].includes(f.kind)&&Number.isSafeInteger(f.size)&&f.size>0&&f.size<=5*1024*1024&&typeof f.base64==='string'&&/^[A-Za-z0-9+/]*={0,2}$/.test(f.base64)&&(f.kind!=='text'||typeof f.text==='string'));
 }
 export function migrateSnapshot(value) {
-  if(!object(value)||value.schema!==SCHEMA_VERSION||!object(value.workspaces)||!object(value.metrics)||!id(value.nextId))invalid();
+  if(!object(value)||![1,SCHEMA_VERSION].includes(value.schema)||!object(value.workspaces)||!object(value.metrics)||!id(value.nextId))invalid();
   const ids=new Set();
   for(const name of ['chat','image']) {
     const d=value.workspaces[name];
@@ -99,8 +102,7 @@ export function migrateSnapshot(value) {
     if(!d.history.every(m=>object(m)&&typeof m.role==='string'&&(!m.attachments||filesValid(m.attachments))))invalid();
     for(const m of d.messages){
       if(!object(m)||!id(m.id)||ids.has(m.id)||!['card','user','imageResult','chatResult','status','error'].includes(m.type))invalid();ids.add(m.id);
-      if(m.type==='card'&&(!['api','model'].includes(m.kind)||!object(m.values)))invalid();
-      if(m.type==='card'&&m.kind==='model'&&m.values.inputs!==undefined&&(!Array.isArray(m.values.inputs)||!m.values.inputs.every(v=>typeof v==='string')))invalid();
+      if(m.type==='card'&&!validCard(m))invalid();
       if(m.attachments!==undefined&&!filesValid(m.attachments))invalid();
       if(m.images!==undefined&&m.type!=='imageResult')invalid();
       if(m.type==='imageResult'&&(!Array.isArray(m.images)||!m.images.every(im=>object(im)&&typeof im.data==='string'&&/^[A-Za-z0-9+/]*={0,2}$/.test(im.data)&&/^image\/(png|jpeg|webp)$/.test(im.mimeType)&&['png','jpg','webp'].includes(im.extension))))invalid();
@@ -110,7 +112,7 @@ export function migrateSnapshot(value) {
     }
   }
   if(value.views!==undefined&&(!object(value.views)||!Object.values(value.views).every(v=>object(v)&&Number.isFinite(v.top)&&v.top>=0&&typeof v.bottom==='boolean')))invalid();
-  return copySnapshot(value);
+  return copySnapshot({...value,schema:SCHEMA_VERSION});
 }
 export function restoreWorkspace(snapshot,makePage) {
   const s=migrateSnapshot(snapshot),data={};let maximum=Object.values(s.workspaces).reduce((max,d)=>d.messages.reduce((n,m)=>Math.max(n,m.id),max),0);
@@ -120,7 +122,7 @@ export function restoreWorkspace(snapshot,makePage) {
     d.api={...d.api,...safeApi(saved.api),key:'',trustedTarget:''};d.model={...d.model,...pick(saved.model,modelKeys)};
     d.messages=saved.messages.map(m=>{
       const out=pick(m,messageKeys);maximum=Math.max(maximum,Number(out.id)||0);
-      if(m.type==='card')Object.assign(out,{values:m.kind==='api'?{...safeApi(m.values),key:'',trustedTarget:''}:pick(m.values,modelKeys),showKey:false,models:[]});
+      if(m.type==='card')Object.assign(out,persistCard(m),{showKey:false,models:[]});
       if(m.images)out.images=m.images.map(im=>({...im,url:im.data && /^image\/(png|jpeg|webp)$/.test(im.mimeType)?`data:${im.mimeType};base64,${im.data}`:'',failed:!im.data||im.failed}));
       if(metrics.messages?.[m.id])out.metrics=metrics.messages[m.id];
       return out;

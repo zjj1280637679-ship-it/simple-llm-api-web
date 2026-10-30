@@ -113,3 +113,16 @@ test('unsupported native values fail saving/import instead of silently rewriting
  saved.workspaces.chat.history=[{role:'assistant',raw:{value:Infinity}}];
  assert.throws(()=>migrateSnapshot(saved),{code:'NATIVE_JSON'});
 });
+
+test('schema 1 cards migrate; new card data, versions and future data round-trip without lifecycle state',()=>{
+ const f=fixture(),d=f.data.chat;d.messages=[{id:1,type:'card',kind:'api',values:{url:'https://old.example.com',model:'old'}}];
+ const old=snapshotWorkspace(f);old.schema=1;delete old.workspaces.chat.messages[0].version;
+ assert.equal(restoreWorkspace(old,makePage).data.chat.messages[0].version,1);
+ d.messages=[{id:2,type:'card',kind:'chart',version:1,values:{rows:[{label:'unknown',value:null}],note:'note'},active:true},
+ {id:3,type:'card',kind:'confirmation',version:1,values:{text:'history'},pending:true},
+ {id:4,type:'card',kind:'future',version:7,values:JSON.parse('{"constructor":"business","apiKey":"business label"}')},
+ {id:5,type:'status',text:'last'}];
+ const saved=snapshotWorkspace(f),restored=restoreWorkspace(saved,makePage);assert.equal(saved.schema,2);
+ assert.equal(Object.hasOwn(saved.workspaces.chat.messages[0],'active'),false);assert.equal(Object.hasOwn(saved.workspaces.chat.messages[1],'pending'),false);
+ assert.deepEqual(restored.data.chat.messages[2].values,d.messages[2].values);assert.equal(restored.data.chat.messages[2].version,7);
+});

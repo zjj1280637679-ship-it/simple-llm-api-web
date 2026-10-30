@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "C-003",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "kind": "composition",
+    "goal": "cards.compose-type-view-codec-and-actions",
+    "source": "src/workbench-cards.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-C-003",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "entry": "development/hosts/workbench-cards.mjs",
+    "moduleId": "C-003",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+    "Host callbacks and DOM/network/storage effects require separate integration evidence"
+  ],
+  "observations": [
+    "未知动作不落到另一个类型；确认可在工具等待中回应"
+  ],
+  "tests": [
+    "tests/interaction-cards.test.js",
+    "tests/app-controls.test.js",
+    "tests/persistence.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+  ],
+  "question": "各类卡片如何以同一登记方式组合数据、展示与动作？",
+  "stateModel": {
+    "budget": "五种已登记类型；具体效果由显式 host 回调提供",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "未知动作不落到另一个类型；确认可在工具等待中回应"
+  ],
+  "extensionSeam": "在一个类型条目中登记视图和动作；历史及导航无需添加特例",
+  "proofObligations": [
+    {
+      "id": "C-003.effect",
+      "statement": "各类卡片如何以同一登记方式组合数据、展示与动作？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/workbench-cards.mjs"
+    },
+    {
+      "id": "C-003.refinement",
+      "statement": "抽象状态与全部宿主输入、异步效果的对应",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "未知动作不落到另一个类型；确认可在工具等待中回应"
+    ],
+    "assumptions": [
+      "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+      "Host callbacks and DOM/network/storage effects require separate integration evidence"
+    ],
+    "policyReference": "docs/INTERACTION_CARDS.md",
+    "notEstablished": [
+      "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+    ]
+  }
+}

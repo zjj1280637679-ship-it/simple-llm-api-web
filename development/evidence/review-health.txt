@@ -1,10 +1,11 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.3.0 review:health
+> simple-llm-api-web@0.4.0 review:health
 > node scripts/review-health.mjs
 
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T04:51:21.674Z",
+  "generatedAt": "2026-10-30T05:33:59.989Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
@@ -66,6 +67,35 @@
       "sha256": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c"
     },
     {
+      "path": "src/card-confirmations.js",
+      "bytes": 1655,
+      "lines": 30,
+      "maxLineCharacters": 148,
+      "relativeImports": [],
+      "sha256": "a462d25dbc9d09a77961a7a220bc47f156ca47df7147510822957cf05adc058a"
+    },
+    {
+      "path": "src/card-markup.js",
+      "bytes": 2758,
+      "lines": 25,
+      "maxLineCharacters": 462,
+      "relativeImports": [
+        "src/view-markup.js"
+      ],
+      "sha256": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576"
+    },
+    {
+      "path": "src/card-types.js",
+      "bytes": 4030,
+      "lines": 52,
+      "maxLineCharacters": 307,
+      "relativeImports": [
+        "src/native-json.js",
+        "src/reasoning.js"
+      ],
+      "sha256": "7f9761c682390495e12d735e42698b33a0cd5c7865fabb9a4bab92487f630129"
+    },
+    {
       "path": "src/clipboard-report.js",
       "bytes": 1055,
       "lines": 21,
@@ -91,8 +121,8 @@
     },
     {
       "path": "src/core.js",
-      "bytes": 19170,
-      "lines": 264,
+      "bytes": 19579,
+      "lines": 270,
       "maxLineCharacters": 476,
       "relativeImports": [
         "src/api-target.js",
@@ -105,7 +135,7 @@
         "src/request-transport.js",
         "src/usage.js"
       ],
-      "sha256": "301817a889ce5f673b12a4bed99f3803cc0eb6caef5a3e612313c8be920b8d20"
+      "sha256": "3169113528d6431a9b6e3aace9050b10de36d218129bb793d634377c1acbda99"
     },
     {
       "path": "src/error-diagnostic.js",
@@ -148,6 +178,14 @@
       "sha256": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1"
     },
     {
+      "path": "src/interaction-cards.js",
+      "bytes": 3353,
+      "lines": 55,
+      "maxLineCharacters": 175,
+      "relativeImports": [],
+      "sha256": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f"
+    },
+    {
       "path": "src/lifecycle.js",
       "bytes": 1133,
       "lines": 31,
@@ -173,13 +211,15 @@
     },
     {
       "path": "src/persistence.js",
-      "bytes": 17726,
-      "lines": 239,
+      "bytes": 17786,
+      "lines": 241,
       "maxLineCharacters": 371,
       "relativeImports": [
+        "src/card-types.js",
+        "src/interaction-cards.js",
         "src/native-json.js"
       ],
-      "sha256": "fc680e5697c1c7a901cd9a94b7f9b5eb45cd2a07658edb1765b48b055e7aa13b"
+      "sha256": "e43c089797c38bea9d488d6ffd5620a00a4340af3fc271334fc5bbc272b9c69e"
     },
     {
       "path": "src/provider-identity.js",
@@ -305,19 +345,35 @@
       "sha256": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd"
     },
     {
+      "path": "src/workbench-cards.js",
+      "bytes": 2721,
+      "lines": 37,
+      "maxLineCharacters": 190,
+      "relativeImports": [
+        "src/card-markup.js",
+        "src/card-types.js",
+        "src/interaction-cards.js"
+      ],
+      "sha256": "8ab7d109fb5c37b73eaae1be0982247c12e8d6ee6b8022cff326f940ab89c793"
+    },
+    {
       "path": "src/workbench.js",
-      "bytes": 64359,
-      "lines": 852,
+      "bytes": 68080,
+      "lines": 921,
       "maxLineCharacters": 687,
       "relativeImports": [
         "src/agent.js",
         "src/attachments.js",
         "src/canvas-geometry.js",
+        "src/card-confirmations.js",
+        "src/card-markup.js",
+        "src/card-types.js",
         "src/clipboard-report.js",
         "src/core.js",
         "src/icons.js",
         "src/image-delivery.js",
         "src/image-evidence.js",
+        "src/interaction-cards.js",
         "src/lifecycle.js",
         "src/logs.js",
         "src/persistence.js",
@@ -330,9 +386,10 @@
         "src/usage.js",
         "src/view-markup.js",
         "src/view-position.js",
+        "src/workbench-cards.js",
         "src/workspace-storage.js"
       ],
-      "sha256": "8a33728f76aa1032e632269aa559c3488f22f3d0e24a6fb54e3e00ec2e304e02"
+      "sha256": "5035d0245ed1608f1d45a760d84c690f3adec1393c448a5ca59e35cc620133a5"
     },
     {
       "path": "src/workspace-storage.js",
@@ -379,6 +436,48 @@
       "question": "视口变化如何保持操作可达而不恢复旧焦点？",
       "goal": "canvas.preserve-reading-and-explicit-focus-intent",
       "stateBudget": "诊断环最多80项；观察器/DOM 几何由宿主提供，外部状态未有限化",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/card-confirmations.json",
+      "module": "R-017",
+      "host": "H-R-017",
+      "question": "历史中的确认如何对应一次正在等待的调用？",
+      "goal": "cards.resolve-single-live-continuation",
+      "stateBudget": "默认两个工作区各至多一个 Promise 资源；销毁清空；不持久化继续执行能力",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/card-markup.json",
+      "module": "F-016",
+      "host": "H-F-016",
+      "question": "如何共用卡片外壳并区分未知与零？",
+      "goal": "cards.render-shared-shell-and-escaped-data",
+      "stateBudget": "纯字符串生成；输入由类型 codec 校验，DOM 布局另验",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/card-types.json",
+      "module": "F-015",
+      "host": "H-F-015",
+      "question": "哪些数据构成可保存的卡片快照？",
+      "goal": "cards.capture-versioned-data-without-live-flags",
+      "stateBudget": "JSON 深度/节点继承 native-json 预算；图表最多64行、日志最多100项；密钥排除",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -463,6 +562,20 @@
       "question": "签名、解码、尺寸、工作区交付能支持哪些效果结论？",
       "goal": "image.project-independent-effect-predicates",
       "stateBudget": "无持久状态；finite普通数组；检查器穷举0..3项的9类状态，任意长度另有归纳义务",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/interaction-cards.json",
+      "module": "R-016",
+      "host": "H-R-016",
+      "question": "一张卡当前是否处于历史末项，其动作可否执行？",
+      "goal": "cards.admit-actions-only-at-history-tail",
+      "stateBudget": "无活跃状态字段；类型登记表、唯一 id 与有序历史；外部 handler 效果另验",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -611,10 +724,24 @@
       }
     },
     {
+      "path": "docs/contracts/workbench-cards.json",
+      "module": "C-003",
+      "host": "H-C-003",
+      "question": "各类卡片如何以同一登记方式组合数据、展示与动作？",
+      "goal": "cards.compose-type-view-codec-and-actions",
+      "stateBudget": "五种已登记类型；具体效果由显式 host 回调提供",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
       "path": "docs/contracts/workbench.json",
       "module": "C-002",
       "host": "H-C-002",
-      "question": "各工作区如何组合请求、交付、保存和页面生命周期？",
+      "question": "各工作区如何组合请求、交付、保存和历史交互卡？",
       "goal": "workbench.compose-scoped-effects-after-hydration",
       "stateBudget": "默认2工作区、3页；DOM、协议、存档等外部状态未全部有限化",
       "gates": {

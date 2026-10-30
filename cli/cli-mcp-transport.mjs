@@ -1,7 +1,7 @@
 // Optional real browser transport: MCP stdio -> user-configured Playwright MCP
 // extension host -> native page WebMCP. Never starts a shell or HTTP listener.
 import { readFile } from 'node:fs/promises';
-import { validateSessionCommand, sessionCommandResult } from './src/session.js';
+import { validateSessionCommand, sessionCommandResult } from '../src/session.js';
 const fail = code => { const error = new Error(code); error.code = code; throw error; };
 const safeErrors = new Set(['INVALID_MCP_CONFIG','MCP_SDK_REQUIRED','MCP_TARGET_MISMATCH','MCP_TOOL_UNAVAILABLE','MCP_COMMAND_FAILED','MCP_RESULT_INVALID']);
 export function validateMcpConfig(config) {

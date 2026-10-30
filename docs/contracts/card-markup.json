@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-016",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "kind": "function",
+    "goal": "cards.render-shared-shell-and-escaped-data",
+    "source": "src/card-markup.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-016",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "entry": "development/hosts/card-markup.mjs",
+    "moduleId": "F-016",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+    "Host callbacks and DOM/network/storage effects require separate integration evidence"
+  ],
+  "observations": [
+    "未知用量不画作零；历史外壳 disabled 不替代动作守卫"
+  ],
+  "tests": [
+    "tests/interaction-cards.test.js",
+    "tests/app-controls.test.js",
+    "tests/persistence.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+  ],
+  "question": "如何共用卡片外壳并区分未知与零？",
+  "stateModel": {
+    "budget": "纯字符串生成；输入由类型 codec 校验，DOM 布局另验",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "未知用量不画作零；历史外壳 disabled 不替代动作守卫"
+  ],
+  "extensionSeam": "新展示器返回转义内容并复用 shell",
+  "proofObligations": [
+    {
+      "id": "F-016.effect",
+      "statement": "如何共用卡片外壳并区分未知与零？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/card-markup.mjs"
+    },
+    {
+      "id": "F-016.refinement",
+      "statement": "抽象状态与全部宿主输入、异步效果的对应",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "未知用量不画作零；历史外壳 disabled 不替代动作守卫"
+    ],
+    "assumptions": [
+      "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+      "Host callbacks and DOM/network/storage effects require separate integration evidence"
+    ],
+    "policyReference": "docs/INTERACTION_CARDS.md",
+    "notEstablished": [
+      "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+    ]
+  }
+}

@@ -178,3 +178,6 @@ button,label,.formlabel,.card-type,.disabled-tag,.small-caption,.api-security,
 .reasoning-content{margin:10px 0 16px;border-left:2px solid var(--border,#ddd);padding-left:12px;min-width:0;color:var(--muted,#666)}
 .reasoning-content summary{cursor:pointer;font-size:13px;line-height:1.6;user-select:none}
 .reasoning-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.65;padding-top:10px}
+
+/* All interaction cards share the settings shell; readouts keep text selectable. */
+.card-chart{margin:16px 0;display:grid;gap:12px}.card-chart-row{display:grid;grid-template-columns:3em 1fr;gap:12px}.card-chart dd{position:relative;margin:0;min-width:0;background:#f5f6f4;border-radius:6px;padding:6px 10px}.card-chart-bar{position:absolute;inset:0 auto 0 0;background:#dde7df;border-radius:6px}.card-chart output{position:relative}.card-log{max-height:280px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}.card-confirmation-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7}.card-actions{display:flex;gap:12px}.setup-card>.card-actions button,.setup-card>button{padding:9px 14px;border:1px solid var(--line);border-radius:9px;background:#f8f9f7;color:inherit}.setup-card.old .card-chart-bar{background:#e5e7e4}

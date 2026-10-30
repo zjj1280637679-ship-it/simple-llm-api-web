@@ -240,10 +240,16 @@ export async function generateImage({config, prompt, aspectRatio, imageSize, sig
   return {images,text:parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join(''),usage:usageFrom(json,config.protocol,{endpoint:config.url}),...options,model};
 }
 
-/** The only executable command. API keys/endpoint/model cannot come from model tool arguments. */
+/** Typed command routing. Local card actions need an explicitly supplied page
+ * runtime; model image-tool contexts do not receive it. Payloads never provide handlers.
+ */
 export async function dispatchCommand(command, context = {}) {
+  if (isRecord(command) && command.command === 'card.action' && Object.keys(command).every(key=>['command','args'].includes(key))) {
+    if (!context.cardRuntime || typeof context.cardRuntime.execute !== 'function') fail('CARD_CONTEXT','此宿主没有提供卡片动作执行器。');
+    return context.cardRuntime.execute(command.args);
+  }
   if (!isRecord(command) || command.command !== 'image.generate' || Object.keys(command).some(key => !['command','args'].includes(key)))
-    fail('COMMAND', '不支持此命令；仅允许 image.generate。');
+    fail('COMMAND', '当前宿主没有此命令的实现。');
   const args = command.args;
   if (!isRecord(args) || Object.keys(args).some(key => !['prompt','aspectRatio','imageSize'].includes(key)))
     fail('COMMAND_ARGS', '图片命令参数不正确；不接受地址、密钥、模型或任意代码。');

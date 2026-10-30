@@ -27,3 +27,7 @@
 ## 宿主与回归的对应
 
 completion-evidence、completion-policy、image-evidence 均有独立契约和最简宿主。模型检查是补充维度，完整 JSON/SSE/Agent/网页发送回归另外覆盖组合。改变抽象输入域、性质或共享模型实现时，更新使用它的宿主版本及证据指纹。
+
+## 交互卡位置模型（v0.4.0）
+
+`card-position-model.mjs` 穷举 api/model/user/chatResult/status/error 六种历史项、长度 0..4 的 1555 条历史，共 7465 个身份查询。直接调用生产 isLiveCard 和动作登记表，用末项索引作独立判据；每个工作区至多一个活卡、任何后续非卡项也冻结旧卡。异步晚到、一次性确认和存档恢复另有组合测试。无限历史长度的对应、DOM 事件与外部效果仍需独立证明。
