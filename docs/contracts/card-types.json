@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-015",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "kind": "function",
+    "goal": "cards.capture-versioned-data-without-live-flags",
+    "source": "src/card-types.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-015",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "entry": "development/hosts/card-types.mjs",
+    "moduleId": "F-015",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+    "Host callbacks and DOM/network/storage effects require separate integration evidence"
+  ],
+  "observations": [
+    "API key 不属于 values；未知版本不成为可执行代码"
+  ],
+  "tests": [
+    "tests/interaction-cards.test.js",
+    "tests/app-controls.test.js",
+    "tests/persistence.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+  ],
+  "question": "哪些数据构成可保存的卡片快照？",
+  "stateModel": {
+    "budget": "JSON 深度/节点继承 native-json 预算；图表最多64行、日志最多100项；密钥排除",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "API key 不属于 values；未知版本不成为可执行代码"
+  ],
+  "extensionSeam": "新类型定义捕获、校验与字段；未来类型数据可读而不猜测动作",
+  "proofObligations": [
+    {
+      "id": "F-015.effect",
+      "statement": "哪些数据构成可保存的卡片快照？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/card-types.mjs"
+    },
+    {
+      "id": "F-015.refinement",
+      "statement": "抽象状态与全部宿主输入、异步效果的对应",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "API key 不属于 values；未知版本不成为可执行代码"
+    ],
+    "assumptions": [
+      "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+      "Host callbacks and DOM/network/storage effects require separate integration evidence"
+    ],
+    "policyReference": "docs/INTERACTION_CARDS.md",
+    "notEstablished": [
+      "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+    ]
+  }
+}

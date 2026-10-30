@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "R-016",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "kind": "relation",
+    "goal": "cards.admit-actions-only-at-history-tail",
+    "source": "src/interaction-cards.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-R-016",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "entry": "development/hosts/interaction-cards.mjs",
+    "moduleId": "R-016",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+    "Host callbacks and DOM/network/storage effects require separate integration evidence"
+  ],
+  "observations": [
+    "任意非卡历史项也冻结旧卡；晚到提交不能恢复旧身份"
+  ],
+  "tests": [
+    "tests/interaction-cards.test.js",
+    "tests/app-controls.test.js",
+    "tests/persistence.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+  ],
+  "question": "一张卡当前是否处于历史末项，其动作可否执行？",
+  "stateModel": {
+    "budget": "无活跃状态字段；类型登记表、唯一 id 与有序历史；外部 handler 效果另验",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "任意非卡历史项也冻结旧卡；晚到提交不能恢复旧身份"
+  ],
+  "extensionSeam": "新类型经显式定义登记；动作条件和 commit 回查共享",
+  "proofObligations": [
+    {
+      "id": "R-016.effect",
+      "statement": "一张卡当前是否处于历史末项，其动作可否执行？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/interaction-cards.mjs"
+    },
+    {
+      "id": "R-016.refinement",
+      "statement": "抽象状态与全部宿主输入、异步效果的对应",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "任意非卡历史项也冻结旧卡；晚到提交不能恢复旧身份"
+    ],
+    "assumptions": [
+      "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+      "Host callbacks and DOM/network/storage effects require separate integration evidence"
+    ],
+    "policyReference": "docs/INTERACTION_CARDS.md",
+    "notEstablished": [
+      "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+    ]
+  },
+  "boundedModel": {
+    "entry": "development/models/card-position-model.mjs",
+    "claim": "1555 representative histories / 7465 queries",
+    "unproved": [
+      "arbitrary lengths and host effects",
+      "JavaScript runtime trust base"
+    ]
+  }
+}

@@ -36,7 +36,7 @@ async function mount({ confirm = () => true, runConversation, dispatchCommand, l
   };
   const document = { getElementById: () => app, addEventListener: () => {}, activeElement: null };
   const neverFetch = () => assert.fail('No network may run in control regressions.');
-  const context = createWorkbench({document,window:{confirm,addEventListener(){}},services:{
+  const context = createWorkbench({document,window:{confirm,addEventListener(){}},services:{confirm,
     runConversation:runConversation || neverFetch,listModels:listModels || neverFetch,dispatchCommand:dispatchCommand || neverFetch,
     renderNetworkLogs:container=>{if(container)container.textContent=logs.exportNetworkLogs();},registerTools:()=>({available:false}),
     createStore:()=>({load:async()=>null,journal(){},schedule:async()=>{},reportError(){},close(){}})
@@ -439,7 +439,7 @@ test('late success or error cannot steal a reading position after switching away
 test('reopening settings preserves key, deleting it clears memory immediately, inactive cards cannot restore it', async()=>{
  const ui=await mount(),{d,card:old}=configure(ui);const retained=d.api.key;
  ui.addCard('api');const current=d.messages.at(-1),key=ui.app.querySelector(`#key${current.id}`);
- assert.equal(key.value,retained);assert.equal(d.api.key,retained);assert.equal(old.values.key,'');
+ assert.equal(key.value,retained);assert.equal(d.api.key,retained);assert.equal(Object.hasOwn(old.values,'key'),false);
  key.value='';ui.input(key);assert.equal(d.api.key,'');assert.equal(d.api.trustedTarget,'');
  ui.input({dataset:{card:String(old.id),key:'key'},value:'stale-key'});assert.equal(d.api.key,'');
 });
@@ -459,7 +459,7 @@ test('deleting a key without blur prevents send and list immediately', async()=>
 test('eventless target and new-key autofill stay consistent across consecutive sends', async()=>{
  let calls=0;const ui=await mount({runConversation:async({config})=>{calls++;assert.equal(config.url,'https://new.example.com/v1');assert.equal(config.key,'new-autofill');return{text:'ok',history:[]};}}),{d,card}=configure(ui);
  ui.app.querySelector(`#url${card.id}`).value='https://new.example.com/v1';ui.app.querySelector(`#key${card.id}`).value='new-autofill';
- for(let i=0;i<2;i++){d.draft='request '+i;await ui.click({action:'send'});assert.equal(ui.app.querySelector(`#key${card.id}`).value,'new-autofill');}
+ for(let i=0;i<2;i++){d.draft='request '+i;await ui.click({action:'send'});assert.equal(ui.app.querySelector(`#key${card.id}`).value,'');assert.equal(d.api.key,'new-autofill');}
  assert.equal(calls,2);
 });
 test('page-tool confirmation snapshots autofill before approval and refuses eventless post-approval edits', async()=>{
@@ -510,7 +510,7 @@ test('pure family choice never enables strength; unset keeps family quick values
  await ui.click({action:'reasoning-toggle',id});
  const menu=ui.app.innerHTML.match(/<section class="reasoning-menu reasoning-family-list"[\s\S]*?<\/section>/)[0];
  assert.match(menu,/Claude 模板/);assert.match(menu,/DeepSeek 模板/);assert.doesNotMatch(menu,/不指定|推荐|思考开关|high|预算|应用|取消/);
- await ui.click({action:'reasoning-family',family:'openai'});assert.equal(d.model.reasoningFamily,'openai');assert.equal(d.model.reasoning,undefined);
+ await ui.click({action:'reasoning-family',id,family:'openai'});assert.equal(d.model.reasoningFamily,'openai');assert.equal(d.model.reasoning,undefined);
  await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-quick',template:'openai-effort',value:'high'});assert.equal(d.model.reasoning.value,'high');
  await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-quick',value:''});assert.equal(d.model.reasoning,undefined);assert.equal(d.model.reasoningFamily,'openai');
  await ui.click({action:'reasoning-toggle'});assert.match(ui.app.innerHTML,/data-value="high"/);
@@ -523,7 +523,7 @@ test('reasoning incompatible protocol selection is cleared when changing supplie
 
 test('cross-protocol family fails visibly without changing protocol or configuration', async()=>{
  const ui=await mount(),{d}=configure(ui);ui.addCard('model');const id=String(d.messages.at(-1).id);
- await ui.click({action:'reasoning-toggle',id});await ui.click({action:'reasoning-family',family:'anthropic'});
+ await ui.click({action:'reasoning-toggle',id});await ui.click({action:'reasoning-family',id,family:'anthropic'});
  assert.equal(d.api.protocol,'gemini');assert.equal(d.model.reasoningFamily,undefined);assert.match(d.reasoningIssue,/接口格式不匹配/);
 });
 test('session approval rejects in-place reasoning value changes before dispatch', async()=>{
@@ -563,8 +563,8 @@ test('each streamed round retains its own immutable metrics through later sends 
 
 test('historical family card cannot change current family and supplier change clears incompatible family', async()=>{
  const ui=await mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';ui.addCard('model');const old=String(d.messages.at(-1).id);
- await ui.click({action:'reasoning-toggle',id:old});await ui.click({action:'reasoning-family',family:'deepseek'});assert.equal(d.model.reasoningFamily,'deepseek');
- ui.addCard('model');await ui.click({action:'reasoning-toggle',id:old});await ui.click({action:'reasoning-family',family:'openai'});assert.equal(d.model.reasoningFamily,'deepseek');
+ await ui.click({action:'reasoning-toggle',id:old});await ui.click({action:'reasoning-family',id:old,family:'deepseek'});assert.equal(d.model.reasoningFamily,'deepseek');
+ ui.addCard('model');await ui.click({action:'reasoning-toggle',id:old});await ui.click({action:'reasoning-family',id:old,family:'openai'});assert.equal(d.model.reasoningFamily,'deepseek');
  ui.addCard('api');await ui.click({action:'choose-supplier',id:String(d.messages.at(-1).id),index:'0'});assert.equal(d.model.reasoningFamily,undefined);
 });
 test('quick setting validation failure is visible once without sending or silently changing selection', async()=>{
@@ -577,7 +577,7 @@ test('quick setting validation failure is visible once without sending or silent
 test('budget is editable only in composer intensity layer and blank never becomes zero', async()=>{
  const ui=await mount(),{d}=configure(ui);d.api.model='gemini-2.5-flash';ui.addCard('model');
  await ui.click({action:'reasoning-toggle',id:String(d.messages.at(-1).id)});assert.doesNotMatch(ui.app.innerHTML,/id="reasoning-quick-budget"/);
- await ui.click({action:'reasoning-family',family:'gemini'});assert.equal(d.model.reasoning,undefined);
+ await ui.click({action:'reasoning-family',id:String(d.messages.at(-1).id),family:'gemini'});assert.equal(d.model.reasoning,undefined);
  await ui.click({action:'reasoning-toggle'});const field=ui.app.querySelector('#reasoning-quick-budget');field.value='';
  await ui.click({action:'reasoning-budget-apply'});assert.equal(d.model.reasoning,undefined);assert.match(d.reasoningIssue,/请输入/);
  ui.app.querySelector('#reasoning-quick-budget').value='1024';await ui.click({action:'reasoning-budget-apply'});assert.equal(d.model.reasoning.value,'1024');
@@ -621,4 +621,49 @@ test('only an explicitly submitted complete credential remains protected after f
  field.value='';ui.input(field);
  d.draft='Bearer sk-complete-credential / key=sk-complete-credential';
  const saved=ui.persisted();assert.ok(!saved.workspaces.chat.draft.includes('sk-complete-credential'));assert.ok(saved.workspaces.chat.draft.includes('[密钥已移除]'));
+});
+
+test('any output after an API card freezes fields and buttons; reopening captures current settings',async()=>{
+ const ui=await mount({runConversation:async()=>({text:'answer',history:[]})}),{d,card}=configure(ui);
+ d.api.model='chosen-model';ui.render();d.draft='send';await ui.click({action:'send'});
+ const frozen=JSON.stringify(card.values);assert.equal(card.values.model,'chosen-model');
+ ui.input({dataset:{card:String(card.id),key:'model'},value:'stale'});
+ await ui.click({action:'choose-supplier',id:String(card.id),index:'4'});
+ assert.equal(d.api.model,'chosen-model');assert.match(ui.app.innerHTML,new RegExp(`data-interaction-card="${card.id}"[\\s\\S]*?<fieldset disabled`));
+ d.api.model='later-model';ui.render();assert.equal(JSON.stringify(card.values),frozen);
+ ui.addCard('api');assert.equal(d.messages.at(-1).values.model,'later-model');
+});
+test('model list resolving after a later card does not mutate the historical card',async()=>{
+ let release;const ui=await mount({listModels:()=>new Promise(resolve=>release=resolve)}),{d,card}=configure(ui);
+ const pending=ui.click({action:'pull-models',id:String(card.id)});ui.addCard('model');
+ release([{id:'late'}]);await pending;assert.deepEqual(card.models,[]);assert.equal(d.busy,false);assert.doesNotMatch(ui.app.innerHTML,/data-model="late"/);
+});
+test('inline page confirmation waits for its tail-card action and sends exactly once',async()=>{
+ let calls=0;const ui=await mount({confirm:null,runConversation:async()=>{calls++;return {text:'done',history:[]};}}),{d}=configure(ui);d.draft='inline test';
+ const pending=ui.session.execute({command:'request.send',args:{}});const card=d.messages.at(-1),confirmationText=card.values.text;
+ assert.equal(card.kind,'confirmation');assert.equal(calls,0);
+ assert.match(ui.app.innerHTML,/data-action="confirm-card"/);
+ await ui.click({action:'confirm-card',id:String(card.id),choice:'yes'});
+ assert.equal((await pending).ok,true);await ui.click({action:'confirm-card',id:String(card.id),choice:'yes'});assert.equal(calls,1);
+ assert.equal(d.messages.find(m=>m.id===card.id).values.text,confirmationText);
+});
+test('a newer card cancels an inline confirmation and obsolete confirm events cannot send',async()=>{
+ let calls=0;const ui=await mount({confirm:null,runConversation:async()=>calls++}),{d}=configure(ui);d.draft='not sent';
+ const pending=ui.session.execute({command:'request.send',args:{}}),card=d.messages.at(-1);ui.addCard('model');
+ assert.equal((await pending).error,'CONFIRMATION_REQUIRED');await ui.click({action:'confirm-card',id:String(card.id),choice:'yes'});assert.equal(calls,0);
+});
+test('confirmation cards remain actionable during an agent request; cancel releases a waiting tool',async()=>{
+ let consent;const ui=await mount({confirm:null,runConversation:async({confirmTool})=>{consent=await confirmTool({target:'https://example.com',model:'fixture',args:{prompt:'synthetic'}});return {text:'cancelled tool',history:[]};}}),{d}=configure(ui);d.draft='tool';
+ const pending=ui.click({action:'send'});await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(d.busy,true);assert.equal(d.messages.at(-1).kind,'confirmation');
+ await ui.click({action:'cancel'});await pending;assert.equal(consent,false);assert.equal(d.busy,false);
+});
+test('chart and log cards use snapshots and the shared action guard',async()=>{
+ logs.clearNetworkLogs();const ui=await mount(),{d}=configure(ui);d.lastUsage={inputTokens:0,outputTokens:12,totalTokens:null};
+ await ui.click({action:'new-card',kind:'chart'});const chart=d.messages.at(-1);assert.deepEqual(chart.values.rows.map(x=>x.value),[0,12,null]);
+ await ui.click({action:'new-card',kind:'logs'});const logCard=d.messages.at(-1);d.lastUsage={inputTokens:99};
+ await ui.click({action:'refresh-chart',id:String(chart.id)});assert.equal(chart.values.rows[0].value,0);
+ logs.recordNetwork({source:'synthetic',requestId:'late'});assert.equal(logCard.values.entries.length,0);
+ await ui.click({action:'refresh-logs-card',id:String(logCard.id)});assert.equal(logCard.values.entries.length,1);
+ assert.equal(ui.persisted().workspaces.chat.messages.at(-1).kind,'logs');logs.clearNetworkLogs();
 });

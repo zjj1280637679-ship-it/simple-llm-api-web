@@ -22,7 +22,8 @@ test('production has no simulated result or persistent key storage', async () =>
   assert.match(app, /snapshotJournal/); // bounded no-key draft journal, separately allowlist-tested
   assert.doesNotMatch(app, /localStorage\.(setItem|clear|removeItem)/);
   assert.match(app, /esc\(m\.text\)/);
-  assert.match(app, /if \(d\.busy \|\| d\.attachmentReading/);
+  // Reentry and pending confirmations are exercised through the actual handlers
+  // in app-controls.test.js; source spelling does not establish those behaviors.
 });
 test('production starts with no pre-filled user or model history', async () => {
   assert.match(await Promise.resolve(uiSource), /messages: \[\], history: \[\]/);

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "R-017",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "kind": "relation",
+    "goal": "cards.resolve-single-live-continuation",
+    "source": "src/card-confirmations.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-R-017",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "entry": "development/hosts/card-confirmations.mjs",
+    "moduleId": "R-017",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+    "Host callbacks and DOM/network/storage effects require separate integration evidence"
+  ],
+  "observations": [
+    "重复回应不重复执行；新历史/取消/dispose 释放等待"
+  ],
+  "tests": [
+    "tests/interaction-cards.test.js",
+    "tests/app-controls.test.js",
+    "tests/persistence.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+  ],
+  "question": "历史中的确认如何对应一次正在等待的调用？",
+  "stateModel": {
+    "budget": "默认两个工作区各至多一个 Promise 资源；销毁清空；不持久化继续执行能力",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "重复回应不重复执行；新历史/取消/dispose 释放等待"
+  ],
+  "extensionSeam": "增加确认场景时声明目标快照与释放点；不从历史数据构造 handler",
+  "proofObligations": [
+    {
+      "id": "R-017.effect",
+      "statement": "历史中的确认如何对应一次正在等待的调用？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/card-confirmations.mjs"
+    },
+    {
+      "id": "R-017.refinement",
+      "statement": "抽象状态与全部宿主输入、异步效果的对应",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "重复回应不重复执行；新历史/取消/dispose 释放等待"
+    ],
+    "assumptions": [
+      "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
+      "Host callbacks and DOM/network/storage effects require separate integration evidence"
+    ],
+    "policyReference": "docs/INTERACTION_CARDS.md",
+    "notEstablished": [
+      "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
+    ]
+  }
+}

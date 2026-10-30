@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "createdAt": "2026-10-29T20:08:58.524Z",
-  "updatedAt": "2026-10-30T04:46:28.642Z",
+  "updatedAt": "2026-10-30T05:30:34.595Z",
   "entries": [
     {
       "id": "R-007",
@@ -97,9 +97,9 @@
       "contract": "docs/contracts/native-json.json",
       "host": {
         "id": "H-F-006",
-        "version": "0.1.2",
+        "version": "0.1.3",
         "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
         "entry": "development/hosts/native-json.mjs",
         "moduleId": "F-006",
         "moduleVersion": "0.1.1",
@@ -212,16 +212,16 @@
       "id": "C-002",
       "kind": "composition",
       "source": "src/workbench.js",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "contract": "docs/contracts/workbench.json",
       "host": {
         "id": "H-C-002",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
         "entry": "development/hosts/workbench.mjs",
         "moduleId": "C-002",
-        "moduleVersion": "0.2.0",
+        "moduleVersion": "0.3.0",
         "mode": "local"
       }
     },
@@ -233,9 +233,9 @@
       "contract": "docs/contracts/workspace-storage.json",
       "host": {
         "id": "H-R-010",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
         "entry": "development/hosts/workspace-storage.mjs",
         "moduleId": "R-010",
         "moduleVersion": "0.1.1",
@@ -357,6 +357,91 @@
         "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/app-error.mjs",
         "moduleId": "F-014",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "R-016",
+      "kind": "relation",
+      "source": "src/interaction-cards.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/interaction-cards.json",
+      "host": {
+        "id": "H-R-016",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "entry": "development/hosts/interaction-cards.mjs",
+        "moduleId": "R-016",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-015",
+      "kind": "function",
+      "source": "src/card-types.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/card-types.json",
+      "host": {
+        "id": "H-F-015",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "entry": "development/hosts/card-types.mjs",
+        "moduleId": "F-015",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-016",
+      "kind": "function",
+      "source": "src/card-markup.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/card-markup.json",
+      "host": {
+        "id": "H-F-016",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "entry": "development/hosts/card-markup.mjs",
+        "moduleId": "F-016",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "R-017",
+      "kind": "relation",
+      "source": "src/card-confirmations.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/card-confirmations.json",
+      "host": {
+        "id": "H-R-017",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "entry": "development/hosts/card-confirmations.mjs",
+        "moduleId": "R-017",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "C-003",
+      "kind": "composition",
+      "source": "src/workbench-cards.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/workbench-cards.json",
+      "host": {
+        "id": "H-C-003",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "entry": "development/hosts/workbench-cards.mjs",
+        "moduleId": "C-003",
         "moduleVersion": "0.1.0",
         "mode": "local"
       }

@@ -1,10 +1,14 @@
 # 工作台的状态和效果归属
 
-版本 0.3.0；2026-10-30。`app.js` 只创建和启动一个 `createWorkbench` 组合；宿主须等待 `ready`，销毁时调用 `dispose`。浏览器页面生命周期内只挂载一个实例。Node 的最简 DOM 宿主直接导入同一组合，不删除初始化语句。
+版本 0.4.0；2026-10-30。`app.js` 只创建和启动一个 `createWorkbench` 组合；宿主须等待 `ready`，销毁时调用 `dispose`。浏览器页面生命周期内只挂载一个实例。Node 的最简 DOM 宿主直接导入同一组合，不删除初始化语句。
 
 | 模块 | 拥有的状态/资源 | 对外关系 |
 | --- | --- | --- |
 | workbench | 页面选择、两工作区数据、菜单意图、待确认发送快照 | 协调配置、渲染、请求和模块生命周期 |
+| interaction-cards | 类型登记表；不保存卡片活跃状态 | 末项位置/参数/动作条件与异步 commit 回查 |
+| card-types / card-markup | 无业务资源 | 版本化数据捕获与通用外壳、图表/日志/确认展示 |
+| card-confirmations | 每工作区最多一个 Promise 延续 | 回应一次；追加其他历史/取消/销毁释放，不从存档恢复执行 |
+| workbench-cards | 类型到展示/动作的组合登记 | 同一条类型定义绑定参数、渲染、动作与宿主效果 |
 | canvas-geometry | 诊断环、焦点意图、三个 ResizeObserver、几何事件订阅 | 测量 DOM，保留阅读位置，只因明确焦点意图揭示控件 |
 | view-position | 每页阅读位置、回调版本 | 标签切换恢复；过时动画帧不能覆盖新操作 |
 | request-lifecycle | 每个工作区的定时器租约 | 区分收到的阶段信号、等待提示与客户端截止 |
@@ -25,8 +29,10 @@
 本分解减少了隐式生命周期耦合；没有据此声称整个 UI 已满足完全形式证明。F/C/H/Q 未完成部分保留 UNKNOWN。纯行为测试已移除源码切片/VM 执行；既有静态文案/CSS 检查仍是辅助检查，不算功能证明。
 
 
-## 判断链的独立责任（v0.3.0）
+## 判断链的独立责任（v0.4.0）
 
 api-target 管当前公共宿主目标策略，request-transport 管传输观察；completion-evidence 解释本地结束标记，completion-policy 决定当前入口的接纳；image-evidence 汇总已观察的图片坐标；request-outcome 投影发送结果。这些块不拥有 DOM 或业务历史。
 
 页面发送继续返回兼容 status=completed，同时提供 outcome.operation/protocolCompletion/workspaceDelivery/durablePersistence/visibleToUser/goalSatisfied。后五者不会因控制流返回而统一为成功。详见 [认识论设计](../design/EPISTEMIC_DESIGN.md)。
+
+交互卡类型、位置关系、动作与持久化见 [协议](INTERACTION_CARDS.md)。

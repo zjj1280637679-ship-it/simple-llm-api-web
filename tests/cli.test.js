@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { main } from '../cli.mjs';
+import { main } from '../cli/cli.mjs';
 import { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, GEMINI_ENDPOINT, IMAGE_MODEL } from '../src/core.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -15,7 +15,7 @@ const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwM
 const capture = () => { const lines = []; return { lines, io: { stdout: text => lines.push(text), stderr: text => lines.push(text) } }; };
 
 test('actual Node CLI --help is a no-network executable smoke test', () => {
-  const result = spawnSync(process.execPath, ['cli.mjs', '--help'], { cwd: root, encoding: 'utf8', env: { PATH: process.env.PATH } });
+  const result = spawnSync(process.execPath, ['cli/cli.mjs', '--help'], { cwd: root, encoding: 'utf8', env: { PATH: process.env.PATH } });
   assert.equal(result.status, 0);
   assert.match(result.stdout, /image\.generate/);
   assert.match(result.stdout, /--yes/);

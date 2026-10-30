@@ -2,16 +2,16 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { executeMcpConfigFile } from './cli-mcp-transport.mjs';
-import { validateSessionCommand, sessionCommandResult } from './src/session.js';
+import { validateSessionCommand, sessionCommandResult } from '../src/session.js';
 
 export const help = `Live webpage session CLI (explicit authorized browser host required)
-Usage: node web-cli.mjs COMMAND [JSON_ARGS] --mcp-config ./browser-host.json
-   or: node web-cli.mjs COMMAND [JSON_ARGS] --transport ./authorized-transport.mjs
+Usage: node cli/web-cli.mjs COMMAND [JSON_ARGS] --mcp-config ./browser-host.json
+   or: node cli/web-cli.mjs COMMAND [JSON_ARGS] --transport ./authorized-transport.mjs
 Commands: session.state, session.logs, page.navigate, settings.update,
           draft.set, request.send, request.cancel
 Examples:
-  node web-cli.mjs session.state --transport ./authorized-transport.mjs
-  node web-cli.mjs draft.set '{"text":"Hello"}' --transport ./authorized-transport.mjs
+  node cli/web-cli.mjs session.state --transport ./authorized-transport.mjs
+  node cli/web-cli.mjs draft.set '{"text":"Hello"}' --transport ./authorized-transport.mjs
 The transport module must export execute(command) connected to an explicitly
 selected, user-authorized live page session. --mcp-config uses a standard
 Playwright MCP extension host and optional MCP SDK; neither is auto-installed.

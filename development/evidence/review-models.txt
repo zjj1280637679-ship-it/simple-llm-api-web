@@ -1,5 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.3.0 models
+> simple-llm-api-web@0.4.0 models
 > node development/models/run.mjs
 
 {
@@ -21,6 +22,22 @@
     "scope": "All 9 decoding/dimension classes for lists of length 0..3 plus a forged receipt. Not a proof for arbitrary inputs or all list lengths.",
     "emptySetNotSuccess": true,
     "goalAndDurabilityNotInferred": true
+  },
+  "cards": {
+    "status": "PASS",
+    "histories": 1555,
+    "queries": 7465,
+    "admissions": 518,
+    "alphabet": [
+      "api",
+      "model",
+      "user",
+      "chatResult",
+      "status",
+      "error"
+    ],
+    "maxLength": 4,
+    "scope": "Finite representative histories; tail/index equivalence and registry admission. No proof of arbitrary histories, DOM or asynchronous external effects."
   },
   "qualification": "No automatic F/C/H/Q promotion; explicit finite abstraction and host assumptions only."
 }

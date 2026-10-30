@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPageSession, validateSessionCommand, SESSION_COMMANDS } from '../src/session.js';
 import { registerPageSessionTools } from '../src/session-webmcp.js';
-import { main } from '../web-cli.mjs';
+import { main } from '../cli/web-cli.mjs';
 
 test('typed commands refuse secrets, target overrides, arbitrary commands and consent flags', () => {
   for (const input of [

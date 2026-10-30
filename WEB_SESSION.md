@@ -1,7 +1,7 @@
 # Live-page agent interface (MVP)
 
 This interface operates on **one live webpage's in-memory state**, unlike
-`cli.mjs`, which calls a provider independently. Reloading creates a new live session;
+`cli/cli.mjs`, which calls a provider independently. Reloading creates a new live session;
 saved conversations/settings may restore under the local persistence policy, while
 keys, request controllers and approvals do not. No listener, localhost service, browser-debugging port, credentials
 store, arbitrary JavaScript evaluation or shell tool is introduced.
@@ -80,12 +80,12 @@ must use HTTPS; HTTP is allowed only for loopback development. A second
 page-side URL/origin guard rejects a changed target at tool execution time.
 
 ```sh
-node web-cli.mjs --help
-node web-cli.mjs session.state --mcp-config ./browser-host.json
-node web-cli.mjs draft.set '{"text":"Hello"}' --mcp-config ./browser-host.json
-node web-cli.mjs settings.update '{"temperature":0.7}' --mcp-config ./browser-host.json
-node web-cli.mjs request.send --mcp-config ./browser-host.json
-node web-cli.mjs session.logs --mcp-config ./browser-host.json
+node cli/web-cli.mjs --help
+node cli/web-cli.mjs session.state --mcp-config ./browser-host.json
+node cli/web-cli.mjs draft.set '{"text":"Hello"}' --mcp-config ./browser-host.json
+node cli/web-cli.mjs settings.update '{"temperature":0.7}' --mcp-config ./browser-host.json
+node cli/web-cli.mjs request.send --mcp-config ./browser-host.json
+node cli/web-cli.mjs session.logs --mcp-config ./browser-host.json
 ```
 
 The CLI lazily loads the SDK, uses its shell-free stdio child-process transport,
@@ -127,8 +127,8 @@ origin/tab identity and preserve all page confirmation checks itself.
 
 `src/session.js` validates bounded JSON commands and dispatches injected page
 handlers. `src/session-webmcp.js` registers the same commands as native tools.
-`web-cli.mjs` validates input before loading its transport.
-`cli-mcp-transport.mjs` implements the standard MCP stdio host connection. State and log handlers
+`cli/web-cli.mjs` validates input before loading its transport.
+`cli/cli-mcp-transport.mjs` implements the standard MCP stdio host connection. State and log handlers
 must project only safe fields and redact any in-memory key strings, including
 when keys occur in ordinary user-visible text. Neither raw page state nor API
 configuration objects may be returned.
@@ -145,3 +145,5 @@ peer when installed. **Neither is browser/provider evidence.** Real acceptance
 still requires a user-authorized browser connection, visible draft/state
 roundtrip, rejected confirmation producing zero provider requests, and a
 user-confirmed request/cancel check.
+
+In v0.4.0, page request confirmation is a history card. Only the tail card can respond; reloading does not restore a waiting request. See [interaction cards](docs/INTERACTION_CARDS.md).

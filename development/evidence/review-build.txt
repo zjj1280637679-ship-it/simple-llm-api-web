@@ -1,5 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.3.0 build
+> simple-llm-api-web@0.4.0 build
 > node scripts/build.mjs
 
-Built 37 allowlisted files into dist/
+Built 42 allowlisted files into dist/

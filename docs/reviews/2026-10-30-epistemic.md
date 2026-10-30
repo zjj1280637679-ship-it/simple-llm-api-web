@@ -16,4 +16,4 @@
 
 当前 core 的协议体编码、agent 的工具循环及 workbench 的配置/渲染仍是后续进一步分解的候选；它们没有因为依赖变少就自动满足完整形式证明。新结构的价值由可分开变更的判断责任与反例支持，而非文件数量。
 
-本轮完整结果见 [VALIDATION.md](../../VALIDATION.md)，输入与命令输出身份见 [review.json](../../development/evidence/review.json)。知识图随后绑定本轮具体源提交生成，不覆盖或改写旧快照。
+本轮完整结果见 [v0.3.0 VALIDATION.md](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/0105e7f1657b10e5faa224442896c25dcde1b3b4/VALIDATION.md)，输入与命令输出身份见 [v0.3.0 review.json](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/0105e7f1657b10e5faa224442896c25dcde1b3b4/development/evidence/review.json)。知识图随后绑定本轮具体源提交生成，不覆盖或改写旧快照。

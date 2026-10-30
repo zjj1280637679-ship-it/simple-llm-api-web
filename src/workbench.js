@@ -1,8 +1,13 @@
 /** 开发态课题：各工作区如何组合请求、交付、保存和页面生命周期？
- * 状态/边界：默认2工作区、3页；DOM、协议、存档等外部状态未全部有限化。
+ * 状态/边界：默认2工作区、3页；卡片活跃性由末项推导；DOM/协议/存档未全部有限化。
  * 扩展：新增服务通过显式 services 注入，先定义观察/回执与资源归属。
  * 契约：docs/contracts/workbench.json；局部宿主不替代完整 F/C/H/Q。
  */
+import {liveCard,isLiveCard} from './interaction-cards.js';
+import {captureCard} from './card-types.js';
+import {cardShell,unknownCardMarkup} from './card-markup.js';
+import {createWorkbenchCards} from './workbench-cards.js';
+import {createCardConfirmations} from './card-confirmations.js';
 import {imageWorkspaceReceipt} from './image-evidence.js';
 import {requestOutcome} from './request-outcome.js';
 import { createImageDelivery } from './image-delivery.js';
@@ -70,8 +75,28 @@ let reasoningAnchorId = null;
 const get = () => data[page];
 function syncLogSecrets() { updateActiveLogSecrets(Object.values(data).map(d => d.api.key)); }
 function archiveWorkspaceKey(d) { if (d) setLogSecrets([d.api.key]); }
-const activeCardId = d => d.messages.findLast(m => m.type === 'card')?.id;
+const activeCardId = d => liveCard(d?.messages)?.id;
 const getCard = id => get()?.messages.find(m => m.id === id && m.type === 'card');
+const cardRegistry=createWorkbenchCards({
+  apiMarkup:apiCard,modelMarkup:modelCard,settingsAction:performCardAction,
+  field:({workspace,card,args})=>applyCardField(workspace,card,{value:args.value,dataset:{key:args.key}}),
+  usage:usageCardValues,logs:logCardValues,render,
+  confirmationAvailable:id=>confirmations.available(get(),id),
+  settle:(workspace,id,approved)=>confirmations.settle(workspace,id,approved)
+});
+const confirmations=createCardConfirmations({append:(d,values)=>addCard('confirmation',values,d),record:(d,approved)=>status(d,approved?'已确认本次调用。':'已取消本次调用。')});
+scope.own(()=>confirmations.dispose());
+function dispatchCardAction(input,d=get()) {
+  return defaultDispatchCommand({command:'card.action',args:input},{cardRuntime:{execute:args=>cardRegistry.execute(args,{workspace:d,isActive:()=>!scope.disposed})}});
+}
+function usageCardValues(d) {
+  const usage=d.lastUsage;
+  return {title:'末次请求用量',rows:[['输入',usage?.inputTokens],['输出',usage?.outputTokens],['总量',usage?.totalTokens]].map(([label,value])=>({label,value:Number.isFinite(value)&&value>=0?value:null})),note:'仅展示上游用量观察；未知不记作零。不是多轮任务累计或账单。'};
+}
+function logCardValues() {
+  syncLogSecrets();return {title:'通讯日志快照',entries:getNetworkLogs(),note:'截取当前内存日志，随历史保存；不自动刷新。来源标签不是实网证明，内容可能含私人对话。'};
+}
+
 const matrixSupported = d => Boolean(getImageCapabilities(d.api));
 function selectedPixels(d, ratio, size) { return getImageCapabilities(d.api)?.ratios.find(item => item.ratio === ratio)?.pixelsBySize[size]?.join('×') || ''; }
 function clearIncompatibleReasoning(d) {
@@ -106,7 +131,7 @@ function reasoningCurrentLabel(d) {
 }
 function reasoningMarkup() {
   const d=get(), open=subMenu==='reasoning', current=d.model.reasoning, label=reasoningCurrentLabel(d);
-  const picker=open ? reasoningAnchorId===null ? reasoningQuickMarkup(d) : `<section class="reasoning-menu reasoning-family-list" data-floating-menu="reasoning-toggle" data-menu-card="${reasoningAnchorId}" role="menu" aria-label="思考模板">${REASONING_FAMILIES.map(f=>`<button type="button" role="menuitemradio" aria-checked="${selectedReasoningFamily(d)===f.id}" data-action="reasoning-family" data-family="${f.id}">${f.label}</button>`).join('')}</section>` : '';
+  const picker=open ? reasoningAnchorId===null ? reasoningQuickMarkup(d) : `<section class="reasoning-menu reasoning-family-list" data-floating-menu="reasoning-toggle" data-menu-card="${reasoningAnchorId}" role="menu" aria-label="思考模板">${REASONING_FAMILIES.map(f=>`<button type="button" role="menuitemradio" aria-checked="${selectedReasoningFamily(d)===f.id}" data-action="reasoning-family" data-id="${reasoningAnchorId}" data-family="${f.id}">${f.label}</button>`).join('')}</section>` : '';
   return `<div class="reasoning-control">
 <button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度：${esc(label)}" aria-haspopup="menu" aria-expanded="${open&&reasoningAnchorId===null}" ${d.busy?'disabled':''}>${esc(label)}</button>${picker}</div>`;
 }
@@ -142,16 +167,22 @@ function refreshApiStatus(d, cardId) {
   }
 }
 function closeMenus() { plusOpen = sizeOpen = false; subMenu = ''; }
-function addCard(kind) {
-  const d = get();
-  const previous = d.messages.find(m => m.id === activeCardId(d));
-  if (previous) previous.values = previous.kind === 'api' ? { ...d.api, key: '' } : { ...d.model, reasoningFamily:selectedReasoningFamily(d) };
-  // Historical cards never retain an API-key snapshot.
-  const values = kind === 'api' ? { ...d.api, key: '' } : { ...d.model, reasoningFamily:selectedReasoningFamily(d) };
-  d.messages.push({ id: nextId++, type: 'card', kind, values, showKey: false, models: [] });
-  closeMenus(); render(true);
+function appendMessage(d,message) {
+  const previous=liveCard(d.messages);
+  if(previous)previous.values=captureCard(previous,d);
+  confirmations.interrupt(d);
+  d.messages.push(message);
+  return message;
 }
-function status(d, text, type = 'status', scrollEnd = true) { d.messages.push({ id: nextId++, type, text }); if (get() === d) render(scrollEnd); }
+function addCard(kind,values,d=get()) {
+  if(!d)return;
+  const card=cardRegistry.create(kind,nextId++,d,values);
+  if(kind==='api')Object.assign(card,{showKey:false,models:[]});
+  appendMessage(d,card);
+  closeMenus(); if(get()===d)render(true);
+  return card;
+}
+function status(d,text,type='status',scrollEnd=true) {appendMessage(d,{id:nextId++,type,text});if(get()===d)render(scrollEnd);}
 function errorText(error) {
   if (error?.code === 'ATTACHMENT') return error.safeMessage;
   if (error instanceof AppError) return error.message;
@@ -177,9 +208,7 @@ function protocolLabel(protocol) { return ({gemini:'Gemini 原生 · generateCon
 function apiCard(m) {
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.api;
   const menu = subMenu.endsWith(`:${m.id}`) ? subMenu.split(':')[0] : '';
-  return `<div class="card-wrap">
-<fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset">
-<div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}
+  return `
     <div class="formfield">
 <label for="url${m.id}">API 地址</label>
 <div class="fieldrow">
@@ -201,14 +230,12 @@ function apiCard(m) {
 <div class="fieldrow">
 <textarea class="setting-text" rows="1" wrap="soft" id="model${m.id}" data-card="${m.id}" data-key="model" placeholder="模型 ID" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.model)}</textarea>
 <div class="sub-menu">
-<button type="button" data-action="pull-models" data-id="${m.id}" aria-expanded="${menu === 'models'}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list" data-floating-menu="pull-models" data-menu-card="${m.id}">${m.models.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div>
+<button type="button" data-action="pull-models" data-id="${m.id}" aria-expanded="${menu === 'models'}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list" data-floating-menu="pull-models" data-menu-card="${m.id}">${m.models?.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div>
 </div>
 </div>
     <div class="field-reading" id="models-status${m.id}" role="status">${esc(m.modelListStatus || '')}</div>
     <div class="api-security">${!old && d.pendingTextId ? '<div>填写后，再次发送即可继续。</div>' : ''}<span id="api-trust${m.id}">${old ? '密钥不写入历史记录' : apiTrustText(x)}</span>${!old && x.protocol === 'ark' ? '<div>普通 API · 非 Agent Plan。连通性取决于当前地址、账号与浏览器。</div>' : ''}${!old && x.protocol === 'anthropic' ? '<div>Anthropic Messages 格式：目标为官方 https://api.anthropic.com/v1 时启用官方浏览器访问。密钥可被本页脚本读取，仅保存在内存并在请求时发送到上方地址；实际 CORS 尚未用真实密钥验证。默认输出预算 4096 Token；当前支持文本附件，不提供图片生成或工具调用。</div>' : ''}${!old ? '<div>发送消息或拉取模型时，密钥及请求内容将发送到上方地址；填写本身不发送请求。</div>' : ''}</div>
-  </div>
-</fieldset>
-</div>`;
+  `;
 }
 function modelCard(m) {
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.model;
@@ -216,9 +243,7 @@ function modelCard(m) {
 <label for="${key}${m.id}">${label}</label>
 <input class="block-input" type="number" id="${key}${m.id}" data-card="${m.id}" data-key="${key}" placeholder="${placeholder}" value="${esc(x[key])}" step="any">
 </div>`;
-  return `<div class="card-wrap">
-<fieldset ${old || d.busy ? 'disabled' : ''} class="card-fieldset">
-<div class="setup-card ${old ? 'old' : ''}">${old ? '<span class="disabled-tag">历史记录</span>' : ''}<div class="card-type">模型设置</div>
+  return `<div class="card-type">模型设置</div>
 <div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield">
 <label for="reasoning-model${m.id}">自定义思考模板</label>
 <button type="button" id="reasoning-model${m.id}" class="block-value reasoning-model-trigger" data-action="reasoning-toggle" data-id="${m.id}" aria-haspopup="menu" aria-expanded="${subMenu==='reasoning' && reasoningAnchorId===m.id}">${esc(REASONING_FAMILIES.find(f=>f.id===(old ? x.reasoningFamily : x.reasoningFamily || reasoningFamilyFor(d.api,x.reasoningMode || x.reasoning?.template)))?.label || '选择模板')}</button>
@@ -237,9 +262,7 @@ function modelCard(m) {
 <span class="formlabel">输入模态</span>
 <div class="chips">${Object.entries(MODALITIES).map(([kind,label]) => `<button type="button" class="chip ${x.inputs?.includes(kind) ? 'sel' : ''}" data-action="toggle-input" data-id="${m.id}" data-modality="${kind}" aria-pressed="${Boolean(x.inputs?.includes(kind))}" ${!supportedModalities(d.api.protocol).includes(kind) || kind === 'text' ? 'disabled' : ''}>${label}</button>`).join('')}</div>
 </div>` : ''}<div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : d.api.protocol === 'anthropic' ? ' 输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div>
-</div>
-</fieldset>
-</div>`;
+`;
 }
 function imageMarkup(m) {
   return `<div class="message">
@@ -252,7 +275,11 @@ function imageMarkup(m) {
 </div>`;
 }
 function messageMarkup(m) {
-  if (m.type === 'card') return `<div class="message">${m.kind === 'api' ? apiCard(m) : modelCard(m)}</div>`;
+  if (m.type === 'card') {
+    const d=get(),definition=cardRegistry.definitionFor(m),live=isLiveCard(d.messages,m.id);
+    const body=definition ? definition.render(m) : unknownCardMarkup(m);
+    return cardShell(m,body,{live,disabled:!definition || (d.busy&&m.kind!=='confirmation')});
+  }
   if (m.type === 'user') return `<div class="message user">
 <div class="bubble">${esc(m.text)}${attachmentsMarkup(m.attachments)}</div>
 </div>`;
@@ -288,6 +315,8 @@ function plusMarkup() { return `<div class="menu-wrap">
 <button class="circle" aria-label="展开工具菜单" aria-expanded="${plusOpen}" data-action="plus" ${get().busy ? 'disabled' : ''}>${icon('plus', 22)}</button>${plusOpen ? `<div class="plus-menu">${page === 'chat' ? '<button data-action="attach" data-kind="image">添加图片</button><button data-action="attach" data-kind="file">添加文件</button><button data-action="clear-attachments">清空附件</button><button data-action="clear-chat">清空对话</button>' : ''}<button data-action="local-storage">本机保存与备份</button>
 <button data-action="new-card" data-kind="api">${icon('key')} API 设置</button>
 <button data-action="new-card" data-kind="model">${icon('settings')} 模型设置</button>
+<button data-action="new-card" data-kind="chart">用量图表</button>
+<button data-action="new-card" data-kind="logs">日志快照</button>
 </div>` : ''}</div>`; }
 function sizeMarkup() {
   const d = get(), cap = getImageCapabilities(d.api);
@@ -420,15 +449,21 @@ function configuredImageSnapshot() {
   catch { config.trustedTarget = ''; }
   return config;
 }
-function approveImage(invocation) {
-  return window.confirm(`生成图片将消耗 API 额度\n\n目标：${invocation.target}\n模型：${invocation.model}\n长宽比：${invocation.args.aspectRatio || '1:1'} · 分辨率：${invocation.args.imageSize || '1K'}\n提示词：${invocation.args.prompt}\n\n确认调用图片工作台？`);
+function askConfirmation(d,text,title='调用确认') {
+  if(services.confirm)return services.confirm(text);
+  const pending=confirmations.request(d,{title,text});
+  if(get()===d)render(true);
+  return pending;
+}
+function approveImage(invocation,d) {
+  return askConfirmation(d,`生成图片将消耗 API 额度\n\n目标：${invocation.target}\n模型：${invocation.model}\n长宽比：${invocation.args.aspectRatio || '1:1'} · 分辨率：${invocation.args.imageSize || '1K'}\n提示词：${invocation.args.prompt}\n\n确认调用图片工作台？`,'图片调用确认');
 }
 async function appendImages(d, result, args, fromTool = false) {
   let expectedPixels;
   try { expectedPixels=normalizeImageOptions({protocol:result.protocol || (fromTool?data.image.api.protocol:d.api.protocol),model:result.model},args).pixels; } catch {}
   const images=await imageDelivery.prepare(result.images || [],expectedPixels);
   if(scope.disposed)return;
-  d.messages.push({ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', metrics:replyMetricsSnapshot(result.usage), fromTool });
+  appendMessage(d,{ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', metrics:replyMetricsSnapshot(result.usage), fromTool });
   saveLocal(true);
   if (get() === d) render();
   return imageWorkspaceReceipt(images);
@@ -438,7 +473,7 @@ function modelListStatus(d, card, text) {
   card.modelListStatus = text;
   if (get() === d) render();
 }
-async function pullModels(card) {
+async function pullModels(card,commit) {
   const d = get(); if (d.busy) return;
   syncCurrentApiFields(d);
   closeMenus();
@@ -449,9 +484,9 @@ async function pullModels(card) {
   if (!applyCurrentTarget(d, text => { card.modelListStatus = text; })) { modelListStatus(d, card, card.modelListStatus || '地址无效，未发送模型列表请求。'); return; }
   d.busy = true; d.controller = new AbortController(); const stopLoading=beginLoading(d); render();
   try {
-    card.models = await listModels({ config: { ...d.api }, signal: d.controller.signal, onPhase:phase=>requestPhase(d,phase) });
-    if (get() === d) subMenu = `models:${card.id}`;
-  } catch (e) { card.modelListStatus = errorText(requestError(d,e)); }
+    const models = await listModels({ config: { ...d.api }, signal: d.controller.signal, onPhase:phase=>requestPhase(d,phase) });
+    commit(()=>{card.models=models;if(get()===d)subMenu=`models:${card.id}`;});
+  } catch (e) { commit(()=>{card.modelListStatus=errorText(requestError(d,e));}); }
   finally { stopLoading(); d.busy = false; d.controller = null; if (get() === d) { render(); if (subMenu === `models:${card.id}`) focusFloatingMenu(); } }
 }
 async function send() {
@@ -459,18 +494,22 @@ async function send() {
   syncCurrentApiFields(d);
   syncLogSecrets();
   const requestPage = page, text = d.draft.trim();
-  if (d.busy || d.attachmentReading || (!text && !d.attachments.length)) return { status: 'not-sent', reason: d.busy ? 'busy' : 'empty' };
+  if (d.busy || confirmations.has(d) || d.attachmentReading || (!text && !d.attachments.length)) return { status: 'not-sent', reason: d.busy || confirmations.has(d) ? 'busy' : 'empty' };
   closeMenus();
   const attachments = [...d.attachments];
   try { validateAttachments(attachments,d.api.protocol,d.model.inputs); } catch(e) { d.attachmentError=errorText(e); render(); return {status:'not-sent',reason:'attachments'}; }
   const pending = d.messages.find(m => m.id === d.pendingTextId);
-  if (!pending || pending.text !== text || JSON.stringify(pending.attachments?.map(a=>a.id)) !== JSON.stringify(attachments.map(a=>a.id))) { const m = { id: nextId++, type: 'user', text, attachments }; d.messages.push(m); d.pendingTextId = m.id; }
+  if (!pending || pending.text !== text || JSON.stringify(pending.attachments?.map(a=>a.id)) !== JSON.stringify(attachments.map(a=>a.id))) { const m = { id: nextId++, type: 'user', text, attachments }; appendMessage(d,m); d.pendingTextId = m.id; }
   saveLocal(true);
   if (!isConfigured(d)) { addCard('api'); return { status: 'needs-configuration' }; }
   if (!applyCurrentTarget(d)) return {status:'not-sent',reason:'invalid-target'};
   if (requestPage === 'image' && !matrixSupported(d)) { status(d, '当前模板未配置此图片模型的参数，可选择 Nano Banana 2.1 或 Seedream 5.0 Flash / Pro。', 'error'); return { status: 'not-sent', reason: 'unsupported-model' }; }
   const config = { ...d.api }, args = { prompt: text, aspectRatio: d.aspectRatio, imageSize: d.imageSize };
-  if (requestPage === 'image' && !approveImage({ target: canonicalEndpoint(config.url), model: config.model, args })) { render(true); return { status: 'declined' }; }
+  if (requestPage === 'image') {
+    const before=sessionRequestSnapshot();
+    if(!await approveImage({target:canonicalEndpoint(config.url),model:config.model,args},d)) {render(true);return {status:'declined'};}
+    if(scope.disposed || JSON.stringify(before)!==JSON.stringify(sessionRequestSnapshot()))return {status:'not-sent',reason:'changed-after-confirmation'};
+  }
   d.busy = true; d.controller = new AbortController(); d.draft = ''; d.attachments = []; d.attachmentError = ''; d.lastUsage = null; d.lastMetrics = null;
   const stopLoading=beginLoading(d);
   let checkpointed = false;
@@ -480,7 +519,7 @@ async function send() {
     let reply = streamedReplies.get(round);
     if (!reply) {
       reply = {id:nextId++,type:'chatResult',text:'',reasoningText:'',reasoningOpen:true,streaming:true};
-      streamedReplies.set(round,reply); d.messages.push(reply);
+      streamedReplies.set(round,reply); appendMessage(d,reply);
     }
     return reply;
   };
@@ -510,13 +549,13 @@ async function send() {
           const reply = streamedReplies.get(round);
           if (reply) { reply.streaming = false; reply.metrics = response.metrics; paintStream(d,reply); }
         },
-        confirmTool: async invocation => approveImage(invocation),
+        confirmTool: async invocation => approveImage(invocation,d),
         onHistory: history => { d.history = history; checkpointed = true; saveLocal(true); },
         onToolResult: ({ result, invocation }) => appendImages(d, result, invocation.args, true)
       });
       outcome=requestOutcome({kind:'text',completion:result.completion});
       d.history = result.history;
-      if (result.text && !streamedReplies.size) d.messages.push({ id: nextId++, type: 'chatResult', text: result.text, metrics: result.metrics });
+      if (result.text && !streamedReplies.size) appendMessage(d,{ id: nextId++, type: 'chatResult', text: result.text, metrics: result.metrics });
       d.lastUsage = result.usage; d.lastMetrics = result.metrics;
     }
     d.pendingTextId = null;
@@ -545,12 +584,16 @@ listen(app, 'click', async e => {
   if (!el) return;
   if (el.dataset.action === 'local-storage') { openStoragePanel(); return; }
   const action = el.dataset.action, d = get(), card = getCard(Number(el.dataset.id));
+  const cardAction=cardRegistry.actionFor(card,action);
+  if(el.dataset.id && cardAction) {
+    const args=Object.fromEntries(cardAction.keys.filter(key=>el.dataset[key]!==undefined).map(key=>[key,el.dataset[key]]));
+    await dispatchCardAction({id:Number(el.dataset.id),action,args},d);return;
+  }
   if ((d?.busy || d?.attachmentReading) && !['tab', 'cancel'].includes(action)) return;
-  if (['supplier','choose-supplier','pull-models','choose-model','toggle-key'].includes(action) && (!d || card?.id !== activeCardId(d))) return;
   switch (action) {
     case 'tab': if(el.dataset.tab === 'logs')freezeScrollReport(); page = el.dataset.tab; closeMenus(); render(); break;
     case 'reasoning-toggle': {
-      if(el.dataset.id && (card?.id!==activeCardId(d) || card.kind!=='model'))break;
+      if(el.dataset.id)break;
       const anchorId=el.dataset.id?Number(el.dataset.id):null;
       const open=subMenu!=='reasoning' || reasoningAnchorId!==anchorId;closeMenus();reasoningAnchorId=anchorId;
       if(open)subMenu='reasoning';
@@ -575,46 +618,16 @@ listen(app, 'click', async e => {
       }
       d.reasoningIssue='';closeMenus();render();app.querySelector('[data-action="reasoning-toggle"]:not([data-id])')?.focus({preventScroll:true});break;
     }
-    case 'reasoning-family': {
-      if(reasoningAnchorId===null || reasoningAnchorId!==activeCardId(d))break;
-      try{
-        const resolved=resolveReasoningFamily(d.api,el.dataset.family);
-        const changed=d.model.reasoningFamily!==resolved.family.id || d.model.reasoningMode!==resolved.template?.id;
-        d.model.reasoningFamily=resolved.family.id;
-        if(resolved.template)d.model.reasoningMode=resolved.template.id;else delete d.model.reasoningMode;
-        if(changed){delete d.model.reasoning;delete d.model.reasoningBudget;}
-        d.reasoningIssue=resolved.template?'':'该模型尚未确定此模板的参数结构；未发送思考参数。';
-        closeMenus();render();app.querySelector(`[data-action="reasoning-toggle"][data-id="${reasoningAnchorId}"]`)?.focus({preventScroll:true});
-      }catch(error){d.reasoningIssue=error.message;render();}
-      break;
-    }
     case 'plus': plusOpen = !plusOpen; sizeOpen = false; subMenu = ''; render(); if (plusOpen) focusFloatingMenu(); break;
     case 'attach': selectAttachments(el.dataset.kind); break;
-    case 'clear-chat': for(const message of d.messages)for(const image of message.images || [])imageDelivery.release(image.url);d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;d.lastMetrics=null;await saveLocal(true,true,[page]);render();break;
+    case 'clear-chat': confirmations.interrupt(d);for(const message of d.messages)for(const image of message.images || [])imageDelivery.release(image.url);d.messages=[];d.history=[];d.attachments=[];d.draft='';d.pendingTextId=null;d.attachmentError='';d.lastUsage=null;d.lastMetrics=null;await saveLocal(true,true,[page]);render();break;
     case 'clear-attachments': d.attachments=[]; d.attachmentError=''; render(); break;
     case 'remove-attachment': d.attachments=d.attachments.filter(a=>a.id!==el.dataset.id); d.attachmentError=''; render(); break;
-    case 'toggle-input': { const kind=el.dataset.modality; if(card?.id !== activeCardId(d) || kind==='text' || !supportedModalities(d.api.protocol).includes(kind)) break; d.model.inputs=d.model.inputs.includes(kind)?d.model.inputs.filter(k=>k!==kind):[...d.model.inputs,kind]; render(); break; }
-    case 'new-card': addCard(el.dataset.kind); break;
+    case 'new-card': if(cardRegistry.kinds.includes(el.dataset.kind)){syncCurrentApiFields(d);addCard(el.dataset.kind,el.dataset.kind==='chart'?usageCardValues(d):el.dataset.kind==='logs'?logCardValues():undefined);} break;
     case 'size-toggle': sizeOpen = !sizeOpen; plusOpen = false; subMenu = ''; render(); if (sizeOpen) focusFloatingMenu(); break;
     case 'set-image-options': if (matrixSupported(d) && getImageCapabilities(d.api).ratios.some(x => x.ratio === el.dataset.ratio) && getImageCapabilities(d.api).sizes.includes(el.dataset.imageSize)) { const scroll = app.querySelector('.matrix-scroll')?.scrollTop || 0; d.aspectRatio = el.dataset.ratio; d.imageSize = el.dataset.imageSize; render(); recordScrollDiagnostic('matrix-write',scroll); app.querySelector('.matrix-scroll').scrollTop = scroll; } break;
-    case 'supplier': plusOpen = sizeOpen = false; subMenu = subMenu === `supplier:${card.id}` ? '' : `supplier:${card.id}`; render(); if (subMenu) focusFloatingMenu(); break;
-    case 'choose-supplier': {
-      const p = providers[Number(el.dataset.index)];if(!p)break;
-      const sameProviderTarget = d.api.protocol === p.protocol && (sameEndpoint(d.api.url, p.url) || (p.custom && (d.api.supplier === p.name || p.aliases?.includes(d.api.supplier))));
-      if (!sameProviderTarget) {
-        archiveWorkspaceKey(d);
-        if (d.api.protocol !== p.protocol) { d.history = []; d.model.inputs = [...new Set(['text', ...d.model.inputs.filter(kind=>supportedModalities(p.protocol).includes(kind))])]; }
-        d.api = { ...d.api, protocol: p.protocol, url: p.url, key: '', supplier: p.name, model: p.custom ? '' : defaultModel(p.protocol, page), trustedTarget: '' };
-        card.models = []; syncLogSecrets();
-        if (page === 'image') resetImageOptions(d, true);
-      } else d.api.supplier = p.name;
-      clearIncompatibleReasoning(d);card.modelListStatus = ''; subMenu = ''; render(); break;
-    }
-    case 'toggle-key': card.showKey = !card.showKey; render(); break;
-    case 'pull-models': await pullModels(card); break;
-    case 'choose-model': d.api.model = el.dataset.model; clearIncompatibleReasoning(d); if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
     case 'send': await send(); break;
-    case 'cancel': d.controller?.abort(); break;
+    case 'cancel': confirmations.interrupt(d);d.controller?.abort(); break;
     case 'copy-scroll-diagnostics': {
       await copyDiagnosticReport({app,getPage:()=>page,clipboard:navigator.clipboard,text:exportScrollReport()});
       break;
@@ -632,6 +645,51 @@ listen(app, 'click', async e => {
     }
   }
 });
+async function performCardAction(action,{card,workspace:d,args,commit}) {
+  const el={dataset:{...args,id:String(card.id)}};
+  switch(action) {
+    case 'reasoning-toggle': {
+
+      const anchorId=el.dataset.id?Number(el.dataset.id):null;
+      const open=subMenu!=='reasoning' || reasoningAnchorId!==anchorId;closeMenus();reasoningAnchorId=anchorId;
+      if(open)subMenu='reasoning';
+      render();if(open)focusFloatingMenu();break;
+    }
+    case 'reasoning-family': {
+      reasoningAnchorId=card.id;
+      try{
+        const resolved=resolveReasoningFamily(d.api,el.dataset.family);
+        const changed=d.model.reasoningFamily!==resolved.family.id || d.model.reasoningMode!==resolved.template?.id;
+        d.model.reasoningFamily=resolved.family.id;
+        if(resolved.template)d.model.reasoningMode=resolved.template.id;else delete d.model.reasoningMode;
+        if(changed){delete d.model.reasoning;delete d.model.reasoningBudget;}
+        d.reasoningIssue=resolved.template?'':'该模型尚未确定此模板的参数结构；未发送思考参数。';
+        closeMenus();render();app.querySelector(`[data-action="reasoning-toggle"][data-id="${reasoningAnchorId}"]`)?.focus({preventScroll:true});
+      }catch(error){d.reasoningIssue=error.message;render();}
+      break;
+    }
+    case 'toggle-input': { const kind=el.dataset.modality; if(kind==='text' || !supportedModalities(d.api.protocol).includes(kind)) break; d.model.inputs=d.model.inputs.includes(kind)?d.model.inputs.filter(k=>k!==kind):[...d.model.inputs,kind]; render(); break; }
+    case 'supplier': plusOpen = sizeOpen = false; subMenu = subMenu === `supplier:${card.id}` ? '' : `supplier:${card.id}`; render(); if (subMenu) focusFloatingMenu(); break;
+    case 'choose-supplier': {
+      const p = providers[Number(el.dataset.index)];if(!p)break;
+      const sameProviderTarget = d.api.protocol === p.protocol && (sameEndpoint(d.api.url, p.url) || (p.custom && (d.api.supplier === p.name || p.aliases?.includes(d.api.supplier))));
+      if (!sameProviderTarget) {
+        archiveWorkspaceKey(d);
+        if (d.api.protocol !== p.protocol) { d.history = []; d.model.inputs = [...new Set(['text', ...d.model.inputs.filter(kind=>supportedModalities(p.protocol).includes(kind))])]; }
+        d.api = { ...d.api, protocol: p.protocol, url: p.url, key: '', supplier: p.name, model: p.custom ? '' : defaultModel(p.protocol, page), trustedTarget: '' };
+        card.models = []; syncLogSecrets();
+        if (page === 'image') resetImageOptions(d, true);
+      } else d.api.supplier = p.name;
+      clearIncompatibleReasoning(d);card.modelListStatus = ''; subMenu = ''; render(); break;
+    }
+    case 'toggle-key': card.showKey = !card.showKey; render(); break;
+    case 'pull-models': await pullModels(card,commit); break;
+    case 'choose-model': d.api.model = el.dataset.model; clearIncompatibleReasoning(d); if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
+
+
+  }
+  return {ok:true};
+}
 function updateField(e) {
   const t = e.target, d = get();
   resizeSettingField(t);
@@ -639,6 +697,10 @@ function updateField(e) {
   if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); saveLocal(false,true); return; }
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
+  void dispatchCardAction({id,action:'field.change',args:{key,value:t.value}},d);
+}
+function applyCardField(d,card,t) {
+  const id=card.id,key=t.dataset.key;
   if (card.kind === 'api') {
     const changed = d.api[key] !== t.value;
     if (changed && key === 'key') { archiveWorkspaceKey(d); d.api.trustedTarget = ''; }
@@ -699,7 +761,8 @@ listen(document, 'keydown', e => {
     choices[next]?.focus({preventScroll:true});choices[next]?.scrollIntoView({block:'nearest'});
   }
   if (e.target.dataset?.action === 'supplier' && ['ArrowDown','ArrowUp'].includes(e.key)) {
-    e.preventDefault(); plusOpen = sizeOpen = false; subMenu = `supplier:${e.target.dataset.id}`; render();
+    if(!isLiveCard(get()?.messages,Number(e.target.dataset.id)))return;
+    e.preventDefault();if(subMenu!==`supplier:${e.target.dataset.id}`)void dispatchCardAction({id:Number(e.target.dataset.id),action:'supplier',args:{}});
     (app.querySelector('[data-floating-menu] [aria-selected="true"]') || app.querySelector('[data-floating-menu] button'))?.focus({preventScroll:true});
   } else if (e.target.dataset?.action === 'choose-supplier' && ['ArrowDown','ArrowUp','Home','End'].includes(e.key)) {
     e.preventDefault(); const choices = [...app.querySelectorAll('[data-floating-menu="supplier"] [role="option"]')];
@@ -744,6 +807,7 @@ const pageSession = createPageSession({
       if (page !== 'image') throw new Error('Image settings require the image workspace');
       options = normalizeImageOptions(api, { aspectRatio: args.aspectRatio ?? d.aspectRatio, imageSize: args.imageSize ?? d.imageSize });
     }
+    appendMessage(d,{id:nextId++,type:'status',text:'页面工具更新了模型设置。'});
     d.api = api;
     clearIncompatibleReasoning(d);
     for (const key of ['output', 'temperature', 'topP']) if (args[key] !== undefined) d.model[key] = args[key];
@@ -751,13 +815,17 @@ const pageSession = createPageSession({
     if (page === 'image') resetImageOptions(d);
     render(); return publicSessionState();
   },
-  confirmSend: () => {
-    const d = get(); if (!d || d.busy || d.attachmentReading || (!d.draft.trim() && !d.attachments.length) || approvedSessionRequest) return false;
+  confirmSend: async () => {
+    const d = get(); if (!d || d.busy || d.attachmentReading || (!d.draft.trim() && !d.attachments.length) || approvedSessionRequest || confirmations.has(d)) return false;
     syncCurrentApiFields(d);
     syncLogSecrets();
     const snapshot = sessionRequestSnapshot();
-    const approved = window.confirm(`允许已连接的页面控制工具发送当前${page === 'image' ? '图片生成' : '对话及附件'}请求？\n\n目标：${sanitizeLogValue(d.api.url)}\n模型：${sanitizeLogValue(d.api.model)}\n提示词：${sanitizeLogValue(d.draft)}\n附件：${d.attachments.length ? d.attachments.map(a=>`${sanitizeLogValue(a.name)} (${(a.size/1024).toFixed(1)} KiB)`).join('、') : '无'}\n此操作可能消耗 API 额度。图片生成的独立确认仍然适用。`);
-    if (approved) approvedSessionRequest = snapshot;
+    // Occupy the request slot while waiting, so cancel can clear it before the
+    // promise resumes. The dispatcher still requires an affirmative reply.
+    approvedSessionRequest = snapshot;
+    const approved = await askConfirmation(d,`允许已连接的页面控制工具发送当前${page === 'image' ? '图片生成' : '对话及附件'}请求？\n\n目标：${sanitizeLogValue(d.api.url)}\n模型：${sanitizeLogValue(d.api.model)}\n提示词：${sanitizeLogValue(d.draft)}\n附件：${d.attachments.length ? d.attachments.map(a=>`${sanitizeLogValue(a.name)} (${(a.size/1024).toFixed(1)} KiB)`).join('、') : '无'}\n此操作可能消耗 API 额度。图片生成的独立确认仍然适用。`);
+    if(get()===d)syncCurrentApiFields(d);
+    if (!approved && approvedSessionRequest === snapshot) approvedSessionRequest = null;
     return approved;
   },
   send: () => {
@@ -772,7 +840,7 @@ const pageSession = createPageSession({
   cancel: () => {
     const pendingApproval = Boolean(approvedSessionRequest); approvedSessionRequest = null;
     const d = get(); if (!d && !pendingApproval) throw new Error('Select workspace');
-    d?.controller?.abort(); return { requested: pendingApproval || Boolean(d?.controller) };
+    const waiting=d?confirmations.interrupt(d):false;d?.controller?.abort(); return { requested: pendingApproval || waiting || Boolean(d?.controller) };
   }
 });
 const ready=(async()=>{
@@ -806,7 +874,7 @@ function openStoragePanel() {
   const dialog=document.createElement('dialog');dialog.id='local-storage-panel';dialog.className='local-storage-panel';
   dialog.innerHTML=`<h2>本机保存与备份</h2>
 <p id="local-storage-status">${esc(storageLabels[storageState])}</p>
-<p>自动保留本机的对话、草稿、附件、模型设置和独立指标。草稿与安全设置有 128 KiB 同步保护；大历史/附件仍须等待完整存档提交。API Key 与目标确认不保存；刷新后请重新填写密钥。通讯日志不保存。含账号、密码、查询参数或片段的 API 地址不保存。</p>
+<p>自动保留本机的对话、草稿、附件、模型设置和独立指标。草稿与安全设置有 128 KiB 同步保护；大历史/附件仍须等待完整存档提交。API Key 与目标确认不保存；刷新后请重新填写密钥。自动通讯日志不保存；主动插入的日志卡随历史保存。含账号、密码、查询参数或片段的 API 地址不保存。</p>
 <p>仅限当前浏览器与网站地址。无痕模式、清理浏览器或系统回收空间可能删除数据；这不是永久备份。单份快照上限 48 MiB，超限或配额不足时保留上一份成功存档，不会悄悄删除附件。</p>
 <p>多标签页版本冲突后不会覆盖另一页；先导出本页备份，再刷新读取最新存档。</p>
 <div class="local-storage-actions">
@@ -833,7 +901,8 @@ function openStoragePanel() {
         const restored=restoreWorkspace(migrateSnapshot(JSON.parse(await file.text())),makePage);
         if(Object.values(data).some(d=>d.busy)){result.textContent='请先结束当前请求。';return;}
         if(!window.confirm('用备份替换当前本页对话和设置？建议先导出当前内容。'))return;
-        for(const d of Object.values(data))for(const m of d.messages)for(const image of m.images || [])imageDelivery.release(image.url);
+        for(const d of Object.values(data)){confirmations.interrupt(d);for(const m of d.messages)for(const image of m.images || [])imageDelivery.release(image.url);}
+        approvedSessionRequest=null;
         Object.assign(data,restored.data);page=restored.page;nextId=restored.nextId;viewPositions.clear();for(const [k,v]of Object.entries(restored.views))viewPositions.set(k,v);
         render();await saveLocal(true);result.textContent='已恢复到本页。是否成功写入本机，请看上方保存状态。';
       }catch{result.textContent='备份格式不支持、损坏或超过 48 MiB；未恢复。';}};picker.click();
@@ -847,6 +916,6 @@ listen(document, 'visibilitychange',()=>{if(document.visibilityState==='hidden')
 listen(window, 'pagehide',()=>saveLocal(true));
 
 scope.own(()=>{localSecrets.clear();if(window.llmWorkbench===pageSession)delete window.llmWorkbench;});
-return {ready,session:pageSession,dispose:()=>scope.dispose(),data,addCard,render,isConfigured,matrixSupported,
+return {ready,session:pageSession,dispose:()=>scope.dispose(),data,addCard,render,isConfigured,matrixSupported,dispatchCardAction,
   persisted:()=>snapshotWorkspace({data,page,nextId,secrets:[...localSecrets]}),setPage:value=>{page=value;}};
 }
