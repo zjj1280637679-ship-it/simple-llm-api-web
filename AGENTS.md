@@ -4,7 +4,7 @@
 
 ## 快速进入
 
-1. 读 [知识图入口](knowledge/README.md) 与 [当前快照导览](knowledge/snapshots/v0.4.0-6a2e6c012766/README.md)。当前指针以 [current.json](knowledge/current.json) 为准。
+1. 读 [知识图入口](knowledge/README.md) 与 [当前快照导览](knowledge/snapshots/v0.4.0-306e2abbfc39/README.md)。当前指针以 [current.json](knowledge/current.json) 为准。
 2. 运行 `node knowledge/check.mjs`。MATCH 只表示被记录文件和本地内容一致；DRIFT 列出变化，历史快照仍可参考，当前结论需重读变更来源。
 3. 用 `node knowledge/query.mjs route <主题>` 找到源码、条件文档、宿主及测试。修改某文件前可运行 `node knowledge/query.mjs impact src/persistence.js` 辅助定位消费者；动态注入和事件关系仍需人工检查。
 
@@ -12,6 +12,7 @@
 
 | 任务 | 路由 |
 | --- | --- |
+| 实网验收、实验连接、证据缺口 | `acceptance` |
 | 交互卡、历史末项、动作与保存 | `cards` |
 | 目标、约束、奖励/惩罚与开发态理论 | `model` |
 | 观察、解释、接纳、效果及有限模型 | `judgments` |
