@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-007",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "relation",
-    "goal": "canvas-geometry.declared-effect",
+    "goal": "canvas.preserve-reading-and-explicit-focus-intent",
     "source": "src/canvas-geometry.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-R-007",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/canvas-geometry.mjs",
     "moduleId": "R-007",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "视口变化如何保持操作可达而不恢复旧焦点？",
+  "stateModel": {
+    "budget": "诊断环最多80项；观察器/DOM 几何由宿主提供，外部状态未有限化",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "旧焦点意图与新页面切换不能互相覆盖"
+  ],
+  "extensionSeam": "扩展几何策略时用真实宿主及反例验证阈值，阈值不是定理",
+  "proofObligations": [
+    {
+      "id": "R-007.effect",
+      "statement": "视口变化如何保持操作可达而不恢复旧焦点？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/canvas-geometry.mjs"
+    },
+    {
+      "id": "R-007.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{boundedMenu:true,diagnosticsReleased:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

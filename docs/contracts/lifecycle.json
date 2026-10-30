@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-006",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "relation",
-    "goal": "lifecycle.declared-effect",
+    "goal": "resource.release-once-and-release-late-registration",
     "source": "src/lifecycle.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-R-006",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/lifecycle.mjs",
     "moduleId": "R-006",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "谁释放已登记资源，晚到资源如何处理？",
+  "stateModel": {
+    "budget": "disposed 布尔值 + 宿主控制大小的释放函数集合",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "重复销毁及销毁后登记仍不得泄漏"
+  ],
+  "extensionSeam": "新增资源通过 own/listen 登记，释放函数的外部效果另验",
+  "proofObligations": [
+    {
+      "id": "R-006.effect",
+      "statement": "谁释放已登记资源，晚到资源如何处理？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/lifecycle.mjs"
+    },
+    {
+      "id": "R-006.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{releasedOnce:true,lateRegistrationReleased:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-010",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "relation",
-    "goal": "workspace-storage.declared-effect",
+    "goal": "storage.hydrate-before-write-and-separate-failure-routes",
     "source": "src/workspace-storage.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-R-010",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/workspace-storage.mjs",
     "moduleId": "R-010",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "何时允许写入，journal 失败是否掩盖完整存档？",
+  "stateModel": {
+    "budget": "hydrated/disposed 两布尔值 + 一个防抖计时器；store事务外置",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "销毁后水合与 journal 失败后的完整保存"
+  ],
+  "extensionSeam": "扩展存储 backend 时保持协调器与事务语义分离",
+  "proofObligations": [
+    {
+      "id": "R-010.effect",
+      "statement": "何时允许写入，journal 失败是否掩盖完整存档？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/workspace-storage.mjs"
+    },
+    {
+      "id": "R-010.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{hydrationBeforeWrites:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

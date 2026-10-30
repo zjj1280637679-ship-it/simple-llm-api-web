@@ -1,3 +1,8 @@
+/** 开发态课题：视口变化如何保持操作可达而不恢复旧焦点？
+ * 状态/边界：诊断环最多80项；观察器/DOM 几何由宿主提供，外部状态未有限化。
+ * 扩展：扩展几何策略时用真实宿主及反例验证阈值，阈值不是定理。
+ * 契约：docs/contracts/canvas-geometry.json；局部宿主不替代完整 F/C/H/Q。
+ */
 import { createScope } from './lifecycle.js';
 
 /** Owns geometry/focus/menu effects; it never reads workspace messages or credentials. */

@@ -1,3 +1,8 @@
+/** 开发态课题：每页阅读位置与晚到布局回调怎样对应？
+ * 状态/边界：页位置表 + 回调版本；默认3个页面，宿主动画帧为外部条件。
+ * 扩展：新页面声明位置身份与失效条件。
+ * 契约：docs/contracts/view-position.json；局部宿主不替代完整 F/C/H/Q。
+ */
 /** Per-workbench focus and reading positions; no network/storage or global state. */
 export function createViewPosition({app,document,getPage,recordScrollDiagnostic=()=>{},requestAnimationFrame=globalThis.requestAnimationFrame}) {
 function captureControlFocus() {

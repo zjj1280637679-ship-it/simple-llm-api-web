@@ -2,7 +2,9 @@
 
 无侧栏、无起始页的静态 AI 工作台：顶部切换「对话 / 图片 / 日志」，API 配置与模型设置以卡片出现在当前历史中。使用你自己的 API Key，浏览器按发送动作请求当前填写的服务地址。
 
-开发目标与审查依据见 [开发态理想模型](design/DEVELOPMENT_MODEL.md)、[当前策略及条件](design/DECISIONS.md)；最新审查见 [2026-10-30 记录](docs/reviews/2026-10-30.md)。实现范围、供应商能力、局部测试和真实验收分别记录。
+开发目标与审查依据见 [开发态理想模型](design/DEVELOPMENT_MODEL.md)、[当前策略及条件](design/DECISIONS.md)；最新结构审查见 [v0.3.0 记录](docs/reviews/2026-10-30-epistemic.md)。实现范围、供应商能力、局部测试和真实验收分别记录。
+
+开发态结构现为 v0.3.0：见 [认识论设计](design/EPISTEMIC_DESIGN.md) 与 [本轮结构修订](docs/reviews/2026-10-30-epistemic.md)。判断依据、接纳策略和效果回执可分别扩展；运行 `npm run models` 检查有限判断分类。
 
 ## 已实现
 
@@ -133,7 +135,7 @@ node cli.mjs image.generate --protocol ark \
 3. `.github/workflows/pages.yml` 会先执行语法检查与合成测试，再运行 `npm run build`，仅发布 `dist/` 白名单产物。
 4. 等待 **build + deploy** 成功，再打开实际站点检查。若设置完成前初次运行失败，可从 Actions 手动重新运行。
 
-生产文件清单由 `scripts/build.mjs` 定义，`tests/build.test.js` 检查产物与相对依赖。当前为 30 个文件；开发规格、宿主、测试与文档不进入站点产物。
+生产文件清单由 `scripts/build.mjs` 定义，`tests/build.test.js` 检查产物与相对依赖。当前为 37 个文件；开发规格、宿主、测试与文档不进入站点产物。
 
 ```sh
 npm run build
@@ -158,7 +160,12 @@ src/workspace-storage.js 先水合后写入、日志与快照协调
 src/image-delivery.js   解码、实际尺寸、下载保留和 URL 释放
 src/usage.js            可追溯用量归一化与缓存/末次输入指标
 src/attachments.js      本地附件校验、预览与协议部件转换
-src/core.js             Gemini/OpenAI/Ark 文本、图片核心、typed command dispatcher
+src/core.js             协议/业务 facade、文本/图片核心、typed dispatcher
+src/request-transport.js HTTP/流、取消、脱敏日志与凭据观察
+src/api-target.js       当前公共网页目标和凭据绑定策略
+src/completion-*.js     结束证据解释与入口接纳策略
+src/image-evidence.js   图片效果坐标与宿主回执
+src/request-outcome.js  控制流返回与独立效果投影
 src/native-json.js      有界原生 JSON 数据保真复制
 src/provider-identity.js 供应商/协议/路径的本地规则匹配
 src/image-capabilities.js 按 provider/model 分离的图片能力与尺寸
@@ -172,7 +179,7 @@ docs/ark-api.md         官方 API 来源与版本化集成摘要
 docs/ark-model-catalog.md 带日期的历史模型目录与复核条件
 docs/credentials.md    密钥容器、授权消费者与静态站点边界
 .env.example           空凭据字段与非秘密参考默认值
-scripts/build.mjs       生成 30 个白名单生产文件，带内容哈希资源版本
+scripts/build.mjs       生成 37 个白名单生产文件，带内容哈希资源版本
 development/hosts/      独立最简测试宿主与可追溯本机报告
 .github/workflows/      测试通过后发布 dist 的 Pages 工作流
 design/index.html       原始交互设计，原样保留，不作为生产入口
@@ -205,4 +212,4 @@ VALIDATION.md           本次验证结果与尚未完成的真实环境验证
 
 对话、草稿、附件、模型设置和独立指标自动保存到当前网站路径的 IndexedDB；API Key/目标确认与通讯日志不保存。失败/配额不足/多标签页冲突会明确提示，不会静默删附件或覆盖其他标签页。+ 菜单可查看状态、导出和恢复本地备份。浏览器清理、无痕结束或系统回收空间仍可能丢失数据，详见 [本机持久化说明](docs/LOCAL_PERSISTENCE.md)。
 
-当前开发态库与维护规则见 [模块图书馆](module-library/README.md)，状态归属见 [组合说明](docs/WORKBENCH_MODULES.md)。运行 `npm run hosts` 检查全部 14 个独立宿主；`npm run review:sources` 输出资料复核状态，不据此宣称模型可用。
+当前开发态库与维护规则见 [模块图书馆](module-library/README.md)，状态归属见 [组合说明](docs/WORKBENCH_MODULES.md)。运行 `npm run hosts` 检查全部 21 个独立宿主；`npm run review:sources` 输出资料复核状态，不据此宣称模型可用。

@@ -35,7 +35,8 @@ for(const path of (await files('docs/contracts/')).filter(path=>path.endsWith('.
     if(input.startsWith('/') || input.split('/').some(part=>part==='..'||!part))throw new Error(`Non-canonical path: ${input}`);
     await readFile(new URL(input,root));
   }
-  cards.push({path,module:card.module.id,host:card.host.id,gates:card.gates});
+  if(!card.question?.trim() || !card.stateModel?.budget?.trim() || !card.extensionSeam?.trim() || !card.proofObligations?.length)throw new Error(`Missing development question/boundary: ${path}`);
+  cards.push({path,module:card.module.id,host:card.host.id,question:card.question,goal:card.module.goal,stateBudget:card.stateModel.budget,gates:card.gates});
 }
 console.log(JSON.stringify({schemaVersion:1,generatedAt:new Date().toISOString(),mode:'advisory',
   interpretation:'Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.',

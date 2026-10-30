@@ -1,19 +1,18 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-10-29T20:21:15.940Z",
-  "reviewedBase": "05b78784b57631f2c4c09508a14e45aec10c9061",
-  "priorReviewCommit": "da0a27e63ff7d93521a151eb9d38505b1940d5cc",
+  "recordedAt": "2026-10-30T04:52:02.158Z",
+  "reviewedBase": "25edb6b861de1766cd2b3097241cc79df92e071a",
+  "priorReviewCommit": "70290ba6f00b9035f94ecde7ac95849b5ea190a5",
   "runtime": "v24.22.1",
   "baseline": {
-    "tests": 335,
-    "pass": 334,
-    "fail": 0,
-    "skipped": 1,
-    "sourceFilesMatched": 108
-  },
-  "counts": {
     "tests": 378,
     "pass": 377,
+    "fail": 0,
+    "skipped": 1
+  },
+  "counts": {
+    "tests": 392,
+    "pass": 391,
     "fail": 0,
     "cancelled": 0,
     "skipped": 1,
@@ -24,37 +23,43 @@
       "command": "npm test",
       "exitCode": 0,
       "output": "development/evidence/review-tests.txt",
-      "outputSha256": "02d01e3b2564a0598482a34e35776611c41ecb75663fa77367654d79fd889b7d"
+      "outputSha256": "1f190615d8341980c85d5394c750e6862d3a6e9ddc160c3aa4b5f0e6da1e5269"
     },
     {
       "command": "npm run check",
       "exitCode": 0,
       "output": "development/evidence/review-check.txt",
-      "outputSha256": "7b70bb3f6862c166c834ce08609ba982871629ab457330ee50ea6f8ef02925b1"
+      "outputSha256": "ee2008e4942900fcd8d5981a9e985302a7a6db0d79abfd6c95ee5e42810c4469"
     },
     {
       "command": "npm run build",
       "exitCode": 0,
       "output": "development/evidence/review-build.txt",
-      "outputSha256": "3f714061e17e95746465c3dc0bdbeb613045c141b4782e284b1bcb49bb610e08"
+      "outputSha256": "770077cfb8813ceb3af9503b955448a09f4b976753635cf6c84f041b3e654377"
     },
     {
       "command": "npm run hosts",
       "exitCode": 0,
       "output": "development/evidence/review-hosts.txt",
-      "outputSha256": "fd96bfdf4ee1359db2a796bd50900df6228957205640a9b4de88f127ac9fb8ce"
+      "outputSha256": "a386c15cb5e7bee32234842b02917e89d91468d25496ff6f802967c3a351363b"
+    },
+    {
+      "command": "npm run models",
+      "exitCode": 0,
+      "output": "development/evidence/review-models.txt",
+      "outputSha256": "407d79330326027df1a467e0c381013a530226e1cb69a37e7d17ac41c535a478"
     },
     {
       "command": "npm run review:health",
       "exitCode": 0,
       "output": "development/evidence/review-health.txt",
-      "outputSha256": "f4d4648a03721015554c7bb45c177fb97f8728ef6fdf4cd87b8fbf2486689221"
+      "outputSha256": "37f642aba394e069c8d1ae6b02c00554dd67e1b3a4bf29eed8b4948297b5b6fb"
     },
     {
       "command": "npm run review:sources",
       "exitCode": 0,
       "output": "development/evidence/review-sources.txt",
-      "outputSha256": "b60bb4639acfc0cccf3ea4ce845927d3b37514303184cac9516e53b67d7d10da"
+      "outputSha256": "d40a40712cef66bac9263439b0a4040cd2d9fb870a4bfc4d4c07485451b555bf"
     }
   ],
   "hosts": [
@@ -63,26 +68,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-007",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "canvas-geometry.declared-effect",
+        "goal": "canvas.preserve-reading-and-explicit-focus-intent",
         "source": "src/canvas-geometry.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-R-007",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/canvas-geometry.mjs",
         "moduleId": "R-007",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:14.443Z",
-      "finishedAt": "2026-10-29T20:20:14.447Z",
+      "startedAt": "2026-10-30T04:51:19.929Z",
+      "finishedAt": "2026-10-30T04:51:19.933Z",
       "runtime": "v24.22.1",
       "observed": {
         "boundedMenu": true,
@@ -91,9 +96,9 @@
       "hashes": {
         "development/hosts/canvas-geometry.mjs": "a255b7f0f4d4f213dddca2b8f3a1e34a1f48a2a42c5d2b706f72d72478617e39",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/canvas-geometry.json": "fbf7790b1439d4a9a1b787e9d453e881482c14b0677a59cc8e145a2d05c9804e",
-        "src/canvas-geometry.js": "1a5403248a4f1f9fb04e904e82b09440574aebf9a8e87fdc4069ea078e64335d",
-        "src/lifecycle.js": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5"
+        "docs/contracts/canvas-geometry.json": "2963a857c7746621520685a93a5729d25c1afd6a81a176dcab939bcbad89d72d",
+        "src/canvas-geometry.js": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c",
+        "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -102,26 +107,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-011",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "clipboard-report.declared-effect",
+        "goal": "clipboard.report-only-to-originating-live-view",
         "source": "src/clipboard-report.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-R-011",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/clipboard-report.mjs",
         "moduleId": "R-011",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:14.524Z",
-      "finishedAt": "2026-10-29T20:20:14.527Z",
+      "startedAt": "2026-10-30T04:51:19.995Z",
+      "finishedAt": "2026-10-30T04:51:19.997Z",
       "runtime": "v24.22.1",
       "observed": {
         "staleViewUntouched": true
@@ -129,8 +134,8 @@
       "hashes": {
         "development/hosts/clipboard-report.mjs": "44432d37f865545c3916f528eac41546e957cedfd51505619fb0ce20be9e9194",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/clipboard-report.json": "61d9618b2db9f79d54788f52ac7c25c330fbdeaf2c55dac7f45e74db1a223db9",
-        "src/clipboard-report.js": "8b130db8e9eac87b38d1bff87d0932a31c618631d725da8ec97fa0d59ca6d6ba"
+        "docs/contracts/clipboard-report.json": "c6c45e6cf9cc639a541357333cfdbd97218efcf6b9d6f450bb04ffde9275ba6b",
+        "src/clipboard-report.js": "e58d0aadd47b30cfcf3c7ac1e577e868b55deb700ffb59f9913b177490832f7f"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -139,26 +144,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-008",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "function",
-        "goal": "error-diagnostic.declared-effect",
+        "goal": "http.project-bounded-redacted-diagnostic",
         "source": "src/error-diagnostic.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-F-008",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/error-diagnostic.mjs",
         "moduleId": "F-008",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:14.603Z",
-      "finishedAt": "2026-10-29T20:20:14.611Z",
+      "startedAt": "2026-10-30T04:51:20.071Z",
+      "finishedAt": "2026-10-30T04:51:20.078Z",
       "runtime": "v24.22.1",
       "observed": {
         "boundedFields": true,
@@ -167,8 +172,8 @@
       "hashes": {
         "development/hosts/error-diagnostic.mjs": "472106a60b2fa9a1b5506273db13c70e478e8a7a3caec4c7d237d8d2e33eb996",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/error-diagnostic.json": "8e3f546b86a1bc8bb74431af89d860d777efa17e317dee43ce824c2d3173a0b0",
-        "src/error-diagnostic.js": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9"
+        "docs/contracts/error-diagnostic.json": "5f5aa6521db11d1818e4c3ed2d5d6cfb0c28ce206de0341f2a92956b2c0ebc13",
+        "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -177,26 +182,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-007",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "function",
-        "goal": "image-delivery.declared-effect",
+        "goal": "image.decode-observe-pixels-and-own-urls",
         "source": "src/image-delivery.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-F-007",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/image-delivery.mjs",
         "moduleId": "F-007",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:14.712Z",
-      "finishedAt": "2026-10-29T20:20:14.716Z",
+      "startedAt": "2026-10-30T04:51:20.144Z",
+      "finishedAt": "2026-10-30T04:51:20.147Z",
       "runtime": "v24.22.1",
       "observed": {
         "syntheticDecoder": true,
@@ -206,8 +211,8 @@
       "hashes": {
         "development/hosts/image-delivery.mjs": "6e7c2d4f0338e430cdae8fcd609aa682bf9a9350ac09e039e2897f843b376523",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/image-delivery.json": "cd60400839e98ae77770e83b23b9c6bf53ba8fe870878fc5fe84e1e824c8ea10",
-        "src/image-delivery.js": "a5f701263a20e43e562eaa2374312809f9c23c1bf43d0237a8372df411317631"
+        "docs/contracts/image-delivery.json": "a5485975cc3aadfb1ac58ac2d10bcd8014bd1dba821cf37ecbc724167606a364",
+        "src/image-delivery.js": "5b99571a4069cab3da4a65731f7647e428aa6babf07ffecc6f61d907ab0017be"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -216,26 +221,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-006",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "lifecycle.declared-effect",
+        "goal": "resource.release-once-and-release-late-registration",
         "source": "src/lifecycle.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-R-006",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/lifecycle.mjs",
         "moduleId": "R-006",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:14.795Z",
-      "finishedAt": "2026-10-29T20:20:14.800Z",
+      "startedAt": "2026-10-30T04:51:20.204Z",
+      "finishedAt": "2026-10-30T04:51:20.207Z",
       "runtime": "v24.22.1",
       "observed": {
         "releasedOnce": true,
@@ -244,8 +249,8 @@
       "hashes": {
         "development/hosts/lifecycle.mjs": "1fad99f8cc20e835b2376dc1c37729d0ccc02f0f83fa48df475a1b8286c7b2e9",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/lifecycle.json": "81b8b0cab1ed8a793d2a0ff6f32c41a546dc2a92cf7d12a0bd8356171c2e2d93",
-        "src/lifecycle.js": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5"
+        "docs/contracts/lifecycle.json": "44f19f7a0cc0b57b48ed0da2f380c0cab30e13edf9a82720476dbdfd00c58dd9",
+        "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -254,9 +259,9 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-006",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-29T19:15:54.000Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "function",
         "goal": "native-context.copy-without-semantic-filtering",
         "source": "src/native-json.js",
@@ -264,16 +269,16 @@
       },
       "host": {
         "id": "H-F-006",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-29T20:18:57.630Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/native-json.mjs",
         "moduleId": "F-006",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:14.893Z",
-      "finishedAt": "2026-10-29T20:20:14.899Z",
+      "startedAt": "2026-10-30T04:51:20.267Z",
+      "finishedAt": "2026-10-30T04:51:20.272Z",
       "runtime": "v24.22.1",
       "observed": {
         "businessKeysPreserved": true,
@@ -284,8 +289,8 @@
       "hashes": {
         "development/hosts/native-json.mjs": "5b4b8aa8545776f613495516f8ef000c61f60148a817f82439535cc221f431f1",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/native-json.json": "7e07d3efef35be143ffa1a5bca8e49b347ce347d9eaf5b679d4bb8ef1e41b328",
-        "src/native-json.js": "7e7712f5b28be628b4eaa218089b821e2c773d81f28b1abb02efa851a679f75f"
+        "docs/contracts/native-json.json": "db24efbd546dc4bd87dce656f62028569a22c8b5634d28f6d4eb3c5828c4b9bb",
+        "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -294,26 +299,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-005",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-29T19:15:54.000Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "provider-profile.match-in-declared-context",
+        "goal": "provider.profile-match-with-exact-scope",
         "source": "src/provider-identity.js",
         "lifecycle": "candidate"
       },
       "host": {
         "id": "H-R-005",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-29T20:18:57.630Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/provider-identity.mjs",
         "moduleId": "R-005",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:14.991Z",
-      "finishedAt": "2026-10-29T20:20:14.998Z",
+      "startedAt": "2026-10-30T04:51:20.335Z",
+      "finishedAt": "2026-10-30T04:51:20.338Z",
       "runtime": "v24.22.1",
       "observed": {
         "declaredPathMatched": true,
@@ -324,8 +329,8 @@
       "hashes": {
         "development/hosts/provider-identity.mjs": "49730a8dbb8c3288204ecd0b02e5b6f07cbdb0ae5c54f779d4a5e3c824a33283",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/provider-identity.json": "2784ca0276f4e9572825f17b221262abaf8d2ec63ad48900af5fdf07df6eb98a",
-        "src/provider-identity.js": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884"
+        "docs/contracts/provider-identity.json": "2c2828b565c7c13e327ffa512ec4ebe6881ba518f75ee3280e77151e9f69c77d",
+        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -334,26 +339,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-009",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "request-lifecycle.declared-effect",
+        "goal": "request.own-timers-and-report-observed-phase",
         "source": "src/request-lifecycle.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-R-009",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/request-lifecycle.mjs",
         "moduleId": "R-009",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:15.090Z",
-      "finishedAt": "2026-10-29T20:20:15.097Z",
+      "startedAt": "2026-10-30T04:51:20.401Z",
+      "finishedAt": "2026-10-30T04:51:20.404Z",
       "runtime": "v24.22.1",
       "observed": {
         "timersReleased": true,
@@ -362,18 +367,9 @@
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/request-lifecycle.mjs": "13d754032c0caf9dc878a097bf2bf1768bdb21d9178a966674dff7d067135035",
-        "docs/contracts/request-lifecycle.json": "f4cab3ef37bef0f6912c215bf4c4ae1d72f535365cb338459eb34e6421e2b583",
-        "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
-        "src/core.js": "6ef655ebf37e05f0df7e2eee652d7072d6779c37e2a433fc90ed2bed3c1fffe4",
-        "src/error-diagnostic.js": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9",
-        "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
-        "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
-        "src/provider-identity.js": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884",
-        "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
-        "src/request-lifecycle.js": "ad78902faf056c5b3f740cafef2862ea64409eaebaa17dd7f3c6b9560685e7fd",
-        "src/stream.js": "4e6a7d9d938bdcd1b1208b39eba9eb559c19ccada432cf9dffdd07bbc05c3805",
-        "src/transport-evidence.js": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a",
-        "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f"
+        "docs/contracts/request-lifecycle.json": "d700660eec3224d1ce1a5647973aa5e8b57e26de28045e9f669afe515069d30c",
+        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
+        "src/request-lifecycle.js": "d0e2a7898a88e0202bdd7e68f7d44dd3eb14c4a887837d05f2e1edf76c587b51"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -382,26 +378,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-012",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "stream-painter.declared-effect",
+        "goal": "stream.paint-incrementally-with-view-continuity",
         "source": "src/stream-painter.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-R-012",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/stream-painter.mjs",
         "moduleId": "R-012",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:15.187Z",
-      "finishedAt": "2026-10-29T20:20:15.193Z",
+      "startedAt": "2026-10-30T04:51:20.467Z",
+      "finishedAt": "2026-10-30T04:51:20.470Z",
       "runtime": "v24.22.1",
       "observed": {
         "incrementalText": true,
@@ -410,10 +406,10 @@
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/stream-painter.mjs": "007cc784f9fd48298493beb35283a0a8949f2000fac2a65af8a925bee453101e",
-        "docs/contracts/stream-painter.json": "5f59565f43d2faab7a6aaed9af72cb960df354c6f70b2a04b9756aaa52c2460b",
-        "src/stream-painter.js": "ab24d9fe6ba79c4f8f4d3b2cb9527f0ea8b54f6f99ab780e0d80bd13fc8cc055",
+        "docs/contracts/stream-painter.json": "ea0c31b42f037e16e0f19bb6b365b79d7be45aa151cbf7f9ed203471d0202b2a",
+        "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
         "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-        "src/view-markup.js": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e"
+        "src/view-markup.js": "232ed32dee5065a41f9541bd7f10b09db4129cb005745e8217220ef84e09be6b"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -422,26 +418,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-013",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "transport-evidence.declared-effect",
+        "goal": "transport.bind-declaration-to-function-identity",
         "source": "src/transport-evidence.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-R-013",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/transport-evidence.mjs",
         "moduleId": "R-013",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:15.279Z",
-      "finishedAt": "2026-10-29T20:20:15.282Z",
+      "startedAt": "2026-10-30T04:51:20.537Z",
+      "finishedAt": "2026-10-30T04:51:20.540Z",
       "runtime": "v24.22.1",
       "observed": {
         "functionBoundDeclaration": true,
@@ -450,8 +446,8 @@
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/transport-evidence.mjs": "234f5a10d11d4cea6831e92ab0f7709c6fc956cd7474e8b411243c31980f0217",
-        "docs/contracts/transport-evidence.json": "eb5341642acd501fa9d5265c307223db829137d44d7c41860cb9553554f87331",
-        "src/transport-evidence.js": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a"
+        "docs/contracts/transport-evidence.json": "21b35f1422b13e94453ba09675c825a1579ed91bc77e63773c55638e0a68bdb8",
+        "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -460,26 +456,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-009",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "function",
-        "goal": "view-markup.declared-effect",
+        "goal": "view.escape-content-and-render-declared-markup",
         "source": "src/view-markup.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-F-009",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/view-markup.mjs",
         "moduleId": "F-009",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:15.361Z",
-      "finishedAt": "2026-10-29T20:20:15.369Z",
+      "startedAt": "2026-10-30T04:51:20.609Z",
+      "finishedAt": "2026-10-30T04:51:20.612Z",
       "runtime": "v24.22.1",
       "observed": {
         "escapedContent": true,
@@ -488,8 +484,8 @@
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/view-markup.mjs": "f3d91523bf103b05aca2cb256a964f1f6ab94aef62146a78ce11f6016f459164",
-        "docs/contracts/view-markup.json": "f58bebd23f3b9f953df909a5e7b617beb228a5a45f73c933757253ca39def613",
-        "src/view-markup.js": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e"
+        "docs/contracts/view-markup.json": "00fdd11c2f80d431c9a864575baf657d53eb453332bfbeaa0859287b2f291d4d",
+        "src/view-markup.js": "232ed32dee5065a41f9541bd7f10b09db4129cb005745e8217220ef84e09be6b"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -498,26 +494,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-008",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "view-position.declared-effect",
+        "goal": "view.restore-own-position-with-stale-callback-invalidation",
         "source": "src/view-position.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-R-008",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/view-position.mjs",
         "moduleId": "R-008",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:15.446Z",
-      "finishedAt": "2026-10-29T20:20:15.449Z",
+      "startedAt": "2026-10-30T04:51:20.669Z",
+      "finishedAt": "2026-10-30T04:51:20.671Z",
       "runtime": "v24.22.1",
       "observed": {
         "independentReadingPositions": true
@@ -525,8 +521,8 @@
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/view-position.mjs": "23ae5f6a1b72057d186f1c29522919c8fbcc9207389b0720c330b50a6cc740ff",
-        "docs/contracts/view-position.json": "207487582a4feb6082218b2817936f830dc85664ac32e6c0d1be4809a91db1c1",
-        "src/view-position.js": "a0bbecc1f19b97f6d99480a11a538936cf23e3c27d4726641101e59055457711"
+        "docs/contracts/view-position.json": "a31973442c90ad4cd4853a1e8c0cd6ac8ed0d24172b0de054fde6c9028e02f7e",
+        "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -535,26 +531,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "C-002",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "composition",
-        "goal": "workbench.declared-effect",
+        "goal": "workbench.compose-scoped-effects-after-hydration",
         "source": "src/workbench.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-C-002",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/workbench.mjs",
         "moduleId": "C-002",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.2.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:15.544Z",
-      "finishedAt": "2026-10-29T20:20:15.567Z",
+      "startedAt": "2026-10-30T04:51:20.746Z",
+      "finishedAt": "2026-10-30T04:51:20.762Z",
       "runtime": "v24.22.1",
       "observed": {
         "fullInitialization": true,
@@ -564,33 +560,40 @@
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
-        "docs/contracts/workbench.json": "f1183652569b7670dc18b84a7b268a2697a0e5eaab93a27a8a5ba88ed096eeba",
-        "src/agent.js": "e4ee8dbc6e0590006262ec27d9d0c25d44d1badaba58e6ea94f93ed60b2950c4",
+        "docs/contracts/workbench.json": "e41f2ce70b17743b0ba34055bb52e4c6847a290a9957975c47d0d47b0c048314",
+        "src/agent.js": "cd39cce66d22c2ea4d7d6b8b85ce239bafa2dd28da361eb52ea60ed363782cfc",
+        "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
+        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
         "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
-        "src/canvas-geometry.js": "1a5403248a4f1f9fb04e904e82b09440574aebf9a8e87fdc4069ea078e64335d",
-        "src/clipboard-report.js": "8b130db8e9eac87b38d1bff87d0932a31c618631d725da8ec97fa0d59ca6d6ba",
-        "src/core.js": "6ef655ebf37e05f0df7e2eee652d7072d6779c37e2a433fc90ed2bed3c1fffe4",
-        "src/error-diagnostic.js": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9",
+        "src/canvas-geometry.js": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c",
+        "src/clipboard-report.js": "e58d0aadd47b30cfcf3c7ac1e577e868b55deb700ffb59f9913b177490832f7f",
+        "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
+        "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509",
+        "src/core.js": "301817a889ce5f673b12a4bed99f3803cc0eb6caef5a3e612313c8be920b8d20",
+        "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
         "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
         "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
-        "src/image-delivery.js": "a5f701263a20e43e562eaa2374312809f9c23c1bf43d0237a8372df411317631",
-        "src/lifecycle.js": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5",
+        "src/image-delivery.js": "5b99571a4069cab3da4a65731f7647e428aa6babf07ffecc6f61d907ab0017be",
+        "src/image-evidence.js": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1",
+        "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0",
         "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
-        "src/native-json.js": "7e7712f5b28be628b4eaa218089b821e2c773d81f28b1abb02efa851a679f75f",
+        "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
         "src/persistence.js": "fc680e5697c1c7a901cd9a94b7f9b5eb45cd2a07658edb1765b48b055e7aa13b",
-        "src/provider-identity.js": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884",
+        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
         "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
-        "src/request-lifecycle.js": "ad78902faf056c5b3f740cafef2862ea64409eaebaa17dd7f3c6b9560685e7fd",
-        "src/session-webmcp.js": "132374f5df6e13b4f71f5a7f3879e269caff97985ccbfa53fc2df22d3ca26d93",
+        "src/request-lifecycle.js": "d0e2a7898a88e0202bdd7e68f7d44dd3eb14c4a887837d05f2e1edf76c587b51",
+        "src/request-outcome.js": "ba64f1d283b9e0f877d33be1e352a8f4ea4f5b5114daeb9a0aede5b53cfd5791",
+        "src/request-transport.js": "3b8dbdd913643faaacb219daba68955c8afba379b72d01e16b46b2ba9533de67",
+        "src/session-webmcp.js": "11852e7900e100dd3b0a5aba32d3c6209d33399ec1533e42f1a819640c9361b4",
         "src/session.js": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153",
-        "src/stream-painter.js": "ab24d9fe6ba79c4f8f4d3b2cb9527f0ea8b54f6f99ab780e0d80bd13fc8cc055",
-        "src/stream.js": "4e6a7d9d938bdcd1b1208b39eba9eb559c19ccada432cf9dffdd07bbc05c3805",
-        "src/transport-evidence.js": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a",
+        "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
+        "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
+        "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
         "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-        "src/view-markup.js": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e",
-        "src/view-position.js": "a0bbecc1f19b97f6d99480a11a538936cf23e3c27d4726641101e59055457711",
-        "src/workbench.js": "9e0d5613c2a12200d6ece539ff3bce68b310857d33a2064c019f64fa13161bc3",
-        "src/workspace-storage.js": "261e138eabebb078bc966f1d01ba4a2bf8c84dafb81d82924c089ff43a18a5ee"
+        "src/view-markup.js": "232ed32dee5065a41f9541bd7f10b09db4129cb005745e8217220ef84e09be6b",
+        "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
+        "src/workbench.js": "8a33728f76aa1032e632269aa559c3488f22f3d0e24a6fb54e3e00ec2e304e02",
+        "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -599,26 +602,26 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "R-010",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "kind": "relation",
-        "goal": "workspace-storage.declared-effect",
+        "goal": "storage.hydrate-before-write-and-separate-failure-routes",
         "source": "src/workspace-storage.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-R-010",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-29T20:08:58.524Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
         "entry": "development/hosts/workspace-storage.mjs",
         "moduleId": "R-010",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-29T20:20:15.658Z",
-      "finishedAt": "2026-10-29T20:20:15.661Z",
+      "startedAt": "2026-10-30T04:51:20.827Z",
+      "finishedAt": "2026-10-30T04:51:20.829Z",
       "runtime": "v24.22.1",
       "observed": {
         "hydrationBeforeWrites": true
@@ -626,88 +629,423 @@
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/workspace-storage.mjs": "f607184fc6fd962467f0cfd6cae81a81d5b1f382aa90defc1e75f8bfccac092e",
-        "docs/contracts/workspace-storage.json": "cde744ead3c52144b110777eb4c77c78414690537ca9db778a43380a31c7c0a0",
-        "src/workspace-storage.js": "261e138eabebb078bc966f1d01ba4a2bf8c84dafb81d82924c089ff43a18a5ee"
+        "docs/contracts/workspace-storage.json": "a11c68d7d258cff69661e8d0cb3b6858d7dc84d348c431b46035a2365edd4fe2",
+        "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-010",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "kind": "function",
+        "goal": "completion.interpret-marker-without-admission",
+        "source": "src/completion-evidence.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-010",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/completion-evidence.mjs",
+        "moduleId": "F-010",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-30T04:51:20.890Z",
+      "finishedAt": "2026-10-30T04:51:20.892Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "futureMarkerUnknown": true,
+        "truncationDistinct": true
+      },
+      "hashes": {
+        "development/hosts/completion-evidence.mjs": "9a0eba353762a0a2b799a540de47beaa9ab1457fe1b3230ebfb7e523a75d2373",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/completion-evidence.json": "bcffb5d31beac4ddee93b26c1cafeeb31aa159b7c23d9cc3f6c82513b96aac28",
+        "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-014",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "kind": "relation",
+        "goal": "completion.admit-under-explicit-host-policy",
+        "source": "src/completion-policy.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-014",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/completion-policy.mjs",
+        "moduleId": "R-014",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-30T04:51:20.950Z",
+      "finishedAt": "2026-10-30T04:51:20.954Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "cases": 680,
+        "properties": [
+          "refusal-not-admitted",
+          "missing-compatible-json-stays-unknown",
+          "framing-required",
+          "future-marker-not-called-incomplete",
+          "no-goal-promotion"
+        ],
+        "scope": "Finite representative input classes of production functions; abstraction correspondence and complete implementation proof remain open."
+      },
+      "hashes": {
+        "development/hosts/completion-policy.mjs": "13454a46afdacf33cfba57a078227532f7da8a9546c772c56c13a088d9b9de39",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/models/completion-model.mjs": "5d972028f51063c0c7fedf296cacd98c17179f576def5171ec3207a88334eb07",
+        "docs/contracts/completion-policy.json": "e61b267003fdaf13356e55b1db62133a40de8e7aea42cf8047765c15f9bffbd8",
+        "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
+        "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-011",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "kind": "function",
+        "goal": "image.project-independent-effect-predicates",
+        "source": "src/image-evidence.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-011",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/image-evidence.mjs",
+        "moduleId": "F-011",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-30T04:51:21.014Z",
+      "finishedAt": "2026-10-30T04:51:21.019Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "cases": 820,
+        "scope": "All 9 decoding/dimension classes for lists of length 0..3 plus a forged receipt. Not a proof for arbitrary inputs or all list lengths.",
+        "emptySetNotSuccess": true,
+        "goalAndDurabilityNotInferred": true
+      },
+      "hashes": {
+        "development/hosts/image-evidence.mjs": "8bf5b50331ac85bc61136d1efb7da6692b79e112fffae7d5518d9d69a1d32bd9",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/models/image-evidence-model.mjs": "bdd7e4e5f7cf3011abe2cc4d6d7226aa35789883c6d390eb9b41d87769a11d61",
+        "docs/contracts/image-evidence.json": "620f7958b943fdd726ed25373006f387ea0e3a62db9a94b1f040f7c3a18a9d65",
+        "src/image-evidence.js": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-012",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "kind": "function",
+        "goal": "request.project-operation-and-separate-unknown-effects",
+        "source": "src/request-outcome.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-012",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/request-outcome.mjs",
+        "moduleId": "F-012",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-30T04:51:21.082Z",
+      "finishedAt": "2026-10-30T04:51:21.084Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "workflowAndGoalSeparated": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/request-outcome.mjs": "acd2290f8afb4ff81d29ebb7dc68838b877a4d5c254b9ef01182c279ec3effef",
+        "docs/contracts/request-outcome.json": "d2aabf169cdf3f7cf659f10c619ce6a50d3f732ca6f1f5b6691a9ed420aababc",
+        "src/request-outcome.js": "ba64f1d283b9e0f877d33be1e352a8f4ea4f5b5114daeb9a0aede5b53cfd5791"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-013",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "kind": "function",
+        "goal": "target.validate-current-public-web-policy",
+        "source": "src/api-target.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-013",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/api-target.mjs",
+        "moduleId": "F-013",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-30T04:51:21.141Z",
+      "finishedAt": "2026-10-30T04:51:21.144Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "normalizationObserved": true,
+        "targetChangeRejected": true,
+        "ownershipNotProved": true
+      },
+      "hashes": {
+        "development/hosts/api-target.mjs": "ca92ea005aad4b85ce437a6a531c61e1617d087bc905835f503cff7b726e274e",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/api-target.json": "093e56e17e96b65f991d7766ee97cee0d98d0cf4a319025708388ce86d1add96",
+        "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
+        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-015",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "kind": "relation",
+        "goal": "transport.observe-http-and-frame-without-business-inference",
+        "source": "src/request-transport.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-015",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/request-transport.mjs",
+        "moduleId": "R-015",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-30T04:51:21.214Z",
+      "finishedAt": "2026-10-30T04:51:21.225Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "syntheticTransport": true,
+        "subscriptionReleased": true,
+        "noExtraRetry": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/request-transport.mjs": "75553641de6e5d1996daf7304d13afa6a3c7587039b09a3c61801d3fa78ad039",
+        "docs/contracts/request-transport.json": "2e1a919e3e3d8be88b0ea4674da2df92639f8eb86d21143fbf04cc7654db3150",
+        "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
+        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
+        "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
+        "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509",
+        "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
+        "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
+        "src/request-transport.js": "3b8dbdd913643faaacb219daba68955c8afba379b72d01e16b46b2ba9533de67",
+        "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
+        "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-014",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "kind": "function",
+        "goal": "diagnostic.preserve-local-code-and-optional-http-status",
+        "source": "src/app-error.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-014",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "entry": "development/hosts/app-error.mjs",
+        "moduleId": "F-014",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-10-30T04:51:21.284Z",
+      "finishedAt": "2026-10-30T04:51:21.286Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "localIdentityPreserved": true,
+        "noRootCauseInvented": true
+      },
+      "hashes": {
+        "development/hosts/app-error.mjs": "a799910d397ff790cc99dee71d224ee0f323e8c64ff0f329f55d4916565b9ec0",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/app-error.json": "72b01fb2865b1c31fc80ff222edef4610a404c7125ccfcb1b94a46ff4e0f413f",
+        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     }
   ],
+  "models": {
+    "status": "PASS",
+    "kind": "bounded-exhaustive-check",
+    "completion": {
+      "cases": 680,
+      "properties": [
+        "refusal-not-admitted",
+        "missing-compatible-json-stays-unknown",
+        "framing-required",
+        "future-marker-not-called-incomplete",
+        "no-goal-promotion"
+      ],
+      "scope": "Finite representative input classes of production functions; abstraction correspondence and complete implementation proof remain open."
+    },
+    "image": {
+      "cases": 820,
+      "scope": "All 9 decoding/dimension classes for lists of length 0..3 plus a forged receipt. Not a proof for arbitrary inputs or all list lengths.",
+      "emptySetNotSuccess": true,
+      "goalAndDurabilityNotInferred": true
+    },
+    "qualification": "No automatic F/C/H/Q promotion; explicit finite abstraction and host assumptions only."
+  },
   "inputHashes": {
-    ".github/workflows/pages.yml": "8ad180ccd8159c53dba3aa0c6bc4e0c7828b07949a226e8a70a16202344ba89c",
-    ".github/workflows/review.yml": "28bebc5eb9b5af9c74d86fb265cb599a50636f989a8ce013896316c057f75994",
+    ".github/workflows/pages.yml": "5f5d8b6411dfd716f0f8dee1a40656e8d4291e2a23f8d8d37cfd6a2d8a403dd9",
+    ".github/workflows/review.yml": "d6df3e88c504239027f254bababe6e5abb9c7749eb43f6c4e913c9ac72dc2309",
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development/hosts/api-target.mjs": "ca92ea005aad4b85ce437a6a531c61e1617d087bc905835f503cff7b726e274e",
+    "development/hosts/app-error.mjs": "a799910d397ff790cc99dee71d224ee0f323e8c64ff0f329f55d4916565b9ec0",
     "development/hosts/canvas-geometry.mjs": "a255b7f0f4d4f213dddca2b8f3a1e34a1f48a2a42c5d2b706f72d72478617e39",
     "development/hosts/clipboard-report.mjs": "44432d37f865545c3916f528eac41546e957cedfd51505619fb0ce20be9e9194",
+    "development/hosts/completion-evidence.mjs": "9a0eba353762a0a2b799a540de47beaa9ab1457fe1b3230ebfb7e523a75d2373",
+    "development/hosts/completion-policy.mjs": "13454a46afdacf33cfba57a078227532f7da8a9546c772c56c13a088d9b9de39",
     "development/hosts/error-diagnostic.mjs": "472106a60b2fa9a1b5506273db13c70e478e8a7a3caec4c7d237d8d2e33eb996",
     "development/hosts/image-delivery.mjs": "6e7c2d4f0338e430cdae8fcd609aa682bf9a9350ac09e039e2897f843b376523",
+    "development/hosts/image-evidence.mjs": "8bf5b50331ac85bc61136d1efb7da6692b79e112fffae7d5518d9d69a1d32bd9",
     "development/hosts/lifecycle.mjs": "1fad99f8cc20e835b2376dc1c37729d0ccc02f0f83fa48df475a1b8286c7b2e9",
     "development/hosts/native-json.mjs": "5b4b8aa8545776f613495516f8ef000c61f60148a817f82439535cc221f431f1",
     "development/hosts/provider-identity.mjs": "49730a8dbb8c3288204ecd0b02e5b6f07cbdb0ae5c54f779d4a5e3c824a33283",
     "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
     "development/hosts/request-lifecycle.mjs": "13d754032c0caf9dc878a097bf2bf1768bdb21d9178a966674dff7d067135035",
+    "development/hosts/request-outcome.mjs": "acd2290f8afb4ff81d29ebb7dc68838b877a4d5c254b9ef01182c279ec3effef",
+    "development/hosts/request-transport.mjs": "75553641de6e5d1996daf7304d13afa6a3c7587039b09a3c61801d3fa78ad039",
     "development/hosts/stream-painter.mjs": "007cc784f9fd48298493beb35283a0a8949f2000fac2a65af8a925bee453101e",
     "development/hosts/transport-evidence.mjs": "234f5a10d11d4cea6831e92ab0f7709c6fc956cd7474e8b411243c31980f0217",
     "development/hosts/view-markup.mjs": "f3d91523bf103b05aca2cb256a964f1f6ab94aef62146a78ce11f6016f459164",
     "development/hosts/view-position.mjs": "23ae5f6a1b72057d186f1c29522919c8fbcc9207389b0720c330b50a6cc740ff",
     "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
     "development/hosts/workspace-storage.mjs": "f607184fc6fd962467f0cfd6cae81a81d5b1f382aa90defc1e75f8bfccac092e",
+    "development/models/README.md": "731d5a970ad0c5fa88ff7767ec1caec035d6989ef98d1941172b19fdb7292453",
+    "development/models/completion-model.mjs": "5d972028f51063c0c7fedf296cacd98c17179f576def5171ec3207a88334eb07",
+    "development/models/image-evidence-model.mjs": "bdd7e4e5f7cf3011abe2cc4d6d7226aa35789883c6d390eb9b41d87769a11d61",
+    "development/models/run.mjs": "d3894de7bf6511414e222598ce181b4473daccc2a8bca5a361de6f3d88a157ee",
     "docs/ark-model-catalog.json": "202db1cef30cbd9049d0794ebbdef71deac369a7f4052c7c1606eb6152bbd1e5",
-    "docs/contracts/README.md": "0c52cc3f02fe7b32bd35a616b7f65134322cb28cf25ce2b8bc0f0a9b139d500b",
-    "docs/contracts/canvas-geometry.json": "fbf7790b1439d4a9a1b787e9d453e881482c14b0677a59cc8e145a2d05c9804e",
-    "docs/contracts/clipboard-report.json": "61d9618b2db9f79d54788f52ac7c25c330fbdeaf2c55dac7f45e74db1a223db9",
-    "docs/contracts/error-diagnostic.json": "8e3f546b86a1bc8bb74431af89d860d777efa17e317dee43ce824c2d3173a0b0",
-    "docs/contracts/image-delivery.json": "cd60400839e98ae77770e83b23b9c6bf53ba8fe870878fc5fe84e1e824c8ea10",
-    "docs/contracts/lifecycle.json": "81b8b0cab1ed8a793d2a0ff6f32c41a546dc2a92cf7d12a0bd8356171c2e2d93",
-    "docs/contracts/native-json.json": "7e07d3efef35be143ffa1a5bca8e49b347ce347d9eaf5b679d4bb8ef1e41b328",
-    "docs/contracts/provider-identity.json": "2784ca0276f4e9572825f17b221262abaf8d2ec63ad48900af5fdf07df6eb98a",
-    "docs/contracts/request-lifecycle.json": "f4cab3ef37bef0f6912c215bf4c4ae1d72f535365cb338459eb34e6421e2b583",
-    "docs/contracts/stream-painter.json": "5f59565f43d2faab7a6aaed9af72cb960df354c6f70b2a04b9756aaa52c2460b",
-    "docs/contracts/transport-evidence.json": "eb5341642acd501fa9d5265c307223db829137d44d7c41860cb9553554f87331",
-    "docs/contracts/view-markup.json": "f58bebd23f3b9f953df909a5e7b617beb228a5a45f73c933757253ca39def613",
-    "docs/contracts/view-position.json": "207487582a4feb6082218b2817936f830dc85664ac32e6c0d1be4809a91db1c1",
-    "docs/contracts/workbench.json": "f1183652569b7670dc18b84a7b268a2697a0e5eaab93a27a8a5ba88ed096eeba",
-    "docs/contracts/workspace-storage.json": "cde744ead3c52144b110777eb4c77c78414690537ca9db778a43380a31c7c0a0",
+    "docs/contracts/README.md": "39fbc232204e6ef8cf845b275aad53daaf7f766508c48d8b3ae6bf460e6dc5b6",
+    "docs/contracts/api-target.json": "093e56e17e96b65f991d7766ee97cee0d98d0cf4a319025708388ce86d1add96",
+    "docs/contracts/app-error.json": "72b01fb2865b1c31fc80ff222edef4610a404c7125ccfcb1b94a46ff4e0f413f",
+    "docs/contracts/canvas-geometry.json": "2963a857c7746621520685a93a5729d25c1afd6a81a176dcab939bcbad89d72d",
+    "docs/contracts/clipboard-report.json": "c6c45e6cf9cc639a541357333cfdbd97218efcf6b9d6f450bb04ffde9275ba6b",
+    "docs/contracts/completion-evidence.json": "bcffb5d31beac4ddee93b26c1cafeeb31aa159b7c23d9cc3f6c82513b96aac28",
+    "docs/contracts/completion-policy.json": "e61b267003fdaf13356e55b1db62133a40de8e7aea42cf8047765c15f9bffbd8",
+    "docs/contracts/error-diagnostic.json": "5f5aa6521db11d1818e4c3ed2d5d6cfb0c28ce206de0341f2a92956b2c0ebc13",
+    "docs/contracts/image-delivery.json": "a5485975cc3aadfb1ac58ac2d10bcd8014bd1dba821cf37ecbc724167606a364",
+    "docs/contracts/image-evidence.json": "620f7958b943fdd726ed25373006f387ea0e3a62db9a94b1f040f7c3a18a9d65",
+    "docs/contracts/lifecycle.json": "44f19f7a0cc0b57b48ed0da2f380c0cab30e13edf9a82720476dbdfd00c58dd9",
+    "docs/contracts/native-json.json": "db24efbd546dc4bd87dce656f62028569a22c8b5634d28f6d4eb3c5828c4b9bb",
+    "docs/contracts/provider-identity.json": "2c2828b565c7c13e327ffa512ec4ebe6881ba518f75ee3280e77151e9f69c77d",
+    "docs/contracts/request-lifecycle.json": "d700660eec3224d1ce1a5647973aa5e8b57e26de28045e9f669afe515069d30c",
+    "docs/contracts/request-outcome.json": "d2aabf169cdf3f7cf659f10c619ce6a50d3f732ca6f1f5b6691a9ed420aababc",
+    "docs/contracts/request-transport.json": "2e1a919e3e3d8be88b0ea4674da2df92639f8eb86d21143fbf04cc7654db3150",
+    "docs/contracts/stream-painter.json": "ea0c31b42f037e16e0f19bb6b365b79d7be45aa151cbf7f9ed203471d0202b2a",
+    "docs/contracts/transport-evidence.json": "21b35f1422b13e94453ba09675c825a1579ed91bc77e63773c55638e0a68bdb8",
+    "docs/contracts/view-markup.json": "00fdd11c2f80d431c9a864575baf657d53eb453332bfbeaa0859287b2f291d4d",
+    "docs/contracts/view-position.json": "a31973442c90ad4cd4853a1e8c0cd6ac8ed0d24172b0de054fde6c9028e02f7e",
+    "docs/contracts/workbench.json": "e41f2ce70b17743b0ba34055bb52e4c6847a290a9957975c47d0d47b0c048314",
+    "docs/contracts/workspace-storage.json": "a11c68d7d258cff69661e8d0cb3b6858d7dc84d348c431b46035a2365edd4fe2",
     "docs/evidence/source-claims.json": "5bb603b3a9af384887c39e4ba24c5bcb23cafea04bba12f6970088900731ec0b",
     "index.html": "4a9fb06281883f088ecf45737675c77d9c8cb23aaae8132b7674421b9addef36",
-    "module-library/catalog.json": "e10f324075659e9fad110fb90540083cd545badd3c38559b976f914755df58db",
-    "package.json": "185f856f5b5877992bd62d549d684511511504ddbfd806c94e8b5192e5f0cb60",
-    "scripts/build.mjs": "896ec1b3f9d8b6c136cc6534bfc4b7a3c8c2638c8253f0bfcd1f0a62be764943",
-    "scripts/check.mjs": "afb74f0b9542abb83cd3adc27248009ba91a1a00e025804b2d4afde8026752ae",
-    "scripts/review-evidence.mjs": "6c656df5c0aa5dd8befee535de61a38458b2b87d071661487c430a839987315d",
-    "scripts/review-health.mjs": "c8bf500e199eee215333d5b6864536538b5f152f9aa0dd00d8dff74ad9738aec",
+    "module-library/catalog.json": "ea0a8b0d5daed5211169ad24b8aef843966e26359a2d501147158420bba91206",
+    "package.json": "11902d4d581e06026ba67b8a41739568e2bb68f0df4328a9a273eab716b8a86e",
+    "scripts/build.mjs": "e5a8113b1d5468b3af70affdad596cd3dc5e80e963636e25bc5f03499901de95",
+    "scripts/check.mjs": "00ac158744479d91fdf206dbfe7ad29463eb9a9b2e55344765b775dbb0653150",
+    "scripts/review-evidence.mjs": "6956c0bcf5fcc2a9c5986d625a97dddb1d79202cd6d67d638685a9d784681285",
+    "scripts/review-health.mjs": "422f26e50fc0320c2ea791fd4ec6006becce58f7d0bd6dd37c72281596146573",
     "scripts/review-sources.mjs": "024764392d79b50cf1a9d4e65cb656ce008a50a2094506508f232d9f254eb901",
     "scripts/run-hosts.mjs": "571c47fc42799c582bd1593688a28aa64f4391be8cfd62bfc83d3ace39244ad9",
-    "src/agent.js": "e4ee8dbc6e0590006262ec27d9d0c25d44d1badaba58e6ea94f93ed60b2950c4",
+    "src/agent.js": "cd39cce66d22c2ea4d7d6b8b85ce239bafa2dd28da361eb52ea60ed363782cfc",
+    "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
+    "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
     "src/app.js": "79effcea74a04414a454ed3425b71a98c35e55be6ba43aae7c8eb08fa6f8264d",
     "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
-    "src/canvas-geometry.js": "1a5403248a4f1f9fb04e904e82b09440574aebf9a8e87fdc4069ea078e64335d",
-    "src/clipboard-report.js": "8b130db8e9eac87b38d1bff87d0932a31c618631d725da8ec97fa0d59ca6d6ba",
-    "src/core.js": "6ef655ebf37e05f0df7e2eee652d7072d6779c37e2a433fc90ed2bed3c1fffe4",
-    "src/error-diagnostic.js": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9",
+    "src/canvas-geometry.js": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c",
+    "src/clipboard-report.js": "e58d0aadd47b30cfcf3c7ac1e577e868b55deb700ffb59f9913b177490832f7f",
+    "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
+    "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509",
+    "src/core.js": "301817a889ce5f673b12a4bed99f3803cc0eb6caef5a3e612313c8be920b8d20",
+    "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
     "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
     "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
-    "src/image-delivery.js": "a5f701263a20e43e562eaa2374312809f9c23c1bf43d0237a8372df411317631",
-    "src/lifecycle.js": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5",
+    "src/image-delivery.js": "5b99571a4069cab3da4a65731f7647e428aa6babf07ffecc6f61d907ab0017be",
+    "src/image-evidence.js": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1",
+    "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0",
     "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
-    "src/native-json.js": "7e7712f5b28be628b4eaa218089b821e2c773d81f28b1abb02efa851a679f75f",
+    "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
     "src/persistence.js": "fc680e5697c1c7a901cd9a94b7f9b5eb45cd2a07658edb1765b48b055e7aa13b",
-    "src/provider-identity.js": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884",
+    "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
     "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
-    "src/request-lifecycle.js": "ad78902faf056c5b3f740cafef2862ea64409eaebaa17dd7f3c6b9560685e7fd",
-    "src/session-webmcp.js": "132374f5df6e13b4f71f5a7f3879e269caff97985ccbfa53fc2df22d3ca26d93",
+    "src/request-lifecycle.js": "d0e2a7898a88e0202bdd7e68f7d44dd3eb14c4a887837d05f2e1edf76c587b51",
+    "src/request-outcome.js": "ba64f1d283b9e0f877d33be1e352a8f4ea4f5b5114daeb9a0aede5b53cfd5791",
+    "src/request-transport.js": "3b8dbdd913643faaacb219daba68955c8afba379b72d01e16b46b2ba9533de67",
+    "src/session-webmcp.js": "11852e7900e100dd3b0a5aba32d3c6209d33399ec1533e42f1a819640c9361b4",
     "src/session.js": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153",
-    "src/stream-painter.js": "ab24d9fe6ba79c4f8f4d3b2cb9527f0ea8b54f6f99ab780e0d80bd13fc8cc055",
-    "src/stream.js": "4e6a7d9d938bdcd1b1208b39eba9eb559c19ccada432cf9dffdd07bbc05c3805",
+    "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
+    "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
     "src/styles.css": "9baae33119d8195710ed2214e5ee96af3db0b30b4d59e6103359e3902c9866ae",
-    "src/transport-evidence.js": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a",
+    "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
     "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-    "src/view-markup.js": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e",
-    "src/view-position.js": "a0bbecc1f19b97f6d99480a11a538936cf23e3c27d4726641101e59055457711",
-    "src/workbench.js": "9e0d5613c2a12200d6ece539ff3bce68b310857d33a2064c019f64fa13161bc3",
-    "src/workspace-storage.js": "261e138eabebb078bc966f1d01ba4a2bf8c84dafb81d82924c089ff43a18a5ee",
+    "src/view-markup.js": "232ed32dee5065a41f9541bd7f10b09db4129cb005745e8217220ef84e09be6b",
+    "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
+    "src/workbench.js": "8a33728f76aa1032e632269aa559c3488f22f3d0e24a6fb54e3e00ec2e304e02",
+    "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d",
     "tests/agent.test.js": "5189cd780d58da72a61b7ad0a5d9e72e2654a9d4c2d25a6399e2f174d1ac2ede",
     "tests/anthropic.test.js": "428989010cc34074b63bf725e2767973780cb292d77ab782d66a21aa7b0d9259",
-    "tests/app-controls.test.js": "9defaa91c8ac341db58c67836a388619acc9d42d92fc420e4654b39fcc4d87cc",
+    "tests/app-controls.test.js": "7f5556376a28d4ce742e533630041f4ed649e58518fa502889f8a7be557c594d",
     "tests/app.test.js": "357911d11a1fb9964d280605abdbcbcd48dbcab39754eb27b15dc44a6f04e628",
     "tests/attachments.test.js": "e20dd7cd26078931cdec4b0f465ade6f9f18902a49f662f7c35e69619b321792",
     "tests/browser-syntax.test.js": "72129caa6a2f8406c814217f775c7ad568b038d434d6b841a61784e8e1328010",
@@ -722,7 +1060,7 @@
     "tests/browser/safari-canvas.html": "66c8447986739d8836c00b811ab9f0a8fd085fdfcce1018b098d1941fdcb6569",
     "tests/browser/streaming.html": "d4733e029cb7d14a270835320fd4912df24e7ecca1770e92f80c0eb939dc3dd6",
     "tests/browser/usage.html": "ceb0fae26ab96d242f71ecdec47d8b2bede33ac26f2049bc1b0a2ef64ebb9178",
-    "tests/build.test.js": "41243e1f5cdac199c1f7741081bb51830a64ee8b5c64c84dde9666f521735039",
+    "tests/build.test.js": "9037d2f70d1ca65768d1ea7504a636c4654dfe4fa8475ce03adcb8b720f8f54f",
     "tests/cli.test.js": "d43964c5373f6c4aee239f72751865576aa3a079cf0f19ed0a0691c7cf9ea413",
     "tests/compact-composer.test.js": "46ed0910cfb042a49cb9375e4264351a093187f71846aba6137abec089e6819d",
     "tests/core.test.js": "8b5f73e098af131aaba6eac17bbfa68028a4abd63a87d32d92798e6a17dc0408",
@@ -730,6 +1068,7 @@
     "tests/deepseek-cache.test.js": "8e27a604fc1e78ff2226b2f5bbc404283759ac0c9829491dd9b6aa4ef492c428",
     "tests/deepseek-output.test.js": "de7ff0c7a144e75df29fb42d19709c93c356664e55325641d31fecc669af45ea",
     "tests/development-hosts.test.js": "777129a8422dee86bc44798ef79aeb518d9178c7883277bb891588532f6f26c4",
+    "tests/epistemic-boundaries.test.js": "0bcd4e38b9fc5308156a007b8494baee97b9296852f7ef5ab77f4e7bed4dcd5c",
     "tests/fixtures/attachments/note.txt": "35b774a4631a5666c431d54d8ac76a010d43d4efb7239be7b0467fcb69a401fb",
     "tests/fixtures/attachments/sample.pdf": "70e35fb2837b12e0efe403e062479e95567584d373f5323cfe222810dbb5ebe7",
     "tests/fixtures/attachments/tiny.png.base64": "d43fe7c51200f6c4dbec61a92f1d99acf764ba9edf1584f257b6f20c53607fd8",
@@ -763,9 +1102,9 @@
     "tests/view-position.test.js": "b7e98f54c2cfc88ed96dbe3be31e447283214f40c191b7de62647bfebedfcc63"
   },
   "scope": {
-    "local": "Real module imports, full composition initialization with declared synthetic collaborators; no VM source rewriting.",
+    "local": "Real module imports, synthetic effects and full workbench initialization; interpretation/policy/effect boundaries tested separately.",
     "providerLiveCalls": 0,
-    "formalProof": "No complete implementation proof or automatic F/C/H/Q promotion",
-    "browser": "Deployment/browser observations recorded separately in docs/reviews/2026-10-30-browser.md"
+    "formalProof": "Finite representative-class checks only; complete implementation/refinement/host proof and all F/C/H/Q remain open.",
+    "browser": "Prior v0.2.0 observations remain historical. v0.3.0 publication observations go in its knowledge snapshot."
   }
 }

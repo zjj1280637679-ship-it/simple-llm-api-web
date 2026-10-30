@@ -1,3 +1,8 @@
+/** 开发态课题：何时允许写入，journal 失败是否掩盖完整存档？
+ * 状态/边界：hydrated/disposed 两布尔值 + 一个防抖计时器；store事务外置。
+ * 扩展：扩展存储 backend 时保持协调器与事务语义分离。
+ * 契约：docs/contracts/workspace-storage.json；局部宿主不替代完整 F/C/H/Q。
+ */
 /** Coordinates hydration, the synchronous journal and debounced snapshots.
  * The host owns workspace data; the store owns transaction/conflict semantics.
  */

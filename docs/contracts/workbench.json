@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "C-002",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "composition",
-    "goal": "workbench.declared-effect",
+    "goal": "workbench.compose-scoped-effects-after-hydration",
     "source": "src/workbench.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-C-002",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/workbench.mjs",
     "moduleId": "C-002",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.2.0",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "各工作区如何组合请求、交付、保存和页面生命周期？",
+  "stateModel": {
+    "budget": "默认2工作区、3页；DOM、协议、存档等外部状态未全部有限化",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "发送返回不推导用户目标；已存工作区不推导持久化成功"
+  ],
+  "extensionSeam": "新增服务通过显式 services 注入，先定义观察/回执与资源归属",
+  "proofObligations": [
+    {
+      "id": "C-002.effect",
+      "statement": "各工作区如何组合请求、交付、保存和页面生命周期？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/workbench.mjs"
+    },
+    {
+      "id": "C-002.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{fullInitialization:true,sessionAfterReady:true,disposedSessionInert:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

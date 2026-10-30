@@ -58,6 +58,17 @@ function configure(ui, page = 'chat') {
   return { d, card };
 }
 
+test('live page session preserves unknown completion beside returned workflow status',async()=>{
+  const ui=await mount({runConversation:async()=>({text:'synthetic result',history:[],completion:{status:'unknown'}})});
+  const {d}=configure(ui);d.draft='synthetic prompt';
+  const response=await ui.session.execute({command:'request.send',args:{}});
+  assert.equal(response.ok,true);assert.equal(response.result.status,'completed');
+  assert.equal(response.result.outcome.operation,'returned');
+  assert.equal(response.result.outcome.protocolCompletion,'unknown');
+  assert.equal(response.result.outcome.goalSatisfied,'unknown');
+  assert.equal(response.result.outcome.durablePersistence,'unknown');
+});
+
 test('URL input immediately revokes visible trust without rebuilding the focused input', async()=> {
   const ui = await mount(), { d, card } = configure(ui);
   const input = ui.app.querySelector(`#url${card.id}`), renders = ui.app.renders;

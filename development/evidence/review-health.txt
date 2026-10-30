@@ -1,23 +1,41 @@
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.2.0 review:health
+> simple-llm-api-web@0.3.0 review:health
 > node scripts/review-health.mjs
 
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T20:20:14.425Z",
+  "generatedAt": "2026-10-30T04:51:21.674Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
     {
       "path": "src/agent.js",
-      "bytes": 8761,
-      "lines": 182,
+      "bytes": 7779,
+      "lines": 164,
       "maxLineCharacters": 168,
       "relativeImports": [
-        "src/core.js"
+        "src/core.js",
+        "src/image-evidence.js"
       ],
-      "sha256": "e4ee8dbc6e0590006262ec27d9d0c25d44d1badaba58e6ea94f93ed60b2950c4"
+      "sha256": "cd39cce66d22c2ea4d7d6b8b85ce239bafa2dd28da361eb52ea60ed363782cfc"
+    },
+    {
+      "path": "src/api-target.js",
+      "bytes": 3396,
+      "lines": 51,
+      "maxLineCharacters": 104,
+      "relativeImports": [
+        "src/app-error.js"
+      ],
+      "sha256": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834"
+    },
+    {
+      "path": "src/app-error.js",
+      "bytes": 693,
+      "lines": 14,
+      "maxLineCharacters": 82,
+      "relativeImports": [],
+      "sha256": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e"
     },
     {
       "path": "src/app.js",
@@ -39,46 +57,63 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/canvas-geometry.js",
-      "bytes": 18148,
-      "lines": 292,
+      "bytes": 18526,
+      "lines": 297,
       "maxLineCharacters": 396,
       "relativeImports": [
         "src/lifecycle.js"
       ],
-      "sha256": "1a5403248a4f1f9fb04e904e82b09440574aebf9a8e87fdc4069ea078e64335d"
+      "sha256": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c"
     },
     {
       "path": "src/clipboard-report.js",
-      "bytes": 719,
-      "lines": 16,
+      "bytes": 1055,
+      "lines": 21,
       "maxLineCharacters": 100,
       "relativeImports": [],
-      "sha256": "8b130db8e9eac87b38d1bff87d0932a31c618631d725da8ec97fa0d59ca6d6ba"
+      "sha256": "e58d0aadd47b30cfcf3c7ac1e577e868b55deb700ffb59f9913b177490832f7f"
+    },
+    {
+      "path": "src/completion-evidence.js",
+      "bytes": 2171,
+      "lines": 30,
+      "maxLineCharacters": 114,
+      "relativeImports": [],
+      "sha256": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2"
+    },
+    {
+      "path": "src/completion-policy.js",
+      "bytes": 2680,
+      "lines": 34,
+      "maxLineCharacters": 130,
+      "relativeImports": [],
+      "sha256": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509"
     },
     {
       "path": "src/core.js",
-      "bytes": 28348,
-      "lines": 392,
+      "bytes": 19170,
+      "lines": 264,
       "maxLineCharacters": 476,
       "relativeImports": [
+        "src/api-target.js",
+        "src/app-error.js",
         "src/attachments.js",
-        "src/error-diagnostic.js",
+        "src/completion-evidence.js",
+        "src/completion-policy.js",
         "src/image-capabilities.js",
-        "src/logs.js",
         "src/reasoning.js",
-        "src/stream.js",
-        "src/transport-evidence.js",
+        "src/request-transport.js",
         "src/usage.js"
       ],
-      "sha256": "6ef655ebf37e05f0df7e2eee652d7072d6779c37e2a433fc90ed2bed3c1fffe4"
+      "sha256": "301817a889ce5f673b12a4bed99f3803cc0eb6caef5a3e612313c8be920b8d20"
     },
     {
       "path": "src/error-diagnostic.js",
-      "bytes": 1742,
-      "lines": 35,
+      "bytes": 2096,
+      "lines": 40,
       "maxLineCharacters": 140,
       "relativeImports": [],
-      "sha256": "9f79309a01a9295623088b845e33e3b27ee0fa9ab99e1615582de90bcf0c5ce9"
+      "sha256": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99"
     },
     {
       "path": "src/icons.js",
@@ -98,19 +133,27 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/image-delivery.js",
-      "bytes": 2579,
-      "lines": 48,
+      "bytes": 2952,
+      "lines": 53,
       "maxLineCharacters": 186,
       "relativeImports": [],
-      "sha256": "a5f701263a20e43e562eaa2374312809f9c23c1bf43d0237a8372df411317631"
+      "sha256": "5b99571a4069cab3da4a65731f7647e428aa6babf07ffecc6f61d907ab0017be"
+    },
+    {
+      "path": "src/image-evidence.js",
+      "bytes": 2798,
+      "lines": 40,
+      "maxLineCharacters": 118,
+      "relativeImports": [],
+      "sha256": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1"
     },
     {
       "path": "src/lifecycle.js",
-      "bytes": 798,
-      "lines": 26,
+      "bytes": 1133,
+      "lines": 31,
       "maxLineCharacters": 81,
       "relativeImports": [],
-      "sha256": "a7dd4ff3bcab6e446310d351357716ca557a09e583635b755a8ec644313d80f5"
+      "sha256": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0"
     },
     {
       "path": "src/logs.js",
@@ -122,11 +165,11 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/native-json.js",
-      "bytes": 1924,
-      "lines": 46,
+      "bytes": 2314,
+      "lines": 51,
       "maxLineCharacters": 112,
       "relativeImports": [],
-      "sha256": "7e7712f5b28be628b4eaa218089b821e2c773d81f28b1abb02efa851a679f75f"
+      "sha256": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b"
     },
     {
       "path": "src/persistence.js",
@@ -140,11 +183,11 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/provider-identity.js",
-      "bytes": 1390,
-      "lines": 23,
+      "bytes": 1735,
+      "lines": 28,
       "maxLineCharacters": 132,
       "relativeImports": [],
-      "sha256": "352484d82598dc12dc11988a77ca173237b0dd5dafe4670a5349cc44e15dc884"
+      "sha256": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85"
     },
     {
       "path": "src/reasoning.js",
@@ -158,23 +201,46 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/request-lifecycle.js",
-      "bytes": 3853,
-      "lines": 59,
+      "bytes": 4223,
+      "lines": 64,
       "maxLineCharacters": 373,
       "relativeImports": [
-        "src/core.js"
+        "src/app-error.js"
       ],
-      "sha256": "ad78902faf056c5b3f740cafef2862ea64409eaebaa17dd7f3c6b9560685e7fd"
+      "sha256": "d0e2a7898a88e0202bdd7e68f7d44dd3eb14c4a887837d05f2e1edf76c587b51"
+    },
+    {
+      "path": "src/request-outcome.js",
+      "bytes": 1202,
+      "lines": 17,
+      "maxLineCharacters": 120,
+      "relativeImports": [],
+      "sha256": "ba64f1d283b9e0f877d33be1e352a8f4ea4f5b5114daeb9a0aede5b53cfd5791"
+    },
+    {
+      "path": "src/request-transport.js",
+      "bytes": 7536,
+      "lines": 105,
+      "maxLineCharacters": 239,
+      "relativeImports": [
+        "src/api-target.js",
+        "src/app-error.js",
+        "src/error-diagnostic.js",
+        "src/logs.js",
+        "src/stream.js",
+        "src/transport-evidence.js"
+      ],
+      "sha256": "3b8dbdd913643faaacb219daba68955c8afba379b72d01e16b46b2ba9533de67"
     },
     {
       "path": "src/session-webmcp.js",
-      "bytes": 3952,
+      "bytes": 4050,
       "lines": 65,
-      "maxLineCharacters": 162,
+      "maxLineCharacters": 260,
       "relativeImports": [
         "src/session.js"
       ],
-      "sha256": "132374f5df6e13b4f71f5a7f3879e269caff97985ccbfa53fc2df22d3ca26d93"
+      "sha256": "11852e7900e100dd3b0a5aba32d3c6209d33399ec1533e42f1a819640c9361b4"
     },
     {
       "path": "src/session.js",
@@ -186,30 +252,33 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/stream-painter.js",
-      "bytes": 1994,
-      "lines": 34,
+      "bytes": 2323,
+      "lines": 39,
       "maxLineCharacters": 212,
       "relativeImports": [
         "src/usage.js",
         "src/view-markup.js"
       ],
-      "sha256": "ab24d9fe6ba79c4f8f4d3b2cb9527f0ea8b54f6f99ab780e0d80bd13fc8cc055"
+      "sha256": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64"
     },
     {
       "path": "src/stream.js",
-      "bytes": 11910,
-      "lines": 185,
+      "bytes": 11911,
+      "lines": 188,
       "maxLineCharacters": 170,
-      "relativeImports": [],
-      "sha256": "4e6a7d9d938bdcd1b1208b39eba9eb559c19ccada432cf9dffdd07bbc05c3805"
+      "relativeImports": [
+        "src/completion-evidence.js",
+        "src/completion-policy.js"
+      ],
+      "sha256": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb"
     },
     {
       "path": "src/transport-evidence.js",
-      "bytes": 766,
-      "lines": 11,
+      "bytes": 1095,
+      "lines": 16,
       "maxLineCharacters": 174,
       "relativeImports": [],
-      "sha256": "89dc75cbef415afe7f5f5f1ed09b493c660d72a5493d8aeae65c9cd9b6ddbb6a"
+      "sha256": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491"
     },
     {
       "path": "src/usage.js",
@@ -221,24 +290,24 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/view-markup.js",
-      "bytes": 851,
-      "lines": 13,
+      "bytes": 1194,
+      "lines": 18,
       "maxLineCharacters": 300,
       "relativeImports": [],
-      "sha256": "dcb333de5a6f9442498c97c865ee00fdf291be53de029765ce1da9a614b7a07e"
+      "sha256": "232ed32dee5065a41f9541bd7f10b09db4129cb005745e8217220ef84e09be6b"
     },
     {
       "path": "src/view-position.js",
-      "bytes": 2473,
-      "lines": 41,
+      "bytes": 2801,
+      "lines": 46,
       "maxLineCharacters": 206,
       "relativeImports": [],
-      "sha256": "a0bbecc1f19b97f6d99480a11a538936cf23e3c27d4726641101e59055457711"
+      "sha256": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd"
     },
     {
       "path": "src/workbench.js",
-      "bytes": 63968,
-      "lines": 844,
+      "bytes": 64359,
+      "lines": 852,
       "maxLineCharacters": 687,
       "relativeImports": [
         "src/agent.js",
@@ -248,11 +317,13 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/core.js",
         "src/icons.js",
         "src/image-delivery.js",
+        "src/image-evidence.js",
         "src/lifecycle.js",
         "src/logs.js",
         "src/persistence.js",
         "src/reasoning.js",
         "src/request-lifecycle.js",
+        "src/request-outcome.js",
         "src/session-webmcp.js",
         "src/session.js",
         "src/stream-painter.js",
@@ -261,22 +332,53 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/view-position.js",
         "src/workspace-storage.js"
       ],
-      "sha256": "9e0d5613c2a12200d6ece539ff3bce68b310857d33a2064c019f64fa13161bc3"
+      "sha256": "8a33728f76aa1032e632269aa559c3488f22f3d0e24a6fb54e3e00ec2e304e02"
     },
     {
       "path": "src/workspace-storage.js",
-      "bytes": 1449,
-      "lines": 35,
+      "bytes": 1802,
+      "lines": 40,
       "maxLineCharacters": 142,
       "relativeImports": [],
-      "sha256": "261e138eabebb078bc966f1d01ba4a2bf8c84dafb81d82924c089ff43a18a5ee"
+      "sha256": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d"
     }
   ],
   "cards": [
     {
+      "path": "docs/contracts/api-target.json",
+      "module": "F-013",
+      "host": "H-F-013",
+      "question": "当前公共网页允许哪个规范化目标及凭据绑定？",
+      "goal": "target.validate-current-public-web-policy",
+      "stateBudget": "无持久状态；URL解析器为信任基，任意URL输入未完整形式化",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/app-error.json",
+      "module": "F-014",
+      "host": "H-F-014",
+      "question": "如何保留本地错误类别而不冒称根因？",
+      "goal": "diagnostic.preserve-local-code-and-optional-http-status",
+      "stateBudget": "单个 Error 实例，无共享状态；code/message 为调用者提供的字符串",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
       "path": "docs/contracts/canvas-geometry.json",
       "module": "R-007",
       "host": "H-R-007",
+      "question": "视口变化如何保持操作可达而不恢复旧焦点？",
+      "goal": "canvas.preserve-reading-and-explicit-focus-intent",
+      "stateBudget": "诊断环最多80项；观察器/DOM 几何由宿主提供，外部状态未有限化",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -288,6 +390,37 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/clipboard-report.json",
       "module": "R-011",
       "host": "H-R-011",
+      "question": "复制异步结束时是否仍属于发起的视图？",
+      "goal": "clipboard.report-only-to-originating-live-view",
+      "stateBudget": "一次调用持有视图身份；剪贴板是外部效果",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/completion-evidence.json",
+      "module": "F-010",
+      "host": "H-F-010",
+      "question": "收到的结束标记在当前本地规则中意味着什么？",
+      "goal": "completion.interpret-marker-without-admission",
+      "stateBudget": "无持久状态；4协议 + 未知协议；有限标记等价类，原始字符串不穷举",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/completion-policy.json",
+      "module": "R-014",
+      "host": "H-R-014",
+      "question": "哪种结束证据在当前入口可被接纳？",
+      "goal": "completion.admit-under-explicit-host-policy",
+      "stateBudget": "无持久状态；JSON/SSE、terminal布尔值、规范化证据等价类",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -299,6 +432,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/error-diagnostic.json",
       "module": "F-008",
       "host": "H-F-008",
+      "question": "错误响应中哪些有限字段可作为上游报告保留？",
+      "goal": "http.project-bounded-redacted-diagnostic",
+      "stateBudget": "一次读取器；8 KiB / 1.2 秒预算；响应主体与时钟为外部条件",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -310,6 +446,23 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/image-delivery.json",
       "module": "F-007",
       "host": "H-F-007",
+      "question": "候选图片能否解码，实际像素是什么，谁释放 URL？",
+      "goal": "image.decode-observe-pixels-and-own-urls",
+      "stateBudget": "disposed 布尔值 + 当前拥有的 URL 集；图片数量/内存由调用宿主约束",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/image-evidence.json",
+      "module": "F-011",
+      "host": "H-F-011",
+      "question": "签名、解码、尺寸、工作区交付能支持哪些效果结论？",
+      "goal": "image.project-independent-effect-predicates",
+      "stateBudget": "无持久状态；finite普通数组；检查器穷举0..3项的9类状态，任意长度另有归纳义务",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -321,6 +474,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/lifecycle.json",
       "module": "R-006",
       "host": "H-R-006",
+      "question": "谁释放已登记资源，晚到资源如何处理？",
+      "goal": "resource.release-once-and-release-late-registration",
+      "stateBudget": "disposed 布尔值 + 宿主控制大小的释放函数集合",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -332,6 +488,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/native-json.json",
       "module": "F-006",
       "host": "H-F-006",
+      "question": "原生业务 JSON 能否在声明输入范围内无语义删改地复制？",
+      "goal": "native-context.copy-without-semantic-filtering",
+      "stateBudget": "活动路径与节点计数；深度 <=64、节点 <=100000；字符串字节由组合控制",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -343,6 +502,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/provider-identity.json",
       "module": "R-005",
       "host": "H-R-005",
+      "question": "给定协议、主机与路径匹配哪个本地规则？",
+      "goal": "provider.profile-match-with-exact-scope",
+      "stateBudget": "无持久状态；有限 profile 表 + 宿主 URL 解析器",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -354,6 +516,37 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/request-lifecycle.json",
       "module": "R-009",
       "host": "H-R-009",
+      "question": "请求显示的是哪种可观察阶段，谁终止计时？",
+      "goal": "request.own-timers-and-report-observed-phase",
+      "stateBudget": "每活动工作区一个计时器租约，默认2个工作区；30分钟截止",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/request-outcome.json",
+      "module": "F-012",
+      "host": "H-F-012",
+      "question": "send 返回向调用者证明了哪一层完成？",
+      "goal": "request.project-operation-and-separate-unknown-effects",
+      "stateBudget": "无持久状态；有限 kind/completion/receipt 字段投影",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/request-transport.json",
+      "module": "R-015",
+      "host": "H-R-015",
+      "question": "实际传输边界观察到什么，哪些只是上游说明？",
+      "goal": "transport.observe-http-and-frame-without-business-inference",
+      "stateBudget": "请求计数与页面/进程观察者集合；每调用 reader/信号；完整响应大小未全域界定",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -365,6 +558,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/stream-painter.json",
       "module": "R-012",
       "host": "H-R-012",
+      "question": "增量文本怎样更新而不重置阅读和折叠状态？",
+      "goal": "stream.paint-incrementally-with-view-continuity",
+      "stateBudget": "不拥有业务历史；DOM/读取位置来自组合",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -376,6 +572,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/transport-evidence.json",
       "module": "R-013",
       "host": "H-R-013",
+      "question": "传输函数身份对应哪份宿主声明？",
+      "goal": "transport.bind-declaration-to-function-identity",
+      "stateBudget": "WeakMap 声明随函数身份，宿主控制对象数",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -387,6 +586,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/view-markup.json",
       "module": "F-009",
       "host": "H-F-009",
+      "question": "普通内容如何转义并映射成界面标记？",
+      "goal": "view.escape-content-and-render-declared-markup",
+      "stateBudget": "无持久状态；有限字符串输入，长度由调用宿主约束",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -398,6 +600,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/view-position.json",
       "module": "R-008",
       "host": "H-R-008",
+      "question": "每页阅读位置与晚到布局回调怎样对应？",
+      "goal": "view.restore-own-position-with-stale-callback-invalidation",
+      "stateBudget": "页位置表 + 回调版本；默认3个页面，宿主动画帧为外部条件",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -409,6 +614,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/workbench.json",
       "module": "C-002",
       "host": "H-C-002",
+      "question": "各工作区如何组合请求、交付、保存和页面生命周期？",
+      "goal": "workbench.compose-scoped-effects-after-hydration",
+      "stateBudget": "默认2工作区、3页；DOM、协议、存档等外部状态未全部有限化",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -420,6 +628,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/workspace-storage.json",
       "module": "R-010",
       "host": "H-R-010",
+      "question": "何时允许写入，journal 失败是否掩盖完整存档？",
+      "goal": "storage.hydrate-before-write-and-separate-failure-routes",
+      "stateBudget": "hydrated/disposed 两布尔值 + 一个防抖计时器；store事务外置",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",

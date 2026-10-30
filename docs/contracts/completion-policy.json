@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "R-014",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "kind": "relation",
+    "goal": "completion.admit-under-explicit-host-policy",
+    "source": "src/completion-policy.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-R-014",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "entry": "development/hosts/completion-policy.mjs",
+    "moduleId": "R-014",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+    "Injected effects and observed provider reports do not independently verify the external environment",
+    "Evidence is an unmodified observeCompletion result; the policy does not authenticate caller-supplied records"
+  ],
+  "observations": [
+    "兼容缺失 JSON 标记仍为 unknown；SSE 缺终止证据不接纳"
+  ],
+  "tests": [
+    "tests/epistemic-boundaries.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+  ],
+  "question": "哪种结束证据在当前入口可被接纳？",
+  "stateModel": {
+    "budget": "无持久状态；JSON/SSE、terminal布尔值、规范化证据等价类",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "兼容缺失 JSON 标记仍为 unknown；SSE 缺终止证据不接纳"
+  ],
+  "extensionSeam": "扩展宿主策略先明确场景、代价、复核触发，不修改证据含义",
+  "proofObligations": [
+    {
+      "id": "R-014.effect",
+      "statement": "哪种结束证据在当前入口可被接纳？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/completion-policy.mjs"
+    },
+    {
+      "id": "R-014.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "boundedModel": {
+    "entry": "development/models/completion-model.mjs",
+    "claim": "Finite-class exhaustive checks only",
+    "unproved": [
+      "abstraction refinement for all implementation inputs",
+      "JS/runtime trust base",
+      "external protocol or effect truth"
+    ]
+  },
+  "epistemicBoundary": {
+    "observations": [
+      "兼容缺失 JSON 标记仍为 unknown；SSE 缺终止证据不接纳"
+    ],
+    "assumptions": [
+      "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+      "Injected effects and observed provider reports do not independently verify the external environment",
+      "Evidence is an unmodified observeCompletion result; the policy does not authenticate caller-supplied records"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+    ]
+  }
+}

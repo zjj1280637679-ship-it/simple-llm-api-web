@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-011",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "relation",
-    "goal": "clipboard-report.declared-effect",
+    "goal": "clipboard.report-only-to-originating-live-view",
     "source": "src/clipboard-report.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-R-011",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/clipboard-report.mjs",
     "moduleId": "R-011",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "复制异步结束时是否仍属于发起的视图？",
+  "stateModel": {
+    "budget": "一次调用持有视图身份；剪贴板是外部效果",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "复制结束前切页时不写旧节点"
+  ],
+  "extensionSeam": "替换 clipboard 接口，不把 resolved 当作用户已使用内容",
+  "proofObligations": [
+    {
+      "id": "R-011.effect",
+      "statement": "复制异步结束时是否仍属于发起的视图？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/clipboard-report.mjs"
+    },
+    {
+      "id": "R-011.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{staleViewUntouched:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

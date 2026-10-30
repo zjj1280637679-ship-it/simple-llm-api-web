@@ -1,3 +1,8 @@
+/** 开发态课题：普通内容如何转义并映射成界面标记？
+ * 状态/边界：无持久状态；有限字符串输入，长度由调用宿主约束。
+ * 扩展：扩展标记保持动态内容边界，静态结构与业务语义分离。
+ * 契约：docs/contracts/view-markup.json；局部宿主不替代完整 F/C/H/Q。
+ */
 export const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 export function reasoningContentMarkup(m) {

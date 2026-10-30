@@ -1,0 +1,26 @@
+
+> simple-llm-api-web@0.3.0 models
+> node development/models/run.mjs
+
+{
+  "status": "PASS",
+  "kind": "bounded-exhaustive-check",
+  "completion": {
+    "cases": 680,
+    "properties": [
+      "refusal-not-admitted",
+      "missing-compatible-json-stays-unknown",
+      "framing-required",
+      "future-marker-not-called-incomplete",
+      "no-goal-promotion"
+    ],
+    "scope": "Finite representative input classes of production functions; abstraction correspondence and complete implementation proof remain open."
+  },
+  "image": {
+    "cases": 820,
+    "scope": "All 9 decoding/dimension classes for lists of length 0..3 plus a forged receipt. Not a proof for arbitrary inputs or all list lengths.",
+    "emptySetNotSuccess": true,
+    "goalAndDurabilityNotInferred": true
+  },
+  "qualification": "No automatic F/C/H/Q promotion; explicit finite abstraction and host assumptions only."
+}

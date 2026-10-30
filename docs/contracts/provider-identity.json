@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-005",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T19:15:54.000Z",
-    "updatedAt": "2026-10-29T19:15:54.000Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "relation",
-    "goal": "provider-profile.match-in-declared-context",
+    "goal": "provider.profile-match-with-exact-scope",
     "source": "src/provider-identity.js",
     "lifecycle": "candidate"
   },
   "host": {
     "id": "H-R-005",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-29T19:15:54.000Z",
-    "updatedAt": "2026-10-29T20:18:57.630Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/provider-identity.mjs",
     "moduleId": "R-005",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -43,5 +43,43 @@
   },
   "limits": [
     "Full F/C/H/Q remain UNKNOWN; local host observations and transitive input fingerprints are separate evidence."
-  ]
+  ],
+  "question": "给定协议、主机与路径匹配哪个本地规则？",
+  "stateModel": {
+    "budget": "无持久状态；有限 profile 表 + 宿主 URL 解析器",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "同域不同路径不得继承 profileMatched"
+  ],
+  "extensionSeam": "增加精确 profile 与来源，不把匹配等同账号或模型能力",
+  "proofObligations": [
+    {
+      "id": "R-005.effect",
+      "statement": "给定协议、主机与路径匹配哪个本地规则？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/provider-identity.mjs"
+    },
+    {
+      "id": "R-005.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "Protocol, host, port and path jointly determine profile match",
+      "An unmatched path retains only host identity, not profile evidence",
+      "No capability, authentication or live availability is inferred"
+    ],
+    "assumptions": [
+      "Caller supplies URL text and protocol",
+      "Local profile is a dated application mapping",
+      "URL standard parser is in the trust base"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Full F/C/H/Q remain UNKNOWN; local host observations and transitive input fingerprints are separate evidence."
+    ]
+  }
 }

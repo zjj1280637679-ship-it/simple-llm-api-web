@@ -1,4 +1,9 @@
-import { AppError } from './core.js';
+/** 开发态课题：请求显示的是哪种可观察阶段，谁终止计时？
+ * 状态/边界：每活动工作区一个计时器租约，默认2个工作区；30分钟截止。
+ * 扩展：新增阶段须有实际传输/内容信号，截止策略另行论证。
+ * 契约：docs/contracts/request-lifecycle.json；局部宿主不替代完整 F/C/H/Q。
+ */
+import { AppError } from './app-error.js';
 /** Owns request presentation and timers; timestamps alone never establish model activity. */
 export function createRequestLifecycle({app,get,esc,clock=globalThis}) {
 const {setTimeout,clearTimeout,setInterval,clearInterval}=clock;

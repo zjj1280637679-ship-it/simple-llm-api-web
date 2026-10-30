@@ -21,6 +21,7 @@
 | `references_import` | 有行锚点的静态 import / re-export 字面引用；不代表执行到或完整依赖关系 |
 | `implemented_by` / `specified_by` / `has_host` | 模块/宿主到唯一实现、契约、最简宿主的登记关系 |
 | `declares_test` / `inspect_test` | 契约或主题列出的测试位置，不代表覆盖充分或此次已执行 |
+| `checks_abstract_properties_of` | 有限模型直接检验对应生产纯函数的特定性质；抽象、实现、宿主对应仍保留范围 |
 | `has_output` / `fingerprints` / `records` | 证据记录的命令输出、输入身份、宿主观察 |
 | `guides` / `distinguishes` / `includes_dimension` / `requires` / `has_gate` | 理论和验收关系；不是代码已实现相应机制 |
 | `uses_policy` / `has_boundary` / `references_candidate` | 当前策略、范围、历史候选，不自动继承候选能力 |

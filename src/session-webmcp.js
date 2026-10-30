@@ -19,7 +19,7 @@ const descriptions = {
   'page.navigate': 'Switch between conversation, image workbench and network logs within this tab.',
   'settings.update': 'Update non-secret model settings on the active page. Cannot change endpoints, keys or trust.',
   'draft.set': 'Replace the active page draft without sending it.',
-  'request.send': 'Ask the user in this tab to send the current draft. Provider requests may cost money; existing endpoint and image approvals remain mandatory.',
+  'request.send': 'Ask the user in this tab to send the current draft. Returned outcome separates workflow, protocol completion, delivery and unknown goal satisfaction. Provider requests may cost money; existing endpoint and image approvals remain mandatory.',
   'request.cancel': 'Cancel the active page request without retrying it.'
 };
 export function pageSessionTools(session) {

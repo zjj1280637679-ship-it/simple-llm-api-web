@@ -1,3 +1,8 @@
+/** 开发态课题：原生业务 JSON 能否在声明输入范围内无语义删改地复制？
+ * 状态/边界：活动路径与节点计数；深度 <=64、节点 <=100000；字符串字节由组合控制。
+ * 扩展：扩展输入类型时先定义保真关系、资源预算与失败出口。
+ * 契约：docs/contracts/native-json.json；局部宿主不替代完整 F/C/H/Q。
+ */
 /** Copy bounded native protocol JSON without interpreting property names.
  * This is data preservation, not credential detection or a hostile-object sandbox.
  */

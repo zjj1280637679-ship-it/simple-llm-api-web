@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-010",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "kind": "function",
+    "goal": "completion.interpret-marker-without-admission",
+    "source": "src/completion-evidence.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-010",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "entry": "development/hosts/completion-evidence.mjs",
+    "moduleId": "F-010",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+    "Injected effects and observed provider reports do not independently verify the external environment"
+  ],
+  "observations": [
+    "未知新标记不得写成已观察到截断"
+  ],
+  "tests": [
+    "tests/epistemic-boundaries.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+  ],
+  "question": "收到的结束标记在当前本地规则中意味着什么？",
+  "stateModel": {
+    "budget": "无持久状态；4协议 + 未知协议；有限标记等价类，原始字符串不穷举",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "未知新标记不得写成已观察到截断"
+  ],
+  "extensionSeam": "扩展 profile 的明确结束集合与反例，不改变接纳策略",
+  "proofObligations": [
+    {
+      "id": "F-010.effect",
+      "statement": "收到的结束标记在当前本地规则中意味着什么？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/completion-evidence.mjs"
+    },
+    {
+      "id": "F-010.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "boundedModel": {
+    "entry": "development/models/completion-model.mjs",
+    "claim": "Finite-class exhaustive checks only",
+    "unproved": [
+      "abstraction refinement for all implementation inputs",
+      "JS/runtime trust base",
+      "external protocol or effect truth"
+    ]
+  },
+  "epistemicBoundary": {
+    "observations": [
+      "未知新标记不得写成已观察到截断"
+    ],
+    "assumptions": [
+      "Ordinary finite input records; no adversarial Proxy or concurrent mutation",
+      "Injected effects and observed provider reports do not independently verify the external environment"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local/finite-model checks retain their scope; no complete implementation proof or automatic admission."
+    ]
+  }
+}

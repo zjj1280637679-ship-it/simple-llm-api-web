@@ -11,7 +11,7 @@ async function check(directory) {
     }
   }
 }
-for(const directory of ['src/','scripts/','development/hosts/'])await check(directory);
+for(const directory of ['src/','scripts/','development/hosts/','development/models/'])await check(directory);
 for(const name of ['cli.mjs','web-cli.mjs','cli-mcp-transport.mjs']) {
   const result=spawnSync(process.execPath,['--check',new URL(name,root).pathname],{encoding:'utf8'});
   if(result.status!==0)throw new Error(result.stderr);

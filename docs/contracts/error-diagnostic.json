@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-008",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "kind": "function",
-    "goal": "error-diagnostic.declared-effect",
+    "goal": "http.project-bounded-redacted-diagnostic",
     "source": "src/error-diagnostic.js",
     "lifecycle": "limited-use"
   },
   "host": {
     "id": "H-F-008",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-29T20:08:58.524Z",
+    "updatedAt": "2026-10-30T04:46:28.642Z",
     "entry": "development/hosts/error-diagnostic.mjs",
     "moduleId": "F-008",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -40,5 +40,41 @@
   "limits": [
     "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
     "Single default browser host; input/source identities are recorded by the host runner."
-  ]
+  ],
+  "question": "错误响应中哪些有限字段可作为上游报告保留？",
+  "stateModel": {
+    "budget": "一次读取器；8 KiB / 1.2 秒预算；响应主体与时钟为外部条件",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "永久不结束的流及回显凭据"
+  ],
+  "extensionSeam": "新增诊断字段须说明其证据意义及脱敏规则",
+  "proofObligations": [
+    {
+      "id": "F-008.effect",
+      "statement": "错误响应中哪些有限字段可作为上游报告保留？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/error-diagnostic.mjs"
+    },
+    {
+      "id": "F-008.non-inference",
+      "statement": "局部效果不自动推出外部条件、其他效果或完整目标达成",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "{boundedFields:true,reportNotDiagnosis:true}"
+    ],
+    "assumptions": [
+      "Declared DOM/clock/store/decoder interfaces; injected collaborators are explicitly synthetic",
+      "Normal JavaScript host; adversarial Proxy and concurrent mutation excluded"
+    ],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": [
+      "Local observations do not prove external provider capability, all browser behavior, semantic task success or complete F/C/H/Q.",
+      "Single default browser host; input/source identities are recorded by the host runner."
+    ]
+  }
 }

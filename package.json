@@ -1,7 +1,7 @@
 {
   "name": "simple-llm-api-web",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -16,6 +16,7 @@
     "review:health": "node scripts/review-health.mjs",
     "review:evidence": "node scripts/review-evidence.mjs",
     "hosts": "node scripts/run-hosts.mjs",
-    "review:sources": "node scripts/review-sources.mjs"
+    "review:sources": "node scripts/review-sources.mjs",
+    "models": "node development/models/run.mjs"
   }
 }

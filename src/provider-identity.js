@@ -1,3 +1,8 @@
+/** 开发态课题：给定协议、主机与路径匹配哪个本地规则？
+ * 状态/边界：无持久状态；有限 profile 表 + 宿主 URL 解析器。
+ * 扩展：增加精确 profile 与来源，不把匹配等同账号或模型能力。
+ * 契约：docs/contracts/provider-identity.json；局部宿主不替代完整 F/C/H/Q。
+ */
 /** Local endpoint profiles. A match selects a rule set; it proves no remote capability. */
 const profiles = Object.freeze([
   {provider:'gemini', protocol:'gemini', host:'generativelanguage.googleapis.com', paths:['/v1beta']},
