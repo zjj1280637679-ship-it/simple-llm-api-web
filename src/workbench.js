@@ -1,8 +1,12 @@
 /** 开发态课题：各工作区如何组合请求、交付、保存和页面生命周期？
- * 状态/边界：默认2工作区、3页；卡片活跃性由末项推导；DOM/协议/存档未全部有限化。
+ * 状态/边界：每会话2工作区、3页；卡片活跃性由末项推导；DOM/协议/存档未全部有限化。
  * 扩展：新增服务通过显式 services 注入，先定义观察/回执与资源归属。
  * 契约：docs/contracts/workbench.json；局部宿主不替代完整 F/C/H/Q。
  */
+import {createConversationBook} from './conversation-book.js';
+import {snapshotConversations,restoreConversations,migrateConversations,replayConversationJournal} from './conversation-archive.js';
+import {createSettingsViews} from './settings-markup.js';
+import {historyMarkup} from './history-markup.js';
 import {liveCard,isLiveCard} from './interaction-cards.js';
 import {captureCard} from './card-types.js';
 import {cardShell,unknownCardMarkup} from './card-markup.js';
@@ -19,7 +23,7 @@ import { createScope } from './lifecycle.js';
 import { createCanvasGeometry } from './canvas-geometry.js';
 import { createViewPosition } from './view-position.js';
 import { createRequestLifecycle } from './request-lifecycle.js';
-import { createLocalStore, snapshotWorkspace, snapshotJournal, restoreWorkspace, migrateSnapshot, MAX_SNAPSHOT_BYTES } from './persistence.js';
+import { createLocalStore, snapshotWorkspace, snapshotJournal, MAX_SNAPSHOT_BYTES } from './persistence.js';
 import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody, REASONING_FAMILIES, reasoningFamilyFor, resolveReasoningFamily } from './reasoning.js';
 import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
 import { replyMetricsMarkup, replyMetricsSnapshot } from './usage.js';
@@ -62,23 +66,34 @@ const makePage = type => ({
   aspectRatio: '1:1', imageSize: '1K', messages: [], history: [], busy: false,
   controller: null, lastUsage: null, lastMetrics: null
 });
-const data = { chat: makePage('chat'), image: makePage('image') };
+const book=createConversationBook({makeData:previous=>Object.fromEntries(['chat','image'].map(name=>{
+  const d=makePage(name);
+  if(previous){d.api={...previous[name].api,trustedTarget:''};d.model=structuredClone(previous[name].model);d.aspectRatio=previous[name].aspectRatio;d.imageSize=previous[name].imageSize;}
+  return [name,d];
+}))});
+// Public active-workspace facade; entries retain their own workspace identities.
+const data={...book.current().data};
+const allWorkspaces=()=>book.entries.flatMap(entry=>Object.values(entry.data));
+let historyQuery='',historyNotice='',historyLogs=false;
+
 let storageState='loading',localRestored=false;
 const localSecrets=new Set();
 scope.own(subscribeCredentialUse(key=>localSecrets.add(key)));
 const storageLabels={loading:'正在读取本机存档',ready:'本机自动保存已启用',restored:'已恢复本机存档；API Key 请重新填写',saving:'正在保存…',saved:'已保存到本机；API Key 不保存',error:'本机保存失败；当前改动尚未保存，请导出备份后重试', 'size-limit':'本机存档超过 48 MiB；当前改动尚未保存，请备份',conflict:'另一标签页已更新存档；本页暂停保存，请先导出备份',blocked:'存储版本已变化或被占用；请备份后刷新',schema:'本机存档版本不支持或损坏；已停止覆盖',unavailable:'本机存储不可用；仅内存运行，刷新会丢失，请导出备份','credential-collision':'已用密钥与原生上下文或配置内容重合；为避免泄露或破坏签名，本次未保存','saved-journal-error':'完整存档已提交；即时草稿保护不可用，后续改动请等提交后刷新','journal-error':'即时草稿保护失败或超过 128 KiB；请等待完整存档提交后再刷新，或导出备份'};
 let journalStorage=null;try{journalStorage=window.localStorage;}catch{}
-const localStore=createStore({journalStorage,name:`llm-workbench-local-v1:${(window.location?.pathname || '/').replace(/index\.html$/,'')}`,onStatus:setStorageStatus});
+const localStore=createStore({journalStorage,decodeSnapshot:migrateConversations,applyJournal:replayConversationJournal,name:`llm-workbench-local-v1:${(window.location?.pathname || '/').replace(/index\.html$/,'')}`,onStatus:setStorageStatus});
 
 let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
 let reasoningAnchorId = null;
 const get = () => data[page];
-function syncLogSecrets() { updateActiveLogSecrets(Object.values(data).map(d => d.api.key)); }
+function syncLogSecrets() { updateActiveLogSecrets(allWorkspaces().map(d => d.api.key)); }
 function archiveWorkspaceKey(d) { if (d) setLogSecrets([d.api.key]); }
 const activeCardId = d => liveCard(d?.messages)?.id;
 const getCard = id => get()?.messages.find(m => m.id === id && m.type === 'card');
+const settingsViews=createSettingsViews({get,currentPage:()=>page,activeCardId,menuState:()=>subMenu,reasoningAnchor:()=>reasoningAnchorId,providers,providerIdentity,protocolLabel,apiTrustText});
 const cardRegistry=createWorkbenchCards({
-  apiMarkup:apiCard,modelMarkup:modelCard,settingsAction:performCardAction,
+  apiMarkup:settingsViews.api,connectionMarkup:settingsViews.connection,modelMarkup:settingsViews.model,settingsAction:performCardAction,
+  navigate:({workspace,card,args})=>{syncCurrentApiFields(workspace);addCard(args.kind,undefined,workspace);return {ok:true};},
   field:({workspace,card,args})=>applyCardField(workspace,card,{value:args.value,dataset:{key:args.key}}),
   usage:usageCardValues,logs:logCardValues,render,
   confirmationAvailable:id=>confirmations.available(get(),id),
@@ -171,7 +186,7 @@ function appendMessage(d,message) {
   const previous=liveCard(d.messages);
   if(previous)previous.values=captureCard(previous,d);
   confirmations.interrupt(d);
-  d.messages.push(message);
+  d.messages.push(message);book.touch(d);
   return message;
 }
 function addCard(kind,values,d=get()) {
@@ -205,65 +220,6 @@ function errorText(error) {
   return '请求未完成。请检查 API 配置、模型支持、网络与 CORS；不会自动重试。';
 }
 function protocolLabel(protocol) { return ({gemini:'Gemini 原生 · generateContent',openai:'OpenAI 兼容 · Chat Completions',ark:'火山方舟 · 普通 API',anthropic:'Anthropic · Messages'})[protocol] || protocol; }
-function apiCard(m) {
-  const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.api;
-  const menu = subMenu.endsWith(`:${m.id}`) ? subMenu.split(':')[0] : '';
-  return `
-    <div class="formfield">
-<label for="url${m.id}">API 地址</label>
-<div class="fieldrow">
-<textarea class="setting-text" rows="1" wrap="soft" id="url${m.id}" data-card="${m.id}" data-key="url" placeholder="API 地址" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.url)}</textarea>
-<div class="sub-menu">
-<button type="button" data-action="supplier" aria-haspopup="listbox" aria-controls="supplier-options${m.id}" title="${esc(protocolLabel(x.protocol))}" data-id="${m.id}" aria-expanded="${menu === 'supplier'}" class="uniform-btn">${esc(providerIdentity(x).name)}</button>${menu === 'supplier' ? `<div id="supplier-options${m.id}" class="inline-list" role="listbox" aria-label="供应商与 API 格式" data-floating-menu="supplier" data-menu-card="${m.id}">${providers.map((p, i) => `<button class="inline-item" role="option" aria-selected="${providerIdentity(x).name === p.name}" data-action="choose-supplier" data-id="${m.id}" data-index="${i}">${esc(p.name)}</button>`).join('')}</div>` : ''}</div>
-</div>
-</div>
-    <div class="formfield">
-<label for="key${m.id}">API Key</label>
-<div class="fieldrow">
-<input id="key${m.id}" data-card="${m.id}" data-key="key" type="${!old && m.showKey ? 'text' : 'password'}" placeholder="" aria-describedby="key-help${m.id}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(old ? '' : x.key)}">
-<button type="button" data-action="toggle-key" data-id="${m.id}" class="uniform-btn">${m.showKey ? '隐藏' : '显示'}</button>
-</div>
-<div class="field-reading" id="key-help${m.id}">${old ? '未保留历史密钥' : '仅保留在本页内存，刷新即清除'}</div>
-</div>
-    <div class="formfield">
-<label for="model${m.id}">模型 ID</label>
-<div class="fieldrow">
-<textarea class="setting-text" rows="1" wrap="soft" id="model${m.id}" data-card="${m.id}" data-key="model" placeholder="模型 ID" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.model)}</textarea>
-<div class="sub-menu">
-<button type="button" data-action="pull-models" data-id="${m.id}" aria-expanded="${menu === 'models'}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list" data-floating-menu="pull-models" data-menu-card="${m.id}">${m.models?.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div>
-</div>
-</div>
-    <div class="field-reading" id="models-status${m.id}" role="status">${esc(m.modelListStatus || '')}</div>
-    <div class="api-security">${!old && d.pendingTextId ? '<div>填写后，再次发送即可继续。</div>' : ''}<span id="api-trust${m.id}">${old ? '密钥不写入历史记录' : apiTrustText(x)}</span>${!old && x.protocol === 'ark' ? '<div>普通 API · 非 Agent Plan。连通性取决于当前地址、账号与浏览器。</div>' : ''}${!old && x.protocol === 'anthropic' ? '<div>Anthropic Messages 格式：目标为官方 https://api.anthropic.com/v1 时启用官方浏览器访问。密钥可被本页脚本读取，仅保存在内存并在请求时发送到上方地址；实际 CORS 尚未用真实密钥验证。默认输出预算 4096 Token；当前支持文本附件，不提供图片生成或工具调用。</div>' : ''}${!old ? '<div>发送消息或拉取模型时，密钥及请求内容将发送到上方地址；填写本身不发送请求。</div>' : ''}</div>
-  `;
-}
-function modelCard(m) {
-  const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.model;
-  const field = (label, key, placeholder) => `<div class="formfield">
-<label for="${key}${m.id}">${label}</label>
-<input class="block-input" type="number" id="${key}${m.id}" data-card="${m.id}" data-key="${key}" placeholder="${placeholder}" value="${esc(x[key])}" step="any">
-</div>`;
-  return `<div class="card-type">模型设置</div>
-<div class="subgrid">${page === 'chat' ? `${field('输出预算 Token', 'output', 'API 默认')}${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}<div class="formfield">
-<label for="reasoning-model${m.id}">自定义思考模板</label>
-<button type="button" id="reasoning-model${m.id}" class="block-value reasoning-model-trigger" data-action="reasoning-toggle" data-id="${m.id}" aria-haspopup="menu" aria-expanded="${subMenu==='reasoning' && reasoningAnchorId===m.id}">${esc(REASONING_FAMILIES.find(f=>f.id===(old ? x.reasoningFamily : x.reasoningFamily || reasoningFamilyFor(d.api,x.reasoningMode || x.reasoning?.template)))?.label || '选择模板')}</button>
-</div>
-<div class="formfield">
-<label for="context${m.id}">上下文</label>
-<output id="context${m.id}" class="block-value">当前对话上下文</output>
-</div>` : `<div class="formfield">
-<label for="count${m.id}">生成数量</label>
-<output id="count${m.id}" class="block-value">1</output>
-</div>
-<div class="formfield">
-<label for="format${m.id}">输出格式</label>
-<output id="format${m.id}" class="block-value">上游原始格式</output>
-</div>`}</div>${page === 'chat' ? `<div class="fieldgroup">
-<span class="formlabel">输入模态</span>
-<div class="chips">${Object.entries(MODALITIES).map(([kind,label]) => `<button type="button" class="chip ${x.inputs?.includes(kind) ? 'sel' : ''}" data-action="toggle-input" data-id="${m.id}" data-modality="${kind}" aria-pressed="${Boolean(x.inputs?.includes(kind))}" ${!supportedModalities(d.api.protocol).includes(kind) || kind === 'text' ? 'disabled' : ''}>${label}</button>`).join('')}</div>
-</div>` : ''}<div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : d.api.protocol === 'anthropic' ? ' 输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div>
-`;
-}
 function imageMarkup(m) {
   return `<div class="message">
 <div class="assistant-message">
@@ -312,12 +268,7 @@ function selectAttachments(kind) {
  picker.click();
 }
 function plusMarkup() { return `<div class="menu-wrap">
-<button class="circle" aria-label="展开工具菜单" aria-expanded="${plusOpen}" data-action="plus" ${get().busy ? 'disabled' : ''}>${icon('plus', 22)}</button>${plusOpen ? `<div class="plus-menu">${page === 'chat' ? '<button data-action="attach" data-kind="image">添加图片</button><button data-action="attach" data-kind="file">添加文件</button><button data-action="clear-attachments">清空附件</button><button data-action="clear-chat">清空对话</button>' : ''}<button data-action="local-storage">本机保存与备份</button>
-<button data-action="new-card" data-kind="api">${icon('key')} API 设置</button>
-<button data-action="new-card" data-kind="model">${icon('settings')} 模型设置</button>
-<button data-action="new-card" data-kind="chart">用量图表</button>
-<button data-action="new-card" data-kind="logs">日志快照</button>
-</div>` : ''}</div>`; }
+<button class="circle" aria-label="展开工具菜单" aria-expanded="${plusOpen}" data-action="plus" ${get().busy?'disabled':''}>${icon('plus',22)}</button>${plusOpen?`<div class="plus-menu"><button data-action="new-card" data-kind="api">${icon('settings')} 设置</button>${page==='chat'?'<button data-action="attach" data-kind="image">添加图片</button><button data-action="attach" data-kind="file">添加文件</button>':''}</div>`:''}</div>`; }
 function sizeMarkup() {
   const d = get(), cap = getImageCapabilities(d.api);
   return `<div class="menu-wrap" data-image-control>
@@ -349,13 +300,16 @@ function renderLogsPage() {
 <header class="top">${tabsMarkup(page)}</header>
 <section class="thread">
 <div class="thread-inner">
+${historyMarkup({entries:book.list(historyQuery),activeId:book.activeId,query:historyQuery,notice:historyNotice})}
+<details class="history-log-panel" ${historyLogs?'open':'hidden'}><summary>通讯记录与诊断</summary>
 <div class="log-actions">
-<button class="chip" data-action="export-logs">导出 JSON</button>
-<button class="chip" data-action="clear-logs">清空日志</button>
+<button class="chip" data-action="export-logs">导出通讯记录</button>
+<button class="chip" data-action="clear-logs">清空通讯记录</button>
+<button class="chip" data-action="history-log-card">插入日志快照</button><button class="chip" data-action="history-usage">用量图表</button>
 </div>
 <details class="scroll-diagnostics">
 <summary>滚动诊断（不含对话与密钥）</summary>
-<p>发生回弹后打开这里，复制或导出进入日志页前的记录。仅保存最近 80 条位置和事件，不会自动上传。</p>
+<p>发生回弹后打开这里，复制或导出进入历史页前的记录。仅保存最近 80 条位置和事件，不会自动上传。</p>
 <button class="chip" data-action="copy-scroll-diagnostics">复制滚动诊断</button>
 <button class="chip" data-action="export-scroll-diagnostics">导出滚动诊断</button>
 <span id="scroll-diagnostic-status" role="status">
@@ -363,7 +317,7 @@ function renderLogsPage() {
 <textarea id="scroll-diagnostic-text" aria-label="滚动诊断 JSON" readonly rows="5">${esc(exportScrollReport())}</textarea>
 </details>
 <div id="network-logs">
-</div>
+</div></details>
 </div>
 </section>
 </main>`;
@@ -373,29 +327,64 @@ function renderLogsPage() {
   syncFloatingNavigation();
 }
 
-const view = createViewPosition({app,document,getPage:()=>page,recordScrollDiagnostic,requestAnimationFrame});
+const view = createViewPosition({app,document,getPage:()=>page==='logs'?'logs':`${book.activeId}:${page}`,recordScrollDiagnostic,requestAnimationFrame});
 const {viewPositions,captureControlFocus,restoreControlFocus,rememberViewPosition,restoreViewPosition}=view;
 scope.own(()=>view.dispose());
 const storage=createWorkspaceStorage({store:localStore,clock,
-  capture:()=>snapshotWorkspace({data,page,nextId,views:Object.fromEntries(viewPositions),secrets:[...localSecrets]}),
-  captureJournal:()=>snapshotJournal({data,page,secrets:[...localSecrets]}),
+  capture:()=>captureArchive(),
+  captureJournal:()=>({...snapshotJournal({data,page,secrets:[...localSecrets]}),conversationId:book.activeId}),
   getPage:()=>page,beforeCapture:rememberViewPosition,onStatus:setStorageStatus,
   restore(saved){
-    const restored=restoreWorkspace(saved,makePage);
-    Object.assign(data,restored.data);page=restored.page;nextId=restored.nextId;
-    localRestored=Object.values(data).some(d=>d.messages.length||d.draft);
+    installArchive(saved);
+    localRestored=allWorkspaces().some(d=>d.messages.length||d.draft);
     if(['ready','restored','saved'].includes(storageState))setStorageStatus('restored');
-    for(const [key,value] of Object.entries(restored.views))if(['chat','image','logs'].includes(key)&&Number.isFinite(value?.top))
-      viewPositions.set(key,{top:Math.max(0,value.top),bottom:Boolean(value.bottom)});
   }
 });
 const saveLocal=storage.save;
 scope.own(()=>storage.dispose());
+function captureArchive(){return snapshotConversations({book,page,nextId,views:Object.fromEntries(viewPositions),secrets:[...localSecrets]});}
+function installArchive(saved){
+  const restored=restoreConversations(saved,makePage);book.restore(restored);Object.assign(data,book.current().data);
+  page=restored.page;nextId=restored.nextId;viewPositions.clear();for(const [key,value] of Object.entries(restored.views))viewPositions.set(key,value);
+}
+async function selectConversation(id){
+  await saveLocal(true);rememberViewPosition();const entry=book.select(id);if(!entry)return false;
+  Object.assign(data,entry.data);page=entry.page||'chat';closeMenus();render();await saveLocal(true);return true;
+}
+function downloadJSON(value,name){
+  const url=URL.createObjectURL(new Blob([JSON.stringify(value)],{type:'application/json'}));
+  const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function historyAction(action,id){
+  historyNotice='';
+  if(action==='conversation-new'){
+    try{await saveLocal(true);rememberViewPosition();const entry=book.create();Object.assign(data,entry.data);page='chat';closeMenus();render();await saveLocal(true);}
+    catch{historyNotice='当前会话数量已达上限。请先导出并删除不再需要的会话。';render();}return;
+  }
+  if(action==='conversation-open'){await selectConversation(id);return;}
+  const entry=book.entries.find(e=>e.id===id);
+  if(action==='conversation-rename'&&entry){const title=window.prompt('会话名称',entry.title);if(title!==null){book.rename(id,title);render();await saveLocal(true);}return;}
+  if(action==='conversation-export'&&entry){
+    try{const archive=captureArchive();archive.entries=archive.entries.filter(e=>e.id===id);archive.activeId=id;archive.page=entry.page||'chat';archive.views={};downloadJSON(archive,'llm-conversation.json');}
+    catch{historyNotice='导出失败，请检查存储提示。';render();}return;
+  }
+  if(action==='conversation-delete'&&entry){
+    if(Object.values(entry.data).some(d=>d.busy||d.attachmentReading)){historyNotice='会话仍在处理请求或附件，请结束后再删除。';render();return;}
+    if(!window.confirm('删除这个会话及其附件？需要保留时请先导出。'))return;
+    for(const d of Object.values(entry.data)){archiveWorkspaceKey(d);confirmations.interrupt(d);for(const m of d.messages)for(const image of m.images||[])imageDelivery.release(image.url);}
+    book.remove(id);Object.assign(data,book.current().data);for(const key of viewPositions.keys())if(key.startsWith(id+':'))viewPositions.delete(key);
+    approvedSessionRequest=null;render();await saveLocal(true);return;
+  }
+  if(action==='history-logs'){historyLogs=true;render();app.querySelector('.history-log-panel')?.scrollIntoView?.({block:'start'});return;}
+  if(['history-log-card','history-usage'].includes(action)){page=book.current().page||'chat';const d=get();if(d.busy)return;addCard(action==='history-usage'?'chart':'logs',action==='history-usage'?usageCardValues(d):logCardValues(),d);return;}
+  if(action==='history-storage')openStoragePanel();
+}
 function render(scrollEnd = false) {
   if(scope.disposed)return;
   saveLocal(false,true);
   recordScrollDiagnostic(scrollEnd ? 'render-send-end' : 'render-start');
   rememberViewPosition();
+  const expanded=[...(app.querySelectorAll?.('details[data-setting-section][open]')||[])].map(el=>({card:el.closest?.('[data-interaction-card]')?.dataset.interactionCard,section:el.dataset.settingSection}));
   const focusIdentity = captureControlFocus();
   if (page === 'logs') { renderLogsPage(); restoreViewPosition(scrollEnd); restoreControlFocus(focusIdentity); return; }
   const d = get();
@@ -414,6 +403,7 @@ function render(scrollEnd = false) {
 <div class="compose-metrics">${replyMetricsMarkup(d.lastMetrics)}</div>
 </footer>
 </main>`;
+  for(const item of expanded){const target=app.querySelector(`[data-interaction-card="${item.card}"] details[data-setting-section="${item.section}"]`);if(target)target.open=true;}
   recordScrollDiagnostic('render-dom-replaced');
   mountFloatingMenu();
   syncFloatingNavigation();
@@ -433,7 +423,7 @@ function applyCurrentTarget(d, report = text => status(d, text, 'error')) {
 }
 function syncCurrentApiFields(d) {
   const card = getCard(activeCardId(d));
-  if (!card || card.kind !== 'api') return;
+  if (!card || !['api','connection'].includes(card.kind)) return;
   const values = Object.fromEntries(['url','key','model'].map(key => [key, app.querySelector(`#${key}${card.id}`)?.value]));
   // Autofill may skip input events: snapshot first, but never carry an unchanged old key to a changed target.
   if (values.url !== undefined && values.url !== d.api.url && values.key === d.api.key) values.key = '';
@@ -443,8 +433,8 @@ function syncCurrentApiFields(d) {
   const keyField = app.querySelector(`#key${card.id}`);
   if (keyField && keyField.value !== d.api.key) keyField.value = d.api.key;
 }
-function configuredImageSnapshot() {
-  const config = { ...data.image.api };
+function configuredImageSnapshot(workspace) {
+  const config = { ...(book.owner(workspace)?.data.image||data.image).api };
   try { config.trustedTarget = config.key.trim() ? canonicalEndpoint(config.url) : ''; }
   catch { config.trustedTarget = ''; }
   return config;
@@ -460,7 +450,7 @@ function approveImage(invocation,d) {
 }
 async function appendImages(d, result, args, fromTool = false) {
   let expectedPixels;
-  try { expectedPixels=normalizeImageOptions({protocol:result.protocol || (fromTool?data.image.api.protocol:d.api.protocol),model:result.model},args).pixels; } catch {}
+  try { expectedPixels=normalizeImageOptions({protocol:result.protocol || (fromTool?book.owner(d)?.data.image.api.protocol:d.api.protocol),model:result.model},args).pixels; } catch {}
   const images=await imageDelivery.prepare(result.images || [],expectedPixels);
   if(scope.disposed)return;
   appendMessage(d,{ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', metrics:replyMetricsSnapshot(result.usage), fromTool });
@@ -493,7 +483,7 @@ async function send() {
   const d = get(); if (!d) return { status: 'not-sent', reason: 'select-workspace' };
   syncCurrentApiFields(d);
   syncLogSecrets();
-  const requestPage = page, text = d.draft.trim();
+  const requestPage = page, text = d.draft.trim(), imageConfig=configuredImageSnapshot(d);
   if (d.busy || confirmations.has(d) || d.attachmentReading || (!text && !d.attachments.length)) return { status: 'not-sent', reason: d.busy || confirmations.has(d) ? 'busy' : 'empty' };
   closeMenus();
   const attachments = [...d.attachments];
@@ -533,7 +523,7 @@ async function send() {
       d.lastUsage = result.usage; d.lastMetrics = replyMetricsSnapshot(result.usage);
     } else {
       const result = await runConversation({
-        config, imageConfig:configuredImageSnapshot(), messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
+        config, imageConfig, messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
         onPhase:phase=>requestPhase(d,phase),
         onDelta: (delta, {round}) => {
           if (!delta) return;
@@ -582,6 +572,7 @@ listen(app, 'toggle', e => {
 listen(app, 'click', async e => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
+  if(el.dataset.action.startsWith('conversation-')||el.dataset.action.startsWith('history-')){await historyAction(el.dataset.action,el.dataset.conversation);return;}
   if (el.dataset.action === 'local-storage') { openStoragePanel(); return; }
   const action = el.dataset.action, d = get(), card = getCard(Number(el.dataset.id));
   const cardAction=cardRegistry.actionFor(card,action);
@@ -591,7 +582,7 @@ listen(app, 'click', async e => {
   }
   if ((d?.busy || d?.attachmentReading) && !['tab', 'cancel'].includes(action)) return;
   switch (action) {
-    case 'tab': if(el.dataset.tab === 'logs')freezeScrollReport(); page = el.dataset.tab; closeMenus(); render(); break;
+    case 'tab': if(el.dataset.tab === 'logs')freezeScrollReport(); page = el.dataset.tab;if(page!=='logs')book.current().page=page; closeMenus(); render(); break;
     case 'reasoning-toggle': {
       if(el.dataset.id)break;
       const anchorId=el.dataset.id?Number(el.dataset.id):null;
@@ -693,15 +684,17 @@ async function performCardAction(action,{card,workspace:d,args,commit}) {
 function updateField(e) {
   const t = e.target, d = get();
   resizeSettingField(t);
-  if (!d) return;
-  if (t.id === 'draft') { d.draft = t.value; resizeDraft(t); saveLocal(false,true); return; }
+  if(t.id==='history-query'){if(e.isComposing)return;historyQuery=t.value;render();const field=app.querySelector('#history-query');field?.focus?.();return;}
+  if(!d)return;
+  if (t.id === 'draft') { d.draft = t.value; resizeDraft(t);book.touch(d); saveLocal(false,true); return; }
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
   if (!card || id !== activeCardId(d) || !key || d.busy) return;
   void dispatchCardAction({id,action:'field.change',args:{key,value:t.value}},d);
 }
 function applyCardField(d,card,t) {
   const id=card.id,key=t.dataset.key;
-  if (card.kind === 'api') {
+  if (['api','connection'].includes(card.kind)) {
+    if(key==='protocol'&&!['gemini','openai','ark','anthropic'].includes(t.value))return {ok:false,reason:'invalid-protocol'};
     const changed = d.api[key] !== t.value;
     if (changed && key === 'key') { archiveWorkspaceKey(d); d.api.trustedTarget = ''; }
     d.api[key] = t.value;
@@ -725,7 +718,7 @@ function applyCardField(d,card,t) {
     if (page === 'image') resetImageOptions(d);
     refreshApiStatus(d, id);
   } else { d.model[key] = t.value; card.values[key] = t.value; }
-  saveLocal(false,true);
+  book.touch(d);saveLocal(false,true);
 }
 listen(app, 'error', e => {
   const image = e.target;
@@ -779,7 +772,7 @@ scope.own(subscribeNetworkLogs(() => {
 function publicSessionState() {
   syncLogSecrets();
   return sanitizeLogValue({
-    page,
+    page,conversationId:book.activeId,
     workspaces: Object.fromEntries(Object.entries(data).map(([name, d]) => [name, {
       protocol: d.api.protocol, endpoint: d.api.url, model: d.api.model,
       configured: isConfigured(d), busy: d.busy, draft: d.draft,
@@ -791,13 +784,13 @@ function publicSessionState() {
 let approvedSessionRequest = null;
 function sessionRequestSnapshot() {
   const d = get();
-  return d ? { page, draft: d.draft, attachments: d.attachments.map(a=>a.id), api: { ...d.api }, settings: { ...d.model, ...(d.model.reasoning ? {reasoning:{...d.model.reasoning}} : {}) }, aspectRatio: d.aspectRatio, imageSize: d.imageSize } : null;
+  return d ? { conversationId:book.activeId,page, draft: d.draft, attachments: d.attachments.map(a=>a.id), api: { ...d.api }, settings: { ...d.model, ...(d.model.reasoning ? {reasoning:{...d.model.reasoning}} : {}) }, aspectRatio: d.aspectRatio, imageSize: d.imageSize } : null;
 }
 const pageSession = createPageSession({
   isActive:()=>!scope.disposed && storage.hydrated,
   state: publicSessionState,
   logs: () => { syncLogSecrets(); return getNetworkLogs(); },
-  navigate: ({ page: destination }) => { if(destination === 'logs')freezeScrollReport(); page = destination; closeMenus(); render(); return publicSessionState(); },
+  navigate: ({ page: destination }) => { if(destination === 'logs')freezeScrollReport(); page = destination;if(page!=='logs')book.current().page=page; closeMenus(); render(); return publicSessionState(); },
   draft: ({ text }) => { const d = get(); if (!d || d.busy) throw new Error('No editable workspace'); d.draft = text; render(); return { updated: true }; },
   settings: args => {
     const d = get(); if (!d || d.busy) throw new Error('No editable workspace');
@@ -872,14 +865,15 @@ function openStoragePanel() {
   localRestored=false;setStorageStatus(storageState);
   document.getElementById('local-storage-panel')?.remove();
   const dialog=document.createElement('dialog');dialog.id='local-storage-panel';dialog.className='local-storage-panel';
-  dialog.innerHTML=`<h2>本机保存与备份</h2>
+  let bytes=null;try{bytes=new TextEncoder().encode(JSON.stringify(captureArchive())).byteLength;}catch{}
+  dialog.innerHTML=`<h2>本机保存与备份</h2><p>${book.entries.length} 个会话 · ${bytes===null?'大小暂不可用':(bytes/1024/1024).toFixed(2)+' MiB'} / 48 MiB</p>
 <p id="local-storage-status">${esc(storageLabels[storageState])}</p>
-<p>自动保留本机的对话、草稿、附件、模型设置和独立指标。草稿与安全设置有 128 KiB 同步保护；大历史/附件仍须等待完整存档提交。API Key 与目标确认不保存；刷新后请重新填写密钥。自动通讯日志不保存；主动插入的日志卡随历史保存。含账号、密码、查询参数或片段的 API 地址不保存。</p>
+<p>自动保留本机的所有会话、对话、草稿、附件、模型设置和独立指标。草稿与安全设置有 128 KiB 同步保护；大历史/附件仍须等待完整存档提交。API Key 与目标确认不保存；刷新后请重新填写密钥。自动通讯日志不保存；主动插入的日志卡随历史保存。含账号、密码、查询参数或片段的 API 地址不保存。</p>
 <p>仅限当前浏览器与网站地址。无痕模式、清理浏览器或系统回收空间可能删除数据；这不是永久备份。单份快照上限 48 MiB，超限或配额不足时保留上一份成功存档，不会悄悄删除附件。</p>
-<p>多标签页版本冲突后不会覆盖另一页；先导出本页备份，再刷新读取最新存档。</p>
+<p>多标签页版本冲突后不会覆盖另一页；先导出全部会话，再刷新读取最新存档。</p>
 <div class="local-storage-actions">
-<button data-local="export">导出本页备份</button>
-<button data-local="import">恢复备份</button>
+<button data-local="export">导出全部会话</button>
+<button data-local="import">导入备份</button>
 <button data-local="retry">重试保存</button>
 <button data-local="close">关闭</button>
 </div>
@@ -891,19 +885,19 @@ function openStoragePanel() {
     if(action==='close'){dialog.close();dialog.remove();return;}
     if(action==='retry'){await saveLocal(true);return;}
     if(action==='export')try{
-      const value=snapshotWorkspace({data,page,nextId,views:Object.fromEntries(viewPositions),secrets:[...localSecrets]});
+      const value=captureArchive();
       const url=URL.createObjectURL(new Blob([JSON.stringify(value)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='llm-workbench-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);result.textContent='已发起下载。备份包含对话与附件，请妥善保管。';
     }catch{result.textContent='快照过大或无法导出。请先下载重要图片并复制重要文字。';}
     if(action==='import'){
       const picker=document.createElement('input');picker.type='file';picker.accept='.json,application/json';
       picker.onchange=async()=>{try{
         const file=picker.files?.[0];if(!file)return;if(file.size>MAX_SNAPSHOT_BYTES)throw new Error();
-        const restored=restoreWorkspace(migrateSnapshot(JSON.parse(await file.text())),makePage);
-        if(Object.values(data).some(d=>d.busy)){result.textContent='请先结束当前请求。';return;}
-        if(!window.confirm('用备份替换当前本页对话和设置？建议先导出当前内容。'))return;
-        for(const d of Object.values(data)){confirmations.interrupt(d);for(const m of d.messages)for(const image of m.images || [])imageDelivery.release(image.url);}
+        const imported=migrateConversations(JSON.parse(await file.text()));
+        if(allWorkspaces().some(d=>d.busy||d.attachmentReading)){result.textContent='请先结束当前请求。';return;}
+        if(!window.confirm('用备份替换所有本机会话和设置？建议先导出全部内容。'))return;
+        for(const d of allWorkspaces()){archiveWorkspaceKey(d);confirmations.interrupt(d);for(const m of d.messages)for(const image of m.images || [])imageDelivery.release(image.url);}
         approvedSessionRequest=null;
-        Object.assign(data,restored.data);page=restored.page;nextId=restored.nextId;viewPositions.clear();for(const [k,v]of Object.entries(restored.views))viewPositions.set(k,v);
+        installArchive(imported);
         render();await saveLocal(true);result.textContent='已恢复到本页。是否成功写入本机，请看上方保存状态。';
       }catch{result.textContent='备份格式不支持、损坏或超过 48 MiB；未恢复。';}};picker.click();
     }
@@ -917,5 +911,6 @@ listen(window, 'pagehide',()=>saveLocal(true));
 
 scope.own(()=>{localSecrets.clear();if(window.llmWorkbench===pageSession)delete window.llmWorkbench;});
 return {ready,session:pageSession,dispose:()=>scope.dispose(),data,addCard,render,isConfigured,matrixSupported,dispatchCardAction,
+  conversations:book,archiveSnapshot:captureArchive,selectConversation,
   persisted:()=>snapshotWorkspace({data,page,nextId,secrets:[...localSecrets]}),setPage:value=>{page=value;}};
 }

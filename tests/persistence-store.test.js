@@ -117,3 +117,15 @@ test('older snapshot commit cannot clear a newer collision or size-limit warning
   await store.schedule(snapshot('new valid retry'),{immediate:true});assert.equal(statuses.at(-1),'saved');store.close();
  }
 });
+
+test('collection codec is used on disk and old clear markers do not leak into another conversation journal',async()=>{
+ const {createConversationBook}=await import('../src/conversation-book.js');const {snapshotConversations,migrateConversations,replayConversationJournal}=await import('../src/conversation-archive.js');
+ let n=0;const book=createConversationBook({makeData:()=>({chat:workspace(),image:workspace()}),id:()=>`c${++n}`}),first=book.current(),second=book.create();
+ const saved=snapshotConversations({book,page:'chat',nextId:1}),idb=fakeIDB({value:saved}),memory=new Map(),journalStorage={getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)};
+ const store=createLocalStore({indexedDB:idb,journalStorage,eventTarget:null,decodeSnapshot:migrateConversations,applyJournal:replayConversationJournal});
+ assert.equal((await store.load()).entries.length,2);
+ store.journal({...snapshotJournal({data:first.data,page:'chat'}),conversationId:first.id},{clear:['chat']});
+ store.journal({...snapshotJournal({data:second.data,page:'chat'}),conversationId:second.id});
+ const journal=JSON.parse([...memory.values()][0]);assert.deepEqual(journal.cleared,{});assert.equal(journal.patch.conversationId,second.id);
+ assert.equal(await store.schedule(saved,{immediate:true}),true);store.close();
+});

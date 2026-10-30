@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "C-002",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T07:55:11.916Z",
     "kind": "composition",
     "goal": "workbench.compose-scoped-effects-after-hydration",
     "source": "src/workbench.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-C-002",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T07:55:11.916Z",
     "entry": "development/hosts/workbench.mjs",
     "moduleId": "C-002",
-    "moduleVersion": "0.3.0",
+    "moduleVersion": "0.3.1",
     "mode": "local"
   },
   "conditions": [
@@ -44,7 +44,7 @@
   ],
   "question": "各工作区如何组合请求、交付、保存和历史交互卡？",
   "stateModel": {
-    "budget": "默认2工作区、3页；DOM、协议、存档等外部状态未全部有限化",
+    "budget": "会话簿最多200项，每项2个工作区；3个页面。效果归属由稳定工作区身份决定；DOM/网络尚未有限化。",
     "completeFiniteImplementationModel": "NOT_ESTABLISHED"
   },
   "counterexamples": [

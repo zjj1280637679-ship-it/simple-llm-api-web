@@ -33,3 +33,5 @@
 契约放在 `docs/contracts/`，其索引放在 `module-library/catalog.json`，真实宿主放在 `development/hosts/`；三者分别描述、定位和执行同一个模块，不复制生产实现。
 
 v0.4.0 把原根目录三个 CLI 文件移入 `cli/`。终端示例按仓库根目录执行，旧 `node cli.mjs` 路径需改为 `node cli/cli.mjs`。
+
+当前开发试用版的入口与会话保存语义见 [设置与历史](SETTINGS_HISTORY.md)。

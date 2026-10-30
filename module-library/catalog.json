@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "createdAt": "2026-10-29T20:08:58.524Z",
-  "updatedAt": "2026-10-30T05:30:34.595Z",
+  "updatedAt": "2026-10-30T07:55:11.916Z",
   "entries": [
     {
       "id": "R-007",
@@ -148,9 +148,9 @@
       "contract": "docs/contracts/stream-painter.json",
       "host": {
         "id": "H-R-012",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
         "entry": "development/hosts/stream-painter.mjs",
         "moduleId": "R-012",
         "moduleVersion": "0.1.1",
@@ -178,16 +178,16 @@
       "id": "F-009",
       "kind": "function",
       "source": "src/view-markup.js",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "contract": "docs/contracts/view-markup.json",
       "host": {
         "id": "H-F-009",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
         "entry": "development/hosts/view-markup.mjs",
         "moduleId": "F-009",
-        "moduleVersion": "0.1.1",
+        "moduleVersion": "0.1.2",
         "mode": "local"
       }
     },
@@ -212,16 +212,16 @@
       "id": "C-002",
       "kind": "composition",
       "source": "src/workbench.js",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "contract": "docs/contracts/workbench.json",
       "host": {
         "id": "H-C-002",
-        "version": "0.1.2",
+        "version": "0.1.3",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
         "entry": "development/hosts/workbench.mjs",
         "moduleId": "C-002",
-        "moduleVersion": "0.3.0",
+        "moduleVersion": "0.3.1",
         "mode": "local"
       }
     },
@@ -382,16 +382,16 @@
       "id": "F-015",
       "kind": "function",
       "source": "src/card-types.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/card-types.json",
       "host": {
         "id": "H-F-015",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
         "entry": "development/hosts/card-types.mjs",
         "moduleId": "F-015",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     },
@@ -403,9 +403,9 @@
       "contract": "docs/contracts/card-markup.json",
       "host": {
         "id": "H-F-016",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
         "entry": "development/hosts/card-markup.mjs",
         "moduleId": "F-016",
         "moduleVersion": "0.1.0",
@@ -433,15 +433,100 @@
       "id": "C-003",
       "kind": "composition",
       "source": "src/workbench-cards.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/workbench-cards.json",
       "host": {
         "id": "H-C-003",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
         "entry": "development/hosts/workbench-cards.mjs",
         "moduleId": "C-003",
+        "moduleVersion": "0.1.1",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "R-018",
+      "kind": "relation",
+      "source": "src/conversation-book.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/conversation-book.json",
+      "host": {
+        "id": "H-R-018",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "entry": "development/hosts/conversation-book.mjs",
+        "moduleId": "R-018",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-017",
+      "kind": "function",
+      "source": "src/conversation-archive.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/conversation-archive.json",
+      "host": {
+        "id": "H-F-017",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "entry": "development/hosts/conversation-archive.mjs",
+        "moduleId": "F-017",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "R-019",
+      "kind": "relation",
+      "source": "src/settings-navigation.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/settings-navigation.json",
+      "host": {
+        "id": "H-R-019",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "entry": "development/hosts/settings-navigation.mjs",
+        "moduleId": "R-019",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-018",
+      "kind": "function",
+      "source": "src/settings-markup.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/settings-markup.json",
+      "host": {
+        "id": "H-F-018",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "entry": "development/hosts/settings-markup.mjs",
+        "moduleId": "F-018",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "F-019",
+      "kind": "function",
+      "source": "src/history-markup.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/history-markup.json",
+      "host": {
+        "id": "H-F-019",
+        "version": "0.1.0",
+        "createdAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "entry": "development/hosts/history-markup.mjs",
+        "moduleId": "F-019",
         "moduleVersion": "0.1.0",
         "mode": "local"
       }

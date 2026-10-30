@@ -1,3 +1,7 @@
+# 0.5.0 集合更新
+
+当前保存的是带会话 ID 的集合（collectionSchema 1），内部工作区继续使用 schema 2。旧单工作区快照自动迁移；保存预算仍为集合共计 48 MiB。即时草稿带会话归属，详见 [设置与历史](SETTINGS_HISTORY.md)。下文工作区快照规则仍适用于集合中的每一项。
+
 # Local workspace persistence
 
 Local IndexedDB, schema version 2, database scoped to this app's pathname (not the query/cache-buster). Schema 1 settings cards migrate to versioned cards; unsupported future/corrupt snapshots are not used to overwrite the last committed copy. No cloud upload or extra package dependency. This document combines current behavior and dated repair history; current scoped validation is indexed in [VALIDATION](../VALIDATION.md).

@@ -167,7 +167,7 @@ export function replayJournal(snapshot,journal,record={revision:0}) {
   return {status:'replayed',value:migrateSnapshot(value)};
 }
 
-export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{},name='llm-workbench-local-v1',debounceMs=250,journalStorage=null,eventTarget=globalThis}={}) {
+export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{},name='llm-workbench-local-v1',debounceMs=250,journalStorage=null,eventTarget=globalThis,decodeSnapshot=migrateSnapshot,applyJournal=replayJournal}={}) {
   let db,ready=false,revision=0,timer,pending,blocked=false,queue=Promise.resolve();
   const journalKey=name+':draft-journal';
   const owner=globalThis.crypto?.randomUUID?.()||`tab-${Date.now()}-${Math.random()}`;
@@ -182,7 +182,7 @@ export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{}
       if(!journalStorage)throw new Error('Journal unavailable');
       const previous=readJournal();
       if(previous?.patch&&previous.owner!==owner || previous?.baseRevision>revision&&previous.owner!==owner){blocked=true;status('conflict');return false;}
-      const entry={schema:1,owner,sequence:++sequence,baseRevision:revision,patch,cleared:{...(previous?.owner===owner?previous.cleared:{})}};
+      const entry={schema:1,owner,sequence:++sequence,baseRevision:revision,patch,cleared:{...(previous?.owner===owner&&previous?.patch?.conversationId===patch.conversationId?previous.cleared:{})}};
       for(const name of clear)if(['chat','image'].includes(name))entry.cleared[name]=sequence;
       const encoded=JSON.stringify(entry);if(new TextEncoder().encode(encoded).byteLength>MAX_JOURNAL_BYTES)throw new Error('Journal too large');
       journalStorage.setItem(journalKey,encoded);journalFailure=false;return true;
@@ -205,11 +205,11 @@ export function createLocalStore({indexedDB=globalThis.indexedDB,onStatus=()=>{}
       db.onversionchange=()=>{db.close();blocked=true;status('blocked');};
       const record=await new Promise((resolve,reject)=>{const t=db.transaction('snapshots','readonly');const r=t.objectStore('snapshots').get('workspace');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
       revision=record?.revision||0;
-      let result=record?migrateSnapshot(record.value):null;
+      let result=record?decodeSnapshot(record.value):null;
       ready=true;
       if(journalStorage){
         try{
-          const pending=readJournal(),replay=replayJournal(result||fallback,pending,record||{revision:0});
+          const pending=readJournal(),replay=applyJournal(result||fallback,pending,record||{revision:0});
           if(replay.status==='conflict'){blocked=true;status('conflict');return result;}
           if(replay.status==='replayed'){result=replay.value;sequence=0;const patch=pending.patch;putJournal({schema:1,owner,sequence:++sequence,baseRevision:revision,patch,cleared:Object.fromEntries(Object.keys(pending.cleared||{}).filter(k=>record?.owner!==pending.owner||pending.cleared[k]>(record.sequence||0)).map(k=>[k,sequence]))});}
           else if(pending?.patch)putJournal({schema:1,owner:'',baseRevision:revision,sequence:0,patch:null});

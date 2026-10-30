@@ -42,3 +42,7 @@ PR/main 均执行以上本地检查；main 仅发布 dist。有限模型不会�
 [v0.2.0 验证入口](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/70290ba6f00b9035f94ecde7ac95849b5ea190a5/VALIDATION.md)记录 377 通过、1 跳过及 14 宿主；[当时浏览器观察](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/70290ba6f00b9035f94ecde7ac95849b5ea190a5/docs/reviews/2026-10-30-browser.md)的构建身份不覆盖本轮。更早的 Ark 图片真实报告及旧 PR 候选均保留其原条件，没有通过改写日期延续到当前版本。
 
 [v0.3.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/0105e7f1657b10e5faa224442896c25dcde1b3b4/VALIDATION.md)记录当时的 391 通过、1 跳过和 21 宿主。
+
+## 0.5.0 开发试用版
+
+设置卡层级、历史会话、旧档迁移与草稿归属的当前验收以 `development/evidence/review.json` 及 [设置与历史](docs/SETTINGS_HISTORY.md) 为入口。此前次数和日期保留为历史观察。新增 5 个独立模块/宿主，总计 31 个；仍不推导为全仓形式证明或真实 API 验收。

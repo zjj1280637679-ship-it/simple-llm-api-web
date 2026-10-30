@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-009",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T07:55:11.916Z",
     "kind": "function",
     "goal": "view.escape-content-and-render-declared-markup",
     "source": "src/view-markup.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-009",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-30T04:46:28.642Z",
+    "updatedAt": "2026-10-30T07:55:11.916Z",
     "entry": "development/hosts/view-markup.mjs",
     "moduleId": "F-009",
-    "moduleVersion": "0.1.1",
+    "moduleVersion": "0.1.2",
     "mode": "local"
   },
   "conditions": [

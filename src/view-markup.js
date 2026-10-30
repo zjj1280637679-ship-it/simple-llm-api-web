@@ -14,5 +14,5 @@ export function reasoningContentMarkup(m) {
 }
 
 export function tabsMarkup(page) {
-  return `<div class="tabs" role="tablist" aria-label="页面导航">${[['chat', '对话'], ['image', '图片'], ['logs', '日志']].map(([id, label]) => `<button role="tab" aria-selected="${page === id}" class="tab ${page === id ? 'active' : ''}" data-action="tab" data-tab="${id}">${label}</button>`).join('')}</div>`;
+  return `<div class="tabs" role="tablist" aria-label="页面导航">${[['chat', '对话'], ['image', '图片'], ['logs', '历史']].map(([id, label]) => `<button role="tab" aria-selected="${page === id}" class="tab ${page === id ? 'active' : ''}" data-action="tab" data-tab="${id}">${label}</button>`).join('')}</div>`;
 }

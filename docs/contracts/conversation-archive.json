@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-017",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T07:55:11.916Z",
+    "updatedAt": "2026-10-30T07:55:11.916Z",
+    "kind": "function",
+    "goal": "conversation-archive",
+    "source": "src/conversation-archive.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-017",
+    "version": "0.1.0",
+    "createdAt": "2026-10-30T07:55:11.916Z",
+    "updatedAt": "2026-10-30T07:55:11.916Z",
+    "entry": "development/hosts/conversation-archive.mjs",
+    "moduleId": "F-017",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "question": "集合与旧存档如何保真转换并绑定草稿身份？",
+  "stateModel": {
+    "budget": "200个会话/48 MiB；工作区沿用schema 2；集合schema 1",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "conditions": [
+    "普通 JSON / plain objects；非对抗性 getter / Proxy",
+    "浏览器、文件下载及 IndexedDB 效果由组合验收另行观察"
+  ],
+  "observations": [
+    "集合与旧存档如何保真转换并绑定草稿身份？"
+  ],
+  "tests": [
+    "tests/conversations.test.js",
+    "tests/app-controls.test.js",
+    "tests/persistence-store.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "局部宿主不等于全部浏览器、真实供应商或完整 F/C/H/Q。"
+  ],
+  "counterexamples": [
+    "未知身份或路径不能误落到当前会话/其他设置类型",
+    "旧数据迁移与异步效果不得串会话"
+  ],
+  "extensionSeam": "显式参数与导出函数；消费方按契约组合",
+  "proofObligations": [
+    {
+      "id": "F-017.effect",
+      "statement": "集合与旧存档如何保真转换并绑定草稿身份？",
+      "status": "OPEN",
+      "localWitness": "development/hosts/conversation-archive.mjs"
+    },
+    {
+      "id": "F-017.refinement",
+      "statement": "全部宿主条件与抽象边界的对应",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "集合与旧存档如何保真转换并绑定草稿身份？"
+    ],
+    "assumptions": [
+      "普通 JSON / plain objects；非对抗性 getter / Proxy",
+      "浏览器、文件下载及 IndexedDB 效果由组合验收另行观察"
+    ],
+    "policyReference": "docs/SETTINGS_HISTORY.md",
+    "notEstablished": [
+      "局部宿主不等于全部浏览器、真实供应商或完整 F/C/H/Q。"
+    ]
+  }
+}

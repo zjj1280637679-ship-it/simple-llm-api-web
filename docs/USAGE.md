@@ -38,7 +38,7 @@ node cli/cli.mjs --help
 
 ## 火山方舟普通 API（文本＋图片）
 
-在任一工作区 `+ → API 设置 → 供应商` 中选择 **火山方舟 · 普通 API**。两页各自填写普通 Ark API Key，发送时应用当前目标，不会自动复制另一页的密钥。
+在任一工作区 `+ → 设置 → 供应商` 中选择 **火山方舟 · 普通 API**。两页各自填写普通 Ark API Key，发送时应用当前目标，不会自动复制另一页的密钥。
 
 - 基础地址：`https://ark.cn-beijing.volces.com/api/v3`，**不是** `/api/plan/v3`，不使用 Agent/Coding Plan Key。
 - 文本：`/chat/completions`；预设 `doubao-seed-2-1-lite-260915`。完整保留模型工具消息及 `encrypted_content`；输出预算使用 `max_completion_tokens`，不与 `max_tokens` 同发。
@@ -58,9 +58,9 @@ node cli/cli.mjs --help
 
 **当前 Pages 工作流不消费 `ARK_API_KEY`。** 将它存为 GitHub Secret 不会给静态网页增加安全的服务端密钥能力；不能把 Secret 编进公开站点。本文档不冒称容器已经写入，具体操作结果需另行核验。
 
-## API 设置
+## 设置
 
-点输入框左下角 `+ → API 设置`，或直接输入一条消息后发送。
+点输入框左下角 `+ → 设置`，或直接输入一条消息后发送。
 
 | 字段 | 说明 |
 | --- | --- |
@@ -206,6 +206,8 @@ VALIDATION.md           本次验证结果与尚未完成的真实环境验证
 
 ## 本机刷新恢复
 
-对话、草稿、附件、模型设置和独立指标自动保存到当前网站路径的 IndexedDB；API Key/目标确认与自动通讯日志不保存；主动插入的日志卡随历史保存。失败/配额不足/多标签页冲突会明确提示，不会静默删附件或覆盖其他标签页。+ 菜单可查看状态、导出和恢复本地备份。浏览器清理、无痕结束或系统回收空间仍可能丢失数据，详见 [本机持久化说明](../docs/LOCAL_PERSISTENCE.md)。
+对话、草稿、附件、模型设置和独立指标自动保存到当前网站路径的 IndexedDB；API Key/目标确认与自动通讯日志不保存；主动插入的日志卡随历史保存。失败/配额不足/多标签页冲突会明确提示，不会静默删附件或覆盖其他标签页。历史 → 更多工具可查看状态、导出和恢复本地备份。浏览器清理、无痕结束或系统回收空间仍可能丢失数据，详见 [本机持久化说明](../docs/LOCAL_PERSISTENCE.md)。
 
 当前开发态库与维护规则见 [模块图书馆](../module-library/README.md)，状态归属见 [组合说明](../docs/WORKBENCH_MODULES.md)。运行 `npm run hosts` 检查全部 26 个独立宿主；`npm run review:sources` 输出资料复核状态，不据此宣称模型可用。
+
+0.5.0 的层级、历史会话和导入替换语义见 [设置与历史](SETTINGS_HISTORY.md)。

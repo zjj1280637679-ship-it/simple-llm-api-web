@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "C-003",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-30T05:30:34.595Z",
-    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T07:55:11.916Z",
     "kind": "composition",
     "goal": "cards.compose-type-view-codec-and-actions",
     "source": "src/workbench-cards.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-C-003",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-30T05:30:34.595Z",
-    "updatedAt": "2026-10-30T05:30:34.595Z",
+    "updatedAt": "2026-10-30T07:55:11.916Z",
     "entry": "development/hosts/workbench-cards.mjs",
     "moduleId": "C-003",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "conditions": [
@@ -44,7 +44,7 @@
   ],
   "question": "各类卡片如何以同一登记方式组合数据、展示与动作？",
   "stateModel": {
-    "budget": "五种已登记类型；具体效果由显式 host 回调提供",
+    "budget": "六种已登记类型；具体效果由显式 host 回调提供",
     "completeFiniteImplementationModel": "NOT_ESTABLISHED"
   },
   "counterexamples": [

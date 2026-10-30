@@ -70,7 +70,8 @@ test('live page session preserves unknown completion beside returned workflow st
 });
 
 test('URL input immediately revokes visible trust without rebuilding the focused input', async()=> {
-  const ui = await mount(), { d, card } = configure(ui);
+  const ui = await mount(), { d } = configure(ui);
+  ui.addCard('connection');const card=d.messages.at(-1);
   const input = ui.app.querySelector(`#url${card.id}`), renders = ui.app.renders;
   input.value = 'https://new.example.com/v1';
   input.selectionStart = input.selectionEnd = 12;
@@ -79,7 +80,7 @@ test('URL input immediately revokes visible trust without rebuilding the focused
   assert.match(ui.app.querySelector(`#api-trust${card.id}`).textContent, /发送或拉取时使用上方配置/);
   ui.input(input);
   assert.equal(d.api.key, ''); assert.equal(d.api.trustedTarget, '');
-  assert.equal(ui.app.querySelector(`#key${card.id}`).value, '');
+  assert.equal(ui.app.querySelector(`#key${card.id}`), null);
   assert.equal(ui.isConfigured(ui.data.chat), false);
   assert.equal(ui.app.querySelector('.top-right'), null);
   assert.match(ui.app.querySelector(`#api-trust${card.id}`).textContent, /请填写密钥/);
@@ -185,7 +186,7 @@ test('logs tab has no composer, shows sanitized records and can clear them', asy
   const ui = await mount();
   logs.recordNetwork({ requestId: 'ui-log', source: 'mock', endpoint: 'https://api.example.com', status: 200 });
   await ui.click({ action: 'tab', tab: 'logs' });
-  assert.match(ui.app.innerHTML, /导出 JSON/);
+  assert.match(ui.app.innerHTML, /导出通讯记录/);
   assert.doesNotMatch(ui.app.innerHTML, /id="draft"/);
   assert.match(ui.app.querySelector('#network-logs').textContent, /ui-log/);
   await ui.click({ action: 'clear-logs' });
@@ -305,8 +306,9 @@ test('corrected settings continue and busy model pulls never duplicate a request
   assert.equal(d.busy,false);assert.equal(card.models[0].id,'synthetic-model');
 });
 test('invalid model-list targets update one status without requests', async()=> {
- const ui=await mount(),{d,card}=configure(ui),count=d.messages.length;
- const url=ui.app.querySelector(`#url${card.id}`);url.value='http://unsafe.example/v1';ui.input(url);
+ const ui=await mount(),{d}=configure(ui);ui.addCard('connection');
+ const url=ui.app.querySelector(`#url${d.messages.at(-1).id}`);url.value='http://unsafe.example/v1';ui.input(url);
+ ui.addCard('api');const card=d.messages.at(-1),count=d.messages.length;
  const key=ui.app.querySelector(`#key${card.id}`);key.value='synthetic-new';ui.input(key);
  for(let i=0;i<5;i++)await ui.click({action:'pull-models',id:String(card.id)});
  assert.equal(d.messages.length,count);assert.ok(card.modelListStatus);assert.equal(d.api.trustedTarget,'');
@@ -447,7 +449,7 @@ test('send reconciles eventless autofill, while target edits never carry an unch
  let calls=0;
  const ui=await mount({runConversation:async({config})=>{calls++;assert.equal(config.key,'autofilled-new');return{text:'ok',history:[]};}});
  const {d,card}=configure(ui);ui.app.querySelector(`#key${card.id}`).value='autofilled-new';d.draft='autofilled';await ui.click({action:'send'});assert.equal(calls,1);
- ui.addCard('api');const next=d.messages.at(-1),url=ui.app.querySelector(`#url${next.id}`);url.value='https://other.example.com/v1';
+ ui.addCard('connection');const next=d.messages.at(-1),url=ui.app.querySelector(`#url${next.id}`);url.value='https://other.example.com/v1';
  d.draft='must not send old key';await ui.click({action:'send'});assert.equal(calls,1);assert.equal(d.api.key,'');assert.equal(d.api.trustedTarget,'');
 });
 test('deleting a key without blur prevents send and list immediately', async()=>{
@@ -458,13 +460,15 @@ test('deleting a key without blur prevents send and list immediately', async()=>
 
 test('eventless target and new-key autofill stay consistent across consecutive sends', async()=>{
  let calls=0;const ui=await mount({runConversation:async({config})=>{calls++;assert.equal(config.url,'https://new.example.com/v1');assert.equal(config.key,'new-autofill');return{text:'ok',history:[]};}}),{d,card}=configure(ui);
- ui.app.querySelector(`#url${card.id}`).value='https://new.example.com/v1';ui.app.querySelector(`#key${card.id}`).value='new-autofill';
- for(let i=0;i<2;i++){d.draft='request '+i;await ui.click({action:'send'});assert.equal(ui.app.querySelector(`#key${card.id}`).value,'');assert.equal(d.api.key,'new-autofill');}
+ ui.addCard('connection');ui.app.querySelector(`#url${d.messages.at(-1).id}`).value='https://new.example.com/v1';
+ await ui.click({action:'open-settings-card',id:String(d.messages.at(-1).id),kind:'api'});
+ const active=d.messages.at(-1);ui.app.querySelector(`#key${active.id}`).value='new-autofill';
+ for(let i=0;i<2;i++){d.draft='request '+i;await ui.click({action:'send'});assert.equal(ui.app.querySelector(`#key${active.id}`).value,'');assert.equal(d.api.key,'new-autofill');}
  assert.equal(calls,2);
 });
 test('page-tool confirmation snapshots autofill before approval and refuses eventless post-approval edits', async()=>{
  let calls=0,ui,card;
- ui=await mount({confirm:()=>{ui.app.querySelector(`#url${card.id}`).value='https://racing.example.com/v1';ui.app.querySelector(`#key${card.id}`).value='racing-key';return true;},runConversation:async()=>{calls++;return{text:'unexpected',history:[]};}});
+ ui=await mount({confirm:()=>{ui.app.querySelector(`#key${card.id}`).value='racing-key';return true;},runConversation:async()=>{calls++;return{text:'unexpected',history:[]};}});
  ({card}=configure(ui));ui.data.chat.draft='tool send';
  const result=await ui.session.execute({command:'request.send',args:{}});
  assert.equal(calls,0);assert.equal(result.result.reason,'changed-after-confirmation');
@@ -666,4 +670,35 @@ test('chart and log cards use snapshots and the shared action guard',async()=>{
  logs.recordNetwork({source:'synthetic',requestId:'late'});assert.equal(logCard.values.entries.length,0);
  await ui.click({action:'refresh-logs-card',id:String(logCard.id)});assert.equal(logCard.values.entries.length,1);
  assert.equal(ui.persisted().workspaces.chat.messages.at(-1).kind,'logs');logs.clearNetworkLogs();
+});
+
+test('settings navigation emits child cards; frozen parent and return cannot reactivate old inputs',async()=>{
+ const ui=await mount(),{d,card}=configure(ui);await ui.click({action:'plus'});
+ assert.match(ui.app.innerHTML,/data-kind="api">[\s\S]*?设置/);assert.doesNotMatch(ui.app.innerHTML,/data-action="new-card" data-kind="model"/);
+ assert.equal(ui.app.querySelector(`#url${card.id}`),null);
+ await ui.click({action:'open-settings-card',id:String(card.id),kind:'model'});const child=d.messages.at(-1);assert.equal(child.kind,'model');
+ await ui.click({action:'open-settings-card',id:String(card.id),kind:'connection'});assert.equal(d.messages.at(-1),child);
+ await ui.click({action:'open-settings-card',id:String(child.id),kind:'api'});assert.equal(d.messages.at(-1).kind,'api');assert.notEqual(d.messages.at(-1).id,card.id);assert.equal(d.api.key,'synthetic-control-key');
+});
+test('switching conversations leaves cards live by local tail and preserves both draft buffers',async()=>{
+ const ui=await mount(),{d,card}=configure(ui);const first=ui.conversations.activeId;d.draft='first draft';
+ await ui.click({action:'conversation-new'});const second=ui.conversations.activeId;assert.notEqual(second,first);assert.equal(ui.data.chat.draft,'');assert.equal(ui.data.chat.api.key,d.api.key);
+ ui.data.chat.draft='second draft';await ui.click({action:'conversation-open',conversation:first});assert.equal(ui.data.chat,d);assert.equal(d.draft,'first draft');
+ assert.equal((await ui.dispatchCardAction({id:card.id,action:'toggle-key',args:{}})).ok,true);
+ const archive=ui.archiveSnapshot();assert.equal(archive.entries.length,2);assert.equal(archive.entries.find(e=>e.id===second).snapshot.workspaces.chat.draft,'second draft');
+});
+test('late response after opening another conversation is delivered and persisted to its originating workspace',async()=>{
+ let resolve,observedImage;const pending=new Promise(r=>resolve=r);
+ const ui=await mount({runConversation:async({imageConfig})=>{observedImage=imageConfig;await pending;return{text:'late first result',history:[{role:'assistant',content:'first'}]};}}),{d}=configure(ui);
+ const origin=ui.conversations.activeId;ui.data.image.api.model='origin-image';d.draft='first request';const sending=ui.click({action:'send'});
+ await ui.click({action:'conversation-new'});ui.data.image.api.model='other-image';ui.data.chat.draft='new request';resolve();await sending;
+ assert.equal(observedImage.model,'origin-image');assert.ok(d.messages.some(m=>m.text==='late first result'));assert.equal(ui.data.chat.messages.length,0);assert.equal(ui.data.chat.draft,'new request');
+ assert.ok(ui.archiveSnapshot().entries.find(e=>e.id===origin).snapshot.workspaces.chat.messages.some(m=>m.text==='late first result'));
+});
+
+test('history resumes the image workspace that belongs to the selected conversation',async()=>{
+ const ui=await mount();await ui.click({action:'tab',tab:'image'});const id=ui.conversations.activeId;ui.data.image.draft='image draft';
+ await ui.click({action:'conversation-new'});await ui.click({action:'conversation-open',conversation:id});
+ assert.match(ui.app.innerHTML,/图片提示词/);assert.equal(ui.data.image.draft,'image draft');
+ assert.equal(ui.archiveSnapshot().entries.find(e=>e.id===id).snapshot.page,'image');
 });

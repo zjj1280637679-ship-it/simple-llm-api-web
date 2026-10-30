@@ -1,8 +1,9 @@
 /** 开发态课题：各类卡片如何以同一登记方式组合数据、展示与动作？
- * 状态边界：五种已登记类型；具体效果由显式 host 回调提供。
+ * 状态边界：六种已登记类型；具体效果由显式 host 回调提供。
  * 扩展：在一个类型条目中登记视图和动作；历史及导航无需添加特例。
  * 契约：docs/contracts/workbench-cards.json；局部宿主不替代完整 F/C/H/Q。
  */
+import {canNavigateSettings} from './settings-navigation.js';
 import {CARD_TYPES,validCard} from './card-types.js';
 import {createCardRegistry} from './interaction-cards.js';
 import {chartCardMarkup,logCardMarkup,confirmationCardMarkup} from './card-markup.js';
@@ -18,14 +19,16 @@ export function createWorkbenchCards(host) {
   const fields=kind=>({'field.change':{keys:['key','value'],
     validate:args=>Object.keys(args).length===2&&CARD_TYPES[kind].fields.includes(args.key)&&typeof args.value==='string',
     run:context=>host.field(context)}});
+  const navigation={'open-settings-card':{keys:['kind'],validate:args=>Object.keys(args).length===1&&typeof args.kind==='string',run:context=>canNavigateSettings(context.card.kind,context.args.kind)?host.navigate(context):{ok:false,reason:'unknown-route'}}};
   const definition=(kind,render,actions)=>({...CARD_TYPES[kind],kind,render,actions,validateCard:validCard});
   return createCardRegistry([
     definition('api',host.apiMarkup,{
-      ...fields('api'),supplier:settingsAction('supplier'),'choose-supplier':settingsAction('choose-supplier',['index']),
+      ...fields('api'),...navigation,supplier:settingsAction('supplier'),'choose-supplier':settingsAction('choose-supplier',['index']),
       'pull-models':settingsAction('pull-models'),'choose-model':settingsAction('choose-model',['model']),'toggle-key':settingsAction('toggle-key')
     }),
+    definition('connection',host.connectionMarkup,{...fields('connection'),...navigation}),
     definition('model',host.modelMarkup,{
-      ...fields('model'),'toggle-input':settingsAction('toggle-input',['modality']),
+      ...fields('model'),...navigation,'toggle-input':settingsAction('toggle-input',['modality']),
       'reasoning-toggle':settingsAction('reasoning-toggle'),'reasoning-family':settingsAction('reasoning-family',['family'])
     }),
     definition('chart',chartCardMarkup,{'refresh-chart':action([],({card,workspace})=>{card.values=CARD_TYPES.chart.capture(host.usage(workspace));host.render();return {ok:true};})}),

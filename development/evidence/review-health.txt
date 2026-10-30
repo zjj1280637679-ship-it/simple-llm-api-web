@@ -1,11 +1,11 @@
 npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.4.0 review:health
+> simple-llm-api-web@0.5.0 review:health
 > node scripts/review-health.mjs
 
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:33:59.989Z",
+  "generatedAt": "2026-10-30T08:01:37.945Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
@@ -86,14 +86,14 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/card-types.js",
-      "bytes": 4030,
-      "lines": 52,
+      "bytes": 4205,
+      "lines": 53,
       "maxLineCharacters": 307,
       "relativeImports": [
         "src/native-json.js",
         "src/reasoning.js"
       ],
-      "sha256": "7f9761c682390495e12d735e42698b33a0cd5c7865fabb9a4bab92487f630129"
+      "sha256": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10"
     },
     {
       "path": "src/clipboard-report.js",
@@ -120,6 +120,25 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "sha256": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509"
     },
     {
+      "path": "src/conversation-archive.js",
+      "bytes": 4390,
+      "lines": 50,
+      "maxLineCharacters": 390,
+      "relativeImports": [
+        "src/conversation-book.js",
+        "src/persistence.js"
+      ],
+      "sha256": "c9801d5fea8308075daa1f83a5884d19db7afee6f6e43b8d131d2af4505aa551"
+    },
+    {
+      "path": "src/conversation-book.js",
+      "bytes": 2844,
+      "lines": 34,
+      "maxLineCharacters": 332,
+      "relativeImports": [],
+      "sha256": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720"
+    },
+    {
       "path": "src/core.js",
       "bytes": 19579,
       "lines": 270,
@@ -144,6 +163,17 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "maxLineCharacters": 140,
       "relativeImports": [],
       "sha256": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99"
+    },
+    {
+      "path": "src/history-markup.js",
+      "bytes": 2022,
+      "lines": 14,
+      "maxLineCharacters": 433,
+      "relativeImports": [
+        "src/conversation-book.js",
+        "src/view-markup.js"
+      ],
+      "sha256": "4b935d190a6216a04afeabd22dbb59c2c5bde684472c74a86bf513f12d557fed"
     },
     {
       "path": "src/icons.js",
@@ -211,7 +241,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/persistence.js",
-      "bytes": 17786,
+      "bytes": 17898,
       "lines": 241,
       "maxLineCharacters": 371,
       "relativeImports": [
@@ -219,7 +249,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/interaction-cards.js",
         "src/native-json.js"
       ],
-      "sha256": "e43c089797c38bea9d488d6ffd5620a00a4340af3fc271334fc5bbc272b9c69e"
+      "sha256": "e6b6f94565bc93848f3353733511bc444ec7e3021691aaa1472af3097a5a9f2b"
     },
     {
       "path": "src/provider-identity.js",
@@ -291,6 +321,26 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "sha256": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153"
     },
     {
+      "path": "src/settings-markup.js",
+      "bytes": 8463,
+      "lines": 71,
+      "maxLineCharacters": 760,
+      "relativeImports": [
+        "src/attachments.js",
+        "src/reasoning.js",
+        "src/view-markup.js"
+      ],
+      "sha256": "7db6b8abdf768ff16416071ca18d5f3da91eaa0e27295efece28b2e95c15b152"
+    },
+    {
+      "path": "src/settings-navigation.js",
+      "bytes": 469,
+      "lines": 6,
+      "maxLineCharacters": 135,
+      "relativeImports": [],
+      "sha256": "abcc088e95a35f04cb24f6e1e3b893f3110e1f66e820eb2b77d8e370b446c56e"
+    },
+    {
       "path": "src/stream-painter.js",
       "bytes": 2323,
       "lines": 39,
@@ -334,7 +384,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "lines": 18,
       "maxLineCharacters": 300,
       "relativeImports": [],
-      "sha256": "232ed32dee5065a41f9541bd7f10b09db4129cb005745e8217220ef84e09be6b"
+      "sha256": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
     },
     {
       "path": "src/view-position.js",
@@ -346,21 +396,22 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/workbench-cards.js",
-      "bytes": 2721,
-      "lines": 37,
-      "maxLineCharacters": 190,
+      "bytes": 3162,
+      "lines": 40,
+      "maxLineCharacters": 258,
       "relativeImports": [
         "src/card-markup.js",
         "src/card-types.js",
-        "src/interaction-cards.js"
+        "src/interaction-cards.js",
+        "src/settings-navigation.js"
       ],
-      "sha256": "8ab7d109fb5c37b73eaae1be0982247c12e8d6ee6b8022cff326f940ab89c793"
+      "sha256": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e"
     },
     {
       "path": "src/workbench.js",
-      "bytes": 68080,
-      "lines": 921,
-      "maxLineCharacters": 687,
+      "bytes": 66813,
+      "lines": 916,
+      "maxLineCharacters": 515,
       "relativeImports": [
         "src/agent.js",
         "src/attachments.js",
@@ -369,7 +420,10 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/card-markup.js",
         "src/card-types.js",
         "src/clipboard-report.js",
+        "src/conversation-archive.js",
+        "src/conversation-book.js",
         "src/core.js",
+        "src/history-markup.js",
         "src/icons.js",
         "src/image-delivery.js",
         "src/image-evidence.js",
@@ -382,6 +436,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/request-outcome.js",
         "src/session-webmcp.js",
         "src/session.js",
+        "src/settings-markup.js",
         "src/stream-painter.js",
         "src/usage.js",
         "src/view-markup.js",
@@ -389,7 +444,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/workbench-cards.js",
         "src/workspace-storage.js"
       ],
-      "sha256": "5035d0245ed1608f1d45a760d84c690f3adec1393c448a5ca59e35cc620133a5"
+      "sha256": "d92e9ea4a23834c3e655ec95a473e43a50ddf96147fa494cc04d75993969756f"
     },
     {
       "path": "src/workspace-storage.js",
@@ -528,12 +583,54 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       }
     },
     {
+      "path": "docs/contracts/conversation-archive.json",
+      "module": "F-017",
+      "host": "H-F-017",
+      "question": "集合与旧存档如何保真转换并绑定草稿身份？",
+      "goal": "conversation-archive",
+      "stateBudget": "200个会话/48 MiB；工作区沿用schema 2；集合schema 1",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/conversation-book.json",
+      "module": "R-018",
+      "host": "H-R-018",
+      "question": "会话身份如何拥有工作区与晚到效果？",
+      "goal": "conversation-book",
+      "stateBudget": "最多200个独立会话；一个活动ID；工作区请求状态由原宿主管理",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
       "path": "docs/contracts/error-diagnostic.json",
       "module": "F-008",
       "host": "H-F-008",
       "question": "错误响应中哪些有限字段可作为上游报告保留？",
       "goal": "http.project-bounded-redacted-diagnostic",
       "stateBudget": "一次读取器；8 KiB / 1.2 秒预算；响应主体与时钟为外部条件",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/history-markup.json",
+      "module": "F-019",
+      "host": "H-F-019",
+      "question": "怎样从会话目录生成历史页而不执行管理效果？",
+      "goal": "history-markup",
+      "stateBudget": "无自有状态；有界会话目录与查询、提示字符串",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -668,6 +765,34 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       }
     },
     {
+      "path": "docs/contracts/settings-markup.json",
+      "module": "F-018",
+      "host": "H-F-018",
+      "question": "怎样把配置投影成渐进展开的设置卡？",
+      "goal": "settings-markup",
+      "stateBudget": "无自有状态；当前配置、卡片快照与视图上下文显式注入",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/settings-navigation.json",
+      "module": "R-019",
+      "host": "H-R-019",
+      "question": "设置卡之间可以走哪些有向关系？",
+      "goal": "settings-navigation",
+      "stateBudget": "3个卡片节点、4条边；未知类型无边",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
       "path": "docs/contracts/stream-painter.json",
       "module": "R-012",
       "host": "H-R-012",
@@ -729,7 +854,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "host": "H-C-003",
       "question": "各类卡片如何以同一登记方式组合数据、展示与动作？",
       "goal": "cards.compose-type-view-codec-and-actions",
-      "stateBudget": "五种已登记类型；具体效果由显式 host 回调提供",
+      "stateBudget": "六种已登记类型；具体效果由显式 host 回调提供",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -743,7 +868,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "host": "H-C-002",
       "question": "各工作区如何组合请求、交付、保存和历史交互卡？",
       "goal": "workbench.compose-scoped-effects-after-hydration",
-      "stateBudget": "默认2工作区、3页；DOM、协议、存档等外部状态未全部有限化",
+      "stateBudget": "会话簿最多200项，每项2个工作区；3个页面。效果归属由稳定工作区身份决定；DOM/网络尚未有限化。",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",

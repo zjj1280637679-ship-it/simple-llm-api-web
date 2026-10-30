@@ -8,6 +8,7 @@ const destination = join(root, 'dist');
 // Deliberate allowlist: design history, tests, CLI, docs, dotfiles and secrets are
 // not deployment inputs. No recursive copy of the repository is ever performed.
 const files = [
+  'src/conversation-book.js','src/conversation-archive.js','src/settings-markup.js','src/settings-navigation.js','src/history-markup.js',
   'src/workbench-cards.js','src/interaction-cards.js','src/card-types.js','src/card-markup.js','src/card-confirmations.js',
   'src/app-error.js', 'src/api-target.js', 'src/request-transport.js', 'src/completion-evidence.js', 'src/completion-policy.js', 'src/image-evidence.js', 'src/request-outcome.js',
   'index.html', '.nojekyll',

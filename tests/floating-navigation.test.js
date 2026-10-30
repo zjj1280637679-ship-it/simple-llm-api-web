@@ -80,7 +80,7 @@ test('floating captions have no shared panel while input retains translucent pan
 });
 test('navigation uses concise visible and accessible labels without changing route IDs',()=>{
   const html=tabsMarkup('image');
- for(const [id,label] of [['chat','对话'],['image','图片'],['logs','日志']]) assert.match(html,new RegExp('data-tab="'+id+'">'+label+'</button>'));
+ for(const [id,label] of [['chat','对话'],['image','图片'],['logs','历史']]) assert.match(html,new RegExp('data-tab="'+id+'">'+label+'</button>'));
  assert.doesNotMatch(html,/图片生成|通讯日志/);
  assert.match(html,/role="tab" aria-selected="true"[^>]*data-tab="image"/);
 });

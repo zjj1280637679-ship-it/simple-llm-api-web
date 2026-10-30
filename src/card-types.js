@@ -15,7 +15,8 @@ const object = value => value !== null && typeof value === 'object' && !Array.is
 const apiFields = ['protocol','url','model','supplier'];
 const modelFields = ['output','temperature','topP','inputs','reasoning','reasoningFamily','reasoningMode','reasoningBudget'];
 export const CARD_TYPES = Object.freeze({
-  api:{version:1, title:'API 设置', fields:['url','key','model'], capture:value=>pick(value,apiFields), initial:workspace=>workspace.api},
+  api:{version:1, title:'设置', fields:['url','key','model'], capture:value=>pick(value,apiFields), initial:workspace=>workspace.api},
+  connection:{version:1,title:'连接细节',fields:['url','protocol'],capture:value=>pick(value,apiFields),initial:workspace=>workspace.api},
   model:{version:1, title:'模型设置', fields:['output','temperature','topP'], capture:value=>pick(value,modelFields), initial:workspace=>({...workspace.model,reasoningFamily:workspace.model.reasoningFamily||reasoningFamilyFor(workspace.api,workspace.model.reasoningMode||workspace.model.reasoning?.template)})},
   chart:{version:1, title:'用量图表', fields:[], capture:value=>pick(value,['title','rows','note']), initial:()=>({title:'末次请求用量',rows:[],note:'尚无可用的用量观察。'})},
   logs:{version:1, title:'日志快照', fields:[], capture:value=>pick(value,['title','entries','note']), initial:()=>({title:'日志快照',entries:[],note:'尚无通讯记录。'})},
@@ -29,11 +30,11 @@ export function captureCard(card, workspace) {
   const definition=cardType(card);
   if (!definition) return copyNativeJSON(card.values);
   // Settings capture current configuration before the next history item is appended.
-  return definition.capture(['api','model'].includes(card.kind) && workspace ? definition.initial(workspace) : card.values);
+  return definition.capture(['api','connection','model'].includes(card.kind) && workspace ? definition.initial(workspace) : card.values);
 }
 export function persistCard(card, workspace) {
   const values=captureCard(card,workspace);
-  if(card.kind==='api') {
+  if(['api','connection'].includes(card.kind)) {
     delete values.key; delete values.trustedTarget;
     try {const url=new URL(values.url); if(url.username||url.password||url.search||url.hash||url.protocol!=='https:')values.url='';} catch {values.url='';}
   }
