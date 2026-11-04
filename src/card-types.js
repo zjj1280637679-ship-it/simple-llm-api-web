@@ -3,6 +3,7 @@
  * 扩展：新类型定义捕获、校验与字段；未来类型数据可读而不猜测动作。
  * 契约：docs/contracts/card-types.json；局部宿主不替代完整 F/C/H/Q。
  */
+import {GEMINI_FIELDS,geminiProfile} from './gemini-capabilities.js';
 import {copyNativeJSON} from './native-json.js';
 import {reasoningFamilyFor} from './reasoning.js';
 
@@ -13,17 +14,17 @@ import {reasoningFamilyFor} from './reasoning.js';
 const pick = (value, keys) => Object.fromEntries(keys.filter(key=>value?.[key]!==undefined).map(key=>[key,copyNativeJSON(value[key])]));
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const apiFields = ['protocol','url','model','supplier'];
-const modelFields = ['output','temperature','topP','inputs','reasoning','reasoningFamily','reasoningMode','reasoningBudget'];
+const modelFields = ['output','temperature','topP','inputs','reasoning','reasoningFamily','reasoningMode','reasoningBudget',...GEMINI_FIELDS];
 function captureModel(value) {
   const values=pick(value,modelFields);
   // Optional in v1: missing legacy context stays unknown, never inferred from today's API.
-  if (object(value?.displayContext)) values.displayContext=pick(value.displayContext,['protocol']);
+  if (object(value?.displayContext)) values.displayContext=pick(value.displayContext,['protocol','model','gemini']);
   return values;
 }
 export const CARD_TYPES = Object.freeze({
   api:{version:1, title:'设置', fields:['url','key','model'], capture:value=>pick(value,apiFields), initial:workspace=>workspace.api},
   connection:{version:1,title:'连接细节',fields:['url','protocol'],capture:value=>pick(value,apiFields),initial:workspace=>workspace.api},
-  model:{version:1, title:'模型设置', fields:['output','temperature','topP'], capture:captureModel, initial:workspace=>({...workspace.model,displayContext:{protocol:workspace.api.protocol},reasoningFamily:workspace.model.reasoningFamily||reasoningFamilyFor(workspace.api,workspace.model.reasoningMode||workspace.model.reasoning?.template)})},
+  model:{version:1, title:'模型设置', fields:['output','temperature','topP',...GEMINI_FIELDS], capture:captureModel, initial:workspace=>({...workspace.model,displayContext:{protocol:workspace.api.protocol,model:workspace.api.model,...(workspace.api.protocol==='gemini'?{gemini:geminiProfile(workspace.api)}:{})},reasoningFamily:workspace.model.reasoningFamily||reasoningFamilyFor(workspace.api,workspace.model.reasoningMode||workspace.model.reasoning?.template)})},
   chart:{version:1, title:'用量图表', fields:[], capture:value=>pick(value,['title','rows','note']), initial:()=>({title:'末次请求用量',rows:[],note:'尚无可用的用量观察。'})},
   logs:{version:1, title:'日志快照', fields:[], capture:value=>pick(value,['title','entries','note']), initial:()=>({title:'日志快照',entries:[],note:'尚无通讯记录。'})},
   confirmation:{version:1, title:'调用确认', fields:[], capture:value=>pick(value,['title','text']), initial:()=>({title:'调用确认',text:''})}

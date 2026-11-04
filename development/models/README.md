@@ -37,3 +37,5 @@ completion-evidence、completion-policy、image-evidence 均有独立契约和�
 ## 交互卡位置模型（v0.4.0）
 
 `card-position-model.mjs` 穷举 api/model/user/chatResult/status/error 六种历史项、长度 0..4 的 1555 条历史，共 7465 个身份查询。直接调用生产 isLiveCard 和动作登记表，用末项索引作独立判据；每个工作区至多一个活卡、任何后续非卡项也冻结旧卡。异步晚到、一次性确认和存档恢复另有组合测试。无限历史长度的对应、DOM 事件与外部效果仍需独立证明。
+
+Gemini 适配模型新增 324 个有限组合：2 类端点 × 6 个模型代表 × 3 种 thinking 回执 × 3 种摘要偏好 × 3 种种子偏好。检查已知无效字段收缩、默认省略、零/假值保留、无副作用及协议家族隔离。模型列表、配额、真实请求、全部 DOM 或无限输入空间没有被该枚举证明。

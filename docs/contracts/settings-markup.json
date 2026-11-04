@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-018",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "createdAt": "2026-10-30T07:55:11.916Z",
-    "updatedAt": "2026-11-04T07:46:59.527Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
     "kind": "function",
     "goal": "settings-markup",
     "source": "src/settings-markup.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-018",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-30T07:55:11.916Z",
-    "updatedAt": "2026-11-04T07:46:59.527Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
     "entry": "development/hosts/settings-markup.mjs",
     "moduleId": "F-018",
-    "moduleVersion": "0.1.1",
+    "moduleVersion": "0.2.0",
     "mode": "local"
   },
   "question": "怎样把配置投影成渐进展开的设置卡？",
@@ -37,7 +37,8 @@
     "tests/app-controls.test.js",
     "tests/persistence-store.test.js",
     "tests/development-hosts.test.js",
-    "tests/history-snapshots.test.js"
+    "tests/history-snapshots.test.js",
+    "tests/gemini-adaptation.test.js"
   ],
   "gates": {
     "F": "UNKNOWN",
@@ -52,7 +53,8 @@
     "未知身份或路径不能误落到当前会话/其他设置类型",
     "旧数据迁移与异步效果不得串会话",
     "当前协议改变后历史参数说明漂移",
-    "折叠的历史参数刷新后不可查看"
+    "折叠的历史参数刷新后不可查看",
+    "Gemini 模型切换后仍显示或发送不可用参数，或用当前能力重解释历史卡"
   ],
   "extensionSeam": "显式参数与导出函数；消费方按契约组合",
   "proofObligations": [

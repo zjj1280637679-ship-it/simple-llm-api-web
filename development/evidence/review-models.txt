@@ -1,5 +1,5 @@
 
-> simple-llm-api-web@0.5.1 models
+> simple-llm-api-web@0.6.0 models
 > node development/models/run.mjs
 
 {
@@ -42,6 +42,10 @@
     "frozenComparisons": 80,
     "imageTransitions": 2916,
     "scope": "Fixed rendering version; 5 context classes × 4 representative outputs × 4 later protocols; all pairs of currently registered image presets. No DOM/IME or provider proof."
+  },
+  "gemini": {
+    "cases": 324,
+    "scope": "Finite production-function classes; no quota/credential permission, real providers, DOM or complete abstraction proof."
   },
   "qualification": "No automatic F/C/H/Q promotion; explicit finite abstraction and host assumptions only."
 }

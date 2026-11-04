@@ -24,6 +24,8 @@ async function mount({ confirm = () => true, runConversation, dispatchCommand, l
     set innerHTML(value) {
       html = value; renders += 1; nodes = new Map();
       if(value.includes('class="history-list"'))nodes.set('.history-list',{innerHTML:''});
+      const reasoningControl=value.match(/<div class="reasoning-control"[\s\S]*?<\/div>/);
+      if(reasoningControl)nodes.set('.reasoning-control',{outerHTML:reasoningControl[0]});
       if (value.includes('id="network-logs"')) nodes.set('#network-logs', { textContent: '' });
       for (const match of value.matchAll(/<span id="(api-trust\d+)">(.*?)<\/span>/g)) nodes.set(`#${match[1]}`, { textContent: match[2] });
       for (const match of value.matchAll(/<(?:input|textarea)\b[^>]*\bid="([^"]+)"[^>]*>(?:([^<]*)<\/textarea>)?/g)) {
@@ -518,7 +520,7 @@ test('pure family choice never enables strength; unset keeps family quick values
  const ui=await mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='custom';ui.addCard('model');const id=String(d.messages.at(-1).id);
  await ui.click({action:'reasoning-toggle',id});
  const menu=ui.app.innerHTML.match(/<section class="reasoning-menu reasoning-family-list"[\s\S]*?<\/section>/)[0];
- assert.match(menu,/Claude 模板/);assert.match(menu,/DeepSeek 模板/);assert.doesNotMatch(menu,/不指定|推荐|思考开关|high|预算|应用|取消/);
+ assert.doesNotMatch(menu,/Claude 模板|Gemini 模板|火山方舟模板/);assert.match(menu,/DeepSeek 模板/);assert.doesNotMatch(menu,/不指定|推荐|思考开关|high|预算|应用|取消/);
  await ui.click({action:'reasoning-family',id,family:'openai'});assert.equal(d.model.reasoningFamily,'openai');assert.equal(d.model.reasoning,undefined);
  await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-quick',template:'openai-effort',value:'high'});assert.equal(d.model.reasoning.value,'high');
  await ui.click({action:'reasoning-toggle'});await ui.click({action:'reasoning-quick',value:''});assert.equal(d.model.reasoning,undefined);assert.equal(d.model.reasoningFamily,'openai');
@@ -742,4 +744,31 @@ test('separate image controls retain the other dimension and ignore unsupported 
  await ui.click({action:'set-image-option',axis:'size',value:'4K'});
  assert.equal(d.aspectRatio,'1:8');assert.equal(d.imageSize,'4K');assert.match(ui.app.innerHTML,/更多比例 · 1:8/);
  await ui.click({action:'set-image-option',axis:'ratio',value:'invalid'});assert.equal(d.aspectRatio,'1:8');
+});
+
+test('Gemini current model shrinks sampling and foreign families while old card keeps its original explanation',async()=>{
+ const ui=await mount(),{d}=configure(ui);d.api.model='gemini-2.5-flash';ui.addCard('model');const old=d.messages.at(-1);
+ await ui.dispatchCardAction({id:old.id,action:'field.change',args:{key:'geminiSeed',value:'0'}},d);
+ ui.addCard('api');const api=d.messages.at(-1);await ui.dispatchCardAction({id:api.id,action:'field.change',args:{key:'model',value:'gemini-3.8-flash'}},d);
+ ui.addCard('model');const current=d.messages.at(-1);ui.render();
+ const currentHTML=ui.app.innerHTML.split(`data-interaction-card="${current.id}"`)[1];
+ assert.doesNotMatch(currentHTML,/data-key="temperature"|data-key="topP"|data-key="geminiTopK"/);assert.match(currentHTML,/Gemini 参数/);
+ assert.equal(old.values.displayContext.model,'gemini-2.5-flash');assert.equal(old.values.geminiSeed,'0');
+ await ui.click({action:'reasoning-toggle',id:String(current.id)});const menu=ui.app.innerHTML.match(/<section class="reasoning-menu reasoning-family-list"[\s\S]*?<\/section>/)[0];assert.match(menu,/Gemini 模板/);assert.doesNotMatch(menu,/Claude|DeepSeek|OpenAI|智谱|火山/);
+ const before=d.model.geminiSeed;await ui.dispatchCardAction({id:old.id,action:'field.change',args:{key:'geminiSeed',value:'5'}},d);assert.equal(d.model.geminiSeed,before);
+});
+test('Gemini pulled metadata filters methods and contracts options; key edit revokes credential-session observations',async()=>{
+ const models=[{id:'text',name:'Text',methods:['generateContent'],metadata:{thinking:false,topK:null,outputTokenLimit:999}},{id:'embedding',name:'Embedding',methods:['embedContent'],metadata:{topK:null}},{id:'unknown',name:'Unknown',methods:null,metadata:{topK:null}}];
+ const ui=await mount({listModels:async()=>models}),{d,card}=configure(ui);d.api.model='text';ui.render();await ui.click({action:'pull-models',id:String(card.id)});
+ assert.match(ui.app.innerHTML,/其他方法模型/);assert.doesNotMatch(ui.app.innerHTML,/data-model="embedding"/);assert.match(ui.app.innerHTML,/data-model="unknown"/);
+ assert.equal(d.api.modelMetadata.thinking,false);ui.addCard('model');ui.render();
+ const currentHTML=ui.app.innerHTML.split(`data-interaction-card="${d.messages.at(-1).id}"`)[1];assert.doesNotMatch(currentHTML,/data-key="geminiIncludeThoughts"|data-key="geminiTopK"|reasoning-model/);assert.match(currentHTML,/999/);
+ ui.addCard('api');const active=d.messages.at(-1),input=ui.app.querySelector(`#key${active.id}`);input.value='different-synthetic';ui.input(input);assert.equal(d.api.modelMetadata,undefined);
+});
+test('Gemini unknown model can choose budget format without enabling a strength automatically',async()=>{
+ const ui=await mount(),{d}=configure(ui);d.api.model='gemini-future';ui.addCard('model');const card=d.messages.at(-1);
+ d.model.reasoning={template:'gemini-level',value:'high'};ui.render();
+ await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'geminiThinkingMode',value:'gemini-budget'}},d);
+ assert.equal(d.model.reasoning,undefined);assert.match(ui.app.querySelector('.reasoning-control').outerHTML,/思考强度：不指定/);
+ await ui.click({action:'reasoning-toggle'});assert.match(ui.app.innerHTML,/id="reasoning-quick-budget"/);assert.doesNotMatch(ui.app.innerHTML,/data-value="high"/);
 });

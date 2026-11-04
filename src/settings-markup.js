@@ -1,6 +1,8 @@
 /** 设置视图只投影显式配置和当前卡位置；导航关系与字段效果由外部提供。
  * 无 DOM 写入、存储或网络；转义所有用户字段，分层展开只影响可见性。
  */
+import {geminiProfile,partitionGeminiModels} from './gemini-capabilities.js';
+import {geminiSettingsMarkup,geminiSnapshotRows} from './gemini-settings-markup.js';
 import {esc} from './view-markup.js';
 import {MODALITIES,supportedModalities} from './attachments.js';
 import {REASONING_FAMILIES,reasoningFamilyFor} from './reasoning.js';
@@ -14,15 +16,23 @@ export function historicalModelMarkup(card,page) {
   const present=(value,fallback)=>value===undefined||value===null||value===''?fallback:String(value);
   const family=REASONING_FAMILIES.find(f=>f.id===x.reasoningFamily)?.label || (x.reasoningFamily===null?'未指定模板':'未记录模板');
   const rows=page==='chat' ? [
-    ['输出预算 Token',present(x.output,'API 默认')],['温度',present(x.temperature,'API 默认')],['Top P',present(x.topP,'API 默认')],
+    ...(x.displayContext?.model?[['模型',x.displayContext.model]]:[]),
+    ...geminiSnapshotRows(x).map(([label,value])=>[protocol==='gemini'?label:`${label}（Gemini 偏好，未应用）`,value]),['输出预算 Token',present(x.output,'API 默认')],['温度',present(x.temperature,'API 默认')],['Top P',present(x.topP,'API 默认')],
     ['思考模板',family],['思考强度',x.reasoning?`${present(x.reasoning.template,'未记录模板')} · ${present(x.reasoning.value,'未记录')}`:'未指定'],
     ...(x.reasoningBudget!==undefined?[['模板预算',present(x.reasoningBudget,'未指定')]]:[]),
     ['输入模态',Array.isArray(x.inputs)?x.inputs.map(kind=>MODALITIES[kind]||kind).join('、')||'未选择':'未记录']
   ] : [['生成数量','1'],['输出格式','上游原始格式']];
-  const note=known?protocolNote(protocol):'历史协议未记录；保留已存参数，不按当前连接推断。';
+  const note=known?(protocolNote(protocol)+(x.displayContext?.gemini?.sampling==='unsupported'?' 当时模型不使用温度 / Top P / Top K；保存的偏好未应用。':'')+(x.displayContext?.gemini?.thinking==='unsupported'?' 当时模型回执明确不支持思考；相关偏好未应用。':'')):'历史协议未记录；保留已存参数，不按当前连接推断。';
   return `<div class="card-type">模型设置</div><dl class="settings-snapshot">${rows.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${note?`<p class="model-note">${esc(note)}</p>`:''}`;
 }
 export function createSettingsViews({get,currentPage,activeCardId,menuState,reasoningAnchor,providers,providerIdentity,protocolLabel,apiTrustText}) {
+function modelListMarkup(m,protocol) {
+  if(!m.models?.length)return '<span class="inline-item">上游未返回可用模型</span>';
+  const button=model=>`<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`;
+  if(protocol!=='gemini')return m.models.map(button).join('');
+  const {usable,other}=partitionGeminiModels(m.models);
+  return `${usable.map(button).join('')}${other.length?`<details><summary>其他方法模型（${other.length}）</summary><p class="model-note">这些模型未声明 generateContent；当前工作台未接入其方法。</p>${other.map(model=>`<div class="inline-item">${esc(model.id)}</div>`).join('')}</details>`:''}`;
+}
 function apiCard(m) {
   const page=currentPage(),subMenu=menuState(),reasoningAnchorId=reasoningAnchor();
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.api;
@@ -43,7 +53,7 @@ function apiCard(m) {
 <div class="fieldrow">
 <textarea class="setting-text" rows="1" wrap="soft" id="model${m.id}" data-card="${m.id}" data-key="model" placeholder="模型 ID" autocomplete="off" autocapitalize="off" spellcheck="false">${esc(x.model)}</textarea>
 <div class="sub-menu">
-<button type="button" data-action="pull-models" data-id="${m.id}" aria-expanded="${menu === 'models'}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list" data-floating-menu="pull-models" data-menu-card="${m.id}">${m.models?.length ? m.models.map(model => `<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`).join('') : '<span class="inline-item">上游未返回可用模型</span>'}</div>` : ''}</div>
+<button type="button" data-action="pull-models" data-id="${m.id}" aria-expanded="${menu === 'models'}" class="uniform-btn" ${x.protocol === 'ark' ? 'disabled title="普通 Ark API 未核实模型列表接口，请填写官方模型 ID"' : ''}>${x.protocol === 'ark' ? '手填模型' : '拉取模型'}</button>${menu === 'models' ? `<div class="inline-list" data-floating-menu="pull-models" data-menu-card="${m.id}">${modelListMarkup(m,x.protocol)}</div>` : ''}</div>
 </div>
 </div>
     <div class="field-reading" id="models-status${m.id}" role="status">${esc(m.modelListStatus || '')}</div>
@@ -65,18 +75,20 @@ function modelCard(m) {
   const page=currentPage(),subMenu=menuState(),reasoningAnchorId=reasoningAnchor();
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.model;
   if(old)return historicalModelMarkup(m,page);
+  const gemini=geminiProfile(d.api);
+  const thinkingAvailable=gemini?.thinking!=='unsupported';
   const field = (label, key, placeholder) => `<div class="formfield">
 <label for="${key}${m.id}">${label}</label>
 <input class="block-input" type="number" id="${key}${m.id}" data-card="${m.id}" data-key="${key}" placeholder="${placeholder}" value="${esc(x[key])}" step="any">
 </div>`;
-  return `<div class="card-type">模型设置</div><div class="subgrid model-sections">${page === 'chat' ? `<details data-setting-section="output"><summary>输出限制</summary>${field('输出预算 Token', 'output', 'API 默认')}</details><details data-setting-section="sampling"><summary>采样参数</summary>${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}</details><details data-setting-section="more"><summary>更多参数</summary><details data-setting-section="reasoning"><summary>思考模板</summary><div class="formfield">
+  return `<div class="card-type">模型设置</div><div class="subgrid model-sections">${page === 'chat' ? `<details data-setting-section="output"><summary>输出限制</summary>${field('输出预算 Token', 'output', 'API 默认')}${gemini?.outputTokenLimit?`<p class="model-note">模型列表报告输出上限 ${esc(gemini.outputTokenLimit)} Token；当前配额另由请求结果确认。</p>`:''}</details>${gemini?.sampling==='unsupported'?'<p class="model-note">当前模型不使用温度 / Top P / Top K，已收起这些控制；保存的偏好不会发送。</p>':`<details data-setting-section="sampling"><summary>采样参数</summary>${field('温度', 'temperature', 'API 默认')}${field('Top P', 'topP', 'API 默认')}</details>`}<details data-setting-section="more"><summary>更多参数</summary>${thinkingAvailable?`<details data-setting-section="reasoning"><summary>思考模板</summary><div class="formfield">
 <label for="reasoning-model${m.id}">自定义思考模板</label>
 <button type="button" id="reasoning-model${m.id}" class="block-value reasoning-model-trigger" data-action="reasoning-toggle" data-id="${m.id}" aria-haspopup="menu" aria-expanded="${subMenu==='reasoning' && reasoningAnchorId===m.id}">${esc(REASONING_FAMILIES.find(f=>f.id===(old ? x.reasoningFamily : x.reasoningFamily || reasoningFamilyFor(d.api,x.reasoningMode || x.reasoning?.template)))?.label || '选择模板')}</button>
 </div>
 <div class="formfield">
 <label for="context${m.id}">上下文</label>
 <output id="context${m.id}" class="block-value">当前对话上下文</output>
-</div></details>${inputSettingsMarkup(m,d,x)}</details>` : `<div class="formfield">
+</div></details>`:''}${geminiSettingsMarkup(m,d.api,x)}${inputSettingsMarkup(m,d,x)}</details>` : `<div class="formfield">
 <label for="count${m.id}">生成数量</label>
 <output id="count${m.id}" class="block-value">1</output>
 </div>

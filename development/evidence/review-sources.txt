@@ -1,5 +1,5 @@
 
-> simple-llm-api-web@0.5.1 review:sources
+> simple-llm-api-web@0.6.0 review:sources
 > node scripts/review-sources.mjs
 
 {
@@ -17,6 +17,13 @@
       "id": "image-presets",
       "review": "scheduled",
       "reviewAfter": "2026-11-27",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "gemini-generate-content-adaptation",
+      "review": "scheduled",
+      "reviewAfter": "2026-12-04",
       "sourceEvidence": "missing-snapshot",
       "liveEvidence": "unknown"
     },

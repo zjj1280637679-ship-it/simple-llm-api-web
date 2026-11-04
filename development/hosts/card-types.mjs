@@ -6,6 +6,6 @@ await report('card-types',async()=>{
   const model={id:2,type:'card',kind:'model',values:{output:'0'}};
   assert.equal(persistCard(model).values.displayContext,undefined);
   const values=captureCard(model,{api:{protocol:'gemini',key:'fixture-secret'},model:{output:'0'}});
-  assert.deepEqual(values.displayContext,{protocol:'gemini'});assert.doesNotMatch(JSON.stringify(values),/fixture-secret/);
+  assert.equal(values.displayContext.protocol,'gemini');assert.equal(values.displayContext.gemini.version,'0.1.0');assert.doesNotMatch(JSON.stringify(values),/fixture-secret/);
   return {keyExcluded:true,version:out.version,legacyUnknownPreserved:true,minimalProtocolContext:true};
 });

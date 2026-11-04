@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-023",
+    "version": "0.1.0",
+    "createdAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "kind": "function",
+    "goal": "gemini.progressive-settings-view",
+    "source": "src/gemini-settings-markup.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-023",
+    "version": "0.1.0",
+    "createdAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "entry": "development/hosts/gemini-settings-markup.mjs",
+    "moduleId": "F-023",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "question": "如何在深层呈现 Gemini 控制并保留未知能力入口？",
+  "stateModel": {
+    "budget": "纯 HTML / 摘要投影；任意字符串经转义，无 DOM 或自有状态",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "conditions": [
+    "普通 JSON / plain objects；不含对抗性 getter / Proxy",
+    "具名能力资料截至 2026-11-04；不证明当前密钥配额、权限或真实模型响应"
+  ],
+  "observations": [
+    "仅 Gemini 展示",
+    "确定不可用控制不出现",
+    "未知思考格式可手选",
+    "快照保留显式值"
+  ],
+  "tests": [
+    "tests/gemini-adaptation.test.js",
+    "tests/app-controls.test.js",
+    "tests/history-snapshots.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "本地合成与有限分类不代表真实供应商、全部 DOM 或完整形式证明。"
+  ],
+  "counterexamples": [
+    "显示其他协议的专属字段",
+    "把未知判为不支持",
+    "停止序列成为可执行标记",
+    "历史摘要丢掉 0"
+  ],
+  "extensionSeam": "能力表、纯请求投影、纯标记投影各自变更；通过 workbench 的现有 dispatcher 组合",
+  "proofObligations": [
+    {
+      "id": "F-023.projection",
+      "statement": "能力负证据、参数省略及独立偏好的有限代表分类符合效果模型",
+      "status": "OPEN",
+      "localWitness": "development/models/gemini-adaptation-model.mjs"
+    },
+    {
+      "id": "F-023.external",
+      "statement": "形式抽象对应、真实 API 与浏览器交互覆盖",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "仅 Gemini 展示",
+      "确定不可用控制不出现",
+      "未知思考格式可手选",
+      "快照保留显式值"
+    ],
+    "assumptions": [
+      "协议与官方端点单独判定；不读取密钥内容",
+      "模型回执由宿主绑定、撤销；不持久化为当前授权"
+    ],
+    "policyReference": "design/GEMINI_ADAPTATION.md",
+    "notEstablished": [
+      "模型能力清单不证明密钥可调用、余额或未来支持"
+    ]
+  }
+}

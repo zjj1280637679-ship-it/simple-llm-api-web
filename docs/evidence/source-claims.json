@@ -27,6 +27,30 @@
       "sourceSnapshot": null,
       "liveRun": null,
       "status": "historical-local-profile"
+    },
+    {
+      "id": "gemini-generate-content-adaptation",
+      "path": "docs/GEMINI_ADAPTATION.md",
+      "recordedAt": "2026-11-04",
+      "reviewAfter": "2026-12-04",
+      "sources": [
+        "https://aistudio.google.com/api-reference/generate-content",
+        "https://aistudio.google.com/api-reference/models",
+        "https://ai.google.dev/gemini-api/docs/generate-content/thinking?hl=en"
+      ],
+      "sourceSnapshot": null,
+      "liveRun": null,
+      "status": "dated-primary-source-review",
+      "claims": [
+        "generateContent 字段名与默认省略",
+        "3.6 Flash 及后续已登记模型忽略采样参数",
+        "2.5 预算与具名 3.x 思考档位",
+        "models 缺失 topK 不可设置；thinking 和方法只作为当前端点回执"
+      ],
+      "limits": [
+        "未保存上游页面全文快照；非当前密钥实测",
+        "不把 Interactions 参数字段照搬到 generateContent"
+      ]
     }
   ]
 }

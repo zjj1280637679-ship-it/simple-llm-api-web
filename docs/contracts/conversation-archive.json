@@ -12,9 +12,9 @@
   },
   "host": {
     "id": "H-F-017",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-30T07:55:11.916Z",
-    "updatedAt": "2026-11-04T07:46:59.527Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
     "entry": "development/hosts/conversation-archive.mjs",
     "moduleId": "F-017",
     "moduleVersion": "0.1.0",

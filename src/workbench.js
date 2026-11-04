@@ -5,6 +5,7 @@
  */
 import {createConversationBook} from './conversation-book.js';
 import {snapshotConversations,restoreConversations,migrateConversations,replayConversationJournal} from './conversation-archive.js';
+import {geminiProfile,bindGeminiModel,GEMINI_FIELDS} from './gemini-capabilities.js';
 import {createSettingsViews} from './settings-markup.js';
 import {historyMarkup,historyListMarkup} from './history-markup.js';
 import {imageOptionsMarkup,changeImageOption} from './image-options-markup.js';
@@ -25,7 +26,7 @@ import { createCanvasGeometry } from './canvas-geometry.js';
 import { createViewPosition } from './view-position.js';
 import { createRequestLifecycle } from './request-lifecycle.js';
 import { createLocalStore, snapshotWorkspace, snapshotJournal, MAX_SNAPSHOT_BYTES } from './persistence.js';
-import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody, REASONING_FAMILIES, reasoningFamilyFor, resolveReasoningFamily } from './reasoning.js';
+import { getReasoningTemplates, getRecommendedReasoningTemplate, reasoningBody, availableReasoningFamilies, reasoningFamilyFor, resolveReasoningFamily } from './reasoning.js';
 import { MODALITIES, supportedModalities, prepareFiles, validateAttachments } from './attachments.js';
 import { replyMetricsMarkup, replyMetricsSnapshot } from './usage.js';
 import { icon } from './icons.js';
@@ -127,6 +128,9 @@ function clearIncompatibleReasoning(d) {
 function selectedReasoningFamily(d) { return d.model.reasoningFamily || reasoningFamilyFor(d.api,d.model.reasoningMode || d.model.reasoning?.template); }
 function selectedReasoningMode(d) {
   const family=selectedReasoningFamily(d);if(!family)return null;
+  if(d.api.protocol==='gemini'&&geminiProfile(d.api)?.thinking==='unknown'&&d.model.geminiThinkingMode){
+    return getReasoningTemplates(d.api).find(t=>t.id===d.model.geminiThinkingMode)||null;
+  }
   try{return resolveReasoningFamily(d.api,family).template;}catch{return null;}
 }
 function reasoningQuickMarkup(d) {
@@ -145,8 +149,9 @@ function reasoningCurrentLabel(d) {
   return mode?.values?.find(v=>String(v.value)===String(current.value))?.label || String(current.value);
 }
 function reasoningMarkup() {
-  const d=get(), open=subMenu==='reasoning', current=d.model.reasoning, label=reasoningCurrentLabel(d);
-  const picker=open ? reasoningAnchorId===null ? reasoningQuickMarkup(d) : `<section class="reasoning-menu reasoning-family-list" data-floating-menu="reasoning-toggle" data-menu-card="${reasoningAnchorId}" role="menu" aria-label="思考模板">${REASONING_FAMILIES.map(f=>`<button type="button" role="menuitemradio" aria-checked="${selectedReasoningFamily(d)===f.id}" data-action="reasoning-family" data-id="${reasoningAnchorId}" data-family="${f.id}">${f.label}</button>`).join('')}</section>` : '';
+  const d=get();if(geminiProfile(d.api)?.thinking==='unsupported')return '<div class="reasoning-control" hidden></div>';
+  const open=subMenu==='reasoning', current=d.model.reasoning, label=reasoningCurrentLabel(d);
+  const picker=open ? reasoningAnchorId===null ? reasoningQuickMarkup(d) : `<section class="reasoning-menu reasoning-family-list" data-floating-menu="reasoning-toggle" data-menu-card="${reasoningAnchorId}" role="menu" aria-label="思考模板">${availableReasoningFamilies(d.api).map(f=>`<button type="button" role="menuitemradio" aria-checked="${selectedReasoningFamily(d)===f.id}" data-action="reasoning-family" data-id="${reasoningAnchorId}" data-family="${f.id}">${f.label}</button>`).join('')}</section>` : '';
   return `<div class="reasoning-control">
 <button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度：${esc(label)}" aria-haspopup="menu" aria-expanded="${open&&reasoningAnchorId===null}" ${d.busy?'disabled':''}>${esc(label)}</button>${picker}</div>`;
 }
@@ -168,8 +173,8 @@ function sameEndpoint(left, right) {
 }
 function apiTrustText(config) { return config.key.trim() ? '发送或拉取时使用上方配置 · 密钥仅在内存' : '请填写密钥 · 密钥仅在内存'; }
 function refreshApiStatus(d, cardId) {
-  const reasoningButton=app.querySelector('[data-action="reasoning-toggle"]:not([data-id])');
-  if(reasoningButton){const label=reasoningCurrentLabel(d);reasoningButton.textContent=label;reasoningButton.setAttribute('aria-label',`思考强度：${label}`);}
+  const reasoningControl=app.querySelector('.reasoning-control');
+  if(reasoningControl)reasoningControl.outerHTML=reasoningMarkup();
 
   // Update only status nodes: never replace an input while the user is typing.
   const trustLabel = app.querySelector(`#api-trust${cardId}`);
@@ -459,7 +464,10 @@ async function pullModels(card,commit) {
   d.busy = true; d.controller = new AbortController(); const stopLoading=beginLoading(d); render();
   try {
     const models = await listModels({ config: { ...d.api }, signal: d.controller.signal, onPhase:phase=>requestPhase(d,phase) });
-    commit(()=>{card.models=models;if(get()===d)subMenu=`models:${card.id}`;});
+    commit(()=>{card.models=models;
+      const selected=models.find(model=>model.id===String(d.api.model).replace(/^models\//,''));
+      d.api.modelMetadata=selected?bindGeminiModel(d.api,selected):null;
+      clearIncompatibleReasoning(d);if(get()===d)subMenu=`models:${card.id}`;});
   } catch (e) { commit(()=>{card.modelListStatus=errorText(requestError(d,e));}); }
   finally { stopLoading(); d.busy = false; d.controller = null; if (get() === d) { render(); if (subMenu === `models:${card.id}`) focusFloatingMenu(); } }
 }
@@ -655,7 +663,7 @@ async function performCardAction(action,{card,workspace:d,args,commit}) {
       if (!sameProviderTarget) {
         archiveWorkspaceKey(d);
         if (d.api.protocol !== p.protocol) { d.history = []; d.model.inputs = [...new Set(['text', ...d.model.inputs.filter(kind=>supportedModalities(p.protocol).includes(kind))])]; }
-        d.api = { ...d.api, protocol: p.protocol, url: p.url, key: '', supplier: p.name, model: p.custom ? '' : defaultModel(p.protocol, page), trustedTarget: '' };
+        d.api = { ...d.api, protocol: p.protocol, url: p.url, key: '', supplier: p.name, model: p.custom ? '' : defaultModel(p.protocol, page), trustedTarget: '',modelMetadata:null };
         card.models = []; syncLogSecrets();
         if (page === 'image') resetImageOptions(d, true);
       } else d.api.supplier = p.name;
@@ -663,7 +671,7 @@ async function performCardAction(action,{card,workspace:d,args,commit}) {
     }
     case 'toggle-key': card.showKey = !card.showKey; render(); break;
     case 'pull-models': await pullModels(card,commit); break;
-    case 'choose-model': d.api.model = el.dataset.model; clearIncompatibleReasoning(d); if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
+    case 'choose-model': d.api.model = el.dataset.model; d.api.modelMetadata=bindGeminiModel(d.api,card.models?.find(model=>model.id===el.dataset.model)); clearIncompatibleReasoning(d); if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
 
 
   }
@@ -692,6 +700,8 @@ function applyCardField(d,card,t) {
   if (['api','connection'].includes(card.kind)) {
     if(key==='protocol'&&!['gemini','openai','ark','anthropic'].includes(t.value))return {ok:false,reason:'invalid-protocol'};
     const changed = d.api[key] !== t.value;
+    if(changed&&['key','url','protocol','model'].includes(key))delete d.api.modelMetadata;
+    if(changed&&['key','url','protocol'].includes(key))card.models=[];
     if (changed && key === 'key') { archiveWorkspaceKey(d); d.api.trustedTarget = ''; }
     d.api[key] = t.value;
     if(key==='key'&&t.value){localRestored=false;setStorageStatus(storageState);}
@@ -713,7 +723,14 @@ function applyCardField(d,card,t) {
     syncLogSecrets();
     if (page === 'image') resetImageOptions(d);
     refreshApiStatus(d, id);
-  } else { d.model[key] = t.value; card.values[key] = t.value; }
+  } else {
+    if(GEMINI_FIELDS.includes(key)&&d.api.protocol!=='gemini')return {ok:false,reason:'inactive-protocol'};
+    d.model[key] = t.value; card.values[key] = t.value;
+    if(key==='geminiThinkingMode'){
+      delete d.model.reasoning;delete d.model.reasoningBudget;
+      const control=app.querySelector('.reasoning-control');if(control)control.outerHTML=reasoningMarkup();
+    }
+  }
   book.touch(d);saveLocal(false,true);
 }
 listen(app, 'error', e => {

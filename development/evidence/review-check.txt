@@ -1,5 +1,5 @@
 
-> simple-llm-api-web@0.5.1 check
+> simple-llm-api-web@0.6.0 check
 > node scripts/check.mjs
 
 Syntax checks passed for production, development hosts, scripts and CLI.

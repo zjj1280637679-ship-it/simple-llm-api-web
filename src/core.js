@@ -1,4 +1,6 @@
 import {AppError} from './app-error.js';
+import {normalizeGeminiModel} from './gemini-capabilities.js';
+import {geminiGeneration,geminiEffectiveSettings} from './gemini-request.js';
 import {canonicalEndpoint,validateEndpoint} from './api-target.js';
 import {requestJSON} from './request-transport.js';
 import {observeCompletion} from './completion-evidence.js';
@@ -49,7 +51,7 @@ export async function listModels({config, signal, fetchImpl, onPhase} = {}) {
   const models = config.protocol === 'gemini' ? json.models : json.data;
   if (!Array.isArray(models)) fail('RESPONSE', '模型列表响应格式不正确。');
   return models.filter(isRecord).map(model => config.protocol === 'gemini'
-    ? {id:String(model.name || '').replace(/^models\//,''),name:String(model.displayName || model.name || ''),methods:Array.isArray(model.supportedGenerationMethods) ? model.supportedGenerationMethods.filter(x => typeof x === 'string') : []}
+    ? normalizeGeminiModel(model)
     : {id:String(model.id || ''),name:String(model.display_name || model.id || '')}).filter(model => model.id);
 }
 
@@ -118,7 +120,8 @@ export async function generateText({config, messages, settings = {}, tools = [],
   const observedDelta = onDelta ? delta => { timing.observe(delta); onDelta(delta); } : undefined;
   const model = modelId(config);
   if (config.protocol === 'anthropic' && tools.length) fail('TOOLS_UNSUPPORTED','Anthropic 格式暂不支持工具调用。');
-  const generation = settingsBody(settings, config.protocol);
+  const effectiveSettings=geminiEffectiveSettings(config,settings);
+  const generation = settingsBody(effectiveSettings, config.protocol);
   // DeepSeek shares the Chat format, not OpenAI's output-budget field.
   if (isDeepSeekChatEndpoint(config) && generation.max_completion_tokens !== undefined) {
     generation.max_tokens = generation.max_completion_tokens;
@@ -138,9 +141,10 @@ export async function generateText({config, messages, settings = {}, tools = [],
     body = {model,messages:history,stream:typeof onDelta === 'function',...(onDelta ? {stream_options:{include_usage:true}} : {}),...generation};
     if (tools.length) body.tools = tools.map(tool => ({type:'function',function:tool}));
   }
-  let thinkingControls;try {thinkingControls=reasoningBody(config,settings.reasoning,settings);}catch(error){fail('REASONING_SETTINGS',error.message);}
+  let thinkingControls;try {thinkingControls=reasoningBody(config,effectiveSettings.reasoning,effectiveSettings);}catch(error){fail('REASONING_SETTINGS',error.message);}
   if (thinkingControls.generationConfig) body.generationConfig = {...body.generationConfig,...thinkingControls.generationConfig};
   else Object.assign(body,thinkingControls);
+  if(config.protocol==='gemini')body.generationConfig=geminiGeneration(config,settings,body.generationConfig);
   if (new TextEncoder().encode(JSON.stringify(body)).byteLength > 16 * 1024 * 1024) fail('ATTACHMENT_LIMIT','对话附件累计过大，请清空对话后重新添加。');
   const chatPath = new URL(config.url).pathname.replace(/\/+$/, '').endsWith('/chat/completions') ? '' : '/chat/completions';
   const json = await requestJSON(config, config.protocol === 'gemini' ? `/models/${model}:${onDelta ? 'streamGenerateContent?alt=sse' : 'generateContent'}` : config.protocol === 'anthropic' ? '/messages' : chatPath, {body,signal,fetchImpl,onDelta:observedDelta,onReasoningDelta,onPhase, logBody: messages.some(m => m.attachments?.length) ? {model, note:'包含附件；请求正文不写入日志', messages:messages.map(m => ({role:m.role,attachments:attachmentMetadata(m.attachments)}))} : undefined});

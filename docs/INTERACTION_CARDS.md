@@ -74,3 +74,5 @@ API 卡的内部 kind 保留 `api`，用户标题改为“设置”；新增 `co
 model v1 兼容增加可选 `values.displayContext.protocol`。捕获来自该卡所在工作区当时的协议；历史卡的参数和解释仅取快照。缺失字段显示未知，不通过当前连接猜测。新字段不改变历史末项接纳规则，也不存活跃状态。历史模型视图为无业务控件、无折叠的静态摘要；卡片外壳不再统一压低正文透明度或禁止全部指针事件。
 
 目标、条件、职责和反例见 [交互效果模型](../design/INTERACTION_EFFECTS.md)。
+
+0.6.0 的 model v1 卡增加可选 Gemini 偏好及 displayContext.model / gemini；缺字段的旧档照常读取。历史能力解释是记录，不重用于当前请求授权。新增控件的 field.change 仍由原 dispatcher 的末项判定接纳。

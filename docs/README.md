@@ -35,3 +35,5 @@
 v0.4.0 把原根目录三个 CLI 文件移入 `cli/`。终端示例按仓库根目录执行，旧 `node cli.mjs` 路径需改为 `node cli/cli.mjs`。
 
 当前开发试用版的入口与会话保存语义见 [设置与历史](SETTINGS_HISTORY.md)。
+
+Gemini 专属参数与能力收缩见 [Gemini 适配](GEMINI_ADAPTATION.md)。

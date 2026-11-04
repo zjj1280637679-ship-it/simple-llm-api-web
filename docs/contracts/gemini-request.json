@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-022",
+    "version": "0.1.0",
+    "createdAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "kind": "function",
+    "goal": "gemini.explicit-request-projection",
+    "source": "src/gemini-request.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-022",
+    "version": "0.1.0",
+    "createdAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "entry": "development/hosts/gemini-request.mjs",
+    "moduleId": "F-022",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "question": "如何保留偏好但只把当前适用的显式选择发送到 Gemini？",
+  "stateModel": {
+    "budget": "纯对象投影；数值和字符串域未全有限化，无网络或持久状态",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "conditions": [
+    "普通 JSON / plain objects；不含对抗性 getter / Proxy",
+    "具名能力资料截至 2026-11-04；不证明当前密钥配额、权限或真实模型响应"
+  ],
+  "observations": [
+    "默认无额外字段",
+    "0 与 false 保留",
+    "不支持的参数省略",
+    "thinkingConfig 合并",
+    "本地字段错误在请求前返回"
+  ],
+  "tests": [
+    "tests/gemini-adaptation.test.js",
+    "tests/app-controls.test.js",
+    "tests/history-snapshots.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "本地合成与有限分类不代表真实供应商、全部 DOM 或完整形式证明。"
+  ],
+  "counterexamples": [
+    "隐藏参数仍进入请求",
+    "false/0 被当作空值",
+    "思考摘要覆盖思考预算",
+    "Gemini 字段污染其他协议"
+  ],
+  "extensionSeam": "能力表、纯请求投影、纯标记投影各自变更；通过 workbench 的现有 dispatcher 组合",
+  "proofObligations": [
+    {
+      "id": "F-022.projection",
+      "statement": "能力负证据、参数省略及独立偏好的有限代表分类符合效果模型",
+      "status": "OPEN",
+      "localWitness": "development/models/gemini-adaptation-model.mjs"
+    },
+    {
+      "id": "F-022.external",
+      "statement": "形式抽象对应、真实 API 与浏览器交互覆盖",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "默认无额外字段",
+      "0 与 false 保留",
+      "不支持的参数省略",
+      "thinkingConfig 合并",
+      "本地字段错误在请求前返回"
+    ],
+    "assumptions": [
+      "协议与官方端点单独判定；不读取密钥内容",
+      "模型回执由宿主绑定、撤销；不持久化为当前授权"
+    ],
+    "policyReference": "design/GEMINI_ADAPTATION.md",
+    "notEstablished": [
+      "模型能力清单不证明密钥可调用、余额或未来支持"
+    ]
+  }
+}

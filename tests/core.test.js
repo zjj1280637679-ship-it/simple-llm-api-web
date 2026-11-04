@@ -76,7 +76,7 @@ test('model listing uses approved target and removes only Gemini models prefix',
     assert.equal(options.body,undefined);
     return jsonResponse({models:[{name:`models/${DEFAULT_TEXT_MODEL}`,displayName:'Flash Lite',supportedGenerationMethods:['generateContent']}]});
   }});
-  assert.deepEqual(models,[{id:DEFAULT_TEXT_MODEL,name:'Flash Lite',methods:['generateContent']}]);
+  assert.deepEqual(models,[{id:DEFAULT_TEXT_MODEL,name:'Flash Lite',methods:['generateContent'],metadata:{topK:null}}]);
   assert.deepEqual(await listModels({config:openai(),fetchImpl:async url => {
     assert.equal(url,'https://api.example.com/v1/models');
     return jsonResponse({data:[{id:'model-a'}]});

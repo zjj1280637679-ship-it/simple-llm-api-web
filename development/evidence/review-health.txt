@@ -1,10 +1,10 @@
 
-> simple-llm-api-web@0.5.1 review:health
+> simple-llm-api-web@0.6.0 review:health
 > node scripts/review-health.mjs
 
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T07:54:34.462Z",
+  "generatedAt": "2026-11-04T08:29:03.357Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
@@ -85,14 +85,15 @@
     },
     {
       "path": "src/card-types.js",
-      "bytes": 4518,
-      "lines": 59,
-      "maxLineCharacters": 338,
+      "bytes": 4745,
+      "lines": 60,
+      "maxLineCharacters": 461,
       "relativeImports": [
+        "src/gemini-capabilities.js",
         "src/native-json.js",
         "src/reasoning.js"
       ],
-      "sha256": "6d88c376d075447495ab11d7c5d18b36ba68af0e8526f6fff7c5dbbb00981138"
+      "sha256": "f33b6f7513bc625cadc6106585cabdabadf9772ac6e4f89c0908a5a6a4ea2aa2"
     },
     {
       "path": "src/clipboard-report.js",
@@ -139,8 +140,8 @@
     },
     {
       "path": "src/core.js",
-      "bytes": 19579,
-      "lines": 270,
+      "bytes": 19718,
+      "lines": 274,
       "maxLineCharacters": 476,
       "relativeImports": [
         "src/api-target.js",
@@ -148,12 +149,14 @@
         "src/attachments.js",
         "src/completion-evidence.js",
         "src/completion-policy.js",
+        "src/gemini-capabilities.js",
+        "src/gemini-request.js",
         "src/image-capabilities.js",
         "src/reasoning.js",
         "src/request-transport.js",
         "src/usage.js"
       ],
-      "sha256": "3169113528d6431a9b6e3aace9050b10de36d218129bb793d634377c1acbda99"
+      "sha256": "e632b71514014c72d6928dccb362a85e7cc674b7b6a453d81bf6d8176cd16314"
     },
     {
       "path": "src/error-diagnostic.js",
@@ -162,6 +165,37 @@
       "maxLineCharacters": 140,
       "relativeImports": [],
       "sha256": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99"
+    },
+    {
+      "path": "src/gemini-capabilities.js",
+      "bytes": 4482,
+      "lines": 55,
+      "maxLineCharacters": 180,
+      "relativeImports": [
+        "src/provider-identity.js"
+      ],
+      "sha256": "cd414cc7ab5dfcc08bd1af289501e481a2a310fd5f32223fbcb3bf992ccd657c"
+    },
+    {
+      "path": "src/gemini-request.js",
+      "bytes": 2664,
+      "lines": 47,
+      "maxLineCharacters": 146,
+      "relativeImports": [
+        "src/gemini-capabilities.js"
+      ],
+      "sha256": "982f654a2cc3e07358a03c38f225300cef179827704caea55674d1f976d0b821"
+    },
+    {
+      "path": "src/gemini-settings-markup.js",
+      "bytes": 2603,
+      "lines": 23,
+      "maxLineCharacters": 262,
+      "relativeImports": [
+        "src/gemini-capabilities.js",
+        "src/view-markup.js"
+      ],
+      "sha256": "3d1d58f7e97c7656b22c73968c0d3c51446b6b6e88be05642b9f2e3ed3a664c1"
     },
     {
       "path": "src/history-markup.js",
@@ -250,15 +284,16 @@
     },
     {
       "path": "src/persistence.js",
-      "bytes": 17898,
-      "lines": 241,
+      "bytes": 17971,
+      "lines": 242,
       "maxLineCharacters": 371,
       "relativeImports": [
         "src/card-types.js",
+        "src/gemini-capabilities.js",
         "src/interaction-cards.js",
         "src/native-json.js"
       ],
-      "sha256": "e6b6f94565bc93848f3353733511bc444ec7e3021691aaa1472af3097a5a9f2b"
+      "sha256": "e8fbc761b1243ad943b42d76795dc59e9b81eb7d7172d12f00cb9d360d49c01f"
     },
     {
       "path": "src/provider-identity.js",
@@ -270,13 +305,14 @@
     },
     {
       "path": "src/reasoning.js",
-      "bytes": 10665,
-      "lines": 135,
-      "maxLineCharacters": 329,
+      "bytes": 10741,
+      "lines": 140,
+      "maxLineCharacters": 325,
       "relativeImports": [
+        "src/gemini-capabilities.js",
         "src/provider-identity.js"
       ],
-      "sha256": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff"
+      "sha256": "cf986cfc1a130426aabaf55b8ca93fe2e2855a70921dc7a5a0968433b596f519"
     },
     {
       "path": "src/request-lifecycle.js",
@@ -331,15 +367,17 @@
     },
     {
       "path": "src/settings-markup.js",
-      "bytes": 10150,
-      "lines": 90,
-      "maxLineCharacters": 760,
+      "bytes": 11776,
+      "lines": 102,
+      "maxLineCharacters": 763,
       "relativeImports": [
         "src/attachments.js",
+        "src/gemini-capabilities.js",
+        "src/gemini-settings-markup.js",
         "src/reasoning.js",
         "src/view-markup.js"
       ],
-      "sha256": "a9ba37d985aa4bf7d5534533fb90921b16f2ba54895aee522e30a67db6b2579e"
+      "sha256": "924b5e48a4dc38384fddfb35a8707e077bf188acd5d2d177b627cab5d161f786"
     },
     {
       "path": "src/settings-navigation.js",
@@ -418,8 +456,8 @@
     },
     {
       "path": "src/workbench.js",
-      "bytes": 65729,
-      "lines": 913,
+      "bytes": 66838,
+      "lines": 930,
       "maxLineCharacters": 515,
       "relativeImports": [
         "src/agent.js",
@@ -432,6 +470,7 @@
         "src/conversation-archive.js",
         "src/conversation-book.js",
         "src/core.js",
+        "src/gemini-capabilities.js",
         "src/history-markup.js",
         "src/icons.js",
         "src/image-delivery.js",
@@ -454,7 +493,7 @@
         "src/workbench-cards.js",
         "src/workspace-storage.js"
       ],
-      "sha256": "ea345cae3f5d0bf234026e73b619d17f73f627ab4584580c1c19b6be1c9f8db3"
+      "sha256": "4372251294c8c0bfb4a941a858844c103ad1ee1b3d0e465cc79c01ac7fb6272f"
     },
     {
       "path": "src/workspace-storage.js",
@@ -627,6 +666,48 @@
       "question": "错误响应中哪些有限字段可作为上游报告保留？",
       "goal": "http.project-bounded-redacted-diagnostic",
       "stateBudget": "一次读取器；8 KiB / 1.2 秒预算；响应主体与时钟为外部条件",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/gemini-capabilities.json",
+      "module": "F-021",
+      "host": "H-F-021",
+      "question": "当前端点、模型与回执分别能支持哪些能力判断？",
+      "goal": "gemini.capability-evidence",
+      "stateBudget": "三值能力；无自有可变状态，带日期的有限具名表与任意外部模型数据",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/gemini-request.json",
+      "module": "F-022",
+      "host": "H-F-022",
+      "question": "如何保留偏好但只把当前适用的显式选择发送到 Gemini？",
+      "goal": "gemini.explicit-request-projection",
+      "stateBudget": "纯对象投影；数值和字符串域未全有限化，无网络或持久状态",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/gemini-settings-markup.json",
+      "module": "F-023",
+      "host": "H-F-023",
+      "question": "如何在深层呈现 Gemini 控制并保留未知能力入口？",
+      "goal": "gemini.progressive-settings-view",
+      "stateBudget": "纯 HTML / 摘要投影；任意字符串经转义，无 DOM 或自有状态",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",

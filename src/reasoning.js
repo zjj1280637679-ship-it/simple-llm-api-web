@@ -1,4 +1,5 @@
 import { identifyProvider } from './provider-identity.js';
+import {geminiProfile} from './gemini-capabilities.js';
 
 // Dated local request profiles. Catalog matches do not establish live model support.
 // No selection means omitted controls, preserving the provider's default behavior.
@@ -39,11 +40,8 @@ function official(config) {
   return [];
  }
  if(p==='gemini') {
-  if(['gemini-3.8-flash','gemini-4-argon'].includes(m)) return [named('gemini-level',{choices:levels})];
-  if(['gemini-3.6-flash','gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-3-flash-preview'].includes(m)) return [named('gemini-level')];
-  if(m==='gemini-2.5-pro') return [named('gemini-budget',{min:128,max:32768,specialValues:[-1]})];
-  if(m==='gemini-2.5-flash') return [named('gemini-budget',{min:0,max:24576,specialValues:[-1]})];
-  if(m==='gemini-2.5-flash-lite') return [named('gemini-budget',{min:512,max:24576,specialValues:[-1,0]})];
+  const profile=geminiProfile(config);
+  return profile.thinkingTemplate?[named(profile.thinkingTemplate.id,profile.thinkingTemplate)]:[];
  }
  if(p==='openai') {
   // A conservative, documented common subset; expanding choices needs model evidence.
@@ -64,16 +62,19 @@ function official(config) {
 }
 /** Unknown/rolling models expose manual templates, never an inferred recommendation. */
 export function getReasoningTemplates(config={}) {
+ if(geminiProfile(config)?.thinking==='unsupported')return [];
  const verified=identity(config) ? official(config) : [];
  const provider=identity(config);
  const manual=templates.filter(t=>t.protocol===config.protocol && (!provider || (t.provider||t.protocol)===provider));
  // An unrecognised gateway may explicitly select a vendor template. A known vendor never inherits another vendor's recommendation.
  const result=verified.length ? verified.map(copy) : manual.map(copy);
  // verifiedModel is retained for caller compatibility; its scope is catalogMatch only.
- return result.map(t=>({...t,catalogMatch:verified.length>0,verifiedModel:verified.length>0,evidence:{kind:verified.length ? 'dated-local-profile' : 'manual-schema',liveVerified:false,recordedAt:'2026-10-29',reviewAfter:'2026-11-28',sourceSnapshot:null},...(t.choices ? {values:t.choices.map(value=>({value,label:value}))} : {}),
+ const dates=config.protocol==='gemini'?{recordedAt:'2026-11-04',reviewAfter:'2026-12-04'}:{recordedAt:'2026-10-29',reviewAfter:'2026-11-28'};
+ return result.map(t=>({...t,catalogMatch:verified.length>0,verifiedModel:verified.length>0,evidence:{kind:verified.length ? 'dated-local-profile' : 'manual-schema',liveVerified:false,...dates,sourceSnapshot:null},...(t.choices ? {values:t.choices.map(value=>({value,label:value}))} : {}),
   note:!verified.length ? '手选模板：当前模型能力未核验，选择后才发送；服务端可能拒绝不支持的参数。' : t.kind==='number' ? '仅在应用后发送预算；-1（如支持）为动态，0（如支持）为关闭。' : '仅发送选中的请求档位；不是服务端实际思考程度证明。'}));
 }
 export function getRecommendedReasoningTemplate(config={}) {
+ if(geminiProfile(config)?.thinking==='unsupported')return null;
  return identity(config) ? official(config)[0]?.id || null : null;
 }
 export function isOfficialReasoningEndpoint(config={}) {return identifyProvider(config).profileMatched;}
@@ -114,6 +115,10 @@ export const REASONING_FAMILIES=Object.freeze([
  {id:'ark',label:'火山方舟模板',protocol:'ark'},
  {id:'zhipu',label:'智谱模板',protocol:'openai'}
 ].map(Object.freeze));
+export function availableReasoningFamilies(config={}) {
+ const available=new Set(getReasoningTemplates(config).map(t=>t.provider||t.protocol));
+ return REASONING_FAMILIES.filter(f=>available.has(f.id));
+}
 export function reasoningFamilyFor(config={},templateId) {
  const explicit=templates.find(t=>t.id===templateId);
  if(explicit)return explicit.provider||explicit.protocol;

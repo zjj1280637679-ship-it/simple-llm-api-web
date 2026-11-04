@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "C-002",
-    "version": "0.3.2",
+    "version": "0.4.0",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-11-04T07:46:59.527Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
     "kind": "composition",
     "goal": "workbench.compose-scoped-effects-after-hydration",
     "source": "src/workbench.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-C-002",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-11-04T07:46:59.527Z",
+    "updatedAt": "2026-11-04T08:25:42.432Z",
     "entry": "development/hosts/workbench.mjs",
     "moduleId": "C-002",
-    "moduleVersion": "0.3.2",
+    "moduleVersion": "0.4.0",
     "mode": "local"
   },
   "conditions": [
@@ -32,7 +32,8 @@
     "tests/owned-effects.test.js",
     "tests/interaction-cards.test.js",
     "tests/history-snapshots.test.js",
-    "tests/app-controls.test.js"
+    "tests/app-controls.test.js",
+    "tests/gemini-adaptation.test.js"
   ],
   "gates": {
     "F": "UNKNOWN",
@@ -51,7 +52,8 @@
   },
   "counterexamples": [
     "发送返回不推导用户目标；已存工作区不推导持久化成功",
-    "最后一张卡不等于历史最后一项；冻结卡事件与异步晚到结果均不修改当前配置"
+    "最后一张卡不等于历史最后一项；冻结卡事件与异步晚到结果均不修改当前配置",
+    "Gemini 模型切换后仍显示或发送不可用参数，或用当前能力重解释历史卡"
   ],
   "extensionSeam": "新增服务通过显式 services 注入，先定义观察/回执与资源归属",
   "proofObligations": [

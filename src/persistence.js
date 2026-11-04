@@ -1,3 +1,4 @@
+import {GEMINI_FIELDS} from './gemini-capabilities.js';
 import { copyNativeJSON } from './native-json.js';
 import {persistCard,validCard} from './card-types.js';
 import {isLiveCard} from './interaction-cards.js';
@@ -9,7 +10,7 @@ export const SCHEMA_VERSION = 2;
 export const MAX_SNAPSHOT_BYTES = 48 * 1024 * 1024;
 const pick = (value, keys) => Object.fromEntries(keys.filter(k => value?.[k] !== undefined).map(k => [k, value[k]]));
 const apiKeys = ['protocol','url','model','supplier'];
-const modelKeys = ['output','temperature','topP','inputs','reasoning','reasoningFamily','reasoningMode','reasoningBudget'];
+const modelKeys = ['output','temperature','topP','inputs','reasoning','reasoningFamily','reasoningMode','reasoningBudget',...GEMINI_FIELDS];
 const messageKeys = ['id','type','kind','text','prompt','aspectRatio','imageSize','fromTool','attachments','images','incomplete','metrics','reasoningText','reasoningOpen'];
 const forbidden = /^(apiKey|api_key|authorization|trustedTarget|controller|diagnostics|__proto__|constructor|prototype)$/i;
 function clean(value, secrets = []) {

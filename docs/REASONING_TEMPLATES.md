@@ -50,3 +50,7 @@ animation, summary length, or token total can prove a selected level was applied
 2026-10-29 离线 UI/核心回归覆盖默认省略、显式应用、取消、切协议清理、空预算、键盘焦点和批准后参数变化拒发。`tests/browser/reasoning.html` 对真实应用安装完全合成 fetch，报告仅展示请求参数，不调用真实供应商。供应商实际支持和手机真机表现仍以后续真实验收为准。
 
 所有浏览器 QA 页内联 JavaScript 纳入 `tests/browser-syntax.test.js`；这只保证语法，不替代真实浏览器交互。Anthropic QA SSE 字符串使用转义换行；流式 QA 供应商选择器使用真实索引拼接。
+
+## 0.6.0 Gemini 适配修订
+
+当前 Gemini 模型规则由 `src/gemini-capabilities.js` 统一解释，已知不支持思考的 Model 回执收起相关控制。家族列表只显示当前协议和供应商可选择的模板。未知 Gemini 模型可在深层显式选择等级或预算格式；未选择强度不发送。来源、时间和范围见 [Gemini 适配说明](GEMINI_ADAPTATION.md)。本节修订不将本页历史记录变成本轮真实请求验收。
