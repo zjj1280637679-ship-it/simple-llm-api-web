@@ -4,6 +4,24 @@
 import {esc} from './view-markup.js';
 import {MODALITIES,supportedModalities} from './attachments.js';
 import {REASONING_FAMILIES,reasoningFamilyFor} from './reasoning.js';
+const protocolNote=protocol=>protocol==='ark'?'Token 预算使用 max_completion_tokens，含思考与回答。':protocol==='anthropic'?'输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。':'';
+/** Historical model records have no editable/folded controls and no current-config input.
+ * Readability and edit admission are distinct effects; the shell/dispatcher own admission.
+ */
+export function historicalModelMarkup(card,page) {
+  const x=card.values,protocol=x.displayContext?.protocol;
+  const known=['gemini','openai','ark','anthropic'].includes(protocol);
+  const present=(value,fallback)=>value===undefined||value===null||value===''?fallback:String(value);
+  const family=REASONING_FAMILIES.find(f=>f.id===x.reasoningFamily)?.label || (x.reasoningFamily===null?'未指定模板':'未记录模板');
+  const rows=page==='chat' ? [
+    ['输出预算 Token',present(x.output,'API 默认')],['温度',present(x.temperature,'API 默认')],['Top P',present(x.topP,'API 默认')],
+    ['思考模板',family],['思考强度',x.reasoning?`${present(x.reasoning.template,'未记录模板')} · ${present(x.reasoning.value,'未记录')}`:'未指定'],
+    ...(x.reasoningBudget!==undefined?[['模板预算',present(x.reasoningBudget,'未指定')]]:[]),
+    ['输入模态',Array.isArray(x.inputs)?x.inputs.map(kind=>MODALITIES[kind]||kind).join('、')||'未选择':'未记录']
+  ] : [['生成数量','1'],['输出格式','上游原始格式']];
+  const note=known?protocolNote(protocol):'历史协议未记录；保留已存参数，不按当前连接推断。';
+  return `<div class="card-type">模型设置</div><dl class="settings-snapshot">${rows.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${note?`<p class="model-note">${esc(note)}</p>`:''}`;
+}
 export function createSettingsViews({get,currentPage,activeCardId,menuState,reasoningAnchor,providers,providerIdentity,protocolLabel,apiTrustText}) {
 function apiCard(m) {
   const page=currentPage(),subMenu=menuState(),reasoningAnchorId=reasoningAnchor();
@@ -46,6 +64,7 @@ function inputSettingsMarkup(m,d,x){return `<details data-setting-section="input
 function modelCard(m) {
   const page=currentPage(),subMenu=menuState(),reasoningAnchorId=reasoningAnchor();
   const d = get(), old = m.id !== activeCardId(d), x = old ? m.values : d.model;
+  if(old)return historicalModelMarkup(m,page);
   const field = (label, key, placeholder) => `<div class="formfield">
 <label for="${key}${m.id}">${label}</label>
 <input class="block-input" type="number" id="${key}${m.id}" data-card="${m.id}" data-key="${key}" placeholder="${placeholder}" value="${esc(x[key])}" step="any">
@@ -64,7 +83,7 @@ function modelCard(m) {
 <div class="formfield">
 <label for="format${m.id}">输出格式</label>
 <output id="format${m.id}" class="block-value">上游原始格式</output>
-</div>`}</div><div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${d.api.protocol === 'ark' ? ' Token 预算使用 max_completion_tokens，含思考与回答。' : d.api.protocol === 'anthropic' ? ' 输出预算使用 max_tokens，未填时为 4096；当前仅文本附件，不提供工具调用。' : ''}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div><button class="chip" data-action="open-settings-card" data-id="${m.id}" data-kind="api">返回设置</button>
+</div>`}</div><div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${protocolNote(d.api.protocol)}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div><button class="chip" data-action="open-settings-card" data-id="${m.id}" data-kind="api">返回设置</button>
 `;
 }
 return {api:apiCard,connection:connectionCard,model:modelCard};

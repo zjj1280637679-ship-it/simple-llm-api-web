@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-015",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-30T05:30:34.595Z",
-    "updatedAt": "2026-10-30T07:55:11.916Z",
+    "updatedAt": "2026-11-04T07:46:59.527Z",
     "kind": "function",
     "goal": "cards.capture-versioned-data-without-live-flags",
     "source": "src/card-types.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-015",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "createdAt": "2026-10-30T05:30:34.595Z",
-    "updatedAt": "2026-10-30T07:55:11.916Z",
+    "updatedAt": "2026-11-04T07:46:59.527Z",
     "entry": "development/hosts/card-types.mjs",
     "moduleId": "F-015",
-    "moduleVersion": "0.1.1",
+    "moduleVersion": "0.1.2",
     "mode": "local"
   },
   "conditions": [
@@ -31,7 +31,8 @@
     "tests/interaction-cards.test.js",
     "tests/app-controls.test.js",
     "tests/persistence.test.js",
-    "tests/development-hosts.test.js"
+    "tests/development-hosts.test.js",
+    "tests/history-snapshots.test.js"
   ],
   "gates": {
     "F": "UNKNOWN",
@@ -48,7 +49,9 @@
     "completeFiniteImplementationModel": "NOT_ESTABLISHED"
   },
   "counterexamples": [
-    "API key 不属于 values；未知版本不成为可执行代码"
+    "API key 不属于 values；未知版本不成为可执行代码",
+    "旧模型卡未保存协议时，当前协议不能充当历史证据",
+    "model.displayContext仅保留protocol，不携带地址或密钥"
   ],
   "extensionSeam": "新类型定义捕获、校验与字段；未来类型数据可读而不猜测动作",
   "proofObligations": [
@@ -72,7 +75,7 @@
       "Ordinary JSON/plain objects and unique positive history IDs; no adversarial Proxy or concurrent object mutation",
       "Host callbacks and DOM/network/storage effects require separate integration evidence"
     ],
-    "policyReference": "docs/INTERACTION_CARDS.md",
+    "policyReference": "design/INTERACTION_EFFECTS.md",
     "notEstablished": [
       "Local host and finite representative histories do not establish all browser effects or full F/C/H/Q."
     ]

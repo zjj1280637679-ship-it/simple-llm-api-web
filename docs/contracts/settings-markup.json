@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-018",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-30T07:55:11.916Z",
-    "updatedAt": "2026-10-30T07:55:11.916Z",
+    "updatedAt": "2026-11-04T07:46:59.527Z",
     "kind": "function",
     "goal": "settings-markup",
     "source": "src/settings-markup.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-018",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-10-30T07:55:11.916Z",
-    "updatedAt": "2026-10-30T07:55:11.916Z",
+    "updatedAt": "2026-11-04T07:46:59.527Z",
     "entry": "development/hosts/settings-markup.mjs",
     "moduleId": "F-018",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "question": "怎样把配置投影成渐进展开的设置卡？",
@@ -36,7 +36,8 @@
     "tests/conversations.test.js",
     "tests/app-controls.test.js",
     "tests/persistence-store.test.js",
-    "tests/development-hosts.test.js"
+    "tests/development-hosts.test.js",
+    "tests/history-snapshots.test.js"
   ],
   "gates": {
     "F": "UNKNOWN",
@@ -49,7 +50,9 @@
   ],
   "counterexamples": [
     "未知身份或路径不能误落到当前会话/其他设置类型",
-    "旧数据迁移与异步效果不得串会话"
+    "旧数据迁移与异步效果不得串会话",
+    "当前协议改变后历史参数说明漂移",
+    "折叠的历史参数刷新后不可查看"
   ],
   "extensionSeam": "显式参数与导出函数；消费方按契约组合",
   "proofObligations": [
@@ -73,7 +76,7 @@
       "普通 JSON / plain objects；非对抗性 getter / Proxy",
       "浏览器、文件下载及 IndexedDB 效果由组合验收另行观察"
     ],
-    "policyReference": "docs/SETTINGS_HISTORY.md",
+    "policyReference": "design/INTERACTION_EFFECTS.md",
     "notEstablished": [
       "局部宿主不等于全部浏览器、真实供应商或完整 F/C/H/Q。"
     ]

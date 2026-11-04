@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-020",
+    "version": "0.1.0",
+    "createdAt": "2026-11-04T07:46:59.527Z",
+    "updatedAt": "2026-11-04T07:46:59.527Z",
+    "kind": "function",
+    "goal": "image-options.progressive-independent-selection",
+    "source": "src/image-options-markup.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-020",
+    "version": "0.1.0",
+    "createdAt": "2026-11-04T07:46:59.527Z",
+    "updatedAt": "2026-11-04T07:46:59.527Z",
+    "entry": "development/hosts/image-options-markup.mjs",
+    "moduleId": "F-020",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "question": "如何让常用图片比例浅层可达，同时保留完整预设组合？",
+  "stateModel": {
+    "budget": "无自有状态；当前登记最多14比例×3分辨率；纯选择转移与纯HTML投影",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "conditions": [
+    "普通 JSON / plain objects；非对抗性 getter / Proxy",
+    "浏览器、文件下载及 IndexedDB 效果由组合验收另行观察"
+  ],
+  "observations": [
+    "两维独立修改",
+    "首层3个常用比例，其他比例展开可达",
+    "选择不发网络请求"
+  ],
+  "tests": [
+    "tests/app-controls.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "局部宿主不等于全部浏览器、真实供应商或完整 F/C/H/Q。"
+  ],
+  "counterexamples": [
+    "改变比例时误重置分辨率",
+    "未收录组合被静默接受",
+    "罕见比例选中后当前值不可见"
+  ],
+  "extensionSeam": "显式参数与导出函数；消费方按契约组合",
+  "proofObligations": [
+    {
+      "id": "F-020.reachability",
+      "statement": "当前已登记预设的笛卡尔积均由两次一维选择到达",
+      "status": "OPEN",
+      "localWitness": "development/models/interaction-effects-model.mjs"
+    },
+    {
+      "id": "F-020.browser",
+      "statement": "投影对应浏览器点击、键盘、布局和可见性",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "两维独立修改",
+      "首层3个常用比例，其他比例展开可达",
+      "选择不发网络请求"
+    ],
+    "assumptions": [
+      "普通 JSON / plain objects；非对抗性 getter / Proxy",
+      "浏览器、文件下载及 IndexedDB 效果由组合验收另行观察"
+    ],
+    "policyReference": "design/INTERACTION_EFFECTS.md",
+    "notEstablished": [
+      "局部宿主不等于全部浏览器、真实供应商或完整 F/C/H/Q。"
+    ]
+  }
+}

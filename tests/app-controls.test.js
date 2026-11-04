@@ -23,6 +23,7 @@ async function mount({ confirm = () => true, runConversation, dispatchCommand, l
     get innerHTML() { return html; },
     set innerHTML(value) {
       html = value; renders += 1; nodes = new Map();
+      if(value.includes('class="history-list"'))nodes.set('.history-list',{innerHTML:''});
       if (value.includes('id="network-logs"')) nodes.set('#network-logs', { textContent: '' });
       for (const match of value.matchAll(/<span id="(api-trust\d+)">(.*?)<\/span>/g)) nodes.set(`#${match[1]}`, { textContent: match[2] });
       for (const match of value.matchAll(/<(?:input|textarea)\b[^>]*\bid="([^"]+)"[^>]*>(?:([^<]*)<\/textarea>)?/g)) {
@@ -45,7 +46,9 @@ async function mount({ confirm = () => true, runConversation, dispatchCommand, l
   owned.add(context);
   return {
     ...context, app, document, session: context.session,
-    input: target => listeners.input({ target }),
+    input: (target,extra={}) => listeners.input({ target,...extra }),
+    compositionEnd: target => listeners.compositionend({target}),
+    change: target => listeners.change({target}),
     click: dataset => listeners.click({ target: { closest: () => ({ dataset }) } })
   };
 }
@@ -145,7 +148,8 @@ test('image page accepts the shared core models/ prefix and still rejects other 
   d.api.model = ` models/${core.IMAGE_MODEL} `;
   await ui.click({ action: 'size-toggle' });
   assert.equal(ui.matrixSupported(d), true);
-  assert.equal((ui.app.innerHTML.match(/data-action="set-image-options"/g) || []).length, 42);
+  assert.equal((ui.app.innerHTML.match(/data-axis="ratio"/g) || []).length, 14);
+  assert.equal((ui.app.innerHTML.match(/data-axis="size"/g) || []).length, 3);
   d.api.protocol = 'openai'; assert.equal(ui.matrixSupported(d), false);
   d.api.protocol = 'gemini'; d.api.model = 'models/not-an-image-model'; assert.equal(ui.matrixSupported(d), false);
 });
@@ -156,7 +160,7 @@ test('Token metric identifies usage as the last request rather than a summed Age
 });
 
 
-test('Ark preset changes only the active workspace and renders its 24 option matrix', async()=> {
+test('Ark preset changes only the active workspace and preserves all ratios and sizes in separate selectors', async()=> {
   const ui = await mount(), { d, card } = configure(ui, 'image');
   const chatBefore = { ...ui.data.chat.api };
   await ui.click({ action: 'choose-supplier', id: String(card.id), index: '4' });
@@ -165,10 +169,11 @@ test('Ark preset changes only the active workspace and renders its 24 option mat
   assert.equal(d.api.key, ''); assert.equal(d.api.trustedTarget, '');
   assert.deepEqual({ ...ui.data.chat.api }, chatBefore);
   await ui.click({ action: 'size-toggle' });
-  assert.equal((ui.app.innerHTML.match(/data-action="set-image-options"/g) || []).length, 24);
+  assert.equal((ui.app.innerHTML.match(/data-axis="ratio"/g) || []).length, 8);
+  assert.equal((ui.app.innerHTML.match(/data-axis="size"/g) || []).length, 3);
   assert.match(ui.app.innerHTML, /1K 为应用预设/);
   assert.match(ui.app.innerHTML, /1.5K/);
-  assert.doesNotMatch(ui.app.innerHTML, /data-image-size="4K"/);
+  assert.doesNotMatch(ui.app.innerHTML, /data-axis="size" data-value="4K"/);
 });
 
 test('Ark text preset uses the ordinary endpoint and honest manual model entry', async()=> {
@@ -590,7 +595,7 @@ test('budget is editable only in composer intensity layer and blank never become
 test('historical unselected custom family does not inherit a later official provider', async()=>{
  const ui=await mount(),{d}=configure(ui);d.api.protocol='openai';d.api.url='https://gateway.example/v1';d.api.model='x';ui.addCard('model');const old=d.messages.at(-1);
  ui.addCard('api');await ui.click({action:'choose-supplier',id:String(d.messages.at(-1).id),index:'0'});
- assert.equal(old.values.reasoningFamily,null);assert.match(ui.app.innerHTML,new RegExp('id="reasoning-model'+old.id+'"[^>]*>选择模板</button>'));
+ assert.equal(old.values.reasoningFamily,null);assert.match(ui.app.innerHTML,/<dt>思考模板<\/dt><dd>未指定模板<\/dd>/);
 });
 
 test('composer reasoning label shows current value, unset and budget without generic set marker', async()=>{
@@ -701,4 +706,40 @@ test('history resumes the image workspace that belongs to the selected conversat
  await ui.click({action:'conversation-new'});await ui.click({action:'conversation-open',conversation:id});
  assert.match(ui.app.innerHTML,/图片提示词/);assert.equal(ui.data.image.draft,'image draft');
  assert.equal(ui.archiveSnapshot().entries.find(e=>e.id===id).snapshot.page,'image');
+});
+
+test('history query patches only results and retains node identity, caret, focus and composition',async()=>{
+ const ui=await mount();ui.conversations.current().title='alphabet';
+ await ui.click({action:'tab',tab:'logs'});
+ const field=ui.app.querySelector('#history-query'),results=ui.app.querySelector('.history-list'),renders=ui.app.renders;
+ ui.document.activeElement=field;
+ for(const value of ['a','ab','axb','ab','']){
+   field.value=value;field.selectionStart=field.selectionEnd=Math.min(2,value.length);
+   ui.input(field);
+   assert.equal(ui.app.querySelector('#history-query'),field);assert.equal(ui.app.renders,renders);
+   assert.equal(ui.document.activeElement,field);assert.equal(field.selectionStart,Math.min(2,value.length));
+ }
+ field.value='zzz';ui.input(field,{isComposing:true});assert.match(results.innerHTML,/alphabet/);
+ ui.compositionEnd(field);assert.match(results.innerHTML,/没有匹配/);
+ const after=results.innerHTML;ui.change(field);assert.equal(results.innerHTML,after);assert.equal(ui.app.renders,renders);
+});
+
+test('historical model projection ignores later protocol and rejects old edits after navigation',async()=>{
+ const ui=await mount(),{d}=configure(ui);d.model.output='2048';ui.addCard('model');const old=d.messages.at(-1);
+ await ui.click({action:'open-settings-card',id:String(old.id),kind:'api'});
+ const oldBody=()=>ui.app.innerHTML.split(`data-interaction-card="${old.id}"`)[1].split('</fieldset>')[0];
+ const before=oldBody();ui.addCard('connection');const current=d.messages.at(-1);
+ await ui.dispatchCardAction({id:current.id,action:'field.change',args:{key:'protocol',value:'anthropic'}});
+ assert.equal(oldBody(),before);assert.equal(old.values.displayContext.protocol,'gemini');
+ assert.doesNotMatch(before,/<details|data-action=/);assert.match(before,/>2048</);
+ assert.equal((await ui.dispatchCardAction({id:old.id,action:'field.change',args:{key:'output',value:'9999'}})).reason,'historical-card');
+ assert.equal(d.model.output,'2048');
+});
+
+test('separate image controls retain the other dimension and ignore unsupported choices',async()=>{
+ const ui=await mount(),{d}=configure(ui,'image');await ui.click({action:'size-toggle'});
+ await ui.click({action:'set-image-option',axis:'ratio',value:'1:8'});
+ await ui.click({action:'set-image-option',axis:'size',value:'4K'});
+ assert.equal(d.aspectRatio,'1:8');assert.equal(d.imageSize,'4K');assert.match(ui.app.innerHTML,/更多比例 · 1:8/);
+ await ui.click({action:'set-image-option',axis:'ratio',value:'invalid'});assert.equal(d.aspectRatio,'1:8');
 });

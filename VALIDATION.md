@@ -1,20 +1,20 @@
 # 当前验证范围
 
-项目 v0.4.0；2026-10-30（北京时间）。审查基线 `0105e7f1657b10e5faa224442896c25dcde1b3b4`，交互卡结构修订见 [记录](docs/reviews/2026-10-30-cards.md)，设计依据见 [EPISTEMIC_DESIGN](design/EPISTEMIC_DESIGN.md)。
+项目 v0.5.1；2026-11-04（北京时间）。审查基线 `84152a50cf15b4ae1bad82674dbe2129f3b9587d`。本轮目标、反例和实现见 [交互效果记录](docs/reviews/2026-11-04-interaction-effects.md)，理想效果谓词见 [INTERACTION_EFFECTS](design/INTERACTION_EFFECTS.md)。
 
-| 验证 | 当前结果与范围 |
+| 验证 | 本轮结果与范围 |
 | --- | --- |
-| 完整回归 | 409 项：408 通过、1 跳过、0 失败；Node 24.22.1；[原始输出](development/evidence/review-tests.txt) |
-| 语法 / 构建 | 生产、宿主、有限模型、脚本及 CLI 通过；42 个白名单产物；相对依赖与重复构建一致性通过 |
-| 最简宿主 | 26 个分别通过；源、契约、宿主及字面传递导入有指纹 |
-| 有限模型 | 结束解释/接纳 680 类组合；图片效果 820 个列表组合及伪造回执；卡片位置 1,555 条历史 / 7,465 查询；[条件与未证明义务](development/models/README.md) |
-| 证据对应 | 174 个输入与命令输出的指纹 MATCH；[记录](development/evidence/review.json)；不独立鉴定记录真实性 |
-| 资料复核 | 保留旧来源、时间、缺失快照与实测；本轮未重新验证上游模型能力 |
-| 知识图 | 冻结到本轮具体源提交，另有结构/漂移检测宿主；当前入口见 [knowledge](knowledge/README.md) |
+| 完整回归 | 431 项：430 通过、1 跳过、0 失败；Node 24.22.1；[原始输出](development/evidence/review-tests.txt) |
+| 语法 / 构建 | 生产、宿主、有限模型、脚本及 CLI 通过；48 个白名单产物；相对依赖与重复构建一致性通过 |
+| 最简宿主 | 32 个分别通过；源、契约、宿主及字面传递导入有指纹 |
+| 有限模型 | 4 个模型；本轮新增 80 次历史解释比较、2,916 次图片参数组合转移；已有 680 类结束组合、820 个图片效果列表组合、1,555 条历史 / 7,465 查询；[范围与未证明义务](development/models/README.md) |
+| 证据对应 | 输入及命令输出的指纹由 `npm run review:evidence` 检查；[执行记录](development/evidence/review.json)；不独立鉴定记录真实性 |
+| 资料复核 | 保留旧来源、时间、缺失快照与实测；未重新验证上游模型能力 |
+| 知识图 | 冻结到具体项目源提交；另有结构/漂移检测宿主；[当前入口](knowledge/README.md) |
 
-唯一跳过项是可选 MCP SDK 对合成 peer 的互操作测试，未安装 SDK，不计通过。没有真实密钥或付费模型请求。完整形式证明、抽象对应、真实宿主条件、成功替代途径池和阶段投影等效性并未由上述测试完成；26 块完整 F/C/H/Q 保持 UNKNOWN。
+唯一跳过项是可选 MCP SDK 对合成 peer 的互操作测试，未安装 SDK，不计通过。没有真实密钥或付费模型请求。完整形式证明、抽象对应、全部真实宿主条件、成功替代途径池和阶段投影等效性仍有独立义务；32 块完整 F/C/H/Q 保持 UNKNOWN。
 
-本轮新增回归检查历史末项、旧卡事件、异步晚到、一次性确认、取消、未知卡版本和 schema 1→2 迁移。已有判断回归继续检查：未来结束标记与明确截断的不同解释、缺 JSON 标记的兼容接纳与 SSE framing、空图片集合不全绿、工作区回执不能升级持久化/可见/目标，以及真实工作台组合在正常返回时继续传递 unknown。
+新增回归覆盖搜索节点/焦点/选择区间保留、合成组合输入事件、历史协议解释独立、旧档缺失协议保真、冻结模型卡静态可读，以及图片两维独立选择。移除已不存在的图片矩阵滚动写入断言；其他滚动写入诊断检查保留。合成 DOM/IME 事件不等于真实输入法验收。
 
 ```sh
 npm run check
@@ -29,20 +29,17 @@ node knowledge/check.mjs
 node knowledge/verify.mjs
 ```
 
-PR/main 均执行以上本地检查；main 仅发布 dist。有限模型不会发网络请求。部署成功和实际浏览器观察另行记录于本轮知识快照；不能从本地通过推断浏览器或上游调用已通过。
+PR/main 均执行以上本地检查；main 仅发布 dist。有限模型不会发网络请求。部署和实际浏览器观察另记于本轮知识快照，不从本地通过推断浏览器、输入法或上游调用已通过。
 
 ## 实网验收优先级
 
-[逐路径实网验收表](docs/LIVE_ACCEPTANCE.md)将四协议文本流式列为当前最高优先级；本地回归、生产部署与实网通过分别记录。WebMCP / 网页 CLI / MCP 传输明确为 [实验性](docs/EXPERIMENTAL.md)。v0.4.0 的确认卡取消与页面注册观察不覆盖完整外部工具调用返回链路。
-
-新增验收辅助脚本位于 `qa/`，独立离线检查结果见 [本轮记录](docs/reviews/2026-10-30-entry-acceptance.md)。上表 409 项是原生产输入集的历史回归结果，不包含该辅助脚本，也不因文档更新而改写原始执行时间。
+[逐路径实网验收表](docs/LIVE_ACCEPTANCE.md)将四协议文本流式列为当前最高优先级；本地回归、生产部署与实网通过分别记录。WebMCP / 网页 CLI / MCP 传输明确为 [实验性](docs/EXPERIMENTAL.md)。`qa/` 验收辅助脚本的离线自检见 [记录](docs/reviews/2026-10-30-entry-acceptance.md)，不代替真实供应商闭环。
 
 ## 历史范围
 
-[v0.2.0 验证入口](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/70290ba6f00b9035f94ecde7ac95849b5ea190a5/VALIDATION.md)记录 377 通过、1 跳过及 14 宿主；[当时浏览器观察](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/70290ba6f00b9035f94ecde7ac95849b5ea190a5/docs/reviews/2026-10-30-browser.md)的构建身份不覆盖本轮。更早的 Ark 图片真实报告及旧 PR 候选均保留其原条件，没有通过改写日期延续到当前版本。
+- [v0.5.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/84152a50cf15b4ae1bad82674dbe2129f3b9587d/development/evidence/review.json)：424 项中 423 通过、1 跳过，31 个宿主。
+- [v0.4.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/84152a50cf15b4ae1bad82674dbe2129f3b9587d/VALIDATION.md)：409 项中 408 通过、1 跳过，26 个宿主。
+- [v0.3.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/0105e7f1657b10e5faa224442896c25dcde1b3b4/VALIDATION.md)：391 通过、1 跳过，21 个宿主。
+- [v0.2.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/70290ba6f00b9035f94ecde7ac95849b5ea190a5/VALIDATION.md)：377 通过、1 跳过，14 个宿主。
 
-[v0.3.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/0105e7f1657b10e5faa224442896c25dcde1b3b4/VALIDATION.md)记录当时的 391 通过、1 跳过和 21 宿主。
-
-## 0.5.0 开发试用版
-
-设置卡层级、历史会话、旧档迁移与草稿归属的当前验收以 `development/evidence/review.json` 及 [设置与历史](docs/SETTINGS_HISTORY.md) 为入口。此前次数和日期保留为历史观察。新增 5 个独立模块/宿主，总计 31 个；仍不推导为全仓形式证明或真实 API 验收。
+历史浏览器和 Ark 图片真实报告保留当时条件与构建身份，不因文档更新延续为当前版本实测。

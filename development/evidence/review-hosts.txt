@@ -1,6 +1,5 @@
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.5.0 hosts
+> simple-llm-api-web@0.5.1 hosts
 > node scripts/run-hosts.mjs
 
 {
@@ -30,8 +29,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:29.840Z",
-      "finishedAt": "2026-10-30T08:01:29.843Z",
+      "startedAt": "2026-11-04T07:54:31.511Z",
+      "finishedAt": "2026-11-04T07:54:31.514Z",
       "runtime": "v24.22.1",
       "observed": {
         "boundedMenu": true,
@@ -69,8 +68,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:29.926Z",
-      "finishedAt": "2026-10-30T08:01:29.929Z",
+      "startedAt": "2026-11-04T07:54:31.572Z",
+      "finishedAt": "2026-11-04T07:54:31.574Z",
       "runtime": "v24.22.1",
       "observed": {
         "staleViewUntouched": true
@@ -106,8 +105,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:29.998Z",
-      "finishedAt": "2026-10-30T08:01:30.003Z",
+      "startedAt": "2026-11-04T07:54:31.639Z",
+      "finishedAt": "2026-11-04T07:54:31.646Z",
       "runtime": "v24.22.1",
       "observed": {
         "boundedFields": true,
@@ -144,8 +143,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.067Z",
-      "finishedAt": "2026-10-30T08:01:30.070Z",
+      "startedAt": "2026-11-04T07:54:31.704Z",
+      "finishedAt": "2026-11-04T07:54:31.707Z",
       "runtime": "v24.22.1",
       "observed": {
         "syntheticDecoder": true,
@@ -183,8 +182,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.133Z",
-      "finishedAt": "2026-10-30T08:01:30.135Z",
+      "startedAt": "2026-11-04T07:54:31.770Z",
+      "finishedAt": "2026-11-04T07:54:31.774Z",
       "runtime": "v24.22.1",
       "observed": {
         "releasedOnce": true,
@@ -221,8 +220,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.200Z",
-      "finishedAt": "2026-10-30T08:01:30.203Z",
+      "startedAt": "2026-11-04T07:54:31.838Z",
+      "finishedAt": "2026-11-04T07:54:31.841Z",
       "runtime": "v24.22.1",
       "observed": {
         "businessKeysPreserved": true,
@@ -261,8 +260,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.264Z",
-      "finishedAt": "2026-10-30T08:01:30.267Z",
+      "startedAt": "2026-11-04T07:54:31.899Z",
+      "finishedAt": "2026-11-04T07:54:31.902Z",
       "runtime": "v24.22.1",
       "observed": {
         "declaredPathMatched": true,
@@ -301,8 +300,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.333Z",
-      "finishedAt": "2026-10-30T08:01:30.337Z",
+      "startedAt": "2026-11-04T07:54:31.961Z",
+      "finishedAt": "2026-11-04T07:54:31.964Z",
       "runtime": "v24.22.1",
       "observed": {
         "timersReleased": true,
@@ -340,8 +339,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.407Z",
-      "finishedAt": "2026-10-30T08:01:30.411Z",
+      "startedAt": "2026-11-04T07:54:32.026Z",
+      "finishedAt": "2026-11-04T07:54:32.030Z",
       "runtime": "v24.22.1",
       "observed": {
         "incrementalText": true,
@@ -380,8 +379,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.480Z",
-      "finishedAt": "2026-10-30T08:01:30.484Z",
+      "startedAt": "2026-11-04T07:54:32.095Z",
+      "finishedAt": "2026-11-04T07:54:32.097Z",
       "runtime": "v24.22.1",
       "observed": {
         "functionBoundDeclaration": true,
@@ -418,8 +417,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.2",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.560Z",
-      "finishedAt": "2026-10-30T08:01:30.563Z",
+      "startedAt": "2026-11-04T07:54:32.153Z",
+      "finishedAt": "2026-11-04T07:54:32.155Z",
       "runtime": "v24.22.1",
       "observed": {
         "escapedContent": true,
@@ -456,8 +455,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.622Z",
-      "finishedAt": "2026-10-30T08:01:30.624Z",
+      "startedAt": "2026-11-04T07:54:32.221Z",
+      "finishedAt": "2026-11-04T07:54:32.224Z",
       "runtime": "v24.22.1",
       "observed": {
         "independentReadingPositions": true
@@ -475,9 +474,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "evidenceType": "LOCAL",
       "module": {
         "id": "C-002",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "kind": "composition",
         "goal": "workbench.compose-scoped-effects-after-hydration",
         "source": "src/workbench.js",
@@ -485,16 +484,16 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       },
       "host": {
         "id": "H-C-002",
-        "version": "0.1.3",
+        "version": "0.1.4",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "entry": "development/hosts/workbench.mjs",
         "moduleId": "C-002",
-        "moduleVersion": "0.3.1",
+        "moduleVersion": "0.3.2",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.705Z",
-      "finishedAt": "2026-10-30T08:01:30.732Z",
+      "startedAt": "2026-11-04T07:54:32.304Z",
+      "finishedAt": "2026-11-04T07:54:32.344Z",
       "runtime": "v24.22.1",
       "observed": {
         "fullInitialization": true,
@@ -504,7 +503,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
-        "docs/contracts/workbench.json": "0c253ead9dae9de1e658e6e4eb738b3be76d913509549055b4e58fb74dee6f8a",
+        "docs/contracts/workbench.json": "665e4ed690c62dfc121841bc1087c74bba3452e01fd391f50a10ea017c01c319",
         "src/agent.js": "cd39cce66d22c2ea4d7d6b8b85ce239bafa2dd28da361eb52ea60ed363782cfc",
         "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
         "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
@@ -512,7 +511,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/canvas-geometry.js": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c",
         "src/card-confirmations.js": "a462d25dbc9d09a77961a7a220bc47f156ca47df7147510822957cf05adc058a",
         "src/card-markup.js": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576",
-        "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
+        "src/card-types.js": "6d88c376d075447495ab11d7c5d18b36ba68af0e8526f6fff7c5dbbb00981138",
         "src/clipboard-report.js": "e58d0aadd47b30cfcf3c7ac1e577e868b55deb700ffb59f9913b177490832f7f",
         "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
         "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509",
@@ -520,11 +519,12 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720",
         "src/core.js": "3169113528d6431a9b6e3aace9050b10de36d218129bb793d634377c1acbda99",
         "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
-        "src/history-markup.js": "4b935d190a6216a04afeabd22dbb59c2c5bde684472c74a86bf513f12d557fed",
+        "src/history-markup.js": "1bb9bc46f368ec7d9538a8c0aa76eee89b7fbcb1b6f09b587df1f9bf4fa2898f",
         "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
         "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
         "src/image-delivery.js": "5b99571a4069cab3da4a65731f7647e428aa6babf07ffecc6f61d907ab0017be",
         "src/image-evidence.js": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1",
+        "src/image-options-markup.js": "480ed66ad106c23e1a5df95da8f951ee3fe88a281184fc9408796d4a70c19086",
         "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f",
         "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0",
         "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
@@ -537,7 +537,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/request-transport.js": "3b8dbdd913643faaacb219daba68955c8afba379b72d01e16b46b2ba9533de67",
         "src/session-webmcp.js": "11852e7900e100dd3b0a5aba32d3c6209d33399ec1533e42f1a819640c9361b4",
         "src/session.js": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153",
-        "src/settings-markup.js": "7db6b8abdf768ff16416071ca18d5f3da91eaa0e27295efece28b2e95c15b152",
+        "src/settings-markup.js": "a9ba37d985aa4bf7d5534533fb90921b16f2ba54895aee522e30a67db6b2579e",
         "src/settings-navigation.js": "abcc088e95a35f04cb24f6e1e3b893f3110e1f66e820eb2b77d8e370b446c56e",
         "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
         "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
@@ -546,7 +546,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893",
         "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
         "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e",
-        "src/workbench.js": "d92e9ea4a23834c3e655ec95a473e43a50ddf96147fa494cc04d75993969756f",
+        "src/workbench.js": "ea345cae3f5d0bf234026e73b619d17f73f627ab4584580c1c19b6be1c9f8db3",
         "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
@@ -574,8 +574,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.810Z",
-      "finishedAt": "2026-10-30T08:01:30.814Z",
+      "startedAt": "2026-11-04T07:54:32.407Z",
+      "finishedAt": "2026-11-04T07:54:32.410Z",
       "runtime": "v24.22.1",
       "observed": {
         "hydrationBeforeWrites": true
@@ -611,8 +611,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.877Z",
-      "finishedAt": "2026-10-30T08:01:30.879Z",
+      "startedAt": "2026-11-04T07:54:32.475Z",
+      "finishedAt": "2026-11-04T07:54:32.478Z",
       "runtime": "v24.22.1",
       "observed": {
         "futureMarkerUnknown": true,
@@ -649,8 +649,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:30.944Z",
-      "finishedAt": "2026-10-30T08:01:30.953Z",
+      "startedAt": "2026-11-04T07:54:32.543Z",
+      "finishedAt": "2026-11-04T07:54:32.548Z",
       "runtime": "v24.22.1",
       "observed": {
         "cases": 680,
@@ -696,8 +696,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.021Z",
-      "finishedAt": "2026-10-30T08:01:31.028Z",
+      "startedAt": "2026-11-04T07:54:32.606Z",
+      "finishedAt": "2026-11-04T07:54:32.611Z",
       "runtime": "v24.22.1",
       "observed": {
         "cases": 820,
@@ -737,8 +737,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.094Z",
-      "finishedAt": "2026-10-30T08:01:31.097Z",
+      "startedAt": "2026-11-04T07:54:32.669Z",
+      "finishedAt": "2026-11-04T07:54:32.672Z",
       "runtime": "v24.22.1",
       "observed": {
         "workflowAndGoalSeparated": true
@@ -774,8 +774,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.166Z",
-      "finishedAt": "2026-10-30T08:01:31.170Z",
+      "startedAt": "2026-11-04T07:54:32.727Z",
+      "finishedAt": "2026-11-04T07:54:32.730Z",
       "runtime": "v24.22.1",
       "observed": {
         "normalizationObserved": true,
@@ -814,8 +814,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.253Z",
-      "finishedAt": "2026-10-30T08:01:31.265Z",
+      "startedAt": "2026-11-04T07:54:32.804Z",
+      "finishedAt": "2026-11-04T07:54:32.815Z",
       "runtime": "v24.22.1",
       "observed": {
         "syntheticTransport": true,
@@ -861,8 +861,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.332Z",
-      "finishedAt": "2026-10-30T08:01:31.334Z",
+      "startedAt": "2026-11-04T07:54:32.871Z",
+      "finishedAt": "2026-11-04T07:54:32.873Z",
       "runtime": "v24.22.1",
       "observed": {
         "localIdentityPreserved": true,
@@ -899,8 +899,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.399Z",
-      "finishedAt": "2026-10-30T08:01:31.410Z",
+      "startedAt": "2026-11-04T07:54:32.936Z",
+      "finishedAt": "2026-11-04T07:54:32.945Z",
       "runtime": "v24.22.1",
       "observed": {
         "status": "PASS",
@@ -932,9 +932,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-015",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "kind": "function",
         "goal": "cards.capture-versioned-data-without-live-flags",
         "source": "src/card-types.js",
@@ -942,26 +942,28 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       },
       "host": {
         "id": "H-F-015",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "entry": "development/hosts/card-types.mjs",
         "moduleId": "F-015",
-        "moduleVersion": "0.1.1",
+        "moduleVersion": "0.1.2",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.476Z",
-      "finishedAt": "2026-10-30T08:01:31.480Z",
+      "startedAt": "2026-11-04T07:54:33.004Z",
+      "finishedAt": "2026-11-04T07:54:33.008Z",
       "runtime": "v24.22.1",
       "observed": {
         "keyExcluded": true,
-        "version": 1
+        "version": 1,
+        "legacyUnknownPreserved": true,
+        "minimalProtocolContext": true
       },
       "hashes": {
-        "development/hosts/card-types.mjs": "7d966b18c556fdd6c8736fc241d25bc20198c0284a7a01a89868727b67062406",
+        "development/hosts/card-types.mjs": "9f1872b30ada4de63dd8e08efe7b26b8f844adfa060cfb27383d18e9680748ba",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/card-types.json": "09fd68a4b90510e746ba02046a34c0f38e8da68e93fdbcc52d978e4aa990cea7",
-        "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
+        "docs/contracts/card-types.json": "440a106cc44c9580db924d4364e6286574ca74890eb31912f7be4f2ef467ebd2",
+        "src/card-types.js": "6d88c376d075447495ab11d7c5d18b36ba68af0e8526f6fff7c5dbbb00981138",
         "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
         "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
         "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff"
@@ -991,8 +993,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.544Z",
-      "finishedAt": "2026-10-30T08:01:31.548Z",
+      "startedAt": "2026-11-04T07:54:33.076Z",
+      "finishedAt": "2026-11-04T07:54:33.079Z",
       "runtime": "v24.22.1",
       "observed": {
         "escaped": true,
@@ -1031,8 +1033,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.611Z",
-      "finishedAt": "2026-10-30T08:01:31.613Z",
+      "startedAt": "2026-11-04T07:54:33.142Z",
+      "finishedAt": "2026-11-04T07:54:33.144Z",
       "runtime": "v24.22.1",
       "observed": {
         "exactlyOnce": true,
@@ -1061,16 +1063,16 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       },
       "host": {
         "id": "H-C-003",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "entry": "development/hosts/workbench-cards.mjs",
         "moduleId": "C-003",
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.683Z",
-      "finishedAt": "2026-10-30T08:01:31.690Z",
+      "startedAt": "2026-11-04T07:54:33.210Z",
+      "finishedAt": "2026-11-04T07:54:33.216Z",
       "runtime": "v24.22.1",
       "observed": {
         "types": [
@@ -1086,9 +1088,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/workbench-cards.mjs": "d818ecf7f55755bee936b73ee55748ec233db63d8e3f69e7cacaf2af8f5106d9",
-        "docs/contracts/workbench-cards.json": "e010a6a89f44d98c040cff359ee4094b1df954d28045175fddfea7779df598b0",
+        "docs/contracts/workbench-cards.json": "83d4575091193eacebfc121bd728c0648eb24aa07e41c5cffbff0ac3b8cec5d3",
         "src/card-markup.js": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576",
-        "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
+        "src/card-types.js": "6d88c376d075447495ab11d7c5d18b36ba68af0e8526f6fff7c5dbbb00981138",
         "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f",
         "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
         "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
@@ -1122,8 +1124,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.749Z",
-      "finishedAt": "2026-10-30T08:01:31.753Z",
+      "startedAt": "2026-11-04T07:54:33.274Z",
+      "finishedAt": "2026-11-04T07:54:33.278Z",
       "runtime": "v24.22.1",
       "observed": {
         "independentDrafts": true,
@@ -1155,16 +1157,16 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       },
       "host": {
         "id": "H-F-017",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "entry": "development/hosts/conversation-archive.mjs",
         "moduleId": "F-017",
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.823Z",
-      "finishedAt": "2026-10-30T08:01:31.831Z",
+      "startedAt": "2026-11-04T07:54:33.353Z",
+      "finishedAt": "2026-11-04T07:54:33.361Z",
       "runtime": "v24.22.1",
       "observed": {
         "twoConversations": true,
@@ -1174,8 +1176,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "development/hosts/conversation-archive.mjs": "801e53a8fa2cf7d13a8346ed2325a11670911eda5f77c5ef6ea4dfecdca59610",
         "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/conversation-archive.json": "b3bd8e85a1cd4b886b15b1d5561b63466ad2e7a12a8f47173d2df352380c58b3",
-        "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
+        "docs/contracts/conversation-archive.json": "2ea1f7f277356c984dda518ed5bd2608c36119cd1c0e45dc5fcedbe1e1a7c1a0",
+        "src/card-types.js": "6d88c376d075447495ab11d7c5d18b36ba68af0e8526f6fff7c5dbbb00981138",
         "src/conversation-archive.js": "c9801d5fea8308075daa1f83a5884d19db7afee6f6e43b8d131d2af4505aa551",
         "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720",
         "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f",
@@ -1209,8 +1211,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.893Z",
-      "finishedAt": "2026-10-30T08:01:31.896Z",
+      "startedAt": "2026-11-04T07:54:33.440Z",
+      "finishedAt": "2026-11-04T07:54:33.442Z",
       "runtime": "v24.22.1",
       "observed": {
         "cases": 25,
@@ -1230,9 +1232,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-018",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "kind": "function",
         "goal": "settings-markup",
         "source": "src/settings-markup.js",
@@ -1240,31 +1242,33 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       },
       "host": {
         "id": "H-F-018",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "entry": "development/hosts/settings-markup.mjs",
         "moduleId": "F-018",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:31.956Z",
-      "finishedAt": "2026-10-30T08:01:31.961Z",
+      "startedAt": "2026-11-04T07:54:33.510Z",
+      "finishedAt": "2026-11-04T07:54:33.516Z",
       "runtime": "v24.22.1",
       "observed": {
         "escapedFields": true,
         "shallowConnection": true,
-        "deepParameters": true
+        "deepParameters": true,
+        "historicalContextIndependent": true,
+        "staticHistoryReadable": true
       },
       "hashes": {
         "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/settings-markup.mjs": "6b90d9afaa08a18ee10fc97822eb5dde996791d005614d7bcd4c35f0e9ecef92",
-        "docs/contracts/settings-markup.json": "56dcc3482ebd09f5f95889669c52755ec946365cf167dd3edb1deff3830d4e9e",
+        "development/hosts/settings-markup.mjs": "44d92c876613b41161bc10aa9d03250ffb2e11a98029ae919f68f7bca9d23967",
+        "docs/contracts/settings-markup.json": "8b6ef36a02e46392ddd81b72197ec44f25770c490a00f30008f57ab57a5aa1d2",
         "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
         "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
         "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
-        "src/settings-markup.js": "7db6b8abdf768ff16416071ca18d5f3da91eaa0e27295efece28b2e95c15b152",
+        "src/settings-markup.js": "a9ba37d985aa4bf7d5534533fb90921b16f2ba54895aee522e30a67db6b2579e",
         "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
@@ -1274,42 +1278,86 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-019",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "kind": "function",
-        "goal": "history-markup",
+        "goal": "history.project-results-without-replacing-editor",
         "source": "src/history-markup.js",
         "lifecycle": "limited-use"
       },
       "host": {
         "id": "H-F-019",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
         "entry": "development/hosts/history-markup.mjs",
         "moduleId": "F-019",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-10-30T08:01:32.023Z",
-      "finishedAt": "2026-10-30T08:01:32.040Z",
+      "startedAt": "2026-11-04T07:54:33.594Z",
+      "finishedAt": "2026-11-04T07:54:33.613Z",
       "runtime": "v24.22.1",
       "observed": {
         "escapedTitle": true,
         "currentIdentity": true,
-        "managementActions": true
+        "managementActions": true,
+        "resultProjectionExcludesEditor": true
       },
       "hashes": {
         "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
-        "development/hosts/history-markup.mjs": "8f84f20f8e63d753bf7fc0c41167d9b8aebffd92937605025f62c24e6eb9133f",
+        "development/hosts/history-markup.mjs": "b6ade1ad2f0e1ddaf7ae63b3db330bd94033c0874cc6a46346869fab84904ea5",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/history-markup.json": "15b8afcc62e82c17592f8b9dc82d11acfe737e0aae76f28b50d19b3388068817",
+        "docs/contracts/history-markup.json": "1b926fa070c24826ce7e7c20c7c7b05fc3f10a9eb74c9602666a9e6a1ff67ea2",
         "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720",
-        "src/history-markup.js": "4b935d190a6216a04afeabd22dbb59c2c5bde684472c74a86bf513f12d557fed",
+        "src/history-markup.js": "1bb9bc46f368ec7d9538a8c0aa76eee89b7fbcb1b6f09b587df1f9bf4fa2898f",
+        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "F-020",
+        "version": "0.1.0",
+        "createdAt": "2026-11-04T07:46:59.527Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
+        "kind": "function",
+        "goal": "image-options.progressive-independent-selection",
+        "source": "src/image-options-markup.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-F-020",
+        "version": "0.1.0",
+        "createdAt": "2026-11-04T07:46:59.527Z",
+        "updatedAt": "2026-11-04T07:46:59.527Z",
+        "entry": "development/hosts/image-options-markup.mjs",
+        "moduleId": "F-020",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-11-04T07:54:33.681Z",
+      "finishedAt": "2026-11-04T07:54:33.686Z",
+      "runtime": "v24.22.1",
+      "observed": {
+        "independentDimensions": true,
+        "rareSelectionVisible": true,
+        "shallowRatios": 3,
+        "noNetwork": true
+      },
+      "hashes": {
+        "development/hosts/image-options-markup.mjs": "974151ed1d5e1e1126c9abe0d4519ad6e6a76a5be2f6d06ed9ec3fa8c91dbd58",
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "docs/contracts/image-options-markup.json": "da02aea32e11c10088c98bc5a3fd96a3ecfec8b1ae6826b76a753404d1168c14",
+        "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
+        "src/image-options-markup.js": "480ed66ad106c23e1a5df95da8f951ee3fe88a281184fc9408796d4a70c19086",
         "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     }
   ]
 }
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.

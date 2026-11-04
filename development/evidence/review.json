@@ -1,18 +1,20 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-10-30T08:01:38.291Z",
-  "reviewedBase": "586144b695a3c42df77200f54280aefaff7b8c5c",
-  "priorReviewCommit": "6a2e6c012766936653b312181181a667ec1f16bb",
+  "recordedAt": "2026-11-04T07:54:34.667Z",
+  "reviewedBase": "84152a50cf15b4ae1bad82674dbe2129f3b9587d",
+  "priorReviewCommit": "84152a50cf15b4ae1bad82674dbe2129f3b9587d",
   "runtime": "v24.22.1",
   "baseline": {
-    "tests": 409,
-    "pass": 408,
-    "fail": 0,
-    "skipped": 1
-  },
-  "counts": {
     "tests": 424,
     "pass": 423,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 1,
+    "todo": 0
+  },
+  "counts": {
+    "tests": 431,
+    "pass": 430,
     "fail": 0,
     "cancelled": 0,
     "skipped": 1,
@@ -23,1389 +25,45 @@
       "command": "npm test",
       "exitCode": 0,
       "output": "development/evidence/review-tests.txt",
-      "outputSha256": "35259b57fcdc642b5ebf45b453fa98b933f95991116ab3de700143baa0ba43a4"
+      "outputSha256": "3f1dc02094089b7216c72f94d76f9422a3c66ef1f44a7d553e03e82233f0d267"
     },
     {
       "command": "npm run check",
       "exitCode": 0,
       "output": "development/evidence/review-check.txt",
-      "outputSha256": "f4c1404ef7c09a13e435071ae5dca9ed6d2e22310ebc3f0324c34e0b0515afb1"
-    },
-    {
-      "command": "npm run build",
-      "exitCode": 0,
-      "output": "development/evidence/review-build.txt",
-      "outputSha256": "be16a3c63fac80a508bc93fb495318a1d46eaff48f15eb1228527622154b904e"
+      "outputSha256": "dffa36d629a3e0951f515b80aa37cf2dc07b19e3f14731ba035759273b0fbe4f"
     },
     {
       "command": "npm run hosts",
       "exitCode": 0,
       "output": "development/evidence/review-hosts.txt",
-      "outputSha256": "b74ef1e898fe9ff2a5dab5b1848f20255546b932e5c0ab32e7b08df69b1e71cd"
+      "outputSha256": "e9037e10e166955a533897b76fe90b884e8d94704696445209196a057a236614"
     },
     {
       "command": "npm run models",
       "exitCode": 0,
       "output": "development/evidence/review-models.txt",
-      "outputSha256": "6ccf9e5ce59a1a55859b23cea815cb9779e85ad8f93f9e169f8657b31a43e3e8"
+      "outputSha256": "6ef327eae325f7e7248cb195c740b659c458ed2dd72dfac6e2d2cb195386189d"
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0,
+      "output": "development/evidence/review-build.txt",
+      "outputSha256": "cc0d6ffcafb67e465046e55822fae6e00f8a209ed81d717a0b83903bf3610224"
     },
     {
       "command": "npm run review:health",
       "exitCode": 0,
       "output": "development/evidence/review-health.txt",
-      "outputSha256": "5f8ffce51967db2fb1acab4978b3004c021fa6feb4747256bbab9f0fac683a7f"
+      "outputSha256": "3657592eaaa5643b89f9a7c476f0c463cfeaf54620f9bd92cc285290ee3ec06e"
     },
     {
       "command": "npm run review:sources",
       "exitCode": 0,
       "output": "development/evidence/review-sources.txt",
-      "outputSha256": "05f8d5a7ac2520aeb8c49e419677dd45d9496cc29c49654d0990b6d29c2f60df"
+      "outputSha256": "b3cf9183f48fe69ed15dd8b8c7549bb7886c79c3c922e47318e8e4ad5b1f56f8"
     }
   ],
-  "hosts": [
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-007",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "canvas.preserve-reading-and-explicit-focus-intent",
-        "source": "src/canvas-geometry.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-007",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/canvas-geometry.mjs",
-        "moduleId": "R-007",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:29.840Z",
-      "finishedAt": "2026-10-30T08:01:29.843Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "boundedMenu": true,
-        "diagnosticsReleased": true
-      },
-      "hashes": {
-        "development/hosts/canvas-geometry.mjs": "a255b7f0f4d4f213dddca2b8f3a1e34a1f48a2a42c5d2b706f72d72478617e39",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/canvas-geometry.json": "2963a857c7746621520685a93a5729d25c1afd6a81a176dcab939bcbad89d72d",
-        "src/canvas-geometry.js": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c",
-        "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-011",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "clipboard.report-only-to-originating-live-view",
-        "source": "src/clipboard-report.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-011",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/clipboard-report.mjs",
-        "moduleId": "R-011",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:29.926Z",
-      "finishedAt": "2026-10-30T08:01:29.929Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "staleViewUntouched": true
-      },
-      "hashes": {
-        "development/hosts/clipboard-report.mjs": "44432d37f865545c3916f528eac41546e957cedfd51505619fb0ce20be9e9194",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/clipboard-report.json": "c6c45e6cf9cc639a541357333cfdbd97218efcf6b9d6f450bb04ffde9275ba6b",
-        "src/clipboard-report.js": "e58d0aadd47b30cfcf3c7ac1e577e868b55deb700ffb59f9913b177490832f7f"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-008",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "function",
-        "goal": "http.project-bounded-redacted-diagnostic",
-        "source": "src/error-diagnostic.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-008",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/error-diagnostic.mjs",
-        "moduleId": "F-008",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:29.998Z",
-      "finishedAt": "2026-10-30T08:01:30.003Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "boundedFields": true,
-        "reportNotDiagnosis": true
-      },
-      "hashes": {
-        "development/hosts/error-diagnostic.mjs": "472106a60b2fa9a1b5506273db13c70e478e8a7a3caec4c7d237d8d2e33eb996",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/error-diagnostic.json": "5f5aa6521db11d1818e4c3ed2d5d6cfb0c28ce206de0341f2a92956b2c0ebc13",
-        "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-007",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "function",
-        "goal": "image.decode-observe-pixels-and-own-urls",
-        "source": "src/image-delivery.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-007",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/image-delivery.mjs",
-        "moduleId": "F-007",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.067Z",
-      "finishedAt": "2026-10-30T08:01:30.070Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "syntheticDecoder": true,
-        "dimensionMismatchRetained": true,
-        "objectURLReleased": true
-      },
-      "hashes": {
-        "development/hosts/image-delivery.mjs": "6e7c2d4f0338e430cdae8fcd609aa682bf9a9350ac09e039e2897f843b376523",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/image-delivery.json": "a5485975cc3aadfb1ac58ac2d10bcd8014bd1dba821cf37ecbc724167606a364",
-        "src/image-delivery.js": "5b99571a4069cab3da4a65731f7647e428aa6babf07ffecc6f61d907ab0017be"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-006",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "resource.release-once-and-release-late-registration",
-        "source": "src/lifecycle.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-006",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/lifecycle.mjs",
-        "moduleId": "R-006",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.133Z",
-      "finishedAt": "2026-10-30T08:01:30.135Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "releasedOnce": true,
-        "lateRegistrationReleased": true
-      },
-      "hashes": {
-        "development/hosts/lifecycle.mjs": "1fad99f8cc20e835b2376dc1c37729d0ccc02f0f83fa48df475a1b8286c7b2e9",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/lifecycle.json": "44f19f7a0cc0b57b48ed0da2f380c0cab30e13edf9a82720476dbdfd00c58dd9",
-        "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-006",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "function",
-        "goal": "native-context.copy-without-semantic-filtering",
-        "source": "src/native-json.js",
-        "lifecycle": "candidate"
-      },
-      "host": {
-        "id": "H-F-006",
-        "version": "0.1.3",
-        "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "entry": "development/hosts/native-json.mjs",
-        "moduleId": "F-006",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.200Z",
-      "finishedAt": "2026-10-30T08:01:30.203Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "businessKeysPreserved": true,
-        "inputUnchanged": true,
-        "prototypeUnchanged": true,
-        "cycleRejected": true
-      },
-      "hashes": {
-        "development/hosts/native-json.mjs": "5b4b8aa8545776f613495516f8ef000c61f60148a817f82439535cc221f431f1",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/native-json.json": "f5beaa85b6517f313a909d34eff807896b9c768285a1e02c52514bb40bd408ec",
-        "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-005",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "provider.profile-match-with-exact-scope",
-        "source": "src/provider-identity.js",
-        "lifecycle": "candidate"
-      },
-      "host": {
-        "id": "H-R-005",
-        "version": "0.1.2",
-        "createdAt": "2026-10-29T19:15:54.000Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/provider-identity.mjs",
-        "moduleId": "R-005",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.264Z",
-      "finishedAt": "2026-10-30T08:01:30.267Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "declaredPathMatched": true,
-        "otherPathUnverified": true,
-        "wrongProtocolUnmatched": true,
-        "inputUnchanged": true
-      },
-      "hashes": {
-        "development/hosts/provider-identity.mjs": "49730a8dbb8c3288204ecd0b02e5b6f07cbdb0ae5c54f779d4a5e3c824a33283",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/provider-identity.json": "2c2828b565c7c13e327ffa512ec4ebe6881ba518f75ee3280e77151e9f69c77d",
-        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-009",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "request.own-timers-and-report-observed-phase",
-        "source": "src/request-lifecycle.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-009",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/request-lifecycle.mjs",
-        "moduleId": "R-009",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.333Z",
-      "finishedAt": "2026-10-30T08:01:30.337Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "timersReleased": true,
-        "requestAborted": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/request-lifecycle.mjs": "13d754032c0caf9dc878a097bf2bf1768bdb21d9178a966674dff7d067135035",
-        "docs/contracts/request-lifecycle.json": "d700660eec3224d1ce1a5647973aa5e8b57e26de28045e9f669afe515069d30c",
-        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
-        "src/request-lifecycle.js": "d0e2a7898a88e0202bdd7e68f7d44dd3eb14c4a887837d05f2e1edf76c587b51"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-012",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "stream.paint-incrementally-with-view-continuity",
-        "source": "src/stream-painter.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-012",
-        "version": "0.1.2",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/stream-painter.mjs",
-        "moduleId": "R-012",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.407Z",
-      "finishedAt": "2026-10-30T08:01:30.411Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "incrementalText": true,
-        "readingPreserved": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/stream-painter.mjs": "007cc784f9fd48298493beb35283a0a8949f2000fac2a65af8a925bee453101e",
-        "docs/contracts/stream-painter.json": "f4262293ae66169a3c5052b698ebd95052e3d8807e9da5b818ca1ddc3d75fff9",
-        "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
-        "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-013",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "transport.bind-declaration-to-function-identity",
-        "source": "src/transport-evidence.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-013",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/transport-evidence.mjs",
-        "moduleId": "R-013",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.480Z",
-      "finishedAt": "2026-10-30T08:01:30.484Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "functionBoundDeclaration": true,
-        "noVerificationPromotion": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/transport-evidence.mjs": "234f5a10d11d4cea6831e92ab0f7709c6fc956cd7474e8b411243c31980f0217",
-        "docs/contracts/transport-evidence.json": "21b35f1422b13e94453ba09675c825a1579ed91bc77e63773c55638e0a68bdb8",
-        "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-009",
-        "version": "0.1.2",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "function",
-        "goal": "view.escape-content-and-render-declared-markup",
-        "source": "src/view-markup.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-009",
-        "version": "0.1.2",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/view-markup.mjs",
-        "moduleId": "F-009",
-        "moduleVersion": "0.1.2",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.560Z",
-      "finishedAt": "2026-10-30T08:01:30.563Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "escapedContent": true,
-        "selectedTab": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/view-markup.mjs": "f3d91523bf103b05aca2cb256a964f1f6ab94aef62146a78ce11f6016f459164",
-        "docs/contracts/view-markup.json": "9e0afaa97c77859e8cc1062e254a6cf255dff98da1646ee77381c3a2b451f026",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-008",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "view.restore-own-position-with-stale-callback-invalidation",
-        "source": "src/view-position.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-008",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/view-position.mjs",
-        "moduleId": "R-008",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.622Z",
-      "finishedAt": "2026-10-30T08:01:30.624Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "independentReadingPositions": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/view-position.mjs": "23ae5f6a1b72057d186f1c29522919c8fbcc9207389b0720c330b50a6cc740ff",
-        "docs/contracts/view-position.json": "a31973442c90ad4cd4853a1e8c0cd6ac8ed0d24172b0de054fde6c9028e02f7e",
-        "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "C-002",
-        "version": "0.3.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "composition",
-        "goal": "workbench.compose-scoped-effects-after-hydration",
-        "source": "src/workbench.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-C-002",
-        "version": "0.1.3",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/workbench.mjs",
-        "moduleId": "C-002",
-        "moduleVersion": "0.3.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.705Z",
-      "finishedAt": "2026-10-30T08:01:30.732Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "fullInitialization": true,
-        "sessionAfterReady": true,
-        "disposedSessionInert": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
-        "docs/contracts/workbench.json": "0c253ead9dae9de1e658e6e4eb738b3be76d913509549055b4e58fb74dee6f8a",
-        "src/agent.js": "cd39cce66d22c2ea4d7d6b8b85ce239bafa2dd28da361eb52ea60ed363782cfc",
-        "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
-        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
-        "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
-        "src/canvas-geometry.js": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c",
-        "src/card-confirmations.js": "a462d25dbc9d09a77961a7a220bc47f156ca47df7147510822957cf05adc058a",
-        "src/card-markup.js": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576",
-        "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
-        "src/clipboard-report.js": "e58d0aadd47b30cfcf3c7ac1e577e868b55deb700ffb59f9913b177490832f7f",
-        "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
-        "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509",
-        "src/conversation-archive.js": "c9801d5fea8308075daa1f83a5884d19db7afee6f6e43b8d131d2af4505aa551",
-        "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720",
-        "src/core.js": "3169113528d6431a9b6e3aace9050b10de36d218129bb793d634377c1acbda99",
-        "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
-        "src/history-markup.js": "4b935d190a6216a04afeabd22dbb59c2c5bde684472c74a86bf513f12d557fed",
-        "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
-        "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
-        "src/image-delivery.js": "5b99571a4069cab3da4a65731f7647e428aa6babf07ffecc6f61d907ab0017be",
-        "src/image-evidence.js": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1",
-        "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f",
-        "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0",
-        "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
-        "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
-        "src/persistence.js": "e6b6f94565bc93848f3353733511bc444ec7e3021691aaa1472af3097a5a9f2b",
-        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
-        "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
-        "src/request-lifecycle.js": "d0e2a7898a88e0202bdd7e68f7d44dd3eb14c4a887837d05f2e1edf76c587b51",
-        "src/request-outcome.js": "ba64f1d283b9e0f877d33be1e352a8f4ea4f5b5114daeb9a0aede5b53cfd5791",
-        "src/request-transport.js": "3b8dbdd913643faaacb219daba68955c8afba379b72d01e16b46b2ba9533de67",
-        "src/session-webmcp.js": "11852e7900e100dd3b0a5aba32d3c6209d33399ec1533e42f1a819640c9361b4",
-        "src/session.js": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153",
-        "src/settings-markup.js": "7db6b8abdf768ff16416071ca18d5f3da91eaa0e27295efece28b2e95c15b152",
-        "src/settings-navigation.js": "abcc088e95a35f04cb24f6e1e3b893f3110e1f66e820eb2b77d8e370b446c56e",
-        "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
-        "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
-        "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
-        "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893",
-        "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
-        "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e",
-        "src/workbench.js": "d92e9ea4a23834c3e655ec95a473e43a50ddf96147fa494cc04d75993969756f",
-        "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-010",
-        "version": "0.1.1",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "storage.hydrate-before-write-and-separate-failure-routes",
-        "source": "src/workspace-storage.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-010",
-        "version": "0.1.2",
-        "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "entry": "development/hosts/workspace-storage.mjs",
-        "moduleId": "R-010",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.810Z",
-      "finishedAt": "2026-10-30T08:01:30.814Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "hydrationBeforeWrites": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/workspace-storage.mjs": "f607184fc6fd962467f0cfd6cae81a81d5b1f382aa90defc1e75f8bfccac092e",
-        "docs/contracts/workspace-storage.json": "cec021453a2bdc9fde05bffd3276fd704fa47b8308c5a2a94735752d4edddf15",
-        "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-010",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "function",
-        "goal": "completion.interpret-marker-without-admission",
-        "source": "src/completion-evidence.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-010",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/completion-evidence.mjs",
-        "moduleId": "F-010",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.877Z",
-      "finishedAt": "2026-10-30T08:01:30.879Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "futureMarkerUnknown": true,
-        "truncationDistinct": true
-      },
-      "hashes": {
-        "development/hosts/completion-evidence.mjs": "9a0eba353762a0a2b799a540de47beaa9ab1457fe1b3230ebfb7e523a75d2373",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/completion-evidence.json": "bcffb5d31beac4ddee93b26c1cafeeb31aa159b7c23d9cc3f6c82513b96aac28",
-        "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-014",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "completion.admit-under-explicit-host-policy",
-        "source": "src/completion-policy.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-014",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/completion-policy.mjs",
-        "moduleId": "R-014",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:30.944Z",
-      "finishedAt": "2026-10-30T08:01:30.953Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "cases": 680,
-        "properties": [
-          "refusal-not-admitted",
-          "missing-compatible-json-stays-unknown",
-          "framing-required",
-          "future-marker-not-called-incomplete",
-          "no-goal-promotion"
-        ],
-        "scope": "Finite representative input classes of production functions; abstraction correspondence and complete implementation proof remain open."
-      },
-      "hashes": {
-        "development/hosts/completion-policy.mjs": "13454a46afdacf33cfba57a078227532f7da8a9546c772c56c13a088d9b9de39",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/models/completion-model.mjs": "5d972028f51063c0c7fedf296cacd98c17179f576def5171ec3207a88334eb07",
-        "docs/contracts/completion-policy.json": "e61b267003fdaf13356e55b1db62133a40de8e7aea42cf8047765c15f9bffbd8",
-        "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
-        "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-011",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "function",
-        "goal": "image.project-independent-effect-predicates",
-        "source": "src/image-evidence.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-011",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/image-evidence.mjs",
-        "moduleId": "F-011",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.021Z",
-      "finishedAt": "2026-10-30T08:01:31.028Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "cases": 820,
-        "scope": "All 9 decoding/dimension classes for lists of length 0..3 plus a forged receipt. Not a proof for arbitrary inputs or all list lengths.",
-        "emptySetNotSuccess": true,
-        "goalAndDurabilityNotInferred": true
-      },
-      "hashes": {
-        "development/hosts/image-evidence.mjs": "8bf5b50331ac85bc61136d1efb7da6692b79e112fffae7d5518d9d69a1d32bd9",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/models/image-evidence-model.mjs": "bdd7e4e5f7cf3011abe2cc4d6d7226aa35789883c6d390eb9b41d87769a11d61",
-        "docs/contracts/image-evidence.json": "620f7958b943fdd726ed25373006f387ea0e3a62db9a94b1f040f7c3a18a9d65",
-        "src/image-evidence.js": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-012",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "function",
-        "goal": "request.project-operation-and-separate-unknown-effects",
-        "source": "src/request-outcome.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-012",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/request-outcome.mjs",
-        "moduleId": "F-012",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.094Z",
-      "finishedAt": "2026-10-30T08:01:31.097Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "workflowAndGoalSeparated": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/request-outcome.mjs": "acd2290f8afb4ff81d29ebb7dc68838b877a4d5c254b9ef01182c279ec3effef",
-        "docs/contracts/request-outcome.json": "d2aabf169cdf3f7cf659f10c619ce6a50d3f732ca6f1f5b6691a9ed420aababc",
-        "src/request-outcome.js": "ba64f1d283b9e0f877d33be1e352a8f4ea4f5b5114daeb9a0aede5b53cfd5791"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-013",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "function",
-        "goal": "target.validate-current-public-web-policy",
-        "source": "src/api-target.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-013",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/api-target.mjs",
-        "moduleId": "F-013",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.166Z",
-      "finishedAt": "2026-10-30T08:01:31.170Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "normalizationObserved": true,
-        "targetChangeRejected": true,
-        "ownershipNotProved": true
-      },
-      "hashes": {
-        "development/hosts/api-target.mjs": "ca92ea005aad4b85ce437a6a531c61e1617d087bc905835f503cff7b726e274e",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/api-target.json": "093e56e17e96b65f991d7766ee97cee0d98d0cf4a319025708388ce86d1add96",
-        "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
-        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-015",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "relation",
-        "goal": "transport.observe-http-and-frame-without-business-inference",
-        "source": "src/request-transport.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-015",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/request-transport.mjs",
-        "moduleId": "R-015",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.253Z",
-      "finishedAt": "2026-10-30T08:01:31.265Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "syntheticTransport": true,
-        "subscriptionReleased": true,
-        "noExtraRetry": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/request-transport.mjs": "75553641de6e5d1996daf7304d13afa6a3c7587039b09a3c61801d3fa78ad039",
-        "docs/contracts/request-transport.json": "2e1a919e3e3d8be88b0ea4674da2df92639f8eb86d21143fbf04cc7654db3150",
-        "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
-        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
-        "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
-        "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509",
-        "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
-        "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
-        "src/request-transport.js": "3b8dbdd913643faaacb219daba68955c8afba379b72d01e16b46b2ba9533de67",
-        "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
-        "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-014",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "kind": "function",
-        "goal": "diagnostic.preserve-local-code-and-optional-http-status",
-        "source": "src/app-error.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-014",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T04:46:28.642Z",
-        "updatedAt": "2026-10-30T04:46:28.642Z",
-        "entry": "development/hosts/app-error.mjs",
-        "moduleId": "F-014",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.332Z",
-      "finishedAt": "2026-10-30T08:01:31.334Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "localIdentityPreserved": true,
-        "noRootCauseInvented": true
-      },
-      "hashes": {
-        "development/hosts/app-error.mjs": "a799910d397ff790cc99dee71d224ee0f323e8c64ff0f329f55d4916565b9ec0",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/app-error.json": "72b01fb2865b1c31fc80ff222edef4610a404c7125ccfcb1b94a46ff4e0f413f",
-        "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-016",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "kind": "relation",
-        "goal": "cards.admit-actions-only-at-history-tail",
-        "source": "src/interaction-cards.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-016",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "entry": "development/hosts/interaction-cards.mjs",
-        "moduleId": "R-016",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.399Z",
-      "finishedAt": "2026-10-30T08:01:31.410Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "status": "PASS",
-        "histories": 1555,
-        "queries": 7465,
-        "admissions": 518,
-        "alphabet": [
-          "api",
-          "model",
-          "user",
-          "chatResult",
-          "status",
-          "error"
-        ],
-        "maxLength": 4,
-        "scope": "Finite representative histories; tail/index equivalence and registry admission. No proof of arbitrary histories, DOM or asynchronous external effects."
-      },
-      "hashes": {
-        "development/hosts/interaction-cards.mjs": "a48f4519c278d6d725a9820326798da9827880cfb5ddb016c95224dd3faee1b7",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/models/card-position-model.mjs": "a8c78215898ea97f5670ace872aa310c529a249934209d944b6ee54c4233ec49",
-        "docs/contracts/interaction-cards.json": "15485040fafb6ccde41a6152e729c2ea9a3e931ceb9e8afda350f9a8938ca643",
-        "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-015",
-        "version": "0.1.1",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "function",
-        "goal": "cards.capture-versioned-data-without-live-flags",
-        "source": "src/card-types.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-015",
-        "version": "0.1.1",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/card-types.mjs",
-        "moduleId": "F-015",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.476Z",
-      "finishedAt": "2026-10-30T08:01:31.480Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "keyExcluded": true,
-        "version": 1
-      },
-      "hashes": {
-        "development/hosts/card-types.mjs": "7d966b18c556fdd6c8736fc241d25bc20198c0284a7a01a89868727b67062406",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/card-types.json": "09fd68a4b90510e746ba02046a34c0f38e8da68e93fdbcc52d978e4aa990cea7",
-        "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
-        "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
-        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
-        "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-016",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "kind": "function",
-        "goal": "cards.render-shared-shell-and-escaped-data",
-        "source": "src/card-markup.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-016",
-        "version": "0.1.1",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/card-markup.mjs",
-        "moduleId": "F-016",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.544Z",
-      "finishedAt": "2026-10-30T08:01:31.548Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "escaped": true,
-        "unknownDistinct": true,
-        "sharedShell": true
-      },
-      "hashes": {
-        "development/hosts/card-markup.mjs": "53aa0f69fca3c8669475b75d98c6899c6e07df993ce0b09731733a9b5e833b18",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/card-markup.json": "ea7360c5667a1468f332b973aed913543e04d6ec930a51c064eb93c57d0bfa2f",
-        "src/card-markup.js": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-017",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "kind": "relation",
-        "goal": "cards.resolve-single-live-continuation",
-        "source": "src/card-confirmations.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-017",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "entry": "development/hosts/card-confirmations.mjs",
-        "moduleId": "R-017",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.611Z",
-      "finishedAt": "2026-10-30T08:01:31.613Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "exactlyOnce": true,
-        "disposeReleases": true
-      },
-      "hashes": {
-        "development/hosts/card-confirmations.mjs": "9c9038bf8ceb05944df20fe5c81c3b2c4205fecc4f3a963a71bc4124a53e2d14",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/card-confirmations.json": "9c5f19c1f48fd2288adab7ca08ff73d6ddd40eae26603afbc0271847622a0753",
-        "src/card-confirmations.js": "a462d25dbc9d09a77961a7a220bc47f156ca47df7147510822957cf05adc058a"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "C-003",
-        "version": "0.1.1",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "composition",
-        "goal": "cards.compose-type-view-codec-and-actions",
-        "source": "src/workbench-cards.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-C-003",
-        "version": "0.1.1",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/workbench-cards.mjs",
-        "moduleId": "C-003",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.683Z",
-      "finishedAt": "2026-10-30T08:01:31.690Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "types": [
-          "api",
-          "connection",
-          "model",
-          "chart",
-          "logs",
-          "confirmation"
-        ],
-        "registeredAction": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/workbench-cards.mjs": "d818ecf7f55755bee936b73ee55748ec233db63d8e3f69e7cacaf2af8f5106d9",
-        "docs/contracts/workbench-cards.json": "e010a6a89f44d98c040cff359ee4094b1df954d28045175fddfea7779df598b0",
-        "src/card-markup.js": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576",
-        "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
-        "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f",
-        "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
-        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
-        "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
-        "src/settings-navigation.js": "abcc088e95a35f04cb24f6e1e3b893f3110e1f66e820eb2b77d8e370b446c56e",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893",
-        "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-018",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "relation",
-        "goal": "conversation-book",
-        "source": "src/conversation-book.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-018",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/conversation-book.mjs",
-        "moduleId": "R-018",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.749Z",
-      "finishedAt": "2026-10-30T08:01:31.753Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "independentDrafts": true,
-        "lateEffectOwner": true,
-        "busyDeletionRejected": true,
-        "httpDevelopmentIdentity": true
-      },
-      "hashes": {
-        "development/hosts/conversation-book.mjs": "c5c4ed614ffe89acb2bb1957614d9b018fddf54892b6bc9188a87fb38cc89d23",
-        "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/conversation-book.json": "774efa421677426d7b36ac1f067f13dfc0a4305ee21c9fd1417c069d58551d5d",
-        "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-017",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "function",
-        "goal": "conversation-archive",
-        "source": "src/conversation-archive.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-017",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/conversation-archive.mjs",
-        "moduleId": "F-017",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.823Z",
-      "finishedAt": "2026-10-30T08:01:31.831Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "twoConversations": true,
-        "credentialsExcluded": true
-      },
-      "hashes": {
-        "development/hosts/conversation-archive.mjs": "801e53a8fa2cf7d13a8346ed2325a11670911eda5f77c5ef6ea4dfecdca59610",
-        "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/conversation-archive.json": "b3bd8e85a1cd4b886b15b1d5561b63466ad2e7a12a8f47173d2df352380c58b3",
-        "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
-        "src/conversation-archive.js": "c9801d5fea8308075daa1f83a5884d19db7afee6f6e43b8d131d2af4505aa551",
-        "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720",
-        "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f",
-        "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
-        "src/persistence.js": "e6b6f94565bc93848f3353733511bc444ec7e3021691aaa1472af3097a5a9f2b",
-        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
-        "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-019",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "relation",
-        "goal": "settings-navigation",
-        "source": "src/settings-navigation.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-019",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/settings-navigation.mjs",
-        "moduleId": "R-019",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.893Z",
-      "finishedAt": "2026-10-30T08:01:31.896Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "cases": 25,
-        "edges": 4,
-        "scope": "Declared finite relation only; dispatcher admission tested separately."
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/settings-navigation.mjs": "1f02459d520931081a4fc3e59a7ac009fbc5b2cc6f374da8ad458149726d4b04",
-        "docs/contracts/settings-navigation.json": "57aba09914606f610fc2ddd7c838a86a5aa164237e74c9ae9975872365d9e56f",
-        "src/settings-navigation.js": "abcc088e95a35f04cb24f6e1e3b893f3110e1f66e820eb2b77d8e370b446c56e"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-018",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "function",
-        "goal": "settings-markup",
-        "source": "src/settings-markup.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-018",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/settings-markup.mjs",
-        "moduleId": "F-018",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:31.956Z",
-      "finishedAt": "2026-10-30T08:01:31.961Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "escapedFields": true,
-        "shallowConnection": true,
-        "deepParameters": true
-      },
-      "hashes": {
-        "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/settings-markup.mjs": "6b90d9afaa08a18ee10fc97822eb5dde996791d005614d7bcd4c35f0e9ecef92",
-        "docs/contracts/settings-markup.json": "56dcc3482ebd09f5f95889669c52755ec946365cf167dd3edb1deff3830d4e9e",
-        "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
-        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
-        "src/reasoning.js": "a03f9d0432d9cea0fbc085645a0abb23f1956d39fe4a4f6ba9cec9e646d57fff",
-        "src/settings-markup.js": "7db6b8abdf768ff16416071ca18d5f3da91eaa0e27295efece28b2e95c15b152",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "F-019",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "function",
-        "goal": "history-markup",
-        "source": "src/history-markup.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-F-019",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "entry": "development/hosts/history-markup.mjs",
-        "moduleId": "F-019",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-10-30T08:01:32.023Z",
-      "finishedAt": "2026-10-30T08:01:32.040Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "escapedTitle": true,
-        "currentIdentity": true,
-        "managementActions": true
-      },
-      "hashes": {
-        "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
-        "development/hosts/history-markup.mjs": "8f84f20f8e63d753bf7fc0c41167d9b8aebffd92937605025f62c24e6eb9133f",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/history-markup.json": "15b8afcc62e82c17592f8b9dc82d11acfe737e0aae76f28b50d19b3388068817",
-        "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720",
-        "src/history-markup.js": "4b935d190a6216a04afeabd22dbb59c2c5bde684472c74a86bf513f12d557fed",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    }
-  ],
-  "models": {
-    "status": "PASS",
-    "kind": "bounded-exhaustive-check",
-    "completion": {
-      "cases": 680,
-      "properties": [
-        "refusal-not-admitted",
-        "missing-compatible-json-stays-unknown",
-        "framing-required",
-        "future-marker-not-called-incomplete",
-        "no-goal-promotion"
-      ],
-      "scope": "Finite representative input classes of production functions; abstraction correspondence and complete implementation proof remain open."
-    },
-    "image": {
-      "cases": 820,
-      "scope": "All 9 decoding/dimension classes for lists of length 0..3 plus a forged receipt. Not a proof for arbitrary inputs or all list lengths.",
-      "emptySetNotSuccess": true,
-      "goalAndDurabilityNotInferred": true
-    },
-    "cards": {
-      "status": "PASS",
-      "histories": 1555,
-      "queries": 7465,
-      "admissions": 518,
-      "alphabet": [
-        "api",
-        "model",
-        "user",
-        "chatResult",
-        "status",
-        "error"
-      ],
-      "maxLength": 4,
-      "scope": "Finite representative histories; tail/index equivalence and registry admission. No proof of arbitrary histories, DOM or asynchronous external effects."
-    },
-    "qualification": "No automatic F/C/H/Q promotion; explicit finite abstraction and host assumptions only."
-  },
   "inputHashes": {
     ".github/workflows/pages.yml": "5f5d8b6411dfd716f0f8dee1a40656e8d4291e2a23f8d8d37cfd6a2d8a403dd9",
     ".github/workflows/review.yml": "d6df3e88c504239027f254bababe6e5abb9c7749eb43f6c4e913c9ac72dc2309",
@@ -1418,7 +76,7 @@
     "development/hosts/canvas-geometry.mjs": "a255b7f0f4d4f213dddca2b8f3a1e34a1f48a2a42c5d2b706f72d72478617e39",
     "development/hosts/card-confirmations.mjs": "9c9038bf8ceb05944df20fe5c81c3b2c4205fecc4f3a963a71bc4124a53e2d14",
     "development/hosts/card-markup.mjs": "53aa0f69fca3c8669475b75d98c6899c6e07df993ce0b09731733a9b5e833b18",
-    "development/hosts/card-types.mjs": "7d966b18c556fdd6c8736fc241d25bc20198c0284a7a01a89868727b67062406",
+    "development/hosts/card-types.mjs": "9f1872b30ada4de63dd8e08efe7b26b8f844adfa060cfb27383d18e9680748ba",
     "development/hosts/clipboard-report.mjs": "44432d37f865545c3916f528eac41546e957cedfd51505619fb0ce20be9e9194",
     "development/hosts/completion-evidence.mjs": "9a0eba353762a0a2b799a540de47beaa9ab1457fe1b3230ebfb7e523a75d2373",
     "development/hosts/completion-policy.mjs": "13454a46afdacf33cfba57a078227532f7da8a9546c772c56c13a088d9b9de39",
@@ -1426,9 +84,10 @@
     "development/hosts/conversation-book.mjs": "c5c4ed614ffe89acb2bb1957614d9b018fddf54892b6bc9188a87fb38cc89d23",
     "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
     "development/hosts/error-diagnostic.mjs": "472106a60b2fa9a1b5506273db13c70e478e8a7a3caec4c7d237d8d2e33eb996",
-    "development/hosts/history-markup.mjs": "8f84f20f8e63d753bf7fc0c41167d9b8aebffd92937605025f62c24e6eb9133f",
+    "development/hosts/history-markup.mjs": "b6ade1ad2f0e1ddaf7ae63b3db330bd94033c0874cc6a46346869fab84904ea5",
     "development/hosts/image-delivery.mjs": "6e7c2d4f0338e430cdae8fcd609aa682bf9a9350ac09e039e2897f843b376523",
     "development/hosts/image-evidence.mjs": "8bf5b50331ac85bc61136d1efb7da6692b79e112fffae7d5518d9d69a1d32bd9",
+    "development/hosts/image-options-markup.mjs": "974151ed1d5e1e1126c9abe0d4519ad6e6a76a5be2f6d06ed9ec3fa8c91dbd58",
     "development/hosts/interaction-cards.mjs": "a48f4519c278d6d725a9820326798da9827880cfb5ddb016c95224dd3faee1b7",
     "development/hosts/lifecycle.mjs": "1fad99f8cc20e835b2376dc1c37729d0ccc02f0f83fa48df475a1b8286c7b2e9",
     "development/hosts/native-json.mjs": "5b4b8aa8545776f613495516f8ef000c61f60148a817f82439535cc221f431f1",
@@ -1437,7 +96,7 @@
     "development/hosts/request-lifecycle.mjs": "13d754032c0caf9dc878a097bf2bf1768bdb21d9178a966674dff7d067135035",
     "development/hosts/request-outcome.mjs": "acd2290f8afb4ff81d29ebb7dc68838b877a4d5c254b9ef01182c279ec3effef",
     "development/hosts/request-transport.mjs": "75553641de6e5d1996daf7304d13afa6a3c7587039b09a3c61801d3fa78ad039",
-    "development/hosts/settings-markup.mjs": "6b90d9afaa08a18ee10fc97822eb5dde996791d005614d7bcd4c35f0e9ecef92",
+    "development/hosts/settings-markup.mjs": "44d92c876613b41161bc10aa9d03250ffb2e11a98029ae919f68f7bca9d23967",
     "development/hosts/settings-navigation.mjs": "1f02459d520931081a4fc3e59a7ac009fbc5b2cc6f374da8ad458149726d4b04",
     "development/hosts/stream-painter.mjs": "007cc784f9fd48298493beb35283a0a8949f2000fac2a65af8a925bee453101e",
     "development/hosts/transport-evidence.mjs": "234f5a10d11d4cea6831e92ab0f7709c6fc956cd7474e8b411243c31980f0217",
@@ -1446,11 +105,12 @@
     "development/hosts/workbench-cards.mjs": "d818ecf7f55755bee936b73ee55748ec233db63d8e3f69e7cacaf2af8f5106d9",
     "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
     "development/hosts/workspace-storage.mjs": "f607184fc6fd962467f0cfd6cae81a81d5b1f382aa90defc1e75f8bfccac092e",
-    "development/models/README.md": "b5d1bdba0758a70f696d8fe7c6912298bd6ed9b6f6b5c03da9de73d5f585cd64",
+    "development/models/README.md": "b76ad5055c71b7449f528b06a0b09f26f6d0da84f34375a92854d228fabc3587",
     "development/models/card-position-model.mjs": "a8c78215898ea97f5670ace872aa310c529a249934209d944b6ee54c4233ec49",
     "development/models/completion-model.mjs": "5d972028f51063c0c7fedf296cacd98c17179f576def5171ec3207a88334eb07",
     "development/models/image-evidence-model.mjs": "bdd7e4e5f7cf3011abe2cc4d6d7226aa35789883c6d390eb9b41d87769a11d61",
-    "development/models/run.mjs": "6895831aea35809b6f477877fe6f9a29ea119dc4372f68f72069635c670433e9",
+    "development/models/interaction-effects-model.mjs": "76b3c6215e33bd5e82dc263e7d20b3c6fca14214b901b484a748626ddcfbe79e",
+    "development/models/run.mjs": "7abe19ca18bb1dcc1b7bbc4a113272d4cbbbd95b6cfeb413ca00c526a3fcdaf9",
     "docs/ark-model-catalog.json": "202db1cef30cbd9049d0794ebbdef71deac369a7f4052c7c1606eb6152bbd1e5",
     "docs/contracts/README.md": "391b31bc4e34c205c351fac0ca6cb6d9d073b5ca8e7e4c77405d677b1baa3b5a",
     "docs/contracts/api-target.json": "093e56e17e96b65f991d7766ee97cee0d98d0cf4a319025708388ce86d1add96",
@@ -1458,16 +118,17 @@
     "docs/contracts/canvas-geometry.json": "2963a857c7746621520685a93a5729d25c1afd6a81a176dcab939bcbad89d72d",
     "docs/contracts/card-confirmations.json": "9c5f19c1f48fd2288adab7ca08ff73d6ddd40eae26603afbc0271847622a0753",
     "docs/contracts/card-markup.json": "ea7360c5667a1468f332b973aed913543e04d6ec930a51c064eb93c57d0bfa2f",
-    "docs/contracts/card-types.json": "09fd68a4b90510e746ba02046a34c0f38e8da68e93fdbcc52d978e4aa990cea7",
+    "docs/contracts/card-types.json": "440a106cc44c9580db924d4364e6286574ca74890eb31912f7be4f2ef467ebd2",
     "docs/contracts/clipboard-report.json": "c6c45e6cf9cc639a541357333cfdbd97218efcf6b9d6f450bb04ffde9275ba6b",
     "docs/contracts/completion-evidence.json": "bcffb5d31beac4ddee93b26c1cafeeb31aa159b7c23d9cc3f6c82513b96aac28",
     "docs/contracts/completion-policy.json": "e61b267003fdaf13356e55b1db62133a40de8e7aea42cf8047765c15f9bffbd8",
-    "docs/contracts/conversation-archive.json": "b3bd8e85a1cd4b886b15b1d5561b63466ad2e7a12a8f47173d2df352380c58b3",
+    "docs/contracts/conversation-archive.json": "2ea1f7f277356c984dda518ed5bd2608c36119cd1c0e45dc5fcedbe1e1a7c1a0",
     "docs/contracts/conversation-book.json": "774efa421677426d7b36ac1f067f13dfc0a4305ee21c9fd1417c069d58551d5d",
     "docs/contracts/error-diagnostic.json": "5f5aa6521db11d1818e4c3ed2d5d6cfb0c28ce206de0341f2a92956b2c0ebc13",
-    "docs/contracts/history-markup.json": "15b8afcc62e82c17592f8b9dc82d11acfe737e0aae76f28b50d19b3388068817",
+    "docs/contracts/history-markup.json": "1b926fa070c24826ce7e7c20c7c7b05fc3f10a9eb74c9602666a9e6a1ff67ea2",
     "docs/contracts/image-delivery.json": "a5485975cc3aadfb1ac58ac2d10bcd8014bd1dba821cf37ecbc724167606a364",
     "docs/contracts/image-evidence.json": "620f7958b943fdd726ed25373006f387ea0e3a62db9a94b1f040f7c3a18a9d65",
+    "docs/contracts/image-options-markup.json": "da02aea32e11c10088c98bc5a3fd96a3ecfec8b1ae6826b76a753404d1168c14",
     "docs/contracts/interaction-cards.json": "15485040fafb6ccde41a6152e729c2ea9a3e931ceb9e8afda350f9a8938ca643",
     "docs/contracts/lifecycle.json": "44f19f7a0cc0b57b48ed0da2f380c0cab30e13edf9a82720476dbdfd00c58dd9",
     "docs/contracts/native-json.json": "f5beaa85b6517f313a909d34eff807896b9c768285a1e02c52514bb40bd408ec",
@@ -1475,20 +136,20 @@
     "docs/contracts/request-lifecycle.json": "d700660eec3224d1ce1a5647973aa5e8b57e26de28045e9f669afe515069d30c",
     "docs/contracts/request-outcome.json": "d2aabf169cdf3f7cf659f10c619ce6a50d3f732ca6f1f5b6691a9ed420aababc",
     "docs/contracts/request-transport.json": "2e1a919e3e3d8be88b0ea4674da2df92639f8eb86d21143fbf04cc7654db3150",
-    "docs/contracts/settings-markup.json": "56dcc3482ebd09f5f95889669c52755ec946365cf167dd3edb1deff3830d4e9e",
+    "docs/contracts/settings-markup.json": "8b6ef36a02e46392ddd81b72197ec44f25770c490a00f30008f57ab57a5aa1d2",
     "docs/contracts/settings-navigation.json": "57aba09914606f610fc2ddd7c838a86a5aa164237e74c9ae9975872365d9e56f",
     "docs/contracts/stream-painter.json": "f4262293ae66169a3c5052b698ebd95052e3d8807e9da5b818ca1ddc3d75fff9",
     "docs/contracts/transport-evidence.json": "21b35f1422b13e94453ba09675c825a1579ed91bc77e63773c55638e0a68bdb8",
     "docs/contracts/view-markup.json": "9e0afaa97c77859e8cc1062e254a6cf255dff98da1646ee77381c3a2b451f026",
     "docs/contracts/view-position.json": "a31973442c90ad4cd4853a1e8c0cd6ac8ed0d24172b0de054fde6c9028e02f7e",
-    "docs/contracts/workbench-cards.json": "e010a6a89f44d98c040cff359ee4094b1df954d28045175fddfea7779df598b0",
-    "docs/contracts/workbench.json": "0c253ead9dae9de1e658e6e4eb738b3be76d913509549055b4e58fb74dee6f8a",
+    "docs/contracts/workbench-cards.json": "83d4575091193eacebfc121bd728c0648eb24aa07e41c5cffbff0ac3b8cec5d3",
+    "docs/contracts/workbench.json": "665e4ed690c62dfc121841bc1087c74bba3452e01fd391f50a10ea017c01c319",
     "docs/contracts/workspace-storage.json": "cec021453a2bdc9fde05bffd3276fd704fa47b8308c5a2a94735752d4edddf15",
     "docs/evidence/source-claims.json": "5bb603b3a9af384887c39e4ba24c5bcb23cafea04bba12f6970088900731ec0b",
     "index.html": "4a9fb06281883f088ecf45737675c77d9c8cb23aaae8132b7674421b9addef36",
-    "module-library/catalog.json": "0f6bfb1b47ed040cd910d027ff2a2b77c68666dc5855e97bd0b8805e19b0aca1",
-    "package.json": "029ee32e3656011e29cdc49c61732f4d0f8156ae8716de10dfac01a523bbc08b",
-    "scripts/build.mjs": "7f452cec179ee69ab56b5d421834a31451b053872b43583cda3743155b20fc43",
+    "module-library/catalog.json": "0d66a89c5aabafaf207d71aa9f8188480a25bc45b4fda31a6e019665f60dddbc",
+    "package.json": "457f8103f58d5d0ad327b25fc70e30be621ecd235604e675eabfa08b51e1757a",
+    "scripts/build.mjs": "44b7fcad56b72c6541d6ee13ec02b3e4239d30bea2971a1ce06eaff30f746fff",
     "scripts/check.mjs": "6d2d3ef588a8f010df7ba229e077ac1a2fd68dad9fd06c2b3b5450b1ac59c230",
     "scripts/review-evidence.mjs": "021a86853144586f3a85c7755a77782996d8b7e9e69dca015edfaa946c4921a6",
     "scripts/review-health.mjs": "422f26e50fc0320c2ea791fd4ec6006becce58f7d0bd6dd37c72281596146573",
@@ -1502,7 +163,7 @@
     "src/canvas-geometry.js": "f9de1eb712424dd3fc4be683201faaf7c5da0b3c259b274181c5bb9653b7261c",
     "src/card-confirmations.js": "a462d25dbc9d09a77961a7a220bc47f156ca47df7147510822957cf05adc058a",
     "src/card-markup.js": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576",
-    "src/card-types.js": "89a74c8a5472fa982d3a014c159852cc382a37ecb3982d17916aa5c2b1de3d10",
+    "src/card-types.js": "6d88c376d075447495ab11d7c5d18b36ba68af0e8526f6fff7c5dbbb00981138",
     "src/clipboard-report.js": "e58d0aadd47b30cfcf3c7ac1e577e868b55deb700ffb59f9913b177490832f7f",
     "src/completion-evidence.js": "dcbbfb322485ed7f50202a6e88eaec165948ccd5afb9eb288f11bb9016d441a2",
     "src/completion-policy.js": "c79fccef282600683252ae30905b7ace3dcff3311c5959f4f96fe8a46a645509",
@@ -1510,11 +171,12 @@
     "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720",
     "src/core.js": "3169113528d6431a9b6e3aace9050b10de36d218129bb793d634377c1acbda99",
     "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
-    "src/history-markup.js": "4b935d190a6216a04afeabd22dbb59c2c5bde684472c74a86bf513f12d557fed",
+    "src/history-markup.js": "1bb9bc46f368ec7d9538a8c0aa76eee89b7fbcb1b6f09b587df1f9bf4fa2898f",
     "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
     "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
     "src/image-delivery.js": "5b99571a4069cab3da4a65731f7647e428aa6babf07ffecc6f61d907ab0017be",
     "src/image-evidence.js": "5cade1f8ef3a39555be263e214b280e5699c1c83be839d20f2b87f0c39fee0d1",
+    "src/image-options-markup.js": "480ed66ad106c23e1a5df95da8f951ee3fe88a281184fc9408796d4a70c19086",
     "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f",
     "src/lifecycle.js": "10ac82199a11dec22efa2e95903bd7a60ad6bcb3614d47c214fa3463820729e0",
     "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
@@ -1527,21 +189,21 @@
     "src/request-transport.js": "3b8dbdd913643faaacb219daba68955c8afba379b72d01e16b46b2ba9533de67",
     "src/session-webmcp.js": "11852e7900e100dd3b0a5aba32d3c6209d33399ec1533e42f1a819640c9361b4",
     "src/session.js": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153",
-    "src/settings-markup.js": "7db6b8abdf768ff16416071ca18d5f3da91eaa0e27295efece28b2e95c15b152",
+    "src/settings-markup.js": "a9ba37d985aa4bf7d5534533fb90921b16f2ba54895aee522e30a67db6b2579e",
     "src/settings-navigation.js": "abcc088e95a35f04cb24f6e1e3b893f3110e1f66e820eb2b77d8e370b446c56e",
     "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
     "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
-    "src/styles.css": "76d0dc22840dac91531c0a7528f7c6f564451afd04fd165f0a3216149852f26d",
+    "src/styles.css": "b42997d0807d4e6cad61f7472befe68b171d7dae94ab2aa7181b1d4f7db2acc6",
     "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
     "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
     "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893",
     "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
     "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e",
-    "src/workbench.js": "d92e9ea4a23834c3e655ec95a473e43a50ddf96147fa494cc04d75993969756f",
+    "src/workbench.js": "ea345cae3f5d0bf234026e73b619d17f73f627ab4584580c1c19b6be1c9f8db3",
     "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d",
     "tests/agent.test.js": "5189cd780d58da72a61b7ad0a5d9e72e2654a9d4c2d25a6399e2f174d1ac2ede",
     "tests/anthropic.test.js": "428989010cc34074b63bf725e2767973780cb292d77ab782d66a21aa7b0d9259",
-    "tests/app-controls.test.js": "cb73da0f25af31ad25ac1664bcc2ed4bbc75187f84dc0c3705b4b589f245ed31",
+    "tests/app-controls.test.js": "86b00fbb2c7b288ce87be839752d977274f72319a6f1bb32e8753806187127e5",
     "tests/app.test.js": "dc687d3ddeba9e60601f18d59f83f18d3117069a49562b99da3f1ba21f97604f",
     "tests/attachments.test.js": "e20dd7cd26078931cdec4b0f465ade6f9f18902a49f662f7c35e69619b321792",
     "tests/browser-syntax.test.js": "72129caa6a2f8406c814217f775c7ad568b038d434d6b841a61784e8e1328010",
@@ -1556,7 +218,7 @@
     "tests/browser/safari-canvas.html": "66c8447986739d8836c00b811ab9f0a8fd085fdfcce1018b098d1941fdcb6569",
     "tests/browser/streaming.html": "d4733e029cb7d14a270835320fd4912df24e7ecca1770e92f80c0eb939dc3dd6",
     "tests/browser/usage.html": "ceb0fae26ab96d242f71ecdec47d8b2bede33ac26f2049bc1b0a2ef64ebb9178",
-    "tests/build.test.js": "605ddca5671bbd8aa540cf3454aa6789a9b3eb92a33b779f9d78a82e5a951d24",
+    "tests/build.test.js": "d82854c69cc266c1f76855df105374d6090b6fc3b96099fb3b179a7e694d4f3f",
     "tests/cli.test.js": "0b36c7e26701ed7dd8274df41b6987c72a7d88eb22dad5ebbeb08c3851742f51",
     "tests/compact-composer.test.js": "46ed0910cfb042a49cb9375e4264351a093187f71846aba6137abec089e6819d",
     "tests/conversations.test.js": "632e8a0c57553c2936b0b14d61c6655e6ef81799298193c78fdcfd9ee8f271d6",
@@ -1573,6 +235,7 @@
     "tests/floating-menu.test.js": "41e502a609088ba23cfa97c7d57105eecce2cfc5e9fef87351c0f3c5635cf2ee",
     "tests/floating-navigation.test.js": "af764411b6b11f157163430fcdf342faf47cd8cab2e771fa4625a6e14cf54395",
     "tests/focus-intent.test.js": "c5a7514ec3d89f2f495ed6a3fa57c6771c76099062f85b385084e733ff56a65d",
+    "tests/history-snapshots.test.js": "b99b2274b40378c05569b52fe9056a1162fcea6c11dcd7359fc95dfaeebffee2",
     "tests/image-capabilities.test.js": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
     "tests/interaction-cards.test.js": "6249afc85f76f5c8aab7ba01a9fc5998ffc3535ac8f141873d500c028f43c465",
     "tests/loading-status.test.js": "d1d65cd9797b70cf7eb1b1164b6513a453a282e633dc5484db3256af6b9db48b",
@@ -1591,7 +254,7 @@
     "tests/reflow.test.js": "54ac0236b759ee0800515bb5d6a4472eba91f834c7fc9ae2229ae49b5e220fab",
     "tests/reply-metrics.test.js": "e279242f237d8b6f02fec9f1735015d94c9d0e5869b30795f58ca7bb927bb3e2",
     "tests/response-evidence.test.js": "fd642d1c15300b8af3241c73e5aa20896ccc122a422fde02280223bfb6db6828",
-    "tests/scroll-diagnostics.test.js": "543f66bd84d6a939ec6282c6ac6ed25f2320df093f7073e3be05d0a8cf9205f7",
+    "tests/scroll-diagnostics.test.js": "9c7857a3d63c174589690d9c7fc105c36c45f4ad0aac1851c11aa645371da0a6",
     "tests/session.test.js": "392777382a64165dc9779d5d409bf853d6b62c813f8c0aeeb2c760f4790c9c11",
     "tests/settings-wrap.test.js": "95ccaa70e2e74b421637ac72dcaeb4d34556d96e0c3d2946df3d391ee2af2c8a",
     "tests/stream.test.js": "9ebea1d83f440cb54679c488c9ed60d8b082cfdc34e698aa02f429e0f8b77be3",
@@ -1599,5 +262,5 @@
     "tests/usage.test.js": "8ee9bcf050504588f0ca5604e2f746bc756af268958bf1960b7daff89e3e2e08",
     "tests/view-position.test.js": "b7e98f54c2cfc88ed96dbe3be31e447283214f40c191b7de62647bfebedfcc63"
   },
-  "scope": "Local production imports, synthetic DOM/store/transport, 31 independent hosts and finite models only. No real provider calls, physical iOS test, complete formal proof or automatic F/C/H/Q promotion."
+  "scope": "Local production imports, synthetic DOM/store/transport, 32 independent hosts and four bounded models. Browser/IME and providers require separate evidence; no complete F/C/H/Q promotion."
 }

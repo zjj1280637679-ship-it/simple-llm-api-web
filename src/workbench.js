@@ -6,7 +6,8 @@
 import {createConversationBook} from './conversation-book.js';
 import {snapshotConversations,restoreConversations,migrateConversations,replayConversationJournal} from './conversation-archive.js';
 import {createSettingsViews} from './settings-markup.js';
-import {historyMarkup} from './history-markup.js';
+import {historyMarkup,historyListMarkup} from './history-markup.js';
+import {imageOptionsMarkup,changeImageOption} from './image-options-markup.js';
 import {liveCard,isLiveCard} from './interaction-cards.js';
 import {captureCard} from './card-types.js';
 import {cardShell,unknownCardMarkup} from './card-markup.js';
@@ -113,7 +114,6 @@ function logCardValues() {
 }
 
 const matrixSupported = d => Boolean(getImageCapabilities(d.api));
-function selectedPixels(d, ratio, size) { return getImageCapabilities(d.api)?.ratios.find(item => item.ratio === ratio)?.pixelsBySize[size]?.join('×') || ''; }
 function clearIncompatibleReasoning(d) {
   if (!d) return;
   d.reasoningIssue='';
@@ -274,25 +274,7 @@ function sizeMarkup() {
   return `<div class="menu-wrap" data-image-control>
 <button class="size-btn" type="button" data-action="size-toggle" aria-expanded="${sizeOpen}" aria-label="选择长宽比与分辨率" ${d.busy ? 'disabled' : ''}>${cap ? `${esc(d.aspectRatio)} · ${esc(d.imageSize)}` : '图片参数'} ${icon('chev', 14)}</button>${sizeOpen ? `<div class="size-menu" id="image-options">
 <div class="menu-heading">长宽比与分辨率</div>
-<div class="matrix-model">${esc(cap?.label || '未配置图片参数的模型')}</div>${cap ? `<div class="matrix-scroll">
-<table class="option-matrix" aria-label="${esc(cap.label)} 图片长宽比与分辨率">
-<colgroup>
-<col class="matrix-ratio-col">${cap.sizes.map(() => '<col>').join('')}</colgroup>
-<thead>
-<tr>
-<th scope="col">长宽比</th>${cap.sizes.map(size => `<th scope="col">${size}</th>`).join('')}</tr>
-</thead>
-<tbody>${cap.ratios.map(item => `<tr>
-<th scope="row">
-<span class="size-name">${item.ratio}</span>
-</th>${cap.sizes.map(size => { const selected = d.aspectRatio === item.ratio && d.imageSize === size; return `<td>
-<button type="button" class="matrix-choice ${selected ? 'sel' : ''}" data-action="set-image-options" data-ratio="${item.ratio}" data-image-size="${size}" aria-label="长宽比 ${item.ratio}，${size}，${selectedPixels(d, item.ratio, size)}" aria-pressed="${selected}">
-<span class="matrix-mark" aria-hidden="true">${selected ? '✓' : ''}</span>
-<span class="matrix-pixels">${selectedPixels(d, item.ratio, size)}</span>
-</button>
-</td>`; }).join('')}</tr>`).join('')}</tbody>
-</table>
-</div>${cap.presetNotes ? `<div class="matrix-notice">${esc(cap.presetNotes)}</div>` : ''}` : '<div class="matrix-notice">当前模板未配置此模型的图片参数。可选择 Nano Banana 2.1 或已支持的 Seedream 5.0 Flash / Pro。</div>'}</div>` : ''}</div>`;
+${imageOptionsMarkup(cap,d)}</div>` : ''}</div>`;
 }
 function renderLogsPage() {
   syncLogSecrets();
@@ -386,6 +368,7 @@ function render(scrollEnd = false) {
   rememberViewPosition();
   const expanded=[...(app.querySelectorAll?.('details[data-setting-section][open]')||[])].map(el=>({card:el.closest?.('[data-interaction-card]')?.dataset.interactionCard,section:el.dataset.settingSection}));
   const focusIdentity = captureControlFocus();
+  const imageMoreOpen=Boolean(app.querySelector('.image-more-ratios')?.open);
   if (page === 'logs') { renderLogsPage(); restoreViewPosition(scrollEnd); restoreControlFocus(focusIdentity); return; }
   const d = get();
   app.innerHTML = `<main class="main">
@@ -404,6 +387,7 @@ function render(scrollEnd = false) {
 </footer>
 </main>`;
   for(const item of expanded){const target=app.querySelector(`[data-interaction-card="${item.card}"] details[data-setting-section="${item.section}"]`);if(target)target.open=true;}
+  const imageMore=app.querySelector('.image-more-ratios');if(imageMore)imageMore.open=imageMoreOpen;
   recordScrollDiagnostic('render-dom-replaced');
   mountFloatingMenu();
   syncFloatingNavigation();
@@ -616,7 +600,11 @@ listen(app, 'click', async e => {
     case 'remove-attachment': d.attachments=d.attachments.filter(a=>a.id!==el.dataset.id); d.attachmentError=''; render(); break;
     case 'new-card': if(cardRegistry.kinds.includes(el.dataset.kind)){syncCurrentApiFields(d);addCard(el.dataset.kind,el.dataset.kind==='chart'?usageCardValues(d):el.dataset.kind==='logs'?logCardValues():undefined);} break;
     case 'size-toggle': sizeOpen = !sizeOpen; plusOpen = false; subMenu = ''; render(); if (sizeOpen) focusFloatingMenu(); break;
-    case 'set-image-options': if (matrixSupported(d) && getImageCapabilities(d.api).ratios.some(x => x.ratio === el.dataset.ratio) && getImageCapabilities(d.api).sizes.includes(el.dataset.imageSize)) { const scroll = app.querySelector('.matrix-scroll')?.scrollTop || 0; d.aspectRatio = el.dataset.ratio; d.imageSize = el.dataset.imageSize; render(); recordScrollDiagnostic('matrix-write',scroll); app.querySelector('.matrix-scroll').scrollTop = scroll; } break;
+    case 'set-image-option': {
+      const selected=changeImageOption(getImageCapabilities(d.api),d,el.dataset.axis,el.dataset.value);
+      if(selected){Object.assign(d,selected);render();}
+      break;
+    }
     case 'send': await send(); break;
     case 'cancel': confirmations.interrupt(d);d.controller?.abort(); break;
     case 'copy-scroll-diagnostics': {
@@ -684,7 +672,15 @@ async function performCardAction(action,{card,workspace:d,args,commit}) {
 function updateField(e) {
   const t = e.target, d = get();
   resizeSettingField(t);
-  if(t.id==='history-query'){if(e.isComposing)return;historyQuery=t.value;render();const field=app.querySelector('#history-query');field?.focus?.();return;}
+  if(t.id==='history-query'){
+    // The browser owns the editing node, selection and IME session. Replace only results;
+    // input/change/compositionend may report the same committed value more than once.
+    if(e.isComposing || historyQuery===t.value)return;
+    historyQuery=t.value;
+    const results=app.querySelector('.history-list');
+    if(results)results.innerHTML=historyListMarkup({entries:book.list(historyQuery),activeId:book.activeId});
+    return;
+  }
   if(!d)return;
   if (t.id === 'draft') { d.draft = t.value; resizeDraft(t);book.touch(d); saveLocal(false,true); return; }
   const id = Number(t.dataset.card), key = t.dataset.key, card = getCard(id);
@@ -746,6 +742,7 @@ listen(app, 'load', e => {
   }
 },true);
 listen(app, 'input', updateField);
+listen(app, 'compositionend', e => {if(e.target.id==='history-query')updateField(e);});
 listen(app, 'change', e => { updateField(e); if (e.target.dataset?.key === 'key') archiveWorkspaceKey(get()); if (e.target.tagName === 'SELECT') render(); });
 listen(document, 'keydown', e => {
   if(['reasoning-quick','reasoning-family'].includes(e.target.dataset?.action) && ['ArrowDown','ArrowUp','Home','End'].includes(e.key)){
