@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "0.6.0",
+  "version": "0.6.1",
   "createdAt": "2026-10-29T20:08:58.524Z",
-  "updatedAt": "2026-11-04T08:25:42.432Z",
+  "updatedAt": "2026-11-04T08:38:18.043Z",
   "entries": [
     {
       "id": "R-007",
@@ -216,9 +216,9 @@
       "contract": "docs/contracts/workbench.json",
       "host": {
         "id": "H-C-002",
-        "version": "0.1.5",
+        "version": "0.1.6",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-11-04T08:25:42.432Z",
+        "updatedAt": "2026-11-04T08:38:18.043Z",
         "entry": "development/hosts/workbench.mjs",
         "moduleId": "C-002",
         "moduleVersion": "0.4.0",
@@ -505,9 +505,9 @@
       "contract": "docs/contracts/settings-markup.json",
       "host": {
         "id": "H-F-018",
-        "version": "0.1.2",
+        "version": "0.1.3",
         "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-11-04T08:25:42.432Z",
+        "updatedAt": "2026-11-04T08:38:18.043Z",
         "entry": "development/hosts/settings-markup.mjs",
         "moduleId": "F-018",
         "moduleVersion": "0.2.0",
@@ -586,16 +586,16 @@
       "id": "F-023",
       "kind": "function",
       "source": "src/gemini-settings-markup.js",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "contract": "docs/contracts/gemini-settings-markup.json",
       "host": {
         "id": "H-F-023",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-11-04T08:25:42.432Z",
-        "updatedAt": "2026-11-04T08:25:42.432Z",
+        "updatedAt": "2026-11-04T08:38:18.043Z",
         "entry": "development/hosts/gemini-settings-markup.mjs",
         "moduleId": "F-023",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       }
     }

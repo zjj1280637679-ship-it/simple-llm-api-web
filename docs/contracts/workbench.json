@@ -12,9 +12,9 @@
   },
   "host": {
     "id": "H-C-002",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T08:38:18.043Z",
     "entry": "development/hosts/workbench.mjs",
     "moduleId": "C-002",
     "moduleVersion": "0.4.0",

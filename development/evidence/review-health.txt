@@ -1,10 +1,10 @@
 
-> simple-llm-api-web@0.6.0 review:health
+> simple-llm-api-web@0.6.1 review:health
 > node scripts/review-health.mjs
 
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T08:29:03.357Z",
+  "generatedAt": "2026-11-04T08:38:32.669Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
@@ -188,14 +188,14 @@
     },
     {
       "path": "src/gemini-settings-markup.js",
-      "bytes": 2603,
-      "lines": 23,
-      "maxLineCharacters": 262,
+      "bytes": 3009,
+      "lines": 24,
+      "maxLineCharacters": 272,
       "relativeImports": [
         "src/gemini-capabilities.js",
         "src/view-markup.js"
       ],
-      "sha256": "3d1d58f7e97c7656b22c73968c0d3c51446b6b6e88be05642b9f2e3ed3a664c1"
+      "sha256": "c76eba0170773c279a15cc21792db56756f955aeb3761f4545f69fdf5312b6c6"
     },
     {
       "path": "src/history-markup.js",

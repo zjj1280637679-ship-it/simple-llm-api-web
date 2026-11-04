@@ -1,5 +1,5 @@
 
-> simple-llm-api-web@0.6.0 build
+> simple-llm-api-web@0.6.1 build
 > node scripts/build.mjs
 
 Built 51 allowlisted files into dist/

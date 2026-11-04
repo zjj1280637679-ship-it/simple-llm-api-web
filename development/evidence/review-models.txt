@@ -1,5 +1,5 @@
 
-> simple-llm-api-web@0.6.0 models
+> simple-llm-api-web@0.6.1 models
 > node development/models/run.mjs
 
 {

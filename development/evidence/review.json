@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-11-04T08:29:03.550Z",
-  "reviewedBase": "df4f04b1685d7de09572f904f4c6f32c5ff66d10",
-  "priorReviewCommit": "df4f04b1685d7de09572f904f4c6f32c5ff66d10",
+  "recordedAt": "2026-11-04T08:38:32.936Z",
+  "reviewedBase": "a9a1ced52a25be304e1b0ce0b6ddb26179bcd242",
+  "priorReviewCommit": "a9a1ced52a25be304e1b0ce0b6ddb26179bcd242",
   "runtime": "v24.22.1",
   "baseline": {
-    "tests": 431,
-    "pass": 430,
+    "tests": 445,
+    "pass": 444,
     "fail": 0,
     "cancelled": 0,
     "skipped": 1,
@@ -25,43 +25,43 @@
       "command": "npm test",
       "exitCode": 0,
       "output": "development/evidence/review-tests.txt",
-      "outputSha256": "0a0336c4bda9409d50121fc2dada2f6a693627deab07a1fcbb58019b975e135b"
+      "outputSha256": "8b179e3757f610e3748073f075b2a4f09080b915348fe1a25f28e64be13eaae6"
     },
     {
       "command": "npm run check",
       "exitCode": 0,
       "output": "development/evidence/review-check.txt",
-      "outputSha256": "bb0311a855f2bd8162223fb5f2b78057378766a048ab61d7991a0137d696b04e"
+      "outputSha256": "c93eee076f50eb18fc0688e04ef4e5ee80230563aa6dcc8acbd52733ca4e1be4"
     },
     {
       "command": "npm run hosts",
       "exitCode": 0,
       "output": "development/evidence/review-hosts.txt",
-      "outputSha256": "3877558498dbb658ac8f9d2642f5320af6adbe81b46777d940aadb1df99532f8"
+      "outputSha256": "074d42d6a891fcf87ff4b264434481c38938df2baca42eb46006209eabe03474"
     },
     {
       "command": "npm run models",
       "exitCode": 0,
       "output": "development/evidence/review-models.txt",
-      "outputSha256": "b8833f8d995105079b9a9b865001a22bf370a05b1d3281fcbe0d96f57b69bbc6"
+      "outputSha256": "64c1f89dd0e3b23d0c98bbfe6bebee5ab3e31e18c226f78ac7f3f517db0e2f34"
     },
     {
       "command": "npm run build",
       "exitCode": 0,
       "output": "development/evidence/review-build.txt",
-      "outputSha256": "22fb7ace184eea47e8ae2efb91aabc19009f2e023d794e5ebe2261c6fc5c2ef3"
+      "outputSha256": "945592851c79f15f8c6f4193eccc1de3a2ff700d10a2a6dfaf972e9ff07ed411"
     },
     {
       "command": "npm run review:health",
       "exitCode": 0,
       "output": "development/evidence/review-health.txt",
-      "outputSha256": "16e48d6f140f803ed2da0fc96f2c6c6e00d84c98548bb205e9d4e3b9ff8f71aa"
+      "outputSha256": "b963b8e1678cc3fb284700043a2c98b0c81d37eb88c128011097dbcde900d1c2"
     },
     {
       "command": "npm run review:sources",
       "exitCode": 0,
       "output": "development/evidence/review-sources.txt",
-      "outputSha256": "d9507a6a650cef7ea5300bdf50d9bec94176d02ffacf2324cab7add7d146f16e"
+      "outputSha256": "4d0348a1674b351ae9995966ad088b5c80b8bc9c20b167eb5d86a483b1fa2c1f"
     }
   ],
   "inputHashes": {
@@ -86,7 +86,7 @@
     "development/hosts/error-diagnostic.mjs": "472106a60b2fa9a1b5506273db13c70e478e8a7a3caec4c7d237d8d2e33eb996",
     "development/hosts/gemini-capabilities.mjs": "cc093ce2da1c1275667d61565bdb894eff2372e202cb5e9c313fa05d18aee234",
     "development/hosts/gemini-request.mjs": "62e6847f55ebeeb7df1b73009c8a0542effefef3dc40f7f2638e6527faa2c60f",
-    "development/hosts/gemini-settings-markup.mjs": "875f86cfdd74afe4ed4d6dff3147a37c44ca07e5252735120f69dd0acb1b2da8",
+    "development/hosts/gemini-settings-markup.mjs": "83a1a4c3229a366eb0aeee1148c0a23316d68c183e0480d90e46fd5a41137ee2",
     "development/hosts/history-markup.mjs": "b6ade1ad2f0e1ddaf7ae63b3db330bd94033c0874cc6a46346869fab84904ea5",
     "development/hosts/image-delivery.mjs": "6e7c2d4f0338e430cdae8fcd609aa682bf9a9350ac09e039e2897f843b376523",
     "development/hosts/image-evidence.mjs": "8bf5b50331ac85bc61136d1efb7da6692b79e112fffae7d5518d9d69a1d32bd9",
@@ -131,7 +131,7 @@
     "docs/contracts/error-diagnostic.json": "5f5aa6521db11d1818e4c3ed2d5d6cfb0c28ce206de0341f2a92956b2c0ebc13",
     "docs/contracts/gemini-capabilities.json": "a714bd109b0c213be9ac6aba910549cabbae8807c9e9232496e2eb45510f7731",
     "docs/contracts/gemini-request.json": "48b5e7f489a40981a8da402d42bfeca61170a0220307413b92dddd0c804f437e",
-    "docs/contracts/gemini-settings-markup.json": "8b9323318457769ab52dfc5c76d00788dcbc5e6c29c440b5eaa700057bc60883",
+    "docs/contracts/gemini-settings-markup.json": "89e4a82143e23ace35c61116b3b3ce0dedc3893acf03d78377a9e5c98fc43bcb",
     "docs/contracts/history-markup.json": "1b926fa070c24826ce7e7c20c7c7b05fc3f10a9eb74c9602666a9e6a1ff67ea2",
     "docs/contracts/image-delivery.json": "a5485975cc3aadfb1ac58ac2d10bcd8014bd1dba821cf37ecbc724167606a364",
     "docs/contracts/image-evidence.json": "620f7958b943fdd726ed25373006f387ea0e3a62db9a94b1f040f7c3a18a9d65",
@@ -143,19 +143,19 @@
     "docs/contracts/request-lifecycle.json": "d700660eec3224d1ce1a5647973aa5e8b57e26de28045e9f669afe515069d30c",
     "docs/contracts/request-outcome.json": "d2aabf169cdf3f7cf659f10c619ce6a50d3f732ca6f1f5b6691a9ed420aababc",
     "docs/contracts/request-transport.json": "2e1a919e3e3d8be88b0ea4674da2df92639f8eb86d21143fbf04cc7654db3150",
-    "docs/contracts/settings-markup.json": "5362d8c65d246f9de11470139a01c3e1d40c660b3d97186cee8dba4912a6ba56",
+    "docs/contracts/settings-markup.json": "79352e8f3e288375cb3449aaefeaec979541136ad38872fe69d0501d50b05ba2",
     "docs/contracts/settings-navigation.json": "57aba09914606f610fc2ddd7c838a86a5aa164237e74c9ae9975872365d9e56f",
     "docs/contracts/stream-painter.json": "f4262293ae66169a3c5052b698ebd95052e3d8807e9da5b818ca1ddc3d75fff9",
     "docs/contracts/transport-evidence.json": "21b35f1422b13e94453ba09675c825a1579ed91bc77e63773c55638e0a68bdb8",
     "docs/contracts/view-markup.json": "9e0afaa97c77859e8cc1062e254a6cf255dff98da1646ee77381c3a2b451f026",
     "docs/contracts/view-position.json": "a31973442c90ad4cd4853a1e8c0cd6ac8ed0d24172b0de054fde6c9028e02f7e",
     "docs/contracts/workbench-cards.json": "e56e0eaa7900d32ca60fb862de528738d8ecacbd105dc12dd610c3516647532e",
-    "docs/contracts/workbench.json": "4ea2f38a40369a11ee09a888638c5f3eabab2d18724cdde171d78f5d7c797e8b",
+    "docs/contracts/workbench.json": "1ff9b87ddd9df1d2fef5790f1563e2ce2b5ee3638e255de8502f14e8c9f734e5",
     "docs/contracts/workspace-storage.json": "cec021453a2bdc9fde05bffd3276fd704fa47b8308c5a2a94735752d4edddf15",
     "docs/evidence/source-claims.json": "a90d42c90841e6d78e27bb9bff34cc376c47eb13e23afa24d9ec9adb359121c4",
     "index.html": "4a9fb06281883f088ecf45737675c77d9c8cb23aaae8132b7674421b9addef36",
-    "module-library/catalog.json": "602cef4a0ea5e1b855cd99da7a0448fd99dce92d0cb5ff30c8679e167f514aad",
-    "package.json": "e5a4cbecae23dc5766b211ef8d0242947d88c753ceb815fd29354100c3ee3b77",
+    "module-library/catalog.json": "b6690457e9db15055bb67bb74e4e566bd0a0e755b727d8b9c0eb82ab9d2326c3",
+    "package.json": "543bc188b1031b8fdab7b48ecaf50f38d61387f70be8b3f97b3da1e92670c831",
     "scripts/build.mjs": "d341d51f0a23059052ce82605322c98aeec472093cd28c61308e9c0d39ff369b",
     "scripts/check.mjs": "6d2d3ef588a8f010df7ba229e077ac1a2fd68dad9fd06c2b3b5450b1ac59c230",
     "scripts/review-evidence.mjs": "021a86853144586f3a85c7755a77782996d8b7e9e69dca015edfaa946c4921a6",
@@ -180,7 +180,7 @@
     "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
     "src/gemini-capabilities.js": "cd414cc7ab5dfcc08bd1af289501e481a2a310fd5f32223fbcb3bf992ccd657c",
     "src/gemini-request.js": "982f654a2cc3e07358a03c38f225300cef179827704caea55674d1f976d0b821",
-    "src/gemini-settings-markup.js": "3d1d58f7e97c7656b22c73968c0d3c51446b6b6e88be05642b9f2e3ed3a664c1",
+    "src/gemini-settings-markup.js": "c76eba0170773c279a15cc21792db56756f955aeb3761f4545f69fdf5312b6c6",
     "src/history-markup.js": "1bb9bc46f368ec7d9538a8c0aa76eee89b7fbcb1b6f09b587df1f9bf4fa2898f",
     "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
     "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
@@ -203,7 +203,7 @@
     "src/settings-navigation.js": "abcc088e95a35f04cb24f6e1e3b893f3110e1f66e820eb2b77d8e370b446c56e",
     "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
     "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
-    "src/styles.css": "b42997d0807d4e6cad61f7472befe68b171d7dae94ab2aa7181b1d4f7db2acc6",
+    "src/styles.css": "c8def18859fe16fc1b49eef40ef1488486c8976f5d65536f6bcee984c0b99a26",
     "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
     "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
     "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893",

@@ -1,5 +1,5 @@
 
-> simple-llm-api-web@0.6.0 hosts
+> simple-llm-api-web@0.6.1 hosts
 > node scripts/run-hosts.mjs
 
 {
@@ -29,8 +29,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.022Z",
-      "finishedAt": "2026-11-04T08:29:00.025Z",
+      "startedAt": "2026-11-04T08:38:29.261Z",
+      "finishedAt": "2026-11-04T08:38:29.265Z",
       "runtime": "v24.22.1",
       "observed": {
         "boundedMenu": true,
@@ -68,8 +68,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.085Z",
-      "finishedAt": "2026-11-04T08:29:00.087Z",
+      "startedAt": "2026-11-04T08:38:29.332Z",
+      "finishedAt": "2026-11-04T08:38:29.334Z",
       "runtime": "v24.22.1",
       "observed": {
         "staleViewUntouched": true
@@ -105,8 +105,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.151Z",
-      "finishedAt": "2026-11-04T08:29:00.157Z",
+      "startedAt": "2026-11-04T08:38:29.397Z",
+      "finishedAt": "2026-11-04T08:38:29.404Z",
       "runtime": "v24.22.1",
       "observed": {
         "boundedFields": true,
@@ -143,8 +143,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.223Z",
-      "finishedAt": "2026-11-04T08:29:00.227Z",
+      "startedAt": "2026-11-04T08:38:29.473Z",
+      "finishedAt": "2026-11-04T08:38:29.476Z",
       "runtime": "v24.22.1",
       "observed": {
         "syntheticDecoder": true,
@@ -182,8 +182,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.302Z",
-      "finishedAt": "2026-11-04T08:29:00.306Z",
+      "startedAt": "2026-11-04T08:38:29.534Z",
+      "finishedAt": "2026-11-04T08:38:29.537Z",
       "runtime": "v24.22.1",
       "observed": {
         "releasedOnce": true,
@@ -220,8 +220,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.379Z",
-      "finishedAt": "2026-11-04T08:29:00.382Z",
+      "startedAt": "2026-11-04T08:38:29.605Z",
+      "finishedAt": "2026-11-04T08:38:29.609Z",
       "runtime": "v24.22.1",
       "observed": {
         "businessKeysPreserved": true,
@@ -260,8 +260,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.442Z",
-      "finishedAt": "2026-11-04T08:29:00.445Z",
+      "startedAt": "2026-11-04T08:38:29.696Z",
+      "finishedAt": "2026-11-04T08:38:29.701Z",
       "runtime": "v24.22.1",
       "observed": {
         "declaredPathMatched": true,
@@ -300,8 +300,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.510Z",
-      "finishedAt": "2026-11-04T08:29:00.513Z",
+      "startedAt": "2026-11-04T08:38:29.801Z",
+      "finishedAt": "2026-11-04T08:38:29.804Z",
       "runtime": "v24.22.1",
       "observed": {
         "timersReleased": true,
@@ -339,8 +339,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.586Z",
-      "finishedAt": "2026-11-04T08:29:00.590Z",
+      "startedAt": "2026-11-04T08:38:29.882Z",
+      "finishedAt": "2026-11-04T08:38:29.886Z",
       "runtime": "v24.22.1",
       "observed": {
         "incrementalText": true,
@@ -379,8 +379,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.658Z",
-      "finishedAt": "2026-11-04T08:29:00.660Z",
+      "startedAt": "2026-11-04T08:38:29.953Z",
+      "finishedAt": "2026-11-04T08:38:29.956Z",
       "runtime": "v24.22.1",
       "observed": {
         "functionBoundDeclaration": true,
@@ -417,8 +417,8 @@
         "moduleVersion": "0.1.2",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.727Z",
-      "finishedAt": "2026-11-04T08:29:00.730Z",
+      "startedAt": "2026-11-04T08:38:30.027Z",
+      "finishedAt": "2026-11-04T08:38:30.031Z",
       "runtime": "v24.22.1",
       "observed": {
         "escapedContent": true,
@@ -455,8 +455,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.806Z",
-      "finishedAt": "2026-11-04T08:29:00.809Z",
+      "startedAt": "2026-11-04T08:38:30.103Z",
+      "finishedAt": "2026-11-04T08:38:30.106Z",
       "runtime": "v24.22.1",
       "observed": {
         "independentReadingPositions": true
@@ -484,16 +484,16 @@
       },
       "host": {
         "id": "H-C-002",
-        "version": "0.1.5",
+        "version": "0.1.6",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-11-04T08:25:42.432Z",
+        "updatedAt": "2026-11-04T08:38:18.043Z",
         "entry": "development/hosts/workbench.mjs",
         "moduleId": "C-002",
         "moduleVersion": "0.4.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:00.905Z",
-      "finishedAt": "2026-11-04T08:29:00.947Z",
+      "startedAt": "2026-11-04T08:38:30.198Z",
+      "finishedAt": "2026-11-04T08:38:30.226Z",
       "runtime": "v24.22.1",
       "observed": {
         "fullInitialization": true,
@@ -503,7 +503,7 @@
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
-        "docs/contracts/workbench.json": "4ea2f38a40369a11ee09a888638c5f3eabab2d18724cdde171d78f5d7c797e8b",
+        "docs/contracts/workbench.json": "1ff9b87ddd9df1d2fef5790f1563e2ce2b5ee3638e255de8502f14e8c9f734e5",
         "src/agent.js": "cd39cce66d22c2ea4d7d6b8b85ce239bafa2dd28da361eb52ea60ed363782cfc",
         "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
         "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
@@ -521,7 +521,7 @@
         "src/error-diagnostic.js": "42ce45a086667a994017ddad480b46d5fbf391472e7e388c6400ccd56a297c99",
         "src/gemini-capabilities.js": "cd414cc7ab5dfcc08bd1af289501e481a2a310fd5f32223fbcb3bf992ccd657c",
         "src/gemini-request.js": "982f654a2cc3e07358a03c38f225300cef179827704caea55674d1f976d0b821",
-        "src/gemini-settings-markup.js": "3d1d58f7e97c7656b22c73968c0d3c51446b6b6e88be05642b9f2e3ed3a664c1",
+        "src/gemini-settings-markup.js": "c76eba0170773c279a15cc21792db56756f955aeb3761f4545f69fdf5312b6c6",
         "src/history-markup.js": "1bb9bc46f368ec7d9538a8c0aa76eee89b7fbcb1b6f09b587df1f9bf4fa2898f",
         "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
         "src/image-capabilities.js": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225",
@@ -577,8 +577,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.026Z",
-      "finishedAt": "2026-11-04T08:29:01.029Z",
+      "startedAt": "2026-11-04T08:38:30.283Z",
+      "finishedAt": "2026-11-04T08:38:30.286Z",
       "runtime": "v24.22.1",
       "observed": {
         "hydrationBeforeWrites": true
@@ -614,8 +614,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.133Z",
-      "finishedAt": "2026-11-04T08:29:01.136Z",
+      "startedAt": "2026-11-04T08:38:30.358Z",
+      "finishedAt": "2026-11-04T08:38:30.364Z",
       "runtime": "v24.22.1",
       "observed": {
         "futureMarkerUnknown": true,
@@ -652,8 +652,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.225Z",
-      "finishedAt": "2026-11-04T08:29:01.230Z",
+      "startedAt": "2026-11-04T08:38:30.438Z",
+      "finishedAt": "2026-11-04T08:38:30.443Z",
       "runtime": "v24.22.1",
       "observed": {
         "cases": 680,
@@ -699,8 +699,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.303Z",
-      "finishedAt": "2026-11-04T08:29:01.312Z",
+      "startedAt": "2026-11-04T08:38:30.506Z",
+      "finishedAt": "2026-11-04T08:38:30.511Z",
       "runtime": "v24.22.1",
       "observed": {
         "cases": 820,
@@ -740,8 +740,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.393Z",
-      "finishedAt": "2026-11-04T08:29:01.396Z",
+      "startedAt": "2026-11-04T08:38:30.577Z",
+      "finishedAt": "2026-11-04T08:38:30.581Z",
       "runtime": "v24.22.1",
       "observed": {
         "workflowAndGoalSeparated": true
@@ -777,8 +777,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.465Z",
-      "finishedAt": "2026-11-04T08:29:01.469Z",
+      "startedAt": "2026-11-04T08:38:30.654Z",
+      "finishedAt": "2026-11-04T08:38:30.658Z",
       "runtime": "v24.22.1",
       "observed": {
         "normalizationObserved": true,
@@ -817,8 +817,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.538Z",
-      "finishedAt": "2026-11-04T08:29:01.550Z",
+      "startedAt": "2026-11-04T08:38:30.739Z",
+      "finishedAt": "2026-11-04T08:38:30.751Z",
       "runtime": "v24.22.1",
       "observed": {
         "syntheticTransport": true,
@@ -864,8 +864,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.620Z",
-      "finishedAt": "2026-11-04T08:29:01.623Z",
+      "startedAt": "2026-11-04T08:38:30.817Z",
+      "finishedAt": "2026-11-04T08:38:30.820Z",
       "runtime": "v24.22.1",
       "observed": {
         "localIdentityPreserved": true,
@@ -902,8 +902,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.696Z",
-      "finishedAt": "2026-11-04T08:29:01.707Z",
+      "startedAt": "2026-11-04T08:38:30.889Z",
+      "finishedAt": "2026-11-04T08:38:30.901Z",
       "runtime": "v24.22.1",
       "observed": {
         "status": "PASS",
@@ -953,8 +953,8 @@
         "moduleVersion": "0.2.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.779Z",
-      "finishedAt": "2026-11-04T08:29:01.783Z",
+      "startedAt": "2026-11-04T08:38:30.980Z",
+      "finishedAt": "2026-11-04T08:38:30.985Z",
       "runtime": "v24.22.1",
       "observed": {
         "keyExcluded": true,
@@ -997,8 +997,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.853Z",
-      "finishedAt": "2026-11-04T08:29:01.856Z",
+      "startedAt": "2026-11-04T08:38:31.049Z",
+      "finishedAt": "2026-11-04T08:38:31.051Z",
       "runtime": "v24.22.1",
       "observed": {
         "escaped": true,
@@ -1037,8 +1037,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.925Z",
-      "finishedAt": "2026-11-04T08:29:01.929Z",
+      "startedAt": "2026-11-04T08:38:31.117Z",
+      "finishedAt": "2026-11-04T08:38:31.122Z",
       "runtime": "v24.22.1",
       "observed": {
         "exactlyOnce": true,
@@ -1075,8 +1075,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:01.994Z",
-      "finishedAt": "2026-11-04T08:29:01.999Z",
+      "startedAt": "2026-11-04T08:38:31.191Z",
+      "finishedAt": "2026-11-04T08:38:31.198Z",
       "runtime": "v24.22.1",
       "observed": {
         "types": [
@@ -1129,8 +1129,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.056Z",
-      "finishedAt": "2026-11-04T08:29:02.059Z",
+      "startedAt": "2026-11-04T08:38:31.272Z",
+      "finishedAt": "2026-11-04T08:38:31.275Z",
       "runtime": "v24.22.1",
       "observed": {
         "independentDrafts": true,
@@ -1170,8 +1170,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.120Z",
-      "finishedAt": "2026-11-04T08:29:02.129Z",
+      "startedAt": "2026-11-04T08:38:31.345Z",
+      "finishedAt": "2026-11-04T08:38:31.353Z",
       "runtime": "v24.22.1",
       "observed": {
         "twoConversations": true,
@@ -1217,8 +1217,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.187Z",
-      "finishedAt": "2026-11-04T08:29:02.190Z",
+      "startedAt": "2026-11-04T08:38:31.415Z",
+      "finishedAt": "2026-11-04T08:38:31.417Z",
       "runtime": "v24.22.1",
       "observed": {
         "cases": 25,
@@ -1248,16 +1248,16 @@
       },
       "host": {
         "id": "H-F-018",
-        "version": "0.1.2",
+        "version": "0.1.3",
         "createdAt": "2026-10-30T07:55:11.916Z",
-        "updatedAt": "2026-11-04T08:25:42.432Z",
+        "updatedAt": "2026-11-04T08:38:18.043Z",
         "entry": "development/hosts/settings-markup.mjs",
         "moduleId": "F-018",
         "moduleVersion": "0.2.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.256Z",
-      "finishedAt": "2026-11-04T08:29:02.262Z",
+      "startedAt": "2026-11-04T08:38:31.496Z",
+      "finishedAt": "2026-11-04T08:38:31.504Z",
       "runtime": "v24.22.1",
       "observed": {
         "escapedFields": true,
@@ -1270,10 +1270,10 @@
         "development/hosts/conversation-fixture.mjs": "9706d84153fcb68f02108e1e6373d9dcb57d37491d7619d2a74a93577b17e223",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "development/hosts/settings-markup.mjs": "44d92c876613b41161bc10aa9d03250ffb2e11a98029ae919f68f7bca9d23967",
-        "docs/contracts/settings-markup.json": "5362d8c65d246f9de11470139a01c3e1d40c660b3d97186cee8dba4912a6ba56",
+        "docs/contracts/settings-markup.json": "79352e8f3e288375cb3449aaefeaec979541136ad38872fe69d0501d50b05ba2",
         "src/attachments.js": "e0ad70ce3a46f5d97aef398cd2198708a070c753ba4b9aa0e17e2df6643297ef",
         "src/gemini-capabilities.js": "cd414cc7ab5dfcc08bd1af289501e481a2a310fd5f32223fbcb3bf992ccd657c",
-        "src/gemini-settings-markup.js": "3d1d58f7e97c7656b22c73968c0d3c51446b6b6e88be05642b9f2e3ed3a664c1",
+        "src/gemini-settings-markup.js": "c76eba0170773c279a15cc21792db56756f955aeb3761f4545f69fdf5312b6c6",
         "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
         "src/reasoning.js": "cf986cfc1a130426aabaf55b8ca93fe2e2855a70921dc7a5a0968433b596f519",
         "src/settings-markup.js": "924b5e48a4dc38384fddfb35a8707e077bf188acd5d2d177b627cab5d161f786",
@@ -1304,8 +1304,8 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.327Z",
-      "finishedAt": "2026-11-04T08:29:02.344Z",
+      "startedAt": "2026-11-04T08:38:31.573Z",
+      "finishedAt": "2026-11-04T08:38:31.591Z",
       "runtime": "v24.22.1",
       "observed": {
         "escapedTitle": true,
@@ -1347,8 +1347,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.404Z",
-      "finishedAt": "2026-11-04T08:29:02.409Z",
+      "startedAt": "2026-11-04T08:38:31.664Z",
+      "finishedAt": "2026-11-04T08:38:31.669Z",
       "runtime": "v24.22.1",
       "observed": {
         "independentDimensions": true,
@@ -1389,8 +1389,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.469Z",
-      "finishedAt": "2026-11-04T08:29:02.473Z",
+      "startedAt": "2026-11-04T08:38:31.730Z",
+      "finishedAt": "2026-11-04T08:38:31.733Z",
       "runtime": "v24.22.1",
       "observed": {
         "threeWayCapability": true,
@@ -1430,8 +1430,8 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.539Z",
-      "finishedAt": "2026-11-04T08:29:02.543Z",
+      "startedAt": "2026-11-04T08:38:31.807Z",
+      "finishedAt": "2026-11-04T08:38:31.815Z",
       "runtime": "v24.22.1",
       "observed": {
         "explicitOnly": true,
@@ -1454,9 +1454,9 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-023",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-11-04T08:25:42.432Z",
-        "updatedAt": "2026-11-04T08:25:42.432Z",
+        "updatedAt": "2026-11-04T08:38:18.043Z",
         "kind": "function",
         "goal": "gemini.progressive-settings-view",
         "source": "src/gemini-settings-markup.js",
@@ -1464,16 +1464,16 @@
       },
       "host": {
         "id": "H-F-023",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "createdAt": "2026-11-04T08:25:42.432Z",
-        "updatedAt": "2026-11-04T08:25:42.432Z",
+        "updatedAt": "2026-11-04T08:38:18.043Z",
         "entry": "development/hosts/gemini-settings-markup.mjs",
         "moduleId": "F-023",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T08:29:02.616Z",
-      "finishedAt": "2026-11-04T08:29:02.622Z",
+      "startedAt": "2026-11-04T08:38:31.884Z",
+      "finishedAt": "2026-11-04T08:38:31.889Z",
       "runtime": "v24.22.1",
       "observed": {
         "escaped": true,
@@ -1482,11 +1482,11 @@
         "unknownHasDeepRoute": true
       },
       "hashes": {
-        "development/hosts/gemini-settings-markup.mjs": "875f86cfdd74afe4ed4d6dff3147a37c44ca07e5252735120f69dd0acb1b2da8",
+        "development/hosts/gemini-settings-markup.mjs": "83a1a4c3229a366eb0aeee1148c0a23316d68c183e0480d90e46fd5a41137ee2",
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "docs/contracts/gemini-settings-markup.json": "8b9323318457769ab52dfc5c76d00788dcbc5e6c29c440b5eaa700057bc60883",
+        "docs/contracts/gemini-settings-markup.json": "89e4a82143e23ace35c61116b3b3ce0dedc3893acf03d78377a9e5c98fc43bcb",
         "src/gemini-capabilities.js": "cd414cc7ab5dfcc08bd1af289501e481a2a310fd5f32223fbcb3bf992ccd657c",
-        "src/gemini-settings-markup.js": "3d1d58f7e97c7656b22c73968c0d3c51446b6b6e88be05642b9f2e3ed3a664c1",
+        "src/gemini-settings-markup.js": "c76eba0170773c279a15cc21792db56756f955aeb3761f4545f69fdf5312b6c6",
         "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
         "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
       },

@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-023",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-11-04T08:25:42.432Z",
-    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T08:38:18.043Z",
     "kind": "function",
     "goal": "gemini.progressive-settings-view",
     "source": "src/gemini-settings-markup.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-023",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "createdAt": "2026-11-04T08:25:42.432Z",
-    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T08:38:18.043Z",
     "entry": "development/hosts/gemini-settings-markup.mjs",
     "moduleId": "F-023",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.1.1",
     "mode": "local"
   },
   "question": "如何在深层呈现 Gemini 控制并保留未知能力入口？",

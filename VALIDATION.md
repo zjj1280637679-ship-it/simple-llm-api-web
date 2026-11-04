@@ -1,6 +1,6 @@
 # 当前验证范围
 
-项目 v0.6.0；2026-11-04（北京时间）。审查基线 `df4f04b1685d7de09572f904f4c6f32c5ff66d10`。本轮目标、反例和实现见 [Gemini 适配记录](docs/reviews/2026-11-04-gemini-adaptation.md)，理想效果谓词见 [GEMINI_ADAPTATION](design/GEMINI_ADAPTATION.md)。
+项目 v0.6.1；2026-11-04（北京时间）。审查基线 `df4f04b1685d7de09572f904f4c6f32c5ff66d10`。本轮目标、反例和实现见 [Gemini 适配记录](docs/reviews/2026-11-04-gemini-adaptation.md)，理想效果谓词见 [GEMINI_ADAPTATION](design/GEMINI_ADAPTATION.md)。
 
 | 验证 | 本轮结果与范围 |
 | --- | --- |
