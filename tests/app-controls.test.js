@@ -766,9 +766,30 @@ test('Gemini pulled metadata filters methods and contracts options; key edit rev
  ui.addCard('api');const active=d.messages.at(-1),input=ui.app.querySelector(`#key${active.id}`);input.value='different-synthetic';ui.input(input);assert.equal(d.api.modelMetadata,undefined);
 });
 test('Gemini unknown model can choose budget format without enabling a strength automatically',async()=>{
+ for(const thinking of [undefined,true]){
  const ui=await mount(),{d}=configure(ui);d.api.model='gemini-future';ui.addCard('model');const card=d.messages.at(-1);
+ if(thinking)d.api.modelMetadata={endpoint:d.api.url,model:d.api.model,thinking};
  d.model.reasoning={template:'gemini-level',value:'high'};ui.render();
+ assert.match(ui.app.innerHTML,/未核验模型的思考格式/);
  await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'geminiThinkingMode',value:'gemini-budget'}},d);
  assert.equal(d.model.reasoning,undefined);assert.match(ui.app.querySelector('.reasoning-control').outerHTML,/思考强度：不指定/);
  await ui.click({action:'reasoning-toggle'});assert.match(ui.app.innerHTML,/id="reasoning-quick-budget"/);assert.doesNotMatch(ui.app.innerHTML,/data-value="high"/);
+ }
+});
+
+test('model list request and capability receipt belong to the explicit workspace across tab changes',async()=>{
+ let requested,finish;
+ const ui=await mount({listModels:async({config})=>{requested=config;return new Promise(resolve=>{finish=resolve;});}});
+ const {d:chat}=configure(ui);chat.api.key='synthetic-chat';chat.api.model='chat-model';
+ const {d:image,card}=configure(ui,'image');image.api.key='synthetic-image';image.api.model='image-model';
+ ui.setPage('chat');ui.render();
+ const request=ui.dispatchCardAction({id:card.id,action:'pull-models',args:{}},image);
+ assert.equal(requested.key,'synthetic-image');assert.equal(requested.model,'image-model');
+ assert.equal(image.busy,true);assert.equal(chat.busy,false);
+ ui.setPage('image');ui.render();ui.setPage('chat');ui.render();
+ finish([{id:'image-model',name:'Synthetic',methods:['generateContent'],metadata:{thinking:false,topK:null}}]);
+ await request;
+ assert.equal(image.api.modelMetadata.model,'image-model');assert.equal(image.api.modelMetadata.thinking,false);
+ assert.equal(chat.api.modelMetadata,undefined);assert.equal(chat.api.key,'synthetic-chat');
+ assert.equal(card.models[0].id,'image-model');assert.equal(image.busy,false);
 });

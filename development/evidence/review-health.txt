@@ -1,10 +1,11 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.6.1 review:health
+> simple-llm-api-web@0.6.2 review:health
 > node scripts/review-health.mjs
 
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T08:38:32.669Z",
+  "generatedAt": "2026-11-04T08:59:46.886Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
@@ -188,14 +189,14 @@
     },
     {
       "path": "src/gemini-settings-markup.js",
-      "bytes": 3009,
-      "lines": 24,
+      "bytes": 3152,
+      "lines": 26,
       "maxLineCharacters": 272,
       "relativeImports": [
         "src/gemini-capabilities.js",
         "src/view-markup.js"
       ],
-      "sha256": "c76eba0170773c279a15cc21792db56756f955aeb3761f4545f69fdf5312b6c6"
+      "sha256": "937e20a55094ab4a86feaa80c5177a764528e0d1d3c5a92c75e69ccc3bcc9abe"
     },
     {
       "path": "src/history-markup.js",
@@ -456,8 +457,8 @@
     },
     {
       "path": "src/workbench.js",
-      "bytes": 66838,
-      "lines": 930,
+      "bytes": 66950,
+      "lines": 932,
       "maxLineCharacters": 515,
       "relativeImports": [
         "src/agent.js",
@@ -493,7 +494,7 @@
         "src/workbench-cards.js",
         "src/workspace-storage.js"
       ],
-      "sha256": "4372251294c8c0bfb4a941a858844c103ad1ee1b3d0e465cc79c01ac7fb6272f"
+      "sha256": "645046aacc08853d5656575f127589621e355b84ad9f5de070952ccafed7afda"
     },
     {
       "path": "src/workspace-storage.js",
@@ -997,4 +998,3 @@
     }
   ]
 }
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.

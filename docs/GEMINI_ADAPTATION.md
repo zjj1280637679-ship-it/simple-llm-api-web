@@ -1,6 +1,6 @@
 # Gemini 设置适配
 
-项目 0.6.1；本地规则 0.1.0；2026-11-04（北京时间）。入口：设置 → 模型设置 → 更多参数 → Gemini 参数。思考强度继续在输入框旁操作；默认不额外发送新增参数。
+项目 0.6.2；本地规则 0.1.0；2026-11-04（北京时间）。入口：设置 → 模型设置 → 更多参数 → Gemini 参数。思考强度继续在输入框旁操作；默认不额外发送新增参数。
 
 当前按所选协议、端点、模型与已拉取的 Model 回执调整控件。无需从密钥前缀猜测身份；Google 官方 Gemini 原生地址获得具名模型规则，自定义 Gemini 网关保留协议格式并注明模型未核验。Google 的 OpenAI 兼容接口仍使用 OpenAI 协议控件，不自动改写请求格式。
 
@@ -26,3 +26,5 @@
 Google 文档正在将主要示例移向 Interactions；本项目保持当前 generateContent 路径。本轮未实现 JSON Schema、grounding、系统指令编辑器、Live、TTS 或缓存资源管理，这些是可独立扩展的分工，不显示成已可用选项。
 
 目标模型见 [设计](../design/GEMINI_ADAPTATION.md)，局部证据见 `tests/gemini-adaptation.test.js`、`development/hosts/gemini-*.mjs` 及 `development/models/gemini-adaptation-model.mjs`。完整 F/C/H/Q 仍为独立待证义务。
+
+即使 Model 回执标明 thinking=true，只要尚无具名格式记录，等级/预算手选入口仍保留。显式指定工作区的模型拉取使用该工作区配置，返回的能力也归属该工作区。

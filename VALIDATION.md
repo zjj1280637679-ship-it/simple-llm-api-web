@@ -1,10 +1,10 @@
 # 当前验证范围
 
-项目 v0.6.1；2026-11-04（北京时间）。审查基线 `df4f04b1685d7de09572f904f4c6f32c5ff66d10`。本轮目标、反例和实现见 [Gemini 适配记录](docs/reviews/2026-11-04-gemini-adaptation.md)，理想效果谓词见 [GEMINI_ADAPTATION](design/GEMINI_ADAPTATION.md)。
+项目 v0.6.2；2026-11-04（北京时间）。审查基线 `df4f04b1685d7de09572f904f4c6f32c5ff66d10`。本轮目标、反例和实现见 [Gemini 适配记录](docs/reviews/2026-11-04-gemini-adaptation.md)，理想效果谓词见 [GEMINI_ADAPTATION](design/GEMINI_ADAPTATION.md)。
 
 | 验证 | 本轮结果与范围 |
 | --- | --- |
-| 完整回归 | 445 项：444 通过、1 跳过、0 失败；Node 24.22.1；[原始输出](development/evidence/review-tests.txt) |
+| 完整回归 | 446 项：445 通过、1 跳过、0 失败；Node 24.22.1；[原始输出](development/evidence/review-tests.txt) |
 | 语法 / 构建 | 生产、宿主、有限模型、脚本及 CLI 通过；51 个白名单产物；相对依赖与重复构建一致性通过 |
 | 最简宿主 | 35 个分别通过；源、契约、宿主及字面传递导入有指纹 |
 | 有限模型 | 5 个模型；本轮新增 324 个 Gemini 能力/参数组合；已有 80 次历史解释比较、2,916 次图片参数组合转移、 680 类结束组合、820 个图片效果列表组合、1,555 条历史 / 7,465 查询；[范围与未证明义务](development/models/README.md) |

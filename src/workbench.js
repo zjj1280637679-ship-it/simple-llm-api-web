@@ -128,7 +128,8 @@ function clearIncompatibleReasoning(d) {
 function selectedReasoningFamily(d) { return d.model.reasoningFamily || reasoningFamilyFor(d.api,d.model.reasoningMode || d.model.reasoning?.template); }
 function selectedReasoningMode(d) {
   const family=selectedReasoningFamily(d);if(!family)return null;
-  if(d.api.protocol==='gemini'&&geminiProfile(d.api)?.thinking==='unknown'&&d.model.geminiThinkingMode){
+  const gemini=geminiProfile(d.api);
+  if(gemini&&gemini.thinking!=='unsupported'&&!gemini.thinkingTemplate&&d.model.geminiThinkingMode){
     return getReasoningTemplates(d.api).find(t=>t.id===d.model.geminiThinkingMode)||null;
   }
   try{return resolveReasoningFamily(d.api,family).template;}catch{return null;}
@@ -452,9 +453,10 @@ function modelListStatus(d, card, text) {
   card.modelListStatus = text;
   if (get() === d) render();
 }
-async function pullModels(card,commit) {
-  const d = get(); if (d.busy) return;
-  syncCurrentApiFields(d);
+async function pullModels(d,card,commit) {
+  if (d.busy) return;
+  // Explicit card actions own their workspace, regardless of the visible tab.
+  if(get()===d)syncCurrentApiFields(d);
   closeMenus();
   syncLogSecrets();
   if (d.api.protocol === 'ark') { modelListStatus(d, card, '普通 Ark API 暂无已核实的模型列表接口，请填写官方模型 ID。'); return; }
@@ -670,7 +672,7 @@ async function performCardAction(action,{card,workspace:d,args,commit}) {
       clearIncompatibleReasoning(d);card.modelListStatus = ''; subMenu = ''; render(); break;
     }
     case 'toggle-key': card.showKey = !card.showKey; render(); break;
-    case 'pull-models': await pullModels(card,commit); break;
+    case 'pull-models': await pullModels(d,card,commit); break;
     case 'choose-model': d.api.model = el.dataset.model; d.api.modelMetadata=bindGeminiModel(d.api,card.models?.find(model=>model.id===el.dataset.model)); clearIncompatibleReasoning(d); if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
 
 

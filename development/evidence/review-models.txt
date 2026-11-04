@@ -1,5 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.6.1 models
+> simple-llm-api-web@0.6.2 models
 > node development/models/run.mjs
 
 {
@@ -49,4 +50,3 @@
   },
   "qualification": "No automatic F/C/H/Q promotion; explicit finite abstraction and host assumptions only."
 }
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
