@@ -6,7 +6,7 @@ const properties = {
   temperature: { anyOf: [{ type: 'number', minimum: 0, maximum: 2 }, { const: '' }] },
   topP: { anyOf: [{ type: 'number', minimum: 0, maximum: 1 }, { const: '' }] },
   aspectRatio: { type: 'string', enum: ['1:1','1:4','1:8','2:3','3:2','3:4','4:1','4:3','4:5','5:4','8:1','9:16','16:9','21:9'] },
-  imageSize: { type: 'string', enum: ['1K','1.5K','2K','4K'] }
+  imageSize: { type: 'string', enum: ['512','1K','1.5K','2K','4K'] }
 };
 const schemas = {
   'page.navigate': { ...empty, properties: { page: { type: 'string', enum: ['chat', 'image', 'logs'] } }, required: ['page'] },

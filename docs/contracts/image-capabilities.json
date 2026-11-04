@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "F-024",
+    "version": "0.1.0",
+    "createdAt": "2026-11-04T10:47:40.742Z",
+    "updatedAt": "2026-11-04T10:47:40.742Z",
+    "kind": "function",
+    "goal": "image.capability-and-request-projection",
+    "source": "src/image-capabilities.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-F-024",
+    "version": "0.1.0",
+    "createdAt": "2026-11-04T10:47:40.742Z",
+    "updatedAt": "2026-11-04T10:47:40.742Z",
+    "entry": "development/hosts/image-capabilities.mjs",
+    "moduleId": "F-024",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "question": "如何让图片模型登记、控件、工具 schema 与请求使用同一能力解释？",
+  "stateModel": {
+    "budget": "无自有状态；五个 Gemini 精确模型与两个 Ark 模型；最多14比例×4分辨率，图片返回模式与思考枚举",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "conditions": [
+    "普通 JSON / plain objects；非对抗性 getter / Proxy",
+    "浏览器、文件下载及 IndexedDB 效果由组合验收另行观察"
+  ],
+  "observations": [
+    "精确模型身份限定能力表",
+    "不适用字段省略",
+    "偏好不被投影修改",
+    "未知模型不继承邻近名称"
+  ],
+  "tests": [
+    "tests/image-capabilities.test.js",
+    "tests/image-adaptation.test.js",
+    "tests/app-controls.test.js",
+    "tests/history-snapshots.test.js",
+    "tests/development-hosts.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
+  "limits": [
+    "局部宿主不等于全部浏览器、真实供应商或完整 F/C/H/Q。"
+  ],
+  "counterexamples": [
+    "2.5发送imageSize",
+    "Flash继承medium",
+    "窄模型覆盖宽模型偏好",
+    "从密钥猜模型权限"
+  ],
+  "extensionSeam": "显式参数与导出函数；消费方按契约组合",
+  "proofObligations": [
+    {
+      "id": "F-024.projection",
+      "statement": "登记域的控件和请求一致、偏好可恢复",
+      "status": "OPEN",
+      "localWitness": "development/models/image-adaptation-model.mjs"
+    },
+    {
+      "id": "F-024.external",
+      "statement": "真实API、DOM与形式抽象对应",
+      "status": "OPEN"
+    }
+  ],
+  "epistemicBoundary": {
+    "observations": [
+      "精确模型身份限定能力表",
+      "不适用字段省略",
+      "偏好不被投影修改",
+      "未知模型不继承邻近名称"
+    ],
+    "assumptions": [
+      "带日期的官方资料，精确具名模型",
+      "Lite比例资料冲突时仅登记明确10项"
+    ],
+    "policyReference": "design/IMAGE_ADAPTATION.md",
+    "notEstablished": [
+      "账号权限、配额、真实生成、完整F/C/H/Q"
+    ]
+  }
+}

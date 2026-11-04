@@ -27,7 +27,7 @@ export function validateSessionCommand(input) {
         if (k === 'topP' && v !== '' && v > 1) invalid();
         if (k === 'temperature' && v !== '' && v > 2) invalid();
         if (k === 'aspectRatio' && !['1:1','1:4','1:8','2:3','3:2','3:4','4:1','4:3','4:5','5:4','8:1','9:16','16:9','21:9'].includes(v)) invalid();
-        if (k === 'imageSize' && !['1K','1.5K','2K','4K'].includes(v)) invalid();
+        if (k === 'imageSize' && !['512','1K','1.5K','2K','4K'].includes(v)) invalid();
       }
       break;
     }

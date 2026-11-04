@@ -1,6 +1,8 @@
 /** 设置视图只投影显式配置和当前卡位置；导航关系与字段效果由外部提供。
  * 无 DOM 写入、存储或网络；转义所有用户字段，分层展开只影响可见性。
  */
+import {getImageCapabilities} from './image-capabilities.js';
+import {imageSettingsMarkup,imageSnapshotRows} from './image-options-markup.js';
 import {geminiProfile,partitionGeminiModels} from './gemini-capabilities.js';
 import {geminiSettingsMarkup,geminiSnapshotRows} from './gemini-settings-markup.js';
 import {esc} from './view-markup.js';
@@ -21,8 +23,8 @@ export function historicalModelMarkup(card,page) {
     ['思考模板',family],['思考强度',x.reasoning?`${present(x.reasoning.template,'未记录模板')} · ${present(x.reasoning.value,'未记录')}`:'未指定'],
     ...(x.reasoningBudget!==undefined?[['模板预算',present(x.reasoningBudget,'未指定')]]:[]),
     ['输入模态',Array.isArray(x.inputs)?x.inputs.map(kind=>MODALITIES[kind]||kind).join('、')||'未选择':'未记录']
-  ] : [['生成数量','1'],['输出格式','上游原始格式']];
-  const note=known?(protocolNote(protocol)+(x.displayContext?.gemini?.sampling==='unsupported'?' 当时模型不使用温度 / Top P / Top K；保存的偏好未应用。':'')+(x.displayContext?.gemini?.thinking==='unsupported'?' 当时模型回执明确不支持思考；相关偏好未应用。':'')):'历史协议未记录；保留已存参数，不按当前连接推断。';
+  ] : imageSnapshotRows(x);
+  const note=page==='image'?'历史参数按当时记录显示；未记录项不使用当前连接推断。':known?(protocolNote(protocol)+(x.displayContext?.gemini?.sampling==='unsupported'?' 当时模型不使用温度 / Top P / Top K；保存的偏好未应用。':'')+(x.displayContext?.gemini?.thinking==='unsupported'?' 当时模型回执明确不支持思考；相关偏好未应用。':'')):'历史协议未记录；保留已存参数，不按当前连接推断。';
   return `<div class="card-type">模型设置</div><dl class="settings-snapshot">${rows.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${note?`<p class="model-note">${esc(note)}</p>`:''}`;
 }
 export function createSettingsViews({get,currentPage,activeCardId,menuState,reasoningAnchor,providers,providerIdentity,protocolLabel,apiTrustText}) {
@@ -31,6 +33,11 @@ function modelListMarkup(m,protocol) {
   const button=model=>`<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`;
   if(protocol!=='gemini')return m.models.map(button).join('');
   const {usable,other}=partitionGeminiModels(m.models);
+  if(currentPage()==='image') {
+    const adapted=usable.filter(model=>getImageCapabilities({protocol,model:model.id}));
+    const unknown=usable.filter(model=>!getImageCapabilities({protocol,model:model.id}));
+    return `<div class="model-note">已适配的图片模型 · 可调用性以上游为准</div>${adapted.map(button).join('')||'<div class="inline-item">本次列表没有已适配图片模型</div>'}${unknown.length?`<details><summary>其他模型（尚未适配图片参数）</summary>${unknown.map(button).join('')}</details>`:''}${other.length?`<details><summary>其他方法模型（${other.length}）</summary>${other.map(model=>`<div class="inline-item">${esc(model.id)}</div>`).join('')}</details>`:''}`;
+  }
   return `${usable.map(button).join('')}${other.length?`<details><summary>其他方法模型（${other.length}）</summary><p class="model-note">这些模型未声明 generateContent；当前工作台未接入其方法。</p>${other.map(model=>`<div class="inline-item">${esc(model.id)}</div>`).join('')}</details>`:''}`;
 }
 function apiCard(m) {
@@ -88,14 +95,7 @@ function modelCard(m) {
 <div class="formfield">
 <label for="context${m.id}">上下文</label>
 <output id="context${m.id}" class="block-value">当前对话上下文</output>
-</div></details>`:''}${geminiSettingsMarkup(m,d.api,x)}${inputSettingsMarkup(m,d,x)}</details>` : `<div class="formfield">
-<label for="count${m.id}">生成数量</label>
-<output id="count${m.id}" class="block-value">1</output>
-</div>
-<div class="formfield">
-<label for="format${m.id}">输出格式</label>
-<output id="format${m.id}" class="block-value">上游原始格式</output>
-</div>`}</div><div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${protocolNote(d.api.protocol)}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div><button class="chip" data-action="open-settings-card" data-id="${m.id}" data-kind="api">返回设置</button>
+</div></details>`:''}${geminiSettingsMarkup(m,d.api,x)}${inputSettingsMarkup(m,d,x)}</details>` : imageSettingsMarkup(m,d.api,x,d)}</div><div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${protocolNote(d.api.protocol)}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div><button class="chip" data-action="open-settings-card" data-id="${m.id}" data-kind="api">返回设置</button>
 `;
 }
 return {api:apiCard,connection:connectionCard,model:modelCard};

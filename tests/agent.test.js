@@ -288,3 +288,14 @@ test('tool loop checkpoints the host receipt separately from reception without i
  assert.equal(receipt.stage,'stored');assert.equal(receipt.checks.decoded,'passed');assert.equal(receipt.checks.dimensions,'mismatch');
  assert.equal(receipt.checks.goalSatisfied,'unknown');assert.equal(result.completion.status,'complete');
 });
+
+test('conversation image tool uses image workspace preferences without leaking text controls',async()=>{
+ const requests=[],imageSettings={imageResponseMode:'image',imageThinkingLevel:'medium',temperature:'0.4'};
+ await runConversation({config,imageConfig,imageSettings,messages,settings:{temperature:'0.9'},
+  confirmTool:async invocation=>{assert.equal(invocation.imageSettings.imageThinkingLevel,'medium');return true;},
+  fetchImpl:sequence([gemini([call()]),imageResponse(),reply('done')],requests)});
+ assert.deepEqual(requests[1].body.generationConfig.responseModalities,['IMAGE']);
+ assert.deepEqual(requests[1].body.generationConfig.thinkingConfig,{thinkingLevel:'MEDIUM'});
+ assert.equal(requests[1].body.generationConfig.temperature,undefined);
+ assert.equal(requests[0].body.generationConfig.temperature,0.9);
+});

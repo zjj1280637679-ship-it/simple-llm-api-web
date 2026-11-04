@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-018",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "createdAt": "2026-10-30T07:55:11.916Z",
-    "updatedAt": "2026-11-04T08:59:46.091Z",
+    "updatedAt": "2026-11-04T10:47:40.742Z",
     "kind": "function",
     "goal": "settings-markup",
     "source": "src/settings-markup.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-018",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "createdAt": "2026-10-30T07:55:11.916Z",
-    "updatedAt": "2026-11-04T08:59:46.091Z",
+    "updatedAt": "2026-11-04T10:47:40.742Z",
     "entry": "development/hosts/settings-markup.mjs",
     "moduleId": "F-018",
-    "moduleVersion": "0.2.1",
+    "moduleVersion": "0.2.2",
     "mode": "local"
   },
   "question": "怎样把配置投影成渐进展开的设置卡？",

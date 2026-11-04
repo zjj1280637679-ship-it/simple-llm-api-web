@@ -5,6 +5,7 @@
  */
 import {createConversationBook} from './conversation-book.js';
 import {snapshotConversations,restoreConversations,migrateConversations,replayConversationJournal} from './conversation-archive.js';
+import {IMAGE_FIELDS,imageSelection,imageEffectiveSettings} from './image-capabilities.js';
 import {geminiProfile,bindGeminiModel,GEMINI_FIELDS} from './gemini-capabilities.js';
 import {createSettingsViews} from './settings-markup.js';
 import {historyMarkup,historyListMarkup} from './history-markup.js';
@@ -157,9 +158,8 @@ function reasoningMarkup() {
 <button type="button" class="reasoning-trigger" data-action="reasoning-toggle" aria-label="思考强度：${esc(label)}" aria-haspopup="menu" aria-expanded="${open&&reasoningAnchorId===null}" ${d.busy?'disabled':''}>${esc(label)}</button>${picker}</div>`;
 }
 function resetImageOptions(d, force = false) {
-  const cap = getImageCapabilities(d.api); if (!cap) return;
-  if (force || !cap.ratios.some(item => item.ratio === d.aspectRatio)) d.aspectRatio = cap.defaultRatio;
-  if (force || !cap.sizes.includes(d.imageSize)) d.imageSize = cap.defaultSize;
+  const selected=imageSelection(d.api,force?{}:d,d.model);
+  if(selected)Object.assign(d,selected);
 }
 function providerIdentity(api) {
   const official=providers.find(p=>!p.custom && p.protocol===api.protocol && sameEndpoint(api.url,p.url));
@@ -436,14 +436,15 @@ function askConfirmation(d,text,title='调用确认') {
   return pending;
 }
 function approveImage(invocation,d) {
-  return askConfirmation(d,`生成图片将消耗 API 额度\n\n目标：${invocation.target}\n模型：${invocation.model}\n长宽比：${invocation.args.aspectRatio || '1:1'} · 分辨率：${invocation.args.imageSize || '1K'}\n提示词：${invocation.args.prompt}\n\n确认调用图片工作台？`,'图片调用确认');
+  const effective=imageEffectiveSettings({protocol:invocation.protocol,model:invocation.model},invocation.imageSettings);
+  return askConfirmation(d,`生成图片将消耗 API 额度\n\n目标：${invocation.target}\n模型：${invocation.model}\n长宽比：${invocation.args.aspectRatio || '1:1'} · 分辨率：${invocation.args.imageSize || '1K'}\n返回内容：${effective.responseMode==='image'?'仅图片':effective.responseMode==='text-image'?'文字 + 图片':'上游图片'} · 思考：${effective.thinkingLevel||'API 默认'}\n提示词：${invocation.args.prompt}\n\n确认调用图片工作台？`,'图片调用确认');
 }
 async function appendImages(d, result, args, fromTool = false) {
   let expectedPixels;
   try { expectedPixels=normalizeImageOptions({protocol:result.protocol || (fromTool?book.owner(d)?.data.image.api.protocol:d.api.protocol),model:result.model},args).pixels; } catch {}
   const images=await imageDelivery.prepare(result.images || [],expectedPixels);
   if(scope.disposed)return;
-  appendMessage(d,{ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', metrics:replyMetricsSnapshot(result.usage), fromTool });
+  appendMessage(d,{ id: nextId++, type: 'imageResult', images, text: result.text || '', prompt: args.prompt, aspectRatio: args.aspectRatio || '1:1', imageSize: args.imageSize || '1K', metrics:replyMetricsSnapshot(result.usage), imageSettings:result.imageSettings, fromTool });
   saveLocal(true);
   if (get() === d) render();
   return imageWorkspaceReceipt(images);
@@ -487,11 +488,12 @@ async function send() {
   saveLocal(true);
   if (!isConfigured(d)) { addCard('api'); return { status: 'needs-configuration' }; }
   if (!applyCurrentTarget(d)) return {status:'not-sent',reason:'invalid-target'};
-  if (requestPage === 'image' && !matrixSupported(d)) { status(d, '当前模板未配置此图片模型的参数，可选择 Nano Banana 2.1 或 Seedream 5.0 Flash / Pro。', 'error'); return { status: 'not-sent', reason: 'unsupported-model' }; }
+  if (requestPage === 'image' && !matrixSupported(d)) { status(d, '当前模板未配置此图片模型的参数，请在设置中选择已适配的 Gemini 图片模型或 Seedream 5.0 Flash / Pro。', 'error'); return { status: 'not-sent', reason: 'unsupported-model' }; }
+  const imageSettings = { ...d.model };
   const config = { ...d.api }, args = { prompt: text, aspectRatio: d.aspectRatio, imageSize: d.imageSize };
   if (requestPage === 'image') {
     const before=sessionRequestSnapshot();
-    if(!await approveImage({target:canonicalEndpoint(config.url),model:config.model,args},d)) {render(true);return {status:'declined'};}
+    if(!await approveImage({target:canonicalEndpoint(config.url),model:config.model,args,imageSettings,protocol:config.protocol},d)) {render(true);return {status:'declined'};}
     if(scope.disposed || JSON.stringify(before)!==JSON.stringify(sessionRequestSnapshot()))return {status:'not-sent',reason:'changed-after-confirmation'};
   }
   d.busy = true; d.controller = new AbortController(); d.draft = ''; d.attachments = []; d.attachmentError = ''; d.lastUsage = null; d.lastMetrics = null;
@@ -511,13 +513,13 @@ async function send() {
   if(storage.hydrated)await saveLocal(true);
   try {
     if (requestPage === 'image') {
-      const result = await dispatchCommand({ command: 'image.generate', args }, { imageConfig: config, signal: d.controller.signal, confirmed: true, onPhase:phase=>requestPhase(d,phase) });
+      const result = await dispatchCommand({ command: 'image.generate', args }, { imageConfig: config, imageSettings, signal: d.controller.signal, confirmed: true, onPhase:phase=>requestPhase(d,phase) });
       const receipt=await appendImages(d,result,args);
       outcome=requestOutcome({kind:'image',receipt});
       d.lastUsage = result.usage; d.lastMetrics = replyMetricsSnapshot(result.usage);
     } else {
       const result = await runConversation({
-        config, imageConfig, messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
+        config, imageConfig, imageSettings:{...book.owner(d).data.image.model}, messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
         onPhase:phase=>requestPhase(d,phase),
         onDelta: (delta, {round}) => {
           if (!delta) return;
@@ -612,7 +614,7 @@ listen(app, 'click', async e => {
     case 'size-toggle': sizeOpen = !sizeOpen; plusOpen = false; subMenu = ''; render(); if (sizeOpen) focusFloatingMenu(); break;
     case 'set-image-option': {
       const selected=changeImageOption(getImageCapabilities(d.api),d,el.dataset.axis,el.dataset.value);
-      if(selected){Object.assign(d,selected);render();}
+      if(selected){Object.assign(d,selected);d.model[el.dataset.axis==='ratio'?'imagePreferredRatio':'imagePreferredSize']=el.dataset.value;saveLocal(false,true);render();}
       break;
     }
     case 'send': await send(); break;
@@ -665,15 +667,15 @@ async function performCardAction(action,{card,workspace:d,args,commit}) {
       if (!sameProviderTarget) {
         archiveWorkspaceKey(d);
         if (d.api.protocol !== p.protocol) { d.history = []; d.model.inputs = [...new Set(['text', ...d.model.inputs.filter(kind=>supportedModalities(p.protocol).includes(kind))])]; }
-        d.api = { ...d.api, protocol: p.protocol, url: p.url, key: '', supplier: p.name, model: p.custom ? '' : defaultModel(p.protocol, page), trustedTarget: '',modelMetadata:null };
+        d.api = { ...d.api, protocol: p.protocol, url: p.url, key: '', supplier: p.name, model: p.custom ? '' : defaultModel(p.protocol, book.owner(d)?.data.image===d?'image':'chat'), trustedTarget: '',modelMetadata:null };
         card.models = []; syncLogSecrets();
-        if (page === 'image') resetImageOptions(d, true);
+        if (book.owner(d)?.data.image===d) resetImageOptions(d, true);
       } else d.api.supplier = p.name;
       clearIncompatibleReasoning(d);card.modelListStatus = ''; subMenu = ''; render(); break;
     }
     case 'toggle-key': card.showKey = !card.showKey; render(); break;
     case 'pull-models': await pullModels(d,card,commit); break;
-    case 'choose-model': d.api.model = el.dataset.model; d.api.modelMetadata=bindGeminiModel(d.api,card.models?.find(model=>model.id===el.dataset.model)); clearIncompatibleReasoning(d); if (page === 'image') resetImageOptions(d); subMenu = ''; render(); break;
+    case 'choose-model': d.api.model = el.dataset.model; d.api.modelMetadata=bindGeminiModel(d.api,card.models?.find(model=>model.id===el.dataset.model)); clearIncompatibleReasoning(d); if (book.owner(d)?.data.image===d) resetImageOptions(d); subMenu = ''; render(); break;
 
 
   }
@@ -723,9 +725,10 @@ function applyCardField(d,card,t) {
     if (key !== 'key') card.values[key] = t.value;
     if(changed && ['url','protocol','model'].includes(key))clearIncompatibleReasoning(d);
     syncLogSecrets();
-    if (page === 'image') resetImageOptions(d);
+    if (book.owner(d)?.data.image===d) resetImageOptions(d);
     refreshApiStatus(d, id);
   } else {
+    if(IMAGE_FIELDS.includes(key)&&book.owner(d)?.data.image!==d)return {ok:false,reason:'inactive-workspace'};
     if(GEMINI_FIELDS.includes(key)&&d.api.protocol!=='gemini')return {ok:false,reason:'inactive-protocol'};
     d.model[key] = t.value; card.values[key] = t.value;
     if(key==='geminiThinkingMode'){
@@ -814,14 +817,15 @@ const pageSession = createPageSession({
     let options;
     if (args.aspectRatio !== undefined || args.imageSize !== undefined) {
       if (page !== 'image') throw new Error('Image settings require the image workspace');
-      options = normalizeImageOptions(api, { aspectRatio: args.aspectRatio ?? d.aspectRatio, imageSize: args.imageSize ?? d.imageSize });
+      const selection=imageSelection(api,d,d.model)||d;
+      options = normalizeImageOptions(api, { aspectRatio: args.aspectRatio ?? selection.aspectRatio, imageSize: args.imageSize ?? selection.imageSize });
     }
     appendMessage(d,{id:nextId++,type:'status',text:'页面工具更新了模型设置。'});
     d.api = api;
     clearIncompatibleReasoning(d);
     for (const key of ['output', 'temperature', 'topP']) if (args[key] !== undefined) d.model[key] = args[key];
-    if (options) { d.aspectRatio = options.aspectRatio; d.imageSize = options.imageSize; }
-    if (page === 'image') resetImageOptions(d);
+    if (options) { d.aspectRatio = options.aspectRatio; d.imageSize = options.imageSize; if(args.aspectRatio!==undefined)d.model.imagePreferredRatio=options.aspectRatio;if(args.imageSize!==undefined)d.model.imagePreferredSize=options.imageSize; }
+    if (book.owner(d)?.data.image===d) resetImageOptions(d);
     render(); return publicSessionState();
   },
   confirmSend: async () => {

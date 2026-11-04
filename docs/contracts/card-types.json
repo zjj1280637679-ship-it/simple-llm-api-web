@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-015",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "createdAt": "2026-10-30T05:30:34.595Z",
-    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T10:47:40.742Z",
     "kind": "function",
     "goal": "cards.capture-versioned-data-without-live-flags",
     "source": "src/card-types.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-015",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "createdAt": "2026-10-30T05:30:34.595Z",
-    "updatedAt": "2026-11-04T08:25:42.432Z",
+    "updatedAt": "2026-11-04T10:47:40.742Z",
     "entry": "development/hosts/card-types.mjs",
     "moduleId": "F-015",
-    "moduleVersion": "0.2.0",
+    "moduleVersion": "0.2.1",
     "mode": "local"
   },
   "conditions": [

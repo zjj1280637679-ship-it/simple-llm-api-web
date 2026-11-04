@@ -40,10 +40,50 @@ function oneKPreset(ratio) {
 }
 export const GEMINI_CAPABILITY = deepFreeze({
   id:GEMINI_MODEL,label:'Nano Banana 2.1',protocol:'gemini',
-  sizes:['1K','2K','4K'],defaultSize:'1K',defaultRatio:'1:1',
+  sizes:['1K','2K','4K'],defaultSize:'1K',defaultRatio:'1:1',thinkingLevels:['minimal','medium','high'],sendImageSize:true,
   presetSource:'official',presetSources:{'1K':'official','2K':'official','4K':'official'},presetNotes:'本地收录的 Google 比例与尺寸参考；实际返回尺寸会单独检查，当前账号可用性以请求结果为准。',
   ratios:GEMINI_PIXELS.map(([ratio,pixels]) => ({ratio,pixelsBySize:Object.fromEntries([['1K',1],['2K',2],['4K',4]].map(([size,scale]) => [size,pixels.map(value => value * scale)]))})),
 });
+// Only exact, dated model identities; unknown aliases never inherit a neighbouring model.
+// Source and conflicting Lite ratio wording: docs/IMAGE_ADAPTATION.md (2026-11-04).
+const standardRatios=GEMINI_PIXELS.filter(([ratio])=>!['1:4','4:1','1:8','8:1'].includes(ratio));
+function geminiCapability(id,label,sizes,ratios,thinkingLevels=[],sendImageSize=true) {
+  return deepFreeze({id,label,protocol:'gemini',sizes,defaultSize:'1K',defaultRatio:'1:1',thinkingLevels,sendImageSize,
+    presetSource:'official-reference',presetNotes:'按当前模型收录比例与分辨率；实际像素和账号可用性以上游响应为准。',
+    // Do not extrapolate another model's pixel grid. Decode actual output separately.
+    ratios:ratios.map(([ratio])=>({ratio,pixelsBySize:{}}))});
+}
+const GEMINI=new Map([
+  [GEMINI_MODEL,GEMINI_CAPABILITY],
+  ['gemini-3.1-flash-image',geminiCapability('gemini-3.1-flash-image','Nano Banana 2',['512','1K','2K','4K'],GEMINI_PIXELS,['minimal','high'])],
+  ['gemini-3.1-flash-lite-image',geminiCapability('gemini-3.1-flash-lite-image','Nano Banana 2 Lite',['1K'],standardRatios,['minimal','high'])],
+  ['gemini-3-pro-image',geminiCapability('gemini-3-pro-image','Nano Banana Pro',['1K','2K','4K'],standardRatios)],
+  ['gemini-2.5-flash-image',geminiCapability('gemini-2.5-flash-image','Nano Banana',['1K'],standardRatios,[],false)],
+]);
+export const IMAGE_FIELDS=Object.freeze(['imageResponseMode','imageThinkingLevel']);
+export const IMAGE_PREFERENCES=Object.freeze([...IMAGE_FIELDS,'imagePreferredRatio','imagePreferredSize']);
+/** Preferences survive incompatible models; only applicable fields enter a request. */
+export function imageEffectiveSettings(config,settings={}) {
+  const cap=getImageCapabilities(config);
+  const gemini=cap?.protocol==='gemini';
+  const responseMode=gemini&&settings.imageResponseMode==='image'?'image':'text-image';
+  const thinkingLevel=gemini&&cap.thinkingLevels?.includes(settings.imageThinkingLevel)?settings.imageThinkingLevel:'';
+  return {responseMode:gemini?responseMode:null,thinkingLevel,
+    dormantThinking:Boolean(settings.imageThinkingLevel&&!thinkingLevel)};
+}
+export function imageGenerationConfig(config,options,settings={}) {
+  const cap=getImageCapabilities(config);
+  if(cap?.protocol!=='gemini')return null;
+  const effective=imageEffectiveSettings(config,settings);
+  return {responseModalities:effective.responseMode==='image'?['IMAGE']:['TEXT','IMAGE'],
+    imageConfig:{aspectRatio:options.aspectRatio,...(cap.sendImageSize?{imageSize:options.imageSize}:{})},
+    ...(effective.thinkingLevel?{thinkingConfig:{thinkingLevel:effective.thinkingLevel.toUpperCase()}}:{})};
+}
+export function imageSelection(config,current,preferences={}) {
+  const cap=getImageCapabilities(config);if(!cap)return null;
+  const ratio=preferences.imagePreferredRatio??current.aspectRatio,size=preferences.imagePreferredSize??current.imageSize;
+  return {aspectRatio:cap.ratios.some(x=>x.ratio===ratio)?ratio:cap.defaultRatio,imageSize:cap.sizes.includes(size)?size:cap.defaultSize};
+}
 function arkCapability(model, label) {
   return deepFreeze({
     id:model,label,protocol:'ark',sizes:['1K','1.5K','2K'],defaultSize:'2K',defaultRatio:'1:1',
@@ -59,7 +99,7 @@ const ARK = new Map([
 
 export function getImageCapabilities(config) {
   const model = typeof config?.model === 'string' ? config.model.trim() : '';
-  if (config?.protocol === 'gemini' && model.replace(/^models\//,'') === GEMINI_MODEL) return GEMINI_CAPABILITY;
+  if (config?.protocol === 'gemini') return GEMINI.get(model.replace(/^models\//,'')) || null;
   if (config?.protocol === 'ark') return ARK.get(model) || null;
   return null;
 }
@@ -71,7 +111,7 @@ export function normalizeImageOptions(config, options = {}) {
   const imageSize = options.imageSize ?? capability.defaultSize;
   const entry = capability.ratios.find(item => item.ratio === aspectRatio);
   if (!entry || !capability.sizes.includes(imageSize)) invalid('IMAGE_OPTIONS','当前应用预设未收录此图片比例或分辨率；请核对目标模型后补充适配。');
-  const pixels = [...entry.pixelsBySize[imageSize]];
+  const pixels = entry.pixelsBySize[imageSize] ? [...entry.pixelsBySize[imageSize]] : null;
   if (capability.protocol === 'ark') validateArkPixels(pixels);
   return {aspectRatio,imageSize,pixels,...(capability.protocol === 'ark' ? {size:pixels.join('x')} : {})};
 }
@@ -81,7 +121,7 @@ export function getImageTool(config) {
   if (!capability) return null;
   return {
     name:'image_generate',
-    description:`Generate one image in the configured workbench using ${capability.label}. This host obtains approval for each call that may consume API quota. Omitted ratio/size defaults to ${capability.defaultRatio}/${capability.defaultSize}. Other commands are not registered in this host.`,
+    description:`Generate images in the configured workbench using ${capability.label}. This host obtains approval for each call that may consume API quota. Omitted ratio/size defaults to ${capability.defaultRatio}/${capability.defaultSize}. Other commands are not registered in this host.`,
     parameters:{type:'object',properties:{
       prompt:{type:'string',description:'Complete description of the image to generate.'},
       aspectRatio:{type:'string',enum:capability.ratios.map(item => item.ratio)},

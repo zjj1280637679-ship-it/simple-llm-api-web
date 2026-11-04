@@ -1,6 +1,5 @@
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.6.2 review:sources
+> simple-llm-api-web@0.7.0 review:sources
 > node scripts/review-sources.mjs
 
 {
@@ -23,6 +22,13 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "id": "gemini-generate-content-adaptation",
+      "review": "scheduled",
+      "reviewAfter": "2026-12-04",
+      "sourceEvidence": "missing-snapshot",
+      "liveEvidence": "unknown"
+    },
+    {
+      "id": "gemini-image-adaptation",
       "review": "scheduled",
       "reviewAfter": "2026-12-04",
       "sourceEvidence": "missing-snapshot",
@@ -108,3 +114,4 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
   ],
   "scope": "References and review dates do not verify claims; missing receipts remain unknown."
 }
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.

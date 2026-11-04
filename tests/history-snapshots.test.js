@@ -43,3 +43,16 @@ test('Gemini preferences and frozen capability context round-trip but current mo
  for(const key of ['geminiIncludeThoughts','geminiSeed','geminiStopSequences','geminiThinkingMode']){assert.equal(restored.model[key],d.model[key]);assert.equal(restored.messages[0].values[key],d.model[key]);}
  assert.equal(restored.api.modelMetadata,undefined);assert.doesNotMatch(JSON.stringify(saved),/private-context/);
 });
+
+test('image history freezes effective controls and preferences across model changes and persistence',()=>{
+ const data=makeData(),d=data.image;
+ d.api.model='gemini-nano-banana-2.1';d.aspectRatio='1:8';d.imageSize='4K';
+ Object.assign(d.model,{imageResponseMode:'image',imageThinkingLevel:'medium',imagePreferredRatio:'1:8',imagePreferredSize:'4K'});
+ const card={id:1,type:'card',kind:'model',version:1,values:{}};card.values=captureCard(card,d);d.messages=[card,{id:2,type:'status',text:'freeze'}];
+ const before=historicalModelMarkup(card,'image');d.api.model='gemini-2.5-flash-image';d.aspectRatio='1:1';d.imageSize='1K';
+ const restored=restoreWorkspace(snapshotWorkspace({data,page:'image',nextId:3,views:{}}),makePage).data.image;
+ assert.equal(historicalModelMarkup(restored.messages[0],'image'),before);
+ assert.match(before,/>1:8</);assert.match(before,/>4K</);assert.match(before,/>medium</);assert.match(before,/仅图片/);
+ assert.doesNotMatch(before,/<select|<details|<input/);
+ assert.equal(restored.model.imageThinkingLevel,'medium');assert.equal(restored.model.imagePreferredSize,'4K');
+});

@@ -1,6 +1,5 @@
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.6.2 models
+> simple-llm-api-web@0.7.0 models
 > node development/models/run.mjs
 
 {
@@ -41,12 +40,18 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
   },
   "interactions": {
     "frozenComparisons": 80,
-    "imageTransitions": 2916,
+    "imageTransitions": 7152,
     "scope": "Fixed rendering version; 5 context classes × 4 representative outputs × 4 later protocols; all pairs of currently registered image presets. No DOM/IME or provider proof."
   },
   "gemini": {
     "cases": 324,
     "scope": "Finite production-function classes; no quota/credential permission, real providers, DOM or complete abstraction proof."
   },
+  "imageAdaptation": {
+    "requestCases": 1184,
+    "preferenceTransitions": 740,
+    "scope": "Five exact profiles; all registered ratios/sizes × four level preferences × two response modes; no account, network, DOM or complete F/C/H/Q proof."
+  },
   "qualification": "No automatic F/C/H/Q promotion; explicit finite abstraction and host assumptions only."
 }
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.

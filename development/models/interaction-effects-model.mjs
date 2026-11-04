@@ -18,7 +18,7 @@ export function checkInteractionEffectsModel() {
    assert.doesNotMatch(expected,/<details|data-action=|<input|<button/);
    for(const current of protocols){d.api.protocol=current;d.model.output='new';assert.equal(view.model(card),expected);assert.equal(JSON.stringify(card.values),frozen);frozenComparisons++;}
  }
- const caps=[GEMINI_CAPABILITY,...[ARK_FLASH_MODEL,ARK_PRO_MODEL].map(model=>getImageCapabilities({protocol:'ark',model}))];
+ const caps=[...['gemini-nano-banana-2.1','gemini-3.1-flash-image','gemini-3.1-flash-lite-image','gemini-3-pro-image','gemini-2.5-flash-image'].map(model=>getImageCapabilities({protocol:'gemini',model})),...[ARK_FLASH_MODEL,ARK_PRO_MODEL].map(model=>getImageCapabilities({protocol:'ark',model}))];
  for(const cap of caps)for(const a of cap.ratios)for(const z of cap.sizes){
    const current={aspectRatio:a.ratio,imageSize:z},html=imageOptionsMarkup(cap,current);
    assert.equal((html.split('<details')[0].match(/data-axis="ratio"/g)||[]).length,3);

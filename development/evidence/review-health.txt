@@ -1,24 +1,23 @@
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 
-> simple-llm-api-web@0.6.2 review:health
+> simple-llm-api-web@0.7.0 review:health
 > node scripts/review-health.mjs
 
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T08:59:46.886Z",
+  "generatedAt": "2026-11-04T10:51:14.676Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
     {
       "path": "src/agent.js",
-      "bytes": 7779,
+      "bytes": 7853,
       "lines": 164,
-      "maxLineCharacters": 168,
+      "maxLineCharacters": 183,
       "relativeImports": [
         "src/core.js",
         "src/image-evidence.js"
       ],
-      "sha256": "cd39cce66d22c2ea4d7d6b8b85ce239bafa2dd28da361eb52ea60ed363782cfc"
+      "sha256": "6d70f74a1f49ba3347c197db7d7e824e0f6b31e969220643e4d4effeb11bf0d1"
     },
     {
       "path": "src/api-target.js",
@@ -86,15 +85,16 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/card-types.js",
-      "bytes": 4745,
-      "lines": 60,
-      "maxLineCharacters": 461,
+      "bytes": 4997,
+      "lines": 61,
+      "maxLineCharacters": 589,
       "relativeImports": [
         "src/gemini-capabilities.js",
+        "src/image-capabilities.js",
         "src/native-json.js",
         "src/reasoning.js"
       ],
-      "sha256": "f33b6f7513bc625cadc6106585cabdabadf9772ac6e4f89c0908a5a6a4ea2aa2"
+      "sha256": "47c42828c13b0d25cc46916cd0a5654ba43e45bdd02ab68537200fa82cd8268e"
     },
     {
       "path": "src/clipboard-report.js",
@@ -141,7 +141,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/core.js",
-      "bytes": 19718,
+      "bytes": 19854,
       "lines": 274,
       "maxLineCharacters": 476,
       "relativeImports": [
@@ -157,7 +157,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/request-transport.js",
         "src/usage.js"
       ],
-      "sha256": "e632b71514014c72d6928dccb362a85e7cc674b7b6a453d81bf6d8176cd16314"
+      "sha256": "767d7e2c6eb46de8a2ba07eff9e7580424cfe4b98c36459718f3e8a4b38206d8"
     },
     {
       "path": "src/error-diagnostic.js",
@@ -219,11 +219,11 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/image-capabilities.js",
-      "bytes": 5782,
-      "lines": 91,
-      "maxLineCharacters": 294,
+      "bytes": 8915,
+      "lines": 131,
+      "maxLineCharacters": 291,
       "relativeImports": [],
-      "sha256": "b963c11097106e43165ee4a3d513249ad63f003452a3524bbc076a39f5c32225"
+      "sha256": "b32b730e3eed88527e730b3818252bc9b7ad212ce9023ca5c533ff66f1b89181"
     },
     {
       "path": "src/image-delivery.js",
@@ -243,13 +243,14 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/image-options-markup.js",
-      "bytes": 2546,
-      "lines": 24,
-      "maxLineCharacters": 280,
+      "bytes": 5630,
+      "lines": 53,
+      "maxLineCharacters": 303,
       "relativeImports": [
+        "src/image-capabilities.js",
         "src/view-markup.js"
       ],
-      "sha256": "480ed66ad106c23e1a5df95da8f951ee3fe88a281184fc9408796d4a70c19086"
+      "sha256": "e07a7469c92085e734c7388a690f5ceb869af356c0cf783f1d104fe1d157ed95"
     },
     {
       "path": "src/interaction-cards.js",
@@ -285,16 +286,17 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/persistence.js",
-      "bytes": 17971,
-      "lines": 242,
+      "bytes": 18067,
+      "lines": 243,
       "maxLineCharacters": 371,
       "relativeImports": [
         "src/card-types.js",
         "src/gemini-capabilities.js",
+        "src/image-capabilities.js",
         "src/interaction-cards.js",
         "src/native-json.js"
       ],
-      "sha256": "e8fbc761b1243ad943b42d76795dc59e9b81eb7d7172d12f00cb9d360d49c01f"
+      "sha256": "f092a271b4ff4baac745974358a327f60b8d2e3a20b728dcc5df760d2130fe82"
     },
     {
       "path": "src/provider-identity.js",
@@ -350,35 +352,37 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/session-webmcp.js",
-      "bytes": 4050,
+      "bytes": 4056,
       "lines": 65,
       "maxLineCharacters": 260,
       "relativeImports": [
         "src/session.js"
       ],
-      "sha256": "11852e7900e100dd3b0a5aba32d3c6209d33399ec1533e42f1a819640c9361b4"
+      "sha256": "7ec079f6466b889262950476631ad5dd3ba5262bd7fa0a231ebf28878a47ea6c"
     },
     {
       "path": "src/session.js",
-      "bytes": 4423,
+      "bytes": 4429,
       "lines": 76,
       "maxLineCharacters": 152,
       "relativeImports": [],
-      "sha256": "9ab1f83d49d3e03e6a7ac329090a3ac131de50ccdf31c3d30349546e6d348153"
+      "sha256": "58b0170606561148ee4e76e9f2d33b185d1fee85ef2733f836ce167831689288"
     },
     {
       "path": "src/settings-markup.js",
-      "bytes": 11776,
+      "bytes": 12448,
       "lines": 102,
       "maxLineCharacters": 763,
       "relativeImports": [
         "src/attachments.js",
         "src/gemini-capabilities.js",
         "src/gemini-settings-markup.js",
+        "src/image-capabilities.js",
+        "src/image-options-markup.js",
         "src/reasoning.js",
         "src/view-markup.js"
       ],
-      "sha256": "924b5e48a4dc38384fddfb35a8707e077bf188acd5d2d177b627cab5d161f786"
+      "sha256": "173204074a70a9b6e35557018483ccbcf844c2f824d1e3cd1763a7110bdb6207"
     },
     {
       "path": "src/settings-navigation.js",
@@ -457,8 +461,8 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     },
     {
       "path": "src/workbench.js",
-      "bytes": 66950,
-      "lines": 932,
+      "bytes": 67963,
+      "lines": 936,
       "maxLineCharacters": 515,
       "relativeImports": [
         "src/agent.js",
@@ -474,6 +478,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/gemini-capabilities.js",
         "src/history-markup.js",
         "src/icons.js",
+        "src/image-capabilities.js",
         "src/image-delivery.js",
         "src/image-evidence.js",
         "src/image-options-markup.js",
@@ -494,7 +499,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
         "src/workbench-cards.js",
         "src/workspace-storage.js"
       ],
-      "sha256": "645046aacc08853d5656575f127589621e355b84ad9f5de070952ccafed7afda"
+      "sha256": "007d1a58f7f022d99bad94d185583560922ee539110d262dd933a7b9750c62fb"
     },
     {
       "path": "src/workspace-storage.js",
@@ -731,6 +736,20 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       }
     },
     {
+      "path": "docs/contracts/image-capabilities.json",
+      "module": "F-024",
+      "host": "H-F-024",
+      "question": "如何让图片模型登记、控件、工具 schema 与请求使用同一能力解释？",
+      "goal": "image.capability-and-request-projection",
+      "stateBudget": "无自有状态；五个 Gemini 精确模型与两个 Ark 模型；最多14比例×4分辨率，图片返回模式与思考枚举",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
       "path": "docs/contracts/image-delivery.json",
       "module": "F-007",
       "host": "H-F-007",
@@ -762,9 +781,9 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
       "path": "docs/contracts/image-options-markup.json",
       "module": "F-020",
       "host": "H-F-020",
-      "question": "如何让常用图片比例浅层可达，同时保留完整预设组合？",
+      "question": "如何按具体图片模型投影可用控制、独立选择和未生效偏好？",
       "goal": "image-options.progressive-independent-selection",
-      "stateBudget": "无自有状态；当前登记最多14比例×3分辨率；纯选择转移与纯HTML投影",
+      "stateBudget": "无自有状态；五个 Gemini 精确模型与两个 Ark 模型；最多14比例×4分辨率，图片返回模式与思考枚举",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -998,3 +1017,4 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
     }
   ]
 }
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.

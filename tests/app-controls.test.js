@@ -793,3 +793,46 @@ test('model list request and capability receipt belong to the explicit workspace
  assert.equal(chat.api.modelMetadata,undefined);assert.equal(chat.api.key,'synthetic-chat');
  assert.equal(card.models[0].id,'image-model');assert.equal(image.busy,false);
 });
+
+test('image page narrows controls, restores preferences and sends image-only settings through production host',async()=>{
+ let seen;
+ const ui=await mount({dispatchCommand:async(command,context)=>{seen={command,context};return {images:[],text:'fixture',model:context.imageConfig.model};}});
+ const {d}=configure(ui,'image');
+ await ui.click({action:'set-image-option',axis:'ratio',value:'1:8'});
+ await ui.click({action:'set-image-option',axis:'size',value:'4K'});
+ ui.addCard('model');const card=d.messages.at(-1);
+ await ui.dispatchCardAction({action:'field.change',id:card.id,args:{key:'imageThinkingLevel',value:'medium'}});
+ await ui.dispatchCardAction({action:'field.change',id:card.id,args:{key:'imageResponseMode',value:'image'}});
+ assert.equal(d.model.imageThinkingLevel,'medium');
+ ui.addCard('api');const api=d.messages.at(-1),field=ui.app.querySelector(`#model${api.id}`);
+ field.value='gemini-2.5-flash-image';ui.input(field);
+ assert.equal(d.aspectRatio,'1:1');assert.equal(d.imageSize,'1K');ui.addCard('model');
+ const active=ui.app.innerHTML.split('data-key="imageResponseMode"')[1];
+ assert(active);assert.doesNotMatch(active,/data-key="imageThinkingLevel"/);
+ assert.match(ui.app.innerHTML,/已保存思考偏好 medium/);
+ ui.addCard('api');const back=ui.app.querySelector(`#model${d.messages.at(-1).id}`);back.value='gemini-nano-banana-2.1';ui.input(back);
+ assert.equal(d.aspectRatio,'1:8');assert.equal(d.imageSize,'4K');
+ d.draft='synthetic image';await ui.click({action:'send'});
+ assert.equal(seen.context.imageSettings.imageThinkingLevel,'medium');assert.equal(seen.context.imageSettings.imageResponseMode,'image');
+ assert.deepEqual(seen.command.args,{prompt:'synthetic image',aspectRatio:'1:8',imageSize:'4K'});
+});
+
+test('image model picker prioritizes adapted images and separates unknown and incompatible methods',async()=>{
+ const models=[{id:'gemini-3.1-flash-image',methods:['generateContent']},{id:'gemini-text',methods:['generateContent']},{id:'gemini-future-image',methods:null},{id:'embedding',methods:['embedContent']}];
+ const ui=await mount({listModels:async()=>models}),{card}=configure(ui,'image');await ui.click({action:'pull-models',id:String(card.id)});
+ const picker=ui.app.innerHTML.split('data-floating-menu="pull-models"')[1];
+ assert.match(picker.split('<details>')[0],/data-model="gemini-3.1-flash-image"/);
+ assert.doesNotMatch(picker.split('<details>')[0],/data-model="gemini-text"/);
+ assert.match(picker,/其他模型（尚未适配图片参数）/);assert.match(picker,/data-model="gemini-future-image"/);
+ assert.doesNotMatch(picker,/data-model="embedding"/);
+});
+
+test('session image model change projects omitted axes and permits 512 only on its model',async()=>{
+ const ui=await mount(),{d}=configure(ui,'image');await ui.click({action:'set-image-option',axis:'ratio',value:'1:8'});
+ const changed=await ui.session.execute({command:'settings.update',args:{model:'gemini-2.5-flash-image',imageSize:'1K'}});
+ assert.equal(changed.ok,true);assert.equal(d.aspectRatio,'1:1');
+ const flash=await ui.session.execute({command:'settings.update',args:{model:'gemini-3.1-flash-image',imageSize:'512'}});
+ assert.equal(flash.ok,true);assert.equal(d.imageSize,'512');assert.equal(d.aspectRatio,'1:8');
+ const before=JSON.stringify(d.api);const invalid=await ui.session.execute({command:'settings.update',args:{model:'gemini-2.5-flash-image',imageSize:'512'}});
+ assert.equal(invalid.ok,false);assert.equal(JSON.stringify(d.api),before);
+});

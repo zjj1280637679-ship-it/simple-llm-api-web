@@ -11,7 +11,7 @@ export {subscribeCredentialUse} from './request-transport.js';
 import { reasoningBody, isDeepSeekChatEndpoint } from './reasoning.js';
 import { attachmentParts, attachmentMetadata } from './attachments.js';
 import { usageFrom, createTextTiming, visibleOutputTokens, replyMetricsSnapshot } from './usage.js';
-import { getImageCapabilities, normalizeImageOptions, getImageTool, GEMINI_CAPABILITY } from './image-capabilities.js';
+import { getImageCapabilities, normalizeImageOptions, getImageTool, GEMINI_CAPABILITY, imageGenerationConfig, imageEffectiveSettings } from './image-capabilities.js';
 export { ARK_ENDPOINT, ARK_FLASH_MODEL, ARK_PRO_MODEL, ARK_SIZE_LIMITS, getImageCapabilities, normalizeImageOptions, getImageTool } from './image-capabilities.js';
 
 /** Protocol/business facade shared by browser and CLI. Transport, target policy
@@ -209,7 +209,7 @@ function checkedRaster(mimeType, data) {
   if (!valid) fail('IMAGE_DATA', '供应商返回的图片内容与格式不匹配。');
   return {mimeType,data};
 }
-export async function generateImage({config, prompt, aspectRatio, imageSize, signal, fetchImpl, onPhase} = {}) {
+export async function generateImage({config, prompt, aspectRatio, imageSize, settings = {}, signal, fetchImpl, onPhase} = {}) {
   validateEndpoint(config);
   const model = modelId(config);
   let options;
@@ -232,16 +232,16 @@ export async function generateImage({config, prompt, aspectRatio, imageSize, sig
       if (typeof item.size === 'string' && /^[0-9]{1,6}x[0-9]{1,6}$/.test(item.size)) image.size = item.size;
       return image;
     });
-    return {images,text:'',usage:usageFrom(json,config.protocol,{endpoint:config.url}),...options,model};
+    return {images,text:'',usage:usageFrom(json,config.protocol,{endpoint:config.url}),...options,model,imageSettings:imageEffectiveSettings(config,settings)};
   }
   const json = await requestJSON(config, `/models/${model}:generateContent`, {
-    body:{contents:[{role:'user',parts:[{text:prompt.trim()}]}],generationConfig:{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:options.aspectRatio,imageSize:options.imageSize}}},signal,fetchImpl,onPhase,
+    body:{contents:[{role:'user',parts:[{text:prompt.trim()}]}],generationConfig:imageGenerationConfig(config,options,settings)},signal,fetchImpl,onPhase,
   });
   const candidate = geminiCandidate(json);
   const parts = candidate.content.parts;
   const images = parts.filter(part => part.inlineData && !part.thought).map(part => checkedRaster(part.inlineData.mimeType,part.inlineData.data));
   if (!images.length) fail('NO_IMAGE', '供应商没有返回图片；此次请求可能仍计费，请检查提示词、额度或模型响应。');
-  return {images,text:parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join(''),usage:usageFrom(json,config.protocol,{endpoint:config.url}),...options,model};
+  return {images,text:parts.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join(''),usage:usageFrom(json,config.protocol,{endpoint:config.url}),...options,model,imageSettings:imageEffectiveSettings(config,settings)};
 }
 
 /** Typed command routing. Local card actions need an explicitly supplied page
@@ -259,7 +259,7 @@ export async function dispatchCommand(command, context = {}) {
     fail('COMMAND_ARGS', '图片命令参数不正确；不接受地址、密钥、模型或任意代码。');
   if (context.confirmed !== true) fail('CONFIRMATION', '图片调用尚未获得用户确认；未发送请求。');
   checkAbort(context.signal);
-  return generateImage({config:context.imageConfig,...args,signal:context.signal,fetchImpl:context.fetchImpl,onPhase:context.onPhase});
+  return generateImage({config:context.imageConfig,settings:context.imageSettings,...args,signal:context.signal,fetchImpl:context.fetchImpl,onPhase:context.onPhase});
 }
 
 /** Supply a compact non-secret result summary here, never image bytes or configuration. */

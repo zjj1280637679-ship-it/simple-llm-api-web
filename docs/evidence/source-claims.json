@@ -51,6 +51,28 @@
         "未保存上游页面全文快照；非当前密钥实测",
         "不把 Interactions 参数字段照搬到 generateContent"
       ]
+    },
+    {
+      "id": "gemini-image-adaptation",
+      "path": "docs/IMAGE_ADAPTATION.md",
+      "recordedAt": "2026-11-04",
+      "reviewAfter": "2026-12-04",
+      "sources": [
+        "https://aistudio.google.com/docs/image-generation",
+        "https://ai.google.dev/gemini-api/docs/generate-content/image-generation?hl=en",
+        "https://aistudio.google.com/docs/models/gemini-3.1-flash-lite-image"
+      ],
+      "sourceSnapshot": null,
+      "liveRun": null,
+      "status": "dated-primary-source-review",
+      "claims": [
+        "五个精确模型的比例/尺寸和图片思考等级",
+        "generateContent 图片请求字段"
+      ],
+      "limits": [
+        "Lite比例描述冲突，暂收录明确10项",
+        "新增模型不外推精确像素，未做真实密钥验收"
+      ]
     }
   ]
 }

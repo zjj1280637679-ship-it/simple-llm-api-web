@@ -51,7 +51,7 @@ function imageInvocation(call, imageConfig) {
  * text request fails. There are no automatic network retries.
  */
 export async function runConversation({
-  config, imageConfig, messages, settings = {}, signal,
+  config, imageConfig, imageSettings = {}, messages, settings = {}, signal,
   confirmTool, onToolResult, onHistory, fetchImpl, onDelta, onReasoningDelta, onResponse, onPhase,
 }) {
   const history = messages.map(message => ({ ...message }));
@@ -99,7 +99,7 @@ export async function runConversation({
         } else if (toolRounds > MAX_TOOL_ROUNDS) {
           summary = { ok: false, code: 'TOOL_LIMIT', message: '本轮图片工具调用已达上限。请等待用户新指令。' };
         } else {
-          const invocation = imageInvocation(call, imageConfig);
+          const invocation = {...imageInvocation(call, imageConfig), imageSettings:{...imageSettings}};
           const fingerprint = JSON.stringify(invocation);
           if (completed.has(fingerprint)) {
             summary = { ...completed.get(fingerprint), reused: true };
@@ -115,7 +115,7 @@ export async function runConversation({
             } else {
               const result = await dispatchCommand(
                 { command: invocation.command, args: invocation.args },
-                { imageConfig: {...imageConfig, attachmentContext: history.some(message => message.attachments?.length)}, confirmed: true, signal, fetchImpl, onPhase },
+                { imageConfig: {...imageConfig, attachmentContext: history.some(message => message.attachments?.length)}, imageSettings, confirmed: true, signal, fetchImpl, onPhase },
               );
               summary = receivedImageSummary(result);
               completed.set(fingerprint, summary);
