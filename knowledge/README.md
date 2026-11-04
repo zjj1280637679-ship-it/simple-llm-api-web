@@ -1,8 +1,8 @@
 # 项目快照知识图
 
-知识版本 **1.5.0**；项目版本 **0.6.0**；2026-11-04（北京时间）。源提交 `ff534d1b11b1f91f89161e59babe9f1f9e8ee355`；281 个项目文件、35 个模块/宿主、438 节点、1263 条关系。
+知识版本 **1.5.1**；项目版本 **0.6.1**；2026-11-04（北京时间）。源提交 `87ffe11dc64524448cbffd570b753f23759200de`；281 个项目文件、35 个模块/宿主、438 节点、1263 条关系。
 
-**先读 [当前快照导览](snapshots/v0.6.0-ff534d1b11b1/README.md)**。机器入口 [current.json](current.json)，[完整图](snapshots/v0.6.0-ff534d1b11b1/graph.json)，[字段语义](schema.md)。新增 `route gemini`，原有 cards/acceptance 等路由保留。
+**先读 [当前快照导览](snapshots/v0.6.1-87ffe11dc645/README.md)**。机器入口 [current.json](current.json)，[完整图](snapshots/v0.6.1-87ffe11dc645/graph.json)，[字段语义](schema.md)。新增 `route gemini`，原有 cards/acceptance 等路由保留。
 
 ## 两种阅读深度
 

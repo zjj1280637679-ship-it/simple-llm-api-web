@@ -4,7 +4,7 @@
 
 ## 快速进入
 
-1. 读 [知识图入口](knowledge/README.md) 与 [当前快照导览](knowledge/snapshots/v0.6.0-ff534d1b11b1/README.md)。当前指针以 [current.json](knowledge/current.json) 为准。
+1. 读 [知识图入口](knowledge/README.md) 与 [当前快照导览](knowledge/snapshots/v0.6.1-87ffe11dc645/README.md)。当前指针以 [current.json](knowledge/current.json) 为准。
 2. 运行 `node knowledge/check.mjs`。MATCH 只表示被记录文件和本地内容一致；DRIFT 列出变化，历史快照仍可参考，当前结论需重读变更来源。
 3. 用 `node knowledge/query.mjs route <主题>` 找到源码、条件文档、宿主及测试。修改某文件前可运行 `node knowledge/query.mjs impact src/persistence.js` 辅助定位消费者；动态注入和事件关系仍需人工检查。
 
@@ -21,6 +21,7 @@
 | 供应商、地址、鉴权、错误、日志 | `transport` |
 | 文本流、工具循环、网页会话命令 | `conversation` |
 | 思考模板及其证据 | `reasoning` |
+| Gemini 能力收缩、专属参数、回执绑定 | `gemini` |
 | Gemini 能力收缩、专属参数、回执绑定 | `gemini` |
 | 图片参数、生成与交付 | `image` |
 | 保存、导入导出、原生上下文保真 | `storage` |
