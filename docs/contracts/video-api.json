@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "R-020",
-    "version": "0.1.0",
-    "createdAt": "2026-11-15T00:00:00.000Z",
-    "updatedAt": "2026-11-15T00:00:00.000Z",
+    "version": "0.2.0",
+    "createdAt": "2026-11-14T20:34:20.000Z",
+    "updatedAt": "2026-11-14T21:10:18.000Z",
     "kind": "relation",
     "goal": "video.transport-authenticated-ref2va-jobs-and-verified-artifacts",
     "source": "src/video-api.js",
@@ -12,19 +12,21 @@
   },
   "host": {
     "id": "H-R-020",
-    "version": "0.1.0",
-    "createdAt": "2026-11-15T00:00:00.000Z",
-    "updatedAt": "2026-11-15T00:00:00.000Z",
+    "version": "0.2.0",
+    "createdAt": "2026-11-14T20:34:20.000Z",
+    "updatedAt": "2026-11-14T21:10:18.000Z",
     "entry": "development/hosts/video-api.mjs",
     "moduleId": "R-020",
-    "moduleVersion": "0.1.0",
+    "moduleVersion": "0.2.0",
     "mode": "local"
   },
   "conditions": [
     "Browser or Node 20+ with fetch, FormData, Blob, AbortController, streams and Web Crypto SHA-256; ordinary immutable input records and native File/Blob objects",
     "Self-hosted MiniMax-H3 ref2va API with documented /v1/system and /v1/jobs routes, Bearer authentication, allowlisted CORS and stable instance binding supplied by the UI",
     "HTTPS service URL, or explicit localhost/127.0.0.1/[::1] HTTP for development; no credentials, query or fragment in the configured URL",
-    "Provider reports, declared transport provenance, accepted submissions and matching artifact hashes do not independently verify live GPU execution or media semantics"
+    "Provider reports, declared transport provenance, accepted submissions and matching artifact hashes do not independently verify live GPU execution or media semantics",
+    "Compatible GET /v1/capabilities schema 1 reports ref2va/bf16 and configured trusted options; no capability record grants authority to load an arbitrary adapter or change precision",
+    "Capability identity is required and must equal the parallel system observation; quantization must explicitly be false"
   ],
   "observations": [
     "Multipart submission preserves reference order and separates server acceptance from model readiness and generation completion",
@@ -32,10 +34,20 @@
     "Cancellation returns the server's actual state, including cancel_requested or an already succeeded task",
     "Artifact transfer constructs only authenticated same-base routes, verifies byte length and SHA-256, and returns caller-owned Blob data",
     "Bounded Range concurrency retries only failed GET ranges; a server ignoring the initial Range receives one full-file download",
-    "Requests are bounded by deadlines and AbortSignal; diagnostics omit multipart payloads and redact registered credentials"
+    "Requests are bounded by deadlines and AbortSignal; diagnostics omit multipart payloads and redact registered credentials",
+    "Capability discovery preserves configured versus ready: model download does not block admitted queue submissions",
+    "Explicit per-task attention_backend, acceleration_lora and steps; Turbo requires 5 schedule points / 4 model evaluations with no implicit step edit",
+    "Requested execution options and effective GPU-applied receipt remain separate facts"
   ],
-  "tests": ["tests/video-api.test.js"],
-  "gates": {"F": "UNKNOWN", "C": "UNKNOWN", "H": "UNKNOWN", "Q": "UNKNOWN"},
+  "tests": [
+    "tests/video-api.test.js"
+  ],
+  "gates": {
+    "F": "UNKNOWN",
+    "C": "UNKNOWN",
+    "H": "UNKNOWN",
+    "Q": "UNKNOWN"
+  },
   "limits": [
     "No GPU start/stop, scheduler ownership, polling loop, persistent storage, object URL ownership, media decode validation or task list endpoint",
     "Local validation covers parameter and file metadata limits; actual codecs, duration, frame rate, image dimensions and audio channels remain server checks",
@@ -55,17 +67,44 @@
     "A lost POST acknowledgement may hide an accepted job; retrying with a new key may create duplicate work",
     "cancel_requested and a lost cancel acknowledgement do not establish task cancellation",
     "A provider-supplied external file URL is not authority to send the API credential to another host",
-    "An intact download matching a provider manifest is not evidence of decoded video content or live model execution"
+    "An intact download matching a provider manifest is not evidence of decoded video content or live model execution",
+    "A configured but not yet ready Turbo adapter permits queuing; ready false does not mean unsupported",
+    "Capability discovery failure blocks new uploads, not authorized observation, cancellation or download of existing jobs",
+    "Choosing Turbo at 50 steps does not authorize silently changing to five steps"
   ],
   "extensionSeam": "Inject fetch and Web Crypto implementations; retain bounded transfer, credential isolation, exact job identity and unknown-outcome semantics when extending the server protocol",
   "proofObligations": [
-    {"id": "R-020.effect", "statement": "提交、查询、取消与下载分别报告已观察的服务事实；网络失败不能伪造任务终态", "status": "OPEN", "localWitness": "development/hosts/video-api.mjs"},
-    {"id": "R-020.non-inference", "statement": "局部传输及哈希校验不推出GPU准备、媒体内容正确、云资源释放或完整目标达成", "status": "OPEN"}
+    {
+      "id": "R-020.effect",
+      "statement": "提交、查询、取消与下载分别报告已观察的服务事实；网络失败不能伪造任务终态",
+      "status": "OPEN",
+      "localWitness": "development/hosts/video-api.mjs"
+    },
+    {
+      "id": "R-020.non-inference",
+      "statement": "局部传输及哈希校验不推出GPU准备、媒体内容正确、云资源释放或完整目标达成",
+      "status": "OPEN"
+    }
   ],
   "epistemicBoundary": {
-    "observations": ["Synthetic host exercises ordered upload, queued/running observations, cancellation state and byte-verified transfer without real network or GPU"],
-    "assumptions": ["Backend contract and CORS configuration match this module", "Caller pins task identity to the original API address and instance"],
+    "observations": [
+      "Synthetic host exercises ordered upload, queued/running observations, cancellation state and byte-verified transfer without real network or GPU"
+    ],
+    "assumptions": [
+      "Backend contract and CORS configuration match this module",
+      "Caller pins task identity to the original API address and instance"
+    ],
     "policyReference": "design/DECISIONS.md",
-    "notEstablished": ["Live browser CORS acceptance", "Real model generation", "Video decoding and semantic quality", "Complete implementation proof", "Full F/C/H/Q admission"]
+    "notEstablished": [
+      "Live browser CORS acceptance",
+      "Real model generation",
+      "Video decoding and semantic quality",
+      "Complete implementation proof",
+      "Full F/C/H/Q admission"
+    ]
+  },
+  "timestampCorrection": {
+    "previousCreationWasFutureUTC": true,
+    "replacementBasis": "First recorded introduction commit 4523b2a7cf83e91de9dd98941590f70e20e95006 committed 2026-11-15T04:34:20+08:00; historical snapshots retain the original timestamps"
   }
 }

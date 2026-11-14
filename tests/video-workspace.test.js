@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {File} from 'node:buffer';
-import {createVideoWorkspace,videoJobLabel} from '../src/video-workspace.js';
+import {createVideoWorkspace,videoJobLabel,videoGenerationLabel} from '../src/video-workspace.js';
+
+const capabilities=(turbo=false,ready=false)=>({schema_version:1,instance_id:'instance-a',workflow:'ref2va',precision:'bf16',quantization:false,model_ready:ready,defaults:{attention_backend:'auto',acceleration_lora:'none',steps:50},options:{attention_backends:['auto','native','_native_flash'].map(id=>({id,supported:true,configured:true,ready})),acceleration_loras:[{id:'none',supported:true,configured:true,ready,steps:{min:2,max:50,default:50}},{id:'lightx2v-ref2va-4step',supported:true,configured:turbo,ready:turbo&&ready,steps:{min:5,max:5,required:5,denoiser_evaluations:4},reason:turbo?'':'未在启动配置中预加载'}]}});
 
 const ID=n=>n.toString(16).padStart(32,'0');
 const URL='https://video.example';
@@ -11,8 +13,9 @@ const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve
 function fakeClock(){let time=1000,seq=0;const tasks=new Map();return {now:()=>time,setTimeout(fn,delay){const id=++seq;tasks.set(id,{fn,at:time+delay});return id;},clearTimeout:id=>tasks.delete(id),pending:()=>tasks.size,async next(){const first=[...tasks].sort((a,b)=>a[1].at-b[1].at)[0];if(!first)return false;tasks.delete(first[0]);time=first[1].at;first[1].fn();await flush();return true;}};}
 function memoryStore(initial=null){let data=initial;return {getItem:()=>data,setItem:(key,value)=>{data=value;},read:()=>data};}
 function harness({storage=memoryStore(),overrides={},clock=fakeClock(),key='secret-test-key'}={}){
-  const calls={submit:[],job:[],cancel:[],download:[],system:[]},records=new Map(),revoked=[],created=[],saved=[];
+  const calls={submit:[],job:[],cancel:[],download:[],system:[],capabilities:[]},records=new Map(),revoked=[],created=[],saved=[];
   const service={instance:'instance-a',admission:true,ready:false,
+    async capabilities(){return {...capabilities(service.turbo,service.ready),instance_id:service.instance};},
     async system(){return {instance_id:service.instance,model_ready:service.ready,queue:{admission_open:service.admission}};},
     async submit(input,idempotencyKey){const job={id:ID(records.size+1),instance_id:service.instance,status:'queued',waiting_for:'model_ready',queue_position:records.size+1};records.set(job.id,job);return {...job};},
     async job(id){if(!records.has(id))throw Object.assign(new Error('Not found'),{httpStatus:404});return {...records.get(id)};},
@@ -20,7 +23,7 @@ function harness({storage=memoryStore(),overrides={},clock=fakeClock(),key='secr
     async download(id,artifact,{onProgress}){onProgress({loaded:8,total:8});return {blob:new Blob(['video123']),bytes:8,filename:id+'.mp4',sha256:'synthetic'};},...overrides};
   const window={location:{pathname:'/index.html'},URL:{createObjectURL(blob){const url='blob:test/'+created.length;created.push({url,blob});return url;},revokeObjectURL:url=>revoked.push(url)}};
   const document={createElement(){const node={click:()=>saved.push({href:node.href,filename:node.download})};return node;}};
-  const clientFactory=options=>Object.fromEntries(['system','submit','job','cancel','download'].map(method=>[method,(...args)=>{calls[method].push({args,options});return service[method](...args);} ]));
+  const clientFactory=options=>Object.fromEntries(['system','capabilities','submit','job','cancel','download'].map(method=>[method,(...args)=>{calls[method].push({args,options});return service[method](...args);} ]));
   const ui=createVideoWorkspace({document,window,clock,clientFactory,storage,storageKey:'video-test',cryptoImpl:null});
   const input=(field,value)=>ui.handleInput({dataset:{videoField:field},value});
   const connect=async()=>{ui.setConnection({url:URL,key});await ui.connect();};
@@ -40,6 +43,84 @@ test('new submissions require positive admission and an authenticated connection
   const h=harness();h.input('draft','test');h.ui.addFiles([reference()]);await h.ui.submit();assert.equal(h.calls.submit.length,0);
   h.service.admission=false;await h.connect();await h.ui.submit();assert.equal(h.calls.submit.length,0);assert.match(h.ui.snapshot().error,/暂不接收/);
   h.service.admission=true;await h.ui.connect();await h.ui.submit();assert.equal(h.calls.submit.length,1);h.ui.dispose();
+});
+
+test('Turbo can queue before model readiness but its five steps require an explicit edit',async()=>{
+  const h=harness();h.service.turbo=true;await h.connect();h.input('attention_backend','_native_flash');h.input('acceleration_lora','lightx2v-ref2va-4step');await h.submit();
+  assert.equal(h.calls.submit.length,0);assert.equal(h.ui.snapshot().options.steps,50);assert.match(h.ui.snapshot().error,/5 步/);
+  await h.ui.handleClick({dataset:{action:'video-turbo-steps'}});assert.equal(h.ui.snapshot().options.steps,5);await h.ui.submit();assert.equal(h.calls.submit.length,1);
+  const sent=h.calls.submit[0].args[0];assert.equal(sent.attention_backend,'_native_flash');assert.equal(sent.acceleration_lora,'lightx2v-ref2va-4step');assert.equal(sent.steps,5);assert.match(h.ui.snapshot().jobs[0].generationLabel,/等待 GPU/);h.ui.dispose();
+});
+
+test('unconfigured LoRA and missing capability discovery prevent new uploads while old tasks remain controllable',async()=>{
+  const h=harness();await h.connect();await h.submit();h.input('acceleration_lora','lightx2v-ref2va-4step');h.input('steps','5');await h.submit();assert.equal(h.calls.submit.length,1);assert.match(h.ui.snapshot().error,/未在此服务配置/);
+  h.service.capabilities=async()=>{throw new Error('capability transport unavailable');};await h.ui.connect();assert.equal(h.ui.snapshot().connected,true);assert.equal(h.ui.snapshot().capabilitiesAvailable,false);await h.ui.submit();assert.equal(h.calls.submit.length,1);
+  await h.ui.refreshJob(ID(1));await h.ui.cancelJob(ID(1));assert.equal(h.ui.snapshot().jobs[0].status,'cancelled');assert.equal(h.calls.cancel.length,1);h.ui.dispose();
+});
+
+test('capability and system reads are independent; incompatible capabilities do not erase task access',async()=>{
+  const pending=deferred();const h=harness({overrides:{system:()=>pending.promise,capabilities:async()=>({...capabilities(),precision:'fp8'})}});
+  h.ui.setConnection({url:URL,key:'secret-test-key'});const connecting=h.ui.connect();assert.equal(h.calls.system.length,1);assert.equal(h.calls.capabilities.length,1);
+  pending.resolve({instance_id:'instance-a',model_ready:false,queue:{admission_open:true}});await connecting;
+  assert.equal(h.ui.snapshot().connected,true);assert.equal(h.ui.snapshot().capabilitiesAvailable,false);assert.match(h.ui.snapshot().capabilitiesError,/BF16/);h.ui.dispose();
+});
+
+test('requested and effective execution settings remain distinguishable across observations',async()=>{
+  const h=harness();await h.connect();await h.submit();const before=h.ui.snapshot().jobs[0].generationLabel;assert.match(before,/请求/);assert.match(before,/等待 GPU/);assert.doesNotMatch(before,/实际：/);
+  const requested={attention_backend:'auto',acceleration_lora:'none',steps:50};h.records.get(ID(1)).generation_options={requested,effective:{...requested,attention_backend:'native',precision:'bf16',denoiser_evaluations:49}};
+  await h.ui.refreshJob(ID(1));assert.match(h.ui.snapshot().jobs[0].generationLabel,/实际：PyTorch SDPA/);assert.match(h.ui.snapshot().jobs[0].generationLabel,/49 次评估 · BF16/);
+  assert.equal(videoGenerationLabel(null),'');assert.match(h.ui.markup(''),/data-video-generation/);h.ui.dispose();
+});
+
+test('presets explicitly return to base LoRA and changing endpoint clears capability authority',async()=>{
+  const h=harness();h.service.turbo=true;await h.connect();h.input('acceleration_lora','lightx2v-ref2va-4step');await h.ui.handleClick({dataset:{action:'video-turbo-steps'}});
+  await h.ui.handleClick({dataset:{action:'video-preset-test'}});assert.equal(h.ui.snapshot().options.steps,8);assert.equal(h.ui.snapshot().options.acceleration_lora,'none');
+  h.input('url','https://changed.example');assert.equal(h.ui.snapshot().capabilitiesAvailable,false);assert.equal(h.ui.snapshot().connected,false);h.ui.dispose();
+});
+
+test('capabilities require the current instance; missing or other-instance claims cannot authorize upload',async()=>{
+  for(const identity of [undefined,'instance-b']){
+    const h=harness();await h.connect();await h.submit();h.service.capabilities=async()=>({...capabilities(true),instance_id:identity});await h.ui.connect();
+    assert.equal(h.ui.snapshot().connected,true);assert.equal(h.ui.snapshot().capabilitiesAvailable,false);await h.submit();assert.equal(h.calls.submit.length,1);
+    await h.ui.cancelJob(ID(1));assert.equal(h.ui.snapshot().jobs[0].status,'cancelled');h.ui.dispose();
+  }
+});
+
+test('a late capability 401 or stale capability result never replaces a newer connection',async()=>{
+  for(const fail of [true,false]){
+    const pending=deferred();let count=0;const h=harness({overrides:{capabilities:()=>++count===1?pending.promise:Promise.resolve(capabilities(true))}});
+    h.ui.setConnection({url:URL,key:'old-key'});const first=h.ui.connect();h.input('key','new-key');await h.ui.connect();
+    if(fail)pending.reject(Object.assign(new Error('old credential rejected'),{httpStatus:401}));else pending.resolve({...capabilities(),instance_id:'stale-instance'});await first;
+    assert.equal(h.ui.snapshot().connected,true);assert.equal(h.ui.snapshot().capabilitiesAvailable,true);assert.equal(h.ui.snapshot().capabilitiesError,'');await h.submit();assert.equal(h.calls.submit[0].options.key,'new-key');h.ui.dispose();
+  }
+});
+
+test('upload snapshots and queued requested settings are independent of later form edits',async()=>{
+  const pending=deferred();const h=harness({overrides:{submit:()=>pending.promise}});h.service.turbo=true;await h.connect();h.input('attention_backend','_native_flash');h.input('acceleration_lora','lightx2v-ref2va-4step');h.input('steps','5');
+  const sending=h.submit();const sent=h.calls.submit[0].args[0];h.input('attention_backend','native');h.input('acceleration_lora','none');h.input('steps','8');
+  assert.deepEqual([sent.attention_backend,sent.acceleration_lora,sent.steps],['_native_flash','lightx2v-ref2va-4step',5]);
+  const requested={attention_backend:sent.attention_backend,acceleration_lora:sent.acceleration_lora,steps:sent.steps};pending.resolve({id:ID(1),instance_id:'instance-a',status:'queued',generation_options:{requested,effective:null}});await sending;
+  requested.steps=50;assert.match(h.ui.snapshot().jobs[0].generationLabel,/5 步/);assert.doesNotMatch(h.ui.snapshot().jobs[0].generationLabel,/50 步/);assert.equal(h.ui.snapshot().options.steps,8);h.ui.dispose();
+});
+
+test('malformed or contradictory generation receipts preserve task controls and the original request',async()=>{
+  const h=harness();await h.connect();await h.submit();const requested={attention_backend:'auto',acceleration_lora:'none',steps:50};
+  h.records.get(ID(1)).generation_options={requested:{...requested,steps:5},effective:null};await h.ui.refreshJob(ID(1));assert.match(h.ui.snapshot().jobs[0].generationError,/原提交不一致/);assert.match(h.ui.snapshot().jobs[0].generationLabel,/50 步/);
+  const malformed={requested,effective:{...requested,attention_backend:'native',precision:123,denoiser_evaluations:49}};h.records.get(ID(1)).generation_options=malformed;await h.ui.refreshJob(ID(1));assert.match(h.ui.snapshot().jobs[0].generationError,/格式无效/);assert.doesNotThrow(()=>videoGenerationLabel(malformed));
+  h.records.get(ID(1)).generation_options={requested,effective:{...requested,steps:8,attention_backend:'native',precision:'bf16',denoiser_evaluations:7}};await h.ui.refreshJob(ID(1));assert.match(h.ui.snapshot().jobs[0].generationError,/实际配置与请求/);
+  await h.ui.cancelJob(ID(1));assert.equal(h.ui.snapshot().jobs[0].status,'cancelled');assert.equal(h.calls.cancel.length,1);h.ui.dispose();
+});
+
+test('an absent later effective receipt cannot erase a previously observed GPU configuration',async()=>{
+  const h=harness();await h.connect();await h.submit();const requested={attention_backend:'auto',acceleration_lora:'none',steps:50};
+  h.records.get(ID(1)).generation_options={requested,effective:{...requested,attention_backend:'native',precision:'bf16',denoiser_evaluations:49}};await h.ui.refreshJob(ID(1));
+  h.records.get(ID(1)).generation_options.effective=null;await h.ui.refreshJob(ID(1));assert.match(h.ui.snapshot().jobs[0].generationLabel,/实际：PyTorch SDPA/);assert.equal(h.ui.snapshot().jobs[0].generationError,'');h.ui.dispose();
+});
+
+test('missing capabilities still allow verified downloads and echoed credentials are redacted',async()=>{
+  const h=harness();await h.connect();await h.submit();Object.assign(h.records.get(ID(1)),{status:'succeeded',artifact:{bytes:8}});await h.ui.refreshJob(ID(1));
+  h.service.capabilities=async()=>{throw new Error('rejected secret-test-key');};await h.ui.connect();await h.ui.downloadJob(ID(1));assert.equal(h.calls.download.length,1);assert.equal(h.ui.snapshot().jobs[0].mediaReady,true);
+  assert.doesNotMatch(JSON.stringify(h.ui.snapshot()),/secret-test-key/);assert.doesNotMatch(h.storage.read(),/secret-test-key/);h.ui.dispose();
 });
 
 test('unknown submission is never reposted and a returned expected job ID is queried',async()=>{
@@ -99,6 +180,12 @@ test('a lost cancellation receipt does not invent final cancellation',async()=>{
   const h=harness({overrides:{cancel:async()=>{throw Object.assign(new Error('lost'),{unknown:true});}}});await h.connect();await h.submit();await h.ui.cancelJob(ID(1));
   assert.equal(h.ui.snapshot().jobs[0].status,'queued');assert.match(h.ui.snapshot().jobs[0].observationError,/尚未确认/);
   h.records.get(ID(1)).status='cancelled';await h.clock.next();assert.equal(h.ui.snapshot().jobs[0].status,'cancelled');h.ui.dispose();
+});
+
+test('only a confirmed cancelled result_not_committed receipt becomes the plain-language cancellation note',async()=>{
+  for(const [status,error,expected] of [['cancelled','result_not_committed','任务已取消，未提交视频产物'],['failed','result_not_committed','result_not_committed'],['cancel_requested','result_not_committed','result_not_committed'],['cancelled','cleanup_failed','cleanup_failed']]){
+    const h=harness();await h.connect();await h.submit();Object.assign(h.records.get(ID(1)),{status,error});await h.ui.refreshJob(ID(1));assert.equal(h.ui.snapshot().jobs[0].error,expected);assert.equal(h.ui.snapshot().jobs[0].status,status);h.ui.dispose();
+  }
 });
 
 test('clearing a key revokes subsequent query/cancel/download access without claiming to undo in-flight effects',async()=>{
@@ -223,5 +310,17 @@ test('reference-only contract rejects text-only and audio-only before any networ
 });
 
 test('progress labels preserve real phases and never invent a generation percentage',()=>{
-  assert.equal(videoJobLabel({status:'queued',queue_position:4}),'已排队 · 第 4 位');assert.equal(videoJobLabel({status:'running',active_phase:{phase:'encode'}}),'正在编码与校验');assert.equal(videoJobLabel({status:'cancel_requested'}),'取消请求已接收 · 等待停止');assert.doesNotMatch(videoJobLabel({status:'running'}),/%/);
+  assert.equal(videoJobLabel({status:'queued',queue_position:4}),'已排队 · 第 4 位');assert.equal(videoJobLabel({status:'running',active_phase:{phase:'encode'}}),'正在编码与校验');assert.equal(videoJobLabel({status:'cancel_requested'}),'取消请求已接收 · 等待停止');
+  assert.equal(videoJobLabel({status:'running',active_phase:null}),'等待执行阶段确认');
+  assert.equal(videoJobLabel({status:'running',active_phase:{phase:'gpu_wait'}}),'等待 GPU 资源');
+  assert.equal(videoJobLabel({status:'running',waiting_for:'gpu_lease'}),'等待 GPU 资源');
+  assert.equal(videoJobLabel({status:'running',active_phase:{phase:'encode_validate'}}),'正在编码与校验');
+  assert.equal(videoJobLabel({status:'queued',waiting_for:'model_capacity'}),'已排队 · 等待资源');
+  assert.doesNotMatch(videoJobLabel({status:'running'}),/%|正在生成/);
+});
+
+test('connection-time readiness never becomes an assertion of current model readiness in acceleration help',async()=>{
+  const h=harness();h.service.turbo=true;await h.connect();h.input('acceleration_lora','lightx2v-ref2va-4step');h.input('steps','5');await h.submit();
+  Object.assign(h.records.get(ID(1)),{status:'running',waiting_for:null,active_phase:{phase:'gpu'}});await h.ui.refreshJob(ID(1));
+  assert.equal(h.calls.capabilities.length,1);assert.match(h.ui.snapshot().jobs[0].label,/GPU 推理/);assert.doesNotMatch(h.ui.markup(''),/当前模型尚未就绪/);h.ui.dispose();
 });

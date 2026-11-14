@@ -2,8 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,webcrypto} from 'node:crypto';
 import {File} from 'node:buffer';
-import {createVideoClient,normalizeVideoEndpoint,validateVideoRequest,VIDEO_DEFAULTS,VIDEO_LIMITS,VideoApiError} from '../src/video-api.js';
+import {createVideoClient,normalizeVideoEndpoint,validateVideoRequest,validateVideoCapabilities,validateVideoAcceleration,VIDEO_DEFAULTS,VIDEO_LIMITS,VideoApiError} from '../src/video-api.js';
 import {clearNetworkLogs,getNetworkLogs} from '../src/logs.js';
+
+const capabilities=(turbo=false,ready=false)=>({schema_version:1,instance_id:'instance-a',workflow:'ref2va',precision:'bf16',quantization:false,model_ready:ready,defaults:{attention_backend:'auto',acceleration_lora:'none',steps:50},options:{attention_backends:['auto','native','_native_flash'].map(id=>({id,supported:true,configured:true,ready})),acceleration_loras:[{id:'none',supported:true,configured:true,ready,steps:{min:2,max:50,default:50}},{id:'lightx2v-ref2va-4step',supported:true,configured:turbo,ready:turbo&&ready,steps:{min:5,max:5,required:5,denoiser_evaluations:4},reason:turbo?'':'未在启动配置中预加载'}]}});
 
 const ID='a'.repeat(32), OTHER='b'.repeat(32), KEY='synthetic-video-client-test-key-0001';
 const ref=(kind='image',name='reference.png',body='fixture')=>({kind,file:new File([body],name)});
@@ -59,6 +61,29 @@ test('validation enforces aligned geometry and actual generation bounds',()=>{
     {steps:1},{steps:51},{steps:2.5},{seed:-1},{seed:2147483648},{seed:true}])
     assert.throws(()=>validateVideoRequest(input(invalid)),errorCode('INPUT'));
   assert.doesNotThrow(()=>validateVideoRequest(input({seconds:14.375,width:1344,height:768,steps:2,seed:2147483647})));
+});
+
+test('BF16 acceleration is explicit and Turbo refuses incompatible steps without coercion',()=>{
+  for(const invalid of [{attention_backend:'sage'},{attention_backend:'flash3'},{acceleration_lora:'https://example.test/arbitrary.safetensors'},{acceleration_lora:'lightx2v-ref2va-4step',steps:4},{acceleration_lora:'lightx2v-ref2va-4step',steps:8}])
+    assert.throws(()=>validateVideoRequest(input(invalid)),errorCode('INPUT'));
+  const value=validateVideoRequest(input({attention_backend:'_native_flash',acceleration_lora:'lightx2v-ref2va-4step',steps:5}));
+  assert.equal(value.steps,5);assert.equal(value.attention_backend,'_native_flash');
+  assert.throws(()=>validateVideoAcceleration(value,capabilities(false)),errorCode('CAPABILITIES'));
+  assert.doesNotThrow(()=>validateVideoAcceleration(value,capabilities(true,false)));
+});
+
+test('capability discovery validates precision, schema and step semantics with Bearer authentication',async()=>{
+  let target;const api=client(async(url,options)=>{target=url;assert.equal(options.headers.Authorization,`Bearer ${KEY}`);return Response.json(capabilities(true));});
+  assert.equal((await api.capabilities()).precision,'bf16');assert.equal(target,'https://api.example.test/v1/capabilities');
+  for(const mutate of [value=>value.precision='fp8',value=>value.quantization=true,value=>delete value.instance_id,value=>value.instance_id='',value=>value.workflow='t2v',value=>value.schema_version=2,value=>value.options.attention_backends.push(value.options.attention_backends[0]),value=>value.options.acceleration_loras[1].steps.required=4,value=>value.options.acceleration_loras[0].steps.max=51]){
+    const value=capabilities(true);mutate(value);assert.throws(()=>validateVideoCapabilities(value),errorCode('CAPABILITIES'));
+  }
+});
+
+test('multipart preserves explicit native Flash and Turbo controls',async()=>{
+  let form;const api=client(async(url,options)=>{form=options.body;return Response.json(job(),{status:202});});
+  await api.submit(input({attention_backend:'_native_flash',acceleration_lora:'lightx2v-ref2va-4step',steps:5}),'turbo-request');
+  assert.equal(form.get('attention_backend'),'_native_flash');assert.equal(form.get('acceleration_lora'),'lightx2v-ref2va-4step');assert.equal(form.get('steps'),'5');
 });
 
 test('upload sends ordered multipart, one Bearer request and no manually invented boundary',async()=>{

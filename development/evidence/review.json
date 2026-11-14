@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-11-14T20:37:42.041Z",
-  "reviewedBase": "04c6787fe4f944d3b6273767b4043a8bca2fc32c",
+  "recordedAt": "2026-11-14T22:26:13.632Z",
+  "reviewedBase": "84cf1edb3bb5cce4357085190714e019a536f1b4",
   "runtime": "v24.22.2",
   "counts": {
-    "tests": 518,
-    "pass": 517,
+    "tests": 534,
+    "pass": 533,
     "fail": 0,
     "cancelled": 0,
     "skipped": 1,
@@ -16,7 +16,7 @@
       "command": "node --test",
       "exitCode": 0,
       "output": "development/evidence/review-tests.txt",
-      "outputSha256": "405d8d556e7a8bf024c23e2bdc2570c3a358e04b3c3d0d685323d2abfa130b09"
+      "outputSha256": "bca76a82da3fd0566ef727147ca97e33f81f8f0c68d921af4d71354f71e7c431"
     },
     {
       "command": "node scripts/check.mjs",
@@ -28,7 +28,7 @@
       "command": "node scripts/run-hosts.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-hosts.txt",
-      "outputSha256": "39bc9396a700d08b076d1baa7933fdda27e02674cd4a800b33321a1dc8cc3f7b"
+      "outputSha256": "85c8c23e885806c28c8600ed37eb5b9dcd1cb52139d5c1e76e8024d870d7b2c2"
     },
     {
       "command": "node development/models/run.mjs",
@@ -46,7 +46,7 @@
       "command": "node scripts/review-health.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-health.txt",
-      "outputSha256": "48a4258b67c3cbc7c8b3462377e311eaef60c2d5ad290831f61cfe53ca20bb32"
+      "outputSha256": "bd4ed8d8fe9a36bc38b5f81ecdcb306ff0d0e9905c4746b458deb042b0190847"
     },
     {
       "command": "node scripts/review-sources.mjs",
@@ -95,8 +95,8 @@
     "development/hosts/settings-navigation.mjs": "1f02459d520931081a4fc3e59a7ac009fbc5b2cc6f374da8ad458149726d4b04",
     "development/hosts/stream-painter.mjs": "007cc784f9fd48298493beb35283a0a8949f2000fac2a65af8a925bee453101e",
     "development/hosts/transport-evidence.mjs": "234f5a10d11d4cea6831e92ab0f7709c6fc956cd7474e8b411243c31980f0217",
-    "development/hosts/video-api.mjs": "869ba9a19f40f3b994b6f6942cc97fa21658dbef0957ae9d32f435996ad62f3f",
-    "development/hosts/video-workspace.mjs": "cf55b0c9508582984e1b1711a538bf7c6e075fb8d51e957363ea283985d7d1e7",
+    "development/hosts/video-api.mjs": "d8ea3d5da62483216567b347a1112eeea37bb3bb284196325c2b355c501ede99",
+    "development/hosts/video-workspace.mjs": "2d2d9c8bcab43e32e06255d2ce902c9317d80e0a6e3dae2bfc1ff91be74a1bc5",
     "development/hosts/view-markup.mjs": "5b63214213ffe0b512661dd08b1f8847d350ab1338442caeae1715ea200787bd",
     "development/hosts/view-position.mjs": "23ae5f6a1b72057d186f1c29522919c8fbcc9207389b0720c330b50a6cc740ff",
     "development/hosts/workbench-cards.mjs": "d818ecf7f55755bee936b73ee55748ec233db63d8e3f69e7cacaf2af8f5106d9",
@@ -143,17 +143,17 @@
     "docs/contracts/settings-navigation.json": "57aba09914606f610fc2ddd7c838a86a5aa164237e74c9ae9975872365d9e56f",
     "docs/contracts/stream-painter.json": "f4262293ae66169a3c5052b698ebd95052e3d8807e9da5b818ca1ddc3d75fff9",
     "docs/contracts/transport-evidence.json": "21b35f1422b13e94453ba09675c825a1579ed91bc77e63773c55638e0a68bdb8",
-    "docs/contracts/video-api.json": "27f346f9a3205458480923c99896297539142f54dd9470d5fae201b19ebf14b3",
-    "docs/contracts/video-workspace.json": "58b243a62ff0b75f198d752daa94e185b9bf8f80d8f2dbeefdbff106ec629d0d",
+    "docs/contracts/video-api.json": "ea59df94145d9256891dff705d91be883a03d26ba4ce2655497673a749238655",
+    "docs/contracts/video-workspace.json": "55f2f3ac325aa962a0c4b2ccd593902de3d0d7b3f18743467caa42f267e7bd90",
     "docs/contracts/view-markup.json": "866c5aac59afe46cb51794403d1a64f616827470de319f9ec689f7fcfe7ec149",
     "docs/contracts/view-position.json": "a31973442c90ad4cd4853a1e8c0cd6ac8ed0d24172b0de054fde6c9028e02f7e",
     "docs/contracts/workbench-cards.json": "c5c55e231098d9cb29792717d7ccd2ee40d51bc3b01b3f4c8314da82b84a08c8",
     "docs/contracts/workbench.json": "349bf9f5325597739171ad3eae6c3bca640570ae1198c49d797aeb1a268fad32",
     "docs/contracts/workspace-storage.json": "cec021453a2bdc9fde05bffd3276fd704fa47b8308c5a2a94735752d4edddf15",
     "docs/evidence/source-claims.json": "9964aa34037a3c660ee311e2ea86a7ac3fe9101733df2789e708fc63f282d034",
-    "index.html": "79594612200f10087ee9a05aa25f4508d60a27122dc4103a4e4c7d78e29d0232",
-    "module-library/catalog.json": "a0f45b885b8579ce883adc77cf7f7b8fc9a1e93cde59e4b9de0e770b4719a26d",
-    "package.json": "1e8c74bee0a559b3ad4152ab4539aeea6a25ef195786c8360d0f693bc9b95a5f",
+    "index.html": "2bf74e82b734e395d21d30e29e11a234a992fa40602ae0d1fbf6909b0446ba60",
+    "module-library/catalog.json": "954e0d965882a756c22a6b0e56e76af5c42de291a25f889c7247ab1647bb0e7a",
+    "package.json": "c43a8aaba48e243499ec18318630e3fd16dd5e6b1cc4f9e3d60e82490f190da1",
     "scripts/build.mjs": "f0dbf0e5e62d5c25cdaa4250e2dfb5b9ea51e31407b0a8721d52f6254fb8bfbc",
     "scripts/check.mjs": "8df116237b06c5c15720b97afcf2706d70b733b5bb6dd6be74328b12c6183822",
     "scripts/review-evidence.mjs": "021a86853144586f3a85c7755a77782996d8b7e9e69dca015edfaa946c4921a6",
@@ -204,9 +204,9 @@
     "src/styles.css": "c8def18859fe16fc1b49eef40ef1488486c8976f5d65536f6bcee984c0b99a26",
     "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
     "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-    "src/video-api.js": "06d2391ca1e26c9ee626657010803602b22ead6e4533d481eb076bf019f3bf14",
-    "src/video-workspace.css": "ecebdbb1d761b0b8eecb8c9fd991e84e8fffd3fd718700b71db35a03f84fa8dd",
-    "src/video-workspace.js": "eb89ed1ae8f653f4df65f6ce2b6cda3fcee1a671f6e2f3a125e9e022547813cd",
+    "src/video-api.js": "d749ba6d71ff0a94912c8c299cee8158cd71fd03731ec11f7b593c1d2e616654",
+    "src/video-workspace.css": "044884616a83ec024543347bfe517997091ad3ba6b79b31627e9e389c3067580",
+    "src/video-workspace.js": "27485260103e9b7610d16e3195684d185c298131bf0cb6d2a0d7634c75106c63",
     "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca",
     "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
     "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e",
@@ -273,9 +273,9 @@
     "tests/stream.test.js": "9ebea1d83f440cb54679c488c9ed60d8b082cfdc34e698aa02f429e0f8b77be3",
     "tests/support/ui-sources.mjs": "651f6e02c5df2e84bc95b0cc7ff1384ca6e54007162d541bd2c29e05bff5deea",
     "tests/usage.test.js": "8ee9bcf050504588f0ca5604e2f746bc756af268958bf1960b7daff89e3e2e08",
-    "tests/video-api.test.js": "98dda5a7acedb911476b6ab82c207166eab68ffb54f3e0c68bfc9c3667cef5f7",
-    "tests/video-workspace.test.js": "4bf5d2a6a7fc42e33838718cdf3d2b66f5966b6c256ba417373dcb5b1887f9c5",
+    "tests/video-api.test.js": "b6df72b35123d3a3397fd70ad09f0699c3255d745be5921bec9cadf9a35f261e",
+    "tests/video-workspace.test.js": "85596f61e4bd9edc99ed364b0a401b4a3e1529ca52e77c2ac3c03734e39f4241",
     "tests/view-position.test.js": "b7e98f54c2cfc88ed96dbe3be31e447283214f40c191b7de62647bfebedfcc63"
   },
-  "scope": "Synthetic transports and CPU hosts; browser observations documented separately. No cloud GPU or paid model calls."
+  "scope": "These commands cover synthetic transports and CPU hosts only. Browser, cloud GPU generation and cleanup observations, if any, are recorded separately with their original evidence and limits."
 }

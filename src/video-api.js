@@ -6,7 +6,8 @@ import {describeTransport} from './transport-evidence.js';
 
 const MIB=1024*1024, JOB_ID=/^[a-f0-9]{32}$/, REQUEST_ID=/^[A-Za-z0-9._:-]{1,128}$/;
 const STATUSES=new Set(['queued','running','cancel_requested','succeeded','failed','cancelled']);
-export const VIDEO_DEFAULTS=Object.freeze({seconds:5,width:960,height:544,steps:50,seed:42});
+export const VIDEO_DEFAULTS=Object.freeze({seconds:5,width:960,height:544,steps:50,seed:42,attention_backend:'auto',acceleration_lora:'none'});
+export const VIDEO_ACCELERATION=Object.freeze({attention_backends:Object.freeze(['auto','native','_native_flash']),acceleration_loras:Object.freeze(['none','lightx2v-ref2va-4step'])});
 export const VIDEO_LIMITS=Object.freeze({files:12,image:9,video:3,audio:3,fileBytes:32*MIB,totalBytes:64*MIB,
   prompt:4000,minSeconds:5,maxSeconds:14.375,minDimension:256,maxDimension:1344,maxPixels:1344*768,
   minSteps:2,maxSteps:50,maxSeed:2147483647,downloadBytes:256*MIB});
@@ -42,6 +43,42 @@ function number(value,fallback,label,{min,max,integer=false}={}) {
     fail('INPUT',`${label}需为 ${min}–${max} 范围内的${integer?'整数':'数值'}。`);
   return value;
 }
+export function validateVideoCapabilities(value) {
+  if(!object(value)||value.schema_version!==1||value.workflow!=='ref2va'||value.precision!=='bf16'||value.quantization!==false||!object(value.options)||typeof value.instance_id!=='string'||!value.instance_id||value.instance_id.length>128)
+    fail('CAPABILITIES','服务未提供兼容的 ref2va / 原生 BF16 能力信息；可以查询已有任务，暂不提交新任务。');
+  for(const [name,ids] of Object.entries(VIDEO_ACCELERATION)) {
+    const options=value.options[name];
+    if(!Array.isArray(options)||!options.length||options.some(item=>!object(item)||typeof item.id!=='string'||typeof item.supported!=='boolean'||typeof item.configured!=='boolean'||typeof item.ready!=='boolean')||new Set(options.map(item=>item.id)).size!==options.length)
+      fail('CAPABILITIES','服务的加速能力列表无效，请重新连接查询。');
+    if(!options.some(item=>item.id===ids[0]))fail('CAPABILITIES','服务缺少必要的基础生成选项。');
+    if(name==='acceleration_loras')for(const item of options.filter(item=>ids.includes(item.id))) {
+      const steps=item.steps;
+      if(!object(steps)||!Number.isInteger(steps.min)||!Number.isInteger(steps.max)||steps.min<2||steps.max>50||steps.min>steps.max||
+        steps.required!==undefined&&(!Number.isInteger(steps.required)||steps.required<steps.min||steps.required>steps.max)||
+        item.id==='lightx2v-ref2va-4step'&&(steps.min!==5||steps.max!==5||steps.required!==5||steps.denoiser_evaluations!==4))
+        fail('CAPABILITIES','服务的加速步数约束不兼容，请更新服务后重新连接。');
+    }
+  }
+  return value;
+}
+export function validateVideoAcceleration(input,capabilities) {
+  const attention_backend=input.attention_backend??VIDEO_DEFAULTS.attention_backend;
+  const acceleration_lora=input.acceleration_lora??VIDEO_DEFAULTS.acceleration_lora;
+  if(!VIDEO_ACCELERATION.attention_backends.includes(attention_backend)||!VIDEO_ACCELERATION.acceleration_loras.includes(acceleration_lora))
+    fail('INPUT','请选择受支持的原生 BF16 注意力后端和加速 LoRA。');
+  const steps=number(input.steps,VIDEO_DEFAULTS.steps,'推理步数',{min:2,max:50,integer:true});
+  if(acceleration_lora==='lightx2v-ref2va-4step'&&steps!==5)fail('INPUT','LightX2V Turbo 必须显式设为 5 步（4 次模型评估）；当前步数未更改。');
+  if(capabilities!==undefined) {
+    validateVideoCapabilities(capabilities);
+    for(const [list,id] of [['attention_backends',attention_backend],['acceleration_loras',acceleration_lora]]) {
+      const option=capabilities.options[list].find(item=>item.id===id);
+      if(!option?.supported||!option.configured)fail('CAPABILITIES',`所选${list==='attention_backends'?'注意力后端':'加速 LoRA'}未在此服务配置：${option?.reason||id}。`);
+      if(list==='acceleration_loras'&&(steps<option.steps.min||steps>option.steps.max||option.steps.required!==undefined&&steps!==option.steps.required))
+        fail('INPUT',`所选加速 LoRA 要求 ${option.steps.required??`${option.steps.min}–${option.steps.max}`} 步；请显式调整步数。`);
+    }
+  }
+  return {attention_backend,acceleration_lora,steps};
+}
 export function validateVideoRequest(input) {
   if(!object(input))fail('INPUT','视频请求无效。');
   if(typeof input.prompt!=='string'||!input.prompt.trim()||[...input.prompt].length>VIDEO_LIMITS.prompt)
@@ -65,7 +102,7 @@ export function validateVideoRequest(input) {
   const height=number(input.height,VIDEO_DEFAULTS.height,'高度',{min:256,max:1344,integer:true});
   if(width%32||height%32||width*height>VIDEO_LIMITS.maxPixels)fail('INPUT','宽高须为 32 的倍数，且总像素不超过 1,032,192。');
   return {prompt:input.prompt,files:files.map(({kind,file})=>({kind,file})),seconds,width,height,
-    steps:number(input.steps,VIDEO_DEFAULTS.steps,'推理步数',{min:2,max:50,integer:true}),
+    ...validateVideoAcceleration(input),
     seed:number(input.seed,VIDEO_DEFAULTS.seed,'随机种子',{min:0,max:2147483647,integer:true})};
 }
 
@@ -191,6 +228,7 @@ export function createVideoClient({url,key,fetchImpl=globalThis.fetch,timeoutMs=
   }
   return Object.freeze({
     system:({signal}={})=>request('/v1/system',{signal}),
+    capabilities:({signal}={})=>request('/v1/capabilities',{signal,consume:async(response,innerSignal)=>validateVideoCapabilities(await readJSON(response,innerSignal))}),
     async submit(input,idempotencyKey,{signal}={}) {
       checkAbort(signal);const value=validateVideoRequest(input);
       if(typeof idempotencyKey!=='string'||!REQUEST_ID.test(idempotencyKey))fail('INPUT','提交前需生成并保留本次唯一请求标识。');
@@ -198,7 +236,7 @@ export function createVideoClient({url,key,fetchImpl=globalThis.fetch,timeoutMs=
       try{for(const item of value.files)form.append('files',item.file,item.file.name);}
       catch{fail('INPUT','参考文件必须是浏览器可上传的 File 或 Blob。');}
       form.append('kinds',JSON.stringify(value.files.map(item=>item.kind)));
-      for(const name of ['prompt','seconds','width','height','steps','seed'])form.append(name,String(value[name]));
+      for(const name of ['prompt','seconds','width','height','steps','seed','attention_backend','acceleration_lora'])form.append(name,String(value[name]));
       try{return await request('/v1/jobs',{method:'POST',body:form,signal,headers:{'Idempotency-Key':idempotencyKey},timeout:uploadTimeoutMs,
         consume:async(response,innerSignal)=>validateJob(await readJSON(response,innerSignal))});}
       catch(error){throw mutationError(error,'submit',idempotencyKey);}

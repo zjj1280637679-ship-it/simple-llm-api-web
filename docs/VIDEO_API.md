@@ -1,6 +1,6 @@
 # 自建视频 API
 
-v0.8.0 为原项目增加独立「视频」工作区，对话、图片及原会话存档继续使用原有流程。
+v0.9.0 保留对话、图片、视频及原会话存档，增加逐任务 BF16 加速控制。
 
 ## 使用
 
@@ -11,6 +11,14 @@ v0.8.0 为原项目增加独立「视频」工作区，对话、图片及原会�
 5. 在任务卡查询、取消或下载。网络失败只代表当前观察失败，原任务可能仍在服务器运行。关闭网页不会停止远端任务；需要停止时对相应任务点取消。
 
 高级参数默认收起：5 秒、960×544、50 步、seed 42；实际时长由模型帧数对齐，按服务回执为准。512×288、8 步可用于低成本功能验收，不代表正常画质设置。网页不会改变后端 A100 原生 BF16 精度。
+
+## v0.9.0 加速控制（2026-11-15，北京时间）
+
+「生成参数与加速」中可独立选择 `auto`（由服务解析到实际后端）、`native`（PyTorch SDPA）、`_native_flash`（强制 PyTorch Flash SDPA）；没有加入量化注意力内核。加速 LoRA 可关闭，或使用服务启动时已配置的 `lightx2v-ref2va-4step`。不支持任意 LoRA URL 或临时下载外部插件。
+
+Turbo 需要 **steps=5，即 5 个调度点、4 次模型评估**。选择 Turbo 不会偷偷改步数；点击「设为 5 步（4 次评估）」或手动填写 5 后才能提交。服务不支持、未预加载或步数不符时，网页显示原因并阻止上传。可配置但尚在下载的 LoRA 仍允许排队，不以 `ready=false` 判定不可提交。
+
+连接时并行读取系统与能力。能力不可用、不兼容或精度不符时，已有任务仍可查询、取消和下载，新上传等待重新连接核实。任务卡分别显示请求配置与实际 GPU 应用配置；尚未推理时不会把 requested 冒充 effective。能力描述和实际回执也不等于速度提升已经测量。
 
 参考总数 1–12；图片≤9、视频≤3、音频≤3；单文件≤32 MiB、合计≤64 MiB。视频/音频每段 2–15 秒，各类型总时长≤15秒。服务端还会探测格式、尺寸、帧率和时长，上传被接收不代表预处理必定通过。
 
@@ -26,7 +34,7 @@ v0.8.0 为原项目增加独立「视频」工作区，对话、图片及原会�
 
 ## 服务端兼容
 
-所需接口：`GET /v1/system`、`POST /v1/jobs`、`GET /v1/jobs/{id}`、`POST /v1/jobs/{id}/cancel`、`GET /v1/jobs/{id}/file`。上传为 multipart：重复 `files`，`kinds` JSON 数组，与 prompt / seconds / width / height / steps / seed。
+所需接口：`GET /v1/system`、`GET /v1/capabilities`、`POST /v1/jobs`、`GET /v1/jobs/{id}`、`POST /v1/jobs/{id}/cancel`、`GET /v1/jobs/{id}/file`。上传为 multipart：重复 `files`，`kinds` JSON 数组，与 prompt / seconds / width / height / steps / seed / attention_backend / acceleration_lora。能力端点需返回 `schema_version:1`、`workflow:ref2va`、`precision:bf16`、`quantization:false` 和与系统相同的非空 `instance_id`；`options.attention_backends` 和 `options.acceleration_loras` 中分别报告 `supported`、`configured`、`ready`，LoRA 项包含 `steps` 约束。
 
 所有实际 `/v1/*` 请求需要 Bearer。独立网页必须允许 CORS 预检；仅把健康查询返回 200 并不能证明浏览器可以上传或下载。
 
@@ -40,4 +48,6 @@ https://zjj1280637679-ship-it.github.io,http://localhost:8000,http://127.0.0.1:8
 
 ## 验证边界
 
-传输、状态与生命周期测试使用合成条件；本地浏览器端到端测试接真实 API 路由与模拟管理器，已有 MP4 仅作下载/播放夹具，不是本轮 GPU 新生成。网页新增功能没有启动云 GPU。既有 A100 BF16 验收记录只覆盖当时后端版本，不能替代本轮网页实机生成验收。
+**v0.8.0 历史记录，2026-11-15（北京时间）：** 传输、状态与生命周期测试使用合成条件；本地浏览器端到端测试接实际 API 路由与模拟管理器，MP4 仅作下载/播放夹具，不是该轮 GPU 新生成。该版本网页验收未启动云 GPU；更早的 A100 BF16 记录只覆盖当时后端版本。原始条件见 [v0.8.0 浏览器记录](reviews/2026-11-15-video-browser.md)。
+
+**v0.9.0 当前范围，2026-11-15（北京时间）：** 新增能力校验、逐任务加速控制和配置回执的单元测试与宿主仍使用合成条件，不代表公网、真实 A100 BF16、媒体语义或速度收益已验证。完整验收状态以 [VALIDATION](../VALIDATION.md) 及对应实机记录为准，不能借旧版本结果推定当前网页已通过。

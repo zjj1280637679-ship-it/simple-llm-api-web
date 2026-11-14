@@ -5,7 +5,7 @@
 | 想做什么 | 从这里开始 |
 | --- | --- |
 | 配置 API、对话、图片、CLI 或部署 | [使用与接口参考](USAGE.md) |
-| 上传参考、排队、取消和下载自建视频 | [视频 API](VIDEO_API.md)、[v0.8.0](releases/v0.8.0.md) |
+| 上传参考、排队、取消和下载自建视频 | [视频 API](VIDEO_API.md)、[v0.9.0](releases/v0.9.0.md) |
 | 理解“最后一项才可交互”或新增卡片 | [交互卡协议](INTERACTION_CARDS.md) |
 | 看代码职责与状态归属 | [工作台模块](WORKBENCH_MODULES.md) |
 | 理解目标、条件、策略与证据为何分开 | [认识论设计](../design/EPISTEMIC_DESIGN.md) |

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T20:37:41.987Z",
+  "generatedAt": "2026-11-14T22:26:13.575Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
@@ -428,26 +428,26 @@
     },
     {
       "path": "src/video-api.js",
-      "bytes": 17849,
-      "lines": 243,
-      "maxLineCharacters": 187,
+      "bytes": 21452,
+      "lines": 281,
+      "maxLineCharacters": 271,
       "relativeImports": [
         "src/logs.js",
         "src/transport-evidence.js"
       ],
-      "sha256": "06d2391ca1e26c9ee626657010803602b22ead6e4533d481eb076bf019f3bf14"
+      "sha256": "d749ba6d71ff0a94912c8c299cee8158cd71fd03731ec11f7b593c1d2e616654"
     },
     {
       "path": "src/video-workspace.js",
-      "bytes": 40253,
-      "lines": 333,
-      "maxLineCharacters": 3933,
+      "bytes": 48460,
+      "lines": 383,
+      "maxLineCharacters": 4569,
       "relativeImports": [
         "src/icons.js",
         "src/video-api.js",
         "src/view-markup.js"
       ],
-      "sha256": "eb89ed1ae8f653f4df65f6ce2b6cda3fcee1a671f6e2f3a125e9e022547813cd"
+      "sha256": "27485260103e9b7610d16e3195684d185c298131bf0cb6d2a0d7634c75106c63"
     },
     {
       "path": "src/view-markup.js",

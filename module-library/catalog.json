@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "0.8.0",
+  "version": "0.9.0",
   "createdAt": "2026-10-29T20:08:58.524Z",
-  "updatedAt": "2026-11-15T03:30:00.000Z",
+  "updatedAt": "2026-11-14T21:43:17.889Z",
   "entries": [
     {
       "id": "R-007",
@@ -620,16 +620,16 @@
       "id": "R-020",
       "kind": "relation",
       "source": "src/video-api.js",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "contract": "docs/contracts/video-api.json",
       "host": {
         "id": "H-R-020",
-        "version": "0.1.0",
-        "createdAt": "2026-11-15T00:00:00.000Z",
-        "updatedAt": "2026-11-15T00:00:00.000Z",
+        "version": "0.2.0",
+        "createdAt": "2026-11-14T20:34:20.000Z",
+        "updatedAt": "2026-11-14T21:10:18.000Z",
         "entry": "development/hosts/video-api.mjs",
         "moduleId": "R-020",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.2.0",
         "mode": "local"
       }
     },
@@ -637,16 +637,16 @@
       "id": "C-004",
       "kind": "composition",
       "source": "src/video-workspace.js",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "contract": "docs/contracts/video-workspace.json",
       "host": {
         "id": "H-C-004",
-        "version": "0.1.0",
-        "createdAt": "2026-11-15T03:30:00.000Z",
-        "updatedAt": "2026-11-15T03:30:00.000Z",
+        "version": "0.2.0",
+        "createdAt": "2026-11-14T20:34:20.000Z",
+        "updatedAt": "2026-11-14T21:43:17.889Z",
         "entry": "development/hosts/video-workspace.mjs",
         "moduleId": "C-004",
-        "moduleVersion": "0.1.0",
+        "moduleVersion": "0.2.0",
         "mode": "local"
       }
     }

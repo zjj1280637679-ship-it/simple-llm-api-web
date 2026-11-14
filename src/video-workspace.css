@@ -28,3 +28,6 @@
 .video-reference>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}.video-reference button{border:0;background:transparent;padding:2px;color:inherit;flex-shrink:0}.video-reference .video-ref-token{color:var(--fg)}
 @media(max-width:600px){.video-settings{padding:14px}.video-settings>summary>span{font-size:10px}.video-reference>span{max-width:125px}.video-restore-row{flex-wrap:wrap}.video-job-heading{align-items:flex-start}.video-job-id{font-size:10px}}
 @media(prefers-color-scheme:dark){.video-error{color:#f1a096}}
+
+.video-acceleration-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px;margin-top:15px}
+.video-acceleration-grid label{font-size:12px;color:var(--muted)}.video-acceleration-grid select{margin-top:5px;width:100%}.video-advanced [hidden]{display:none}
