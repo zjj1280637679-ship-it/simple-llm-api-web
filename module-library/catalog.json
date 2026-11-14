@@ -585,15 +585,15 @@
     {
       "id": "R-016",
       "kind": "relation",
-      "source": "src/video-api.js",
+      "source": "src/interaction-cards.js",
       "version": "0.1.0",
-      "contract": "docs/contracts/video-api.json",
+      "contract": "docs/contracts/interaction-cards.json",
       "host": {
         "id": "H-R-016",
         "version": "0.1.0",
-        "createdAt": "2026-11-15T00:00:00.000Z",
-        "updatedAt": "2026-11-15T00:00:00.000Z",
-        "entry": "development/hosts/video-api.mjs",
+        "createdAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-10-30T05:30:34.595Z",
+        "entry": "development/hosts/interaction-cards.mjs",
         "moduleId": "R-016",
         "moduleVersion": "0.1.0",
         "mode": "local"
@@ -602,16 +602,50 @@
     {
       "id": "C-003",
       "kind": "composition",
+      "source": "src/workbench-cards.js",
+      "version": "0.1.1",
+      "contract": "docs/contracts/workbench-cards.json",
+      "host": {
+        "id": "H-C-003",
+        "version": "0.1.4",
+        "createdAt": "2026-10-30T05:30:34.595Z",
+        "updatedAt": "2026-11-04T10:47:40.742Z",
+        "entry": "development/hosts/workbench-cards.mjs",
+        "moduleId": "C-003",
+        "moduleVersion": "0.1.1",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "R-020",
+      "kind": "relation",
+      "source": "src/video-api.js",
+      "version": "0.1.0",
+      "contract": "docs/contracts/video-api.json",
+      "host": {
+        "id": "H-R-020",
+        "version": "0.1.0",
+        "createdAt": "2026-11-15T00:00:00.000Z",
+        "updatedAt": "2026-11-15T00:00:00.000Z",
+        "entry": "development/hosts/video-api.mjs",
+        "moduleId": "R-020",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      }
+    },
+    {
+      "id": "C-004",
+      "kind": "composition",
       "source": "src/video-workspace.js",
       "version": "0.1.0",
       "contract": "docs/contracts/video-workspace.json",
       "host": {
-        "id": "H-C-003",
+        "id": "H-C-004",
         "version": "0.1.0",
         "createdAt": "2026-11-15T03:30:00.000Z",
         "updatedAt": "2026-11-15T03:30:00.000Z",
         "entry": "development/hosts/video-workspace.mjs",
-        "moduleId": "C-003",
+        "moduleId": "C-004",
         "moduleVersion": "0.1.0",
         "mode": "local"
       }

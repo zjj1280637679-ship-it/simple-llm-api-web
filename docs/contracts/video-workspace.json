@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "module": {
-    "id": "C-003", "version": "0.1.0", "createdAt": "2026-11-15T03:30:00.000Z", "updatedAt": "2026-11-15T03:30:00.000Z",
+    "id": "C-004", "version": "0.1.0", "createdAt": "2026-11-15T03:30:00.000Z", "updatedAt": "2026-11-15T03:30:00.000Z",
     "kind": "composition", "goal": "video.own-reference-job-observation-and-local-media", "source": "src/video-workspace.js", "lifecycle": "limited-use"
   },
   "host": {
-    "id": "H-C-003", "version": "0.1.0", "createdAt": "2026-11-15T03:30:00.000Z", "updatedAt": "2026-11-15T03:30:00.000Z",
-    "entry": "development/hosts/video-workspace.mjs", "moduleId": "C-003", "moduleVersion": "0.1.0", "mode": "local"
+    "id": "H-C-004", "version": "0.1.0", "createdAt": "2026-11-15T03:30:00.000Z", "updatedAt": "2026-11-15T03:30:00.000Z",
+    "entry": "development/hosts/video-workspace.mjs", "moduleId": "C-004", "moduleVersion": "0.1.0", "mode": "local"
   },
   "conditions": [
     "Explicit document/window/clock/storage/clientFactory collaborators; synthetic host has no network or GPU",
@@ -50,8 +50,8 @@
   ],
   "extensionSeam": "Service, clock and browser ownership boundaries are explicit collaborators; added server phases must preserve observed versus inferred status",
   "proofObligations": [
-    {"id":"C-003.effect", "statement":"Local host shows declared submission/query/cancellation/media observations under synthetic conditions", "status":"OPEN", "localWitness":"development/hosts/video-workspace.mjs"},
-    {"id":"C-003.non-inference", "statement":"Local lifecycle and transport evidence do not prove provider capacity, all-browser behavior or semantic generation success", "status":"OPEN"}
+    {"id":"C-004.effect", "statement":"Local host shows declared submission/query/cancellation/media observations under synthetic conditions", "status":"OPEN", "localWitness":"development/hosts/video-workspace.mjs"},
+    {"id":"C-004.non-inference", "statement":"Local lifecycle and transport evidence do not prove provider capacity, all-browser behavior or semantic generation success", "status":"OPEN"}
   ],
   "epistemicBoundary": {
     "observations": ["Synthetic job lifecycle with explicit effects and failure exits"],

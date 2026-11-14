@@ -5,6 +5,19 @@ import {readFileSync,readdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 
+test('every contract has one unique module and host identity in the complete catalog',()=>{
+  const root=new URL('../',import.meta.url);
+  const contracts=readdirSync(new URL('docs/contracts/',root)).filter(name=>name.endsWith('.json')).map(name=>JSON.parse(readFileSync(new URL(`docs/contracts/${name}`,root),'utf8')));
+  const catalog=JSON.parse(readFileSync(new URL('module-library/catalog.json',root),'utf8')).entries;
+  assert.equal(catalog.length,contracts.length);
+  for(const values of [catalog.map(e=>e.id),catalog.map(e=>e.source),contracts.map(c=>c.module.id),contracts.map(c=>c.host.id)])assert.equal(new Set(values).size,values.length);
+  for(const contract of contracts){
+    const entry=catalog.find(e=>e.source===contract.module.source);
+    assert.ok(entry,`Missing catalog entry: ${contract.module.source}`);
+    assert.equal(entry.id,contract.module.id);assert.equal(entry.version,contract.module.version);assert.deepEqual(entry.host,contract.host);
+  }
+});
+
 for (const slug of readdirSync(new URL('../docs/contracts/',import.meta.url)).filter(name=>name.endsWith('.json')).map(name=>name.slice(0,-5))) {
   test(`${slug} host exercises the production module and identifies exact source/host revisions`, () => {
     const root=new URL('../',import.meta.url);

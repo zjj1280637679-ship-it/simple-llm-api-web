@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T20:33:49.598Z",
+  "generatedAt": "2026-11-14T20:37:41.987Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
@@ -967,8 +967,8 @@
     },
     {
       "path": "docs/contracts/video-api.json",
-      "module": "R-016",
-      "host": "H-R-016",
+      "module": "R-020",
+      "host": "H-R-020",
       "question": "哪些事实已由传输回执与产物校验建立，哪些任务状态仍需服务器查询？",
       "goal": "video.transport-authenticated-ref2va-jobs-and-verified-artifacts",
       "stateBudget": "Per JSON response 1 MiB; upload metadata 12 files / 64 MiB; default 30 s request and 120 s upload deadlines; default 3 concurrent 1 MiB ranges and at most 2 retries per failed range; default 256 MiB artifact; no polling or growing task collection in this module",
@@ -981,8 +981,8 @@
     },
     {
       "path": "docs/contracts/video-workspace.json",
-      "module": "C-003",
-      "host": "H-C-003",
+      "module": "C-004",
+      "host": "H-C-004",
       "question": "如何在极简界面中分别拥有上传回执、服务端任务观察、取消请求及本机视频交付？",
       "goal": "video.own-reference-job-observation-and-local-media",
       "stateBudget": "3 simultaneous job observations, exponential backoff capped at 60 seconds plus Retry-After; up to 2 simultaneous authenticated media fetches sharing a 256 MiB payload budget with retained media; at most 3 retained Blob URLs. Downloads reserve artifact bytes before dispatch, release the reservation on every completion path, and wait when insufficient budget remains. Jobs have no fixed count cap. Key/file/prompt content is not persisted.",

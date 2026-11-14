@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-11-14T20:33:49.653Z",
+  "recordedAt": "2026-11-14T20:37:42.041Z",
   "reviewedBase": "04c6787fe4f944d3b6273767b4043a8bca2fc32c",
   "runtime": "v24.22.2",
   "counts": {
-    "tests": 517,
-    "pass": 516,
+    "tests": 518,
+    "pass": 517,
     "fail": 0,
     "cancelled": 0,
     "skipped": 1,
@@ -16,7 +16,7 @@
       "command": "node --test",
       "exitCode": 0,
       "output": "development/evidence/review-tests.txt",
-      "outputSha256": "47e4c3a295d6477b8a0829248197b4172325b8616f2c5323bb9e4754fe48ee1d"
+      "outputSha256": "405d8d556e7a8bf024c23e2bdc2570c3a358e04b3c3d0d685323d2abfa130b09"
     },
     {
       "command": "node scripts/check.mjs",
@@ -28,7 +28,7 @@
       "command": "node scripts/run-hosts.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-hosts.txt",
-      "outputSha256": "6beee1d1ecefbdb4650e3c8ee7f54e083514b23d5a1c9203c83fede007271d7d"
+      "outputSha256": "39bc9396a700d08b076d1baa7933fdda27e02674cd4a800b33321a1dc8cc3f7b"
     },
     {
       "command": "node development/models/run.mjs",
@@ -46,7 +46,7 @@
       "command": "node scripts/review-health.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-health.txt",
-      "outputSha256": "153f00d20c55c59796c7b6468def91e3a5eaba4301c9b38c1b41a1acd6781738"
+      "outputSha256": "48a4258b67c3cbc7c8b3462377e311eaef60c2d5ad290831f61cfe53ca20bb32"
     },
     {
       "command": "node scripts/review-sources.mjs",
@@ -143,8 +143,8 @@
     "docs/contracts/settings-navigation.json": "57aba09914606f610fc2ddd7c838a86a5aa164237e74c9ae9975872365d9e56f",
     "docs/contracts/stream-painter.json": "f4262293ae66169a3c5052b698ebd95052e3d8807e9da5b818ca1ddc3d75fff9",
     "docs/contracts/transport-evidence.json": "21b35f1422b13e94453ba09675c825a1579ed91bc77e63773c55638e0a68bdb8",
-    "docs/contracts/video-api.json": "d67285b2ebc688af20578d37d9394a3a15013fab93767dbd618e86702bfb4cec",
-    "docs/contracts/video-workspace.json": "3f68f2ddeb58b774e226dd0997d0332c962ab5f369cb9c3dfe897a4c1396f7a9",
+    "docs/contracts/video-api.json": "27f346f9a3205458480923c99896297539142f54dd9470d5fae201b19ebf14b3",
+    "docs/contracts/video-workspace.json": "58b243a62ff0b75f198d752daa94e185b9bf8f80d8f2dbeefdbff106ec629d0d",
     "docs/contracts/view-markup.json": "866c5aac59afe46cb51794403d1a64f616827470de319f9ec689f7fcfe7ec149",
     "docs/contracts/view-position.json": "a31973442c90ad4cd4853a1e8c0cd6ac8ed0d24172b0de054fde6c9028e02f7e",
     "docs/contracts/workbench-cards.json": "c5c55e231098d9cb29792717d7ccd2ee40d51bc3b01b3f4c8314da82b84a08c8",
@@ -152,7 +152,7 @@
     "docs/contracts/workspace-storage.json": "cec021453a2bdc9fde05bffd3276fd704fa47b8308c5a2a94735752d4edddf15",
     "docs/evidence/source-claims.json": "9964aa34037a3c660ee311e2ea86a7ac3fe9101733df2789e708fc63f282d034",
     "index.html": "79594612200f10087ee9a05aa25f4508d60a27122dc4103a4e4c7d78e29d0232",
-    "module-library/catalog.json": "9ec97880802900ad88692c06d68596d8ecb64e1153f57ccd3dc6ad72738f7084",
+    "module-library/catalog.json": "a0f45b885b8579ce883adc77cf7f7b8fc9a1e93cde59e4b9de0e770b4719a26d",
     "package.json": "1e8c74bee0a559b3ad4152ab4539aeea6a25ef195786c8360d0f693bc9b95a5f",
     "scripts/build.mjs": "f0dbf0e5e62d5c25cdaa4250e2dfb5b9ea51e31407b0a8721d52f6254fb8bfbc",
     "scripts/check.mjs": "8df116237b06c5c15720b97afcf2706d70b733b5bb6dd6be74328b12c6183822",
@@ -237,7 +237,7 @@
     "tests/credential-transport.test.js": "babfc08b9cfe83a4e176cb58959323b4d46ecfcd336e1ab23930793f391aa6fa",
     "tests/deepseek-cache.test.js": "8e27a604fc1e78ff2226b2f5bbc404283759ac0c9829491dd9b6aa4ef492c428",
     "tests/deepseek-output.test.js": "de7ff0c7a144e75df29fb42d19709c93c356664e55325641d31fecc669af45ea",
-    "tests/development-hosts.test.js": "127629c3ffb65f98ce412f681d1c8ab95a32f15dbbed4866c80f190adce907b3",
+    "tests/development-hosts.test.js": "1be5f8f019a3e7796a18d92f7f0c465d1f825d699a6226e99b1f55ecae0d228c",
     "tests/epistemic-boundaries.test.js": "0bcd4e38b9fc5308156a007b8494baee97b9296852f7ef5ab77f4e7bed4dcd5c",
     "tests/fixtures/attachments/note.txt": "35b774a4631a5666c431d54d8ac76a010d43d4efb7239be7b0467fcb69a401fb",
     "tests/fixtures/attachments/sample.pdf": "70e35fb2837b12e0efe403e062479e95567584d373f5323cfe222810dbb5ebe7",

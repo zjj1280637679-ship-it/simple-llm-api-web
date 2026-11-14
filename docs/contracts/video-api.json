@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "module": {
-    "id": "R-016",
+    "id": "R-020",
     "version": "0.1.0",
     "createdAt": "2026-11-15T00:00:00.000Z",
     "updatedAt": "2026-11-15T00:00:00.000Z",
@@ -11,12 +11,12 @@
     "lifecycle": "limited-use"
   },
   "host": {
-    "id": "H-R-016",
+    "id": "H-R-020",
     "version": "0.1.0",
     "createdAt": "2026-11-15T00:00:00.000Z",
     "updatedAt": "2026-11-15T00:00:00.000Z",
     "entry": "development/hosts/video-api.mjs",
-    "moduleId": "R-016",
+    "moduleId": "R-020",
     "moduleVersion": "0.1.0",
     "mode": "local"
   },
@@ -59,8 +59,8 @@
   ],
   "extensionSeam": "Inject fetch and Web Crypto implementations; retain bounded transfer, credential isolation, exact job identity and unknown-outcome semantics when extending the server protocol",
   "proofObligations": [
-    {"id": "R-016.effect", "statement": "提交、查询、取消与下载分别报告已观察的服务事实；网络失败不能伪造任务终态", "status": "OPEN", "localWitness": "development/hosts/video-api.mjs"},
-    {"id": "R-016.non-inference", "statement": "局部传输及哈希校验不推出GPU准备、媒体内容正确、云资源释放或完整目标达成", "status": "OPEN"}
+    {"id": "R-020.effect", "statement": "提交、查询、取消与下载分别报告已观察的服务事实；网络失败不能伪造任务终态", "status": "OPEN", "localWitness": "development/hosts/video-api.mjs"},
+    {"id": "R-020.non-inference", "statement": "局部传输及哈希校验不推出GPU准备、媒体内容正确、云资源释放或完整目标达成", "status": "OPEN"}
   ],
   "epistemicBoundary": {
     "observations": ["Synthetic host exercises ordered upload, queued/running observations, cancellation state and byte-verified transfer without real network or GPU"],
