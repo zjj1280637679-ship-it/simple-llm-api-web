@@ -7,7 +7,7 @@ export const repositoryRoot = fileURLToPath(new URL('../', import.meta.url));
 export function inside(root, path) {
   if (typeof path !== 'string' || !path || isAbsolute(path) || path.includes('\\')) throw new Error(`Invalid relative path: ${path}`);
   const target = resolve(root, path), rel = relative(root, target);
-  if (rel === '..' || rel.startsWith('../') || isAbsolute(rel)) throw new Error(`Path escapes repository: ${path}`);
+  if (rel === '..' || rel.startsWith('../') || rel.startsWith('..\\') || isAbsolute(rel)) throw new Error(`Path escapes repository: ${path}`);
   return target;
 }
 export async function loadGraph(root = repositoryRoot) {

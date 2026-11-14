@@ -1,11 +1,11 @@
 {
-  "toolVersion": "1.0.0",
-  "hostVersion": "1.0.0",
-  "startedAt": "2026-11-04T10:53:43.321Z",
-  "finishedAt": "2026-11-04T10:53:44.465Z",
-  "runtime": "v24.22.1",
-  "snapshotId": "v0.7.0-c9422337bb2a",
-  "sourceCommit": "c9422337bb2ae6665d3522ef781808cf98d6a895",
+  "toolVersion": "1.0.1",
+  "hostVersion": "1.0.1",
+  "startedAt": "2026-11-14T20:38:07.806Z",
+  "finishedAt": "2026-11-14T20:38:09.649Z",
+  "runtime": "v24.22.2",
+  "snapshotId": "v0.8.0-d78324c9f444",
+  "sourceCommit": "d78324c9f44406e277fc5d67be66e9e7f486bb0d",
   "status": "PASS",
   "observed": {
     "cleanCopy": "MATCH",
@@ -15,15 +15,16 @@
     "danglingEdgeRejected": true,
     "badAnchorRejected": true,
     "pathTraversalRejected": true,
+    "nativeRelativeSeparatorsChecked": true,
     "queryRoutesAndImpact": true,
     "unknownNodeRejected": true
   },
   "hashes": {
-    "knowledge/lib.mjs": "05ad3d6cf2f620a127eb83b9fc72c4fdce60f04d63ebea641ab8235330dc70f0",
+    "knowledge/lib.mjs": "2d5794c6336344436a320e8ec688e1f1f8dfce7ed75c97a180da8f4fa2cc0596",
     "knowledge/check.mjs": "d6adf601dacde89a1f078833398e141a7a1606090e129b951f24d35e25485ca1",
     "knowledge/query.mjs": "080c2ea7b893bf21cf859debe40fa5511ed1858d1af5ed466a298867ac74d685",
-    "knowledge/verify.mjs": "e822840ca56df330e272f2a9639d4064e71e9150066c9a7ef82a1b876c9d561a",
-    "knowledge/snapshots/v0.7.0-c9422337bb2a/graph.json": "e6bfa5b2021355cb7833e6c82c2b66633adc60728518738531d8f26cd2fcc2ac"
+    "knowledge/verify.mjs": "c7e09570b3128b7cc38baf32146dbb976e87df787619440f437d219f3a1f9b56",
+    "knowledge/snapshots/v0.8.0-d78324c9f444/graph.json": "4c4b0eb821dbec3fbafd639872e055d0f3bdf22617dc4daa519e34aa9cab95b5"
   },
   "scope": "Offline disposable-copy host. Checks navigation and structural/file-drift detection; no proof of complete semantic knowledge, original test truth or provider availability."
 }

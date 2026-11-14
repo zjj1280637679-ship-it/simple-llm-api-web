@@ -1,4 +1,4 @@
-/** Minimal offline host for the knowledge tooling, version 1.0.0.
+/** Minimal offline host for the knowledge tooling, version 1.0.1.
  * Uses a disposable copy; never changes the working project or its evidence.
  */
 import assert from 'node:assert/strict';
@@ -40,7 +40,10 @@ try {
   const reference=brokenAnchor.edges.find(e=>e.relation==='references_import').refs[0];reference.line=999999;
   await writeFile(graphPath,JSON.stringify(brokenAnchor));
   await assert.rejects(()=>checkKnowledge(temp),/Anchor\/line mismatch/);observed.badAnchorRejected=true;
-  assert.throws(()=>inside(temp,'../outside'),/escapes/);observed.pathTraversalRejected=true;
+  assert.throws(()=>inside(temp,'../outside'),/escapes/);
+  assert.throws(()=>inside(temp,'nested/../../outside'),/escapes/);
+  assert.equal(inside(temp,'nested/../inside'),join(temp,'inside'));
+  observed.pathTraversalRejected=true;observed.nativeRelativeSeparatorsChecked=true;
   const query=args=>spawnSync(process.execPath,[join(repositoryRoot,'knowledge/query.mjs'),...args],{encoding:'utf8'});
   for(const args of [['overview'],['route','storage'],['search','原生'],['show','R-010'],['show','flow:image'],['impact','src/persistence.js']]) {
     const result=query(args);assert.equal(result.status,0,result.stderr);assert.equal(JSON.parse(result.stdout).sourceCommit,graph.source.commit);
@@ -52,7 +55,7 @@ try {
   assert.equal(query(['show','missing-node']).status,2);observed.unknownNodeRejected=true;
   const paths=['knowledge/lib.mjs','knowledge/check.mjs','knowledge/query.mjs','knowledge/verify.mjs',`knowledge/${pointer.graph}`];
   const hashes=Object.fromEntries(await Promise.all(paths.map(async p=>[p,createHash('sha256').update(await readFile(inside(repositoryRoot,p))).digest('hex')])));
-  console.log(JSON.stringify({toolVersion:'1.0.0',hostVersion:'1.0.0',startedAt,finishedAt:new Date().toISOString(),runtime:process.version,
+  console.log(JSON.stringify({toolVersion:'1.0.1',hostVersion:'1.0.1',startedAt,finishedAt:new Date().toISOString(),runtime:process.version,
     snapshotId:graph.snapshotId,sourceCommit:graph.source.commit,status:'PASS',observed,hashes,
     scope:'Offline disposable-copy host. Checks navigation and structural/file-drift detection; no proof of complete semantic knowledge, original test truth or provider availability.'},null,2));
 } finally {await rm(temp,{recursive:true,force:true});}
