@@ -1,20 +1,22 @@
 # 当前验证范围
 
-项目 v0.7.0；2026-11-04（北京时间）。审查基线 `03c7cd681434739e6cc5f70a2fa41c98ee21abc2`。本轮目标、反例和实现见 [图片适配记录](docs/reviews/2026-11-04-image-adaptation.md)，理想效果谓词见 [IMAGE_ADAPTATION](design/IMAGE_ADAPTATION.md)。
+项目 **v0.8.0**；2026-11-15（北京时间）。原项目保留文本、图片与存档兼容，新增自建视频工作区。审查基线 `04c6787fe4f944d3b6273767b4043a8bca2fc32c`。
 
-| 验证 | 本轮结果与范围 |
+| 验证 | 结果与范围 |
 | --- | --- |
-| 完整回归 | 457 项：456 通过、1 跳过、0 失败；Node 24.22.1；[原始输出](development/evidence/review-tests.txt) |
-| 语法 / 构建 | 生产、宿主、有限模型、脚本及 CLI 通过；51 个白名单产物；相对依赖与重复构建一致性通过 |
-| 最简宿主 | 36 个分别通过；源、契约、宿主及字面传递导入有指纹 |
-| 有限模型 | 6 个模型；本轮新增 1,184 个图片请求组合与 740 次跨模型偏好往返；保留 324 个文本 Gemini 能力/参数组合；已有 80 次历史解释比较、7,152 次图片参数组合转移、 680 类结束组合、820 个图片效果列表组合、1,555 条历史 / 7,465 查询；[范围与未证明义务](development/models/README.md) |
-| 证据对应 | 输入及命令输出的指纹由 `npm run review:evidence` 检查；[执行记录](development/evidence/review.json)；不独立鉴定记录真实性 |
-| 资料复核 | 本轮核对 Google 官方图片模型 / generateContent 资料并记录日期与链接；没有真实密钥调用或全文快照 |
-| 知识图 | 冻结到具体项目源提交；另有结构/漂移检测宿主；[当前入口](knowledge/README.md) |
+| 完整前端回归 | 517 项：516 通过、1 跳过、0 失败；Node 24.22.2；[原始输出](development/evidence/review-tests.txt) |
+| 视频模块 | 23 项传输与 34 项工作区测试；未知提交、取消竞态、实例绑定、凭据撤销、上传前存档、错误 ID 恢复、在途与缓存预算 |
+| 语法 / 构建 | 通过；54 个白名单产物，相对模块与样式使用统一内容指纹；重复构建一致性通过 |
+| 最简宿主 | 38 个本地宿主通过；源、契约、宿主及传递导入有指纹 |
+| 有限模型 | 原有 6 个模型通过；范围见 [模型说明](development/models/README.md)，未把视频异步系统冒充完整有限模型 |
+| 浏览器 | 混合上传、多任务排队、指定取消、运行中取消、阶段查询、MP4预览和保存、刷新恢复、原页面草稿及手机布局通过；[具体条件与观察](docs/reviews/2026-11-15-video-browser.md) |
+| 配套 API | CORS窄修复，584 项 CPU 回归通过、8 项跳过、1 条既有 Starlette 弃用警告；当前笔记原位更新、读回字节一致，原 console 布局保持 |
+| 证据对应 | `npm run review:evidence` MATCH，220 个输入；[执行记录](development/evidence/review.json)；检查指纹对应，不独立证明记录真实性 |
+| 资料与知识图 | 既有来源一致性检查通过；新图绑定具体已提交项目基线，保留历史图；[当前入口](knowledge/README.md) |
 
-唯一跳过项是可选 MCP SDK 对合成 peer 的互操作测试，未安装 SDK，不计通过。没有真实密钥或付费模型请求。完整形式证明、抽象对应、全部真实宿主条件、成功替代途径池和阶段投影等效性仍有独立义务；36 块完整 F/C/H/Q 保持 UNKNOWN。
+前端唯一跳过项是未安装可选 MCP SDK 的合成 peer 互操作测试，不计通过。本轮没有真实付费模型调用，也没有分配云 GPU。浏览器连接实际 API 路由与模拟管理器，下载对象是新建 FFmpeg 测试图；不是本轮 A100 视频生成。此前 A100 原生 BF16 验收只属于当时后端版本，不能替代当前网页真实 GPU 验收。
 
-本轮图片回归覆盖精确模型、字段省略、跨模型偏好恢复、历史冻结/保存和对话图片工具参数隔离；既有回归覆盖三值能力、模型回执绑定/撤销、采样与思考收缩、默认省略、false/0、停止序列与数值校验、思考字段合并、跨协议隔离、模型方法筛选、未知模型手选格式、历史与持久化保真。先前交互回归保留。合成传输/DOM 不代替真实 API 与浏览器。
+文本、图片的既有行为由完整合成回归覆盖，浏览器额外检查了切页与草稿保留；不宣称重新实测所有供应商。本轮独立审查复现并修复三项：未回执时刷新丢失身份、缓存外并行下载突破载荷预算、错误恢复 ID 解除未知提交防重。38 块完整 F/C/H/Q 仍为 UNKNOWN，有限样例与一次浏览器成功均不构成全称证明。
 
 ```sh
 npm run check
@@ -29,17 +31,12 @@ node knowledge/check.mjs
 node knowledge/verify.mjs
 ```
 
-PR/main 均执行以上本地检查；main 仅发布 dist。有限模型不会发网络请求。部署和实际浏览器观察另记于本轮知识快照，不从本地通过推断浏览器、输入法或上游调用已通过。
-
-## 实网验收优先级
-
-[逐路径实网验收表](docs/LIVE_ACCEPTANCE.md)将四协议文本流式列为当前最高优先级；本地回归、生产部署与实网通过分别记录。WebMCP / 网页 CLI / MCP 传输明确为 [实验性](docs/EXPERIMENTAL.md)。`qa/` 验收辅助脚本的离线自检见 [记录](docs/reviews/2026-10-30-entry-acceptance.md)，不代替真实供应商闭环。
+PR/main 均执行这些检查；main 仅发布 dist。配套服务的实际GPU生成另需连接当前可用实例；本轮不消耗GPU预算。[视频使用说明](docs/VIDEO_API.md) · [v0.8.0 更新](docs/releases/v0.8.0.md)
 
 ## 历史范围
 
-- [v0.5.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/84152a50cf15b4ae1bad82674dbe2129f3b9587d/development/evidence/review.json)：424 项中 423 通过、1 跳过，31 个宿主。
-- [v0.4.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/84152a50cf15b4ae1bad82674dbe2129f3b9587d/VALIDATION.md)：409 项中 408 通过、1 跳过，26 个宿主。
-- [v0.3.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/0105e7f1657b10e5faa224442896c25dcde1b3b4/VALIDATION.md)：391 通过、1 跳过，21 个宿主。
-- [v0.2.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/70290ba6f00b9035f94ecde7ac95849b5ea190a5/VALIDATION.md)：377 通过、1 跳过，14 个宿主。
+- [v0.7.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/04c6787fe4f944d3b6273767b4043a8bca2fc32c/VALIDATION.md)：457 项中456通过、1跳过，36个宿主；图片适配实网记录保留其当时版本和条件。
+- [v0.5.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/84152a50cf15b4ae1bad82674dbe2129f3b9587d/development/evidence/review.json)：424 项中423通过、1跳过，31个宿主。
+- [v0.4.0 验证](https://github.com/zjj1280637679-ship-it/simple-llm-api-web/blob/84152a50cf15b4ae1bad82674dbe2129f3b9587d/VALIDATION.md)：409 项中408通过、1跳过，26个宿主。
 
-历史浏览器和 Ark 图片真实报告保留当时条件与构建身份，不因文档更新延续为当前版本实测。
+历史观察不因文档更新延续为当前版本实测。

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "C-003", "version": "0.1.0", "createdAt": "2026-11-15T03:30:00.000Z", "updatedAt": "2026-11-15T03:30:00.000Z",
+    "kind": "composition", "goal": "video.own-reference-job-observation-and-local-media", "source": "src/video-workspace.js", "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-C-003", "version": "0.1.0", "createdAt": "2026-11-15T03:30:00.000Z", "updatedAt": "2026-11-15T03:30:00.000Z",
+    "entry": "development/hosts/video-workspace.mjs", "moduleId": "C-003", "moduleVersion": "0.1.0", "mode": "local"
+  },
+  "conditions": [
+    "Explicit document/window/clock/storage/clientFactory collaborators; synthetic host has no network or GPU",
+    "The transport supplies validated job IDs, status, request deadlines, authenticated media verification and unknown POST evidence",
+    "The API returns instance_id and queue.admission_open; model_ready false alone does not prevent queue admission"
+  ],
+  "interface": {
+    "factory": "createVideoWorkspace({document,window,clock,storage,storageKey,clientFactory,onChange,cryptoImpl})",
+    "lifecycle": ["markup(tabsHtml)", "mount(root)", "handleClick(element)", "handleInput(target)", "handleChange(target)", "handleKeydown(event)", "snapshot()", "dispose()"],
+    "effects": ["connect()", "submit()", "restoreJob(id)", "refreshJob(id)", "cancelJob(id)", "downloadJob(id,{saveFile})", "importConnection(file)"],
+    "refresh": "onChange({kind:'video-update'}) reports an incremental patch; the caller must not rebuild the whole form for polling updates"
+  },
+  "observations": ["Admission before model readiness", "Independent queue records and existing conversation storage", "One upload per explicit submission", "Cancellation request distinct from final cancellation", "Bounded polling and media ownership", "Instance identity and disposed-lifecycle guards"],
+  "tests": ["tests/video-workspace.test.js", "tests/development-hosts.test.js"],
+  "gates": {"F":"UNKNOWN", "C":"UNKNOWN", "H":"UNKNOWN", "Q":"UNKNOWN"},
+  "limits": [
+    "Synthetic acceptance cannot prove real A100 inference, Cloudflare availability, final video quality or browser-specific file delivery",
+    "API keys and selected files are memory-only; reloading requires reauthentication and file reselection for new submissions",
+    "The API cannot find unknown submissions by idempotency key; a lost receipt without job ID requires obtaining the original ID from the service",
+    "Task records have no fixed count limit but browser storage quota can fail visibly; malformed prior storage is preserved. New POSTs require a successful pre-dispatch unknown-request journal write; unavailable storage prevents upload",
+    "The 256 MiB budget counts retained and reserved in-flight payload bytes; browser decoder, stream, hash and Blob implementation overhead is additional, not an exact process-heap ceiling",
+    "The browser stops querying on dispose; it does not claim remote GPU cancellation or resource release"
+  ],
+  "question": "如何在极简界面中分别拥有上传回执、服务端任务观察、取消请求及本机视频交付？",
+  "stateModel": {
+    "budget": "3 simultaneous job observations, exponential backoff capped at 60 seconds plus Retry-After; up to 2 simultaneous authenticated media fetches sharing a 256 MiB payload budget with retained media; at most 3 retained Blob URLs. Downloads reserve artifact bytes before dispatch, release the reservation on every completion path, and wait when insufficient budget remains. Jobs have no fixed count cap. Key/file/prompt content is not persisted.",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED",
+    "persistence": "Dedicated llm-video-v1 path namespace saves endpoint, instance identity, job ID/status/timestamps and idempotency identity, separate from existing chat/image archives",
+    "ownership": "Endpoint credentials and observed instance IDs authorize subsequent effects. Instance mismatch pauses observation/control. Blob URLs are owned, evicted and revoked by the workspace. DOM patching does not replace focused form inputs or existing video elements."
+  },
+  "counterexamples": [
+    "API connected or model downloaded does not prove queue admission, inference completion, media delivery or cleanup",
+    "Unknown submission does not authorize retrying POST; unknown cancellation does not mean cancelled. The pre-POST request journal survives closure while an upload acknowledgement is pending",
+    "An unverified or nonexistent recovery candidate ID does not bind the unknown request or remove duplicate-submission protection",
+    "A task with the same endpoint after server restart does not belong to the new instance",
+    "Leaving the video tab does not cancel its remote jobs or discard task ownership",
+    "An accepted task queue without a count cap does not imply unbounded retained media memory",
+    "A missing clipboard API does not produce a successful copy receipt",
+    "A late connection result or disposed async callback cannot overwrite current credentials or create an unowned Blob URL",
+    "An unauthorized response for an older credential cannot revoke a newer connection; pre-cancellation queries cannot roll back cancellation receipts"
+  ],
+  "extensionSeam": "Service, clock and browser ownership boundaries are explicit collaborators; added server phases must preserve observed versus inferred status",
+  "proofObligations": [
+    {"id":"C-003.effect", "statement":"Local host shows declared submission/query/cancellation/media observations under synthetic conditions", "status":"OPEN", "localWitness":"development/hosts/video-workspace.mjs"},
+    {"id":"C-003.non-inference", "statement":"Local lifecycle and transport evidence do not prove provider capacity, all-browser behavior or semantic generation success", "status":"OPEN"}
+  ],
+  "epistemicBoundary": {
+    "observations": ["Synthetic job lifecycle with explicit effects and failure exits"],
+    "assumptions": ["Ordinary JavaScript/browser collaborator behavior; no adversarial Proxy mutation"],
+    "policyReference": "design/INTERACTION_EFFECTS.md",
+    "notEstablished": ["Real A100 generation", "All-browser media delivery", "Complete F/C/H/Q proof"]
+  }
+}

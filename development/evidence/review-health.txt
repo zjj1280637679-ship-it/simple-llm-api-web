@@ -1,10 +1,6 @@
-
-> simple-llm-api-web@0.7.0 review:health
-> node scripts/review-health.mjs
-
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T10:51:14.676Z",
+  "generatedAt": "2026-11-14T20:33:49.598Z",
   "mode": "advisory",
   "interpretation": "Size and long lines identify review locations, not defects or bans. Literal imports are an approximate static view, not an effect-dependency or proof graph. Card validation checks structure only.",
   "modules": [
@@ -431,12 +427,35 @@
       "sha256": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f"
     },
     {
+      "path": "src/video-api.js",
+      "bytes": 17849,
+      "lines": 243,
+      "maxLineCharacters": 187,
+      "relativeImports": [
+        "src/logs.js",
+        "src/transport-evidence.js"
+      ],
+      "sha256": "06d2391ca1e26c9ee626657010803602b22ead6e4533d481eb076bf019f3bf14"
+    },
+    {
+      "path": "src/video-workspace.js",
+      "bytes": 40253,
+      "lines": 333,
+      "maxLineCharacters": 3933,
+      "relativeImports": [
+        "src/icons.js",
+        "src/video-api.js",
+        "src/view-markup.js"
+      ],
+      "sha256": "eb89ed1ae8f653f4df65f6ce2b6cda3fcee1a671f6e2f3a125e9e022547813cd"
+    },
+    {
       "path": "src/view-markup.js",
-      "bytes": 1194,
+      "bytes": 1215,
       "lines": 18,
-      "maxLineCharacters": 300,
+      "maxLineCharacters": 317,
       "relativeImports": [],
-      "sha256": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+      "sha256": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
     },
     {
       "path": "src/view-position.js",
@@ -461,8 +480,8 @@
     },
     {
       "path": "src/workbench.js",
-      "bytes": 67963,
-      "lines": 936,
+      "bytes": 69285,
+      "lines": 950,
       "maxLineCharacters": 515,
       "relativeImports": [
         "src/agent.js",
@@ -494,12 +513,13 @@
         "src/settings-markup.js",
         "src/stream-painter.js",
         "src/usage.js",
+        "src/video-workspace.js",
         "src/view-markup.js",
         "src/view-position.js",
         "src/workbench-cards.js",
         "src/workspace-storage.js"
       ],
-      "sha256": "007d1a58f7f022d99bad94d185583560922ee539110d262dd933a7b9750c62fb"
+      "sha256": "ead8646e138bc1aac6113432c1b35130acc4fdf210f4543d890f46737b7e7448"
     },
     {
       "path": "src/workspace-storage.js",
@@ -946,6 +966,34 @@
       }
     },
     {
+      "path": "docs/contracts/video-api.json",
+      "module": "R-016",
+      "host": "H-R-016",
+      "question": "哪些事实已由传输回执与产物校验建立，哪些任务状态仍需服务器查询？",
+      "goal": "video.transport-authenticated-ref2va-jobs-and-verified-artifacts",
+      "stateBudget": "Per JSON response 1 MiB; upload metadata 12 files / 64 MiB; default 30 s request and 120 s upload deadlines; default 3 concurrent 1 MiB ranges and at most 2 retries per failed range; default 256 MiB artifact; no polling or growing task collection in this module",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
+      "path": "docs/contracts/video-workspace.json",
+      "module": "C-003",
+      "host": "H-C-003",
+      "question": "如何在极简界面中分别拥有上传回执、服务端任务观察、取消请求及本机视频交付？",
+      "goal": "video.own-reference-job-observation-and-local-media",
+      "stateBudget": "3 simultaneous job observations, exponential backoff capped at 60 seconds plus Retry-After; up to 2 simultaneous authenticated media fetches sharing a 256 MiB payload budget with retained media; at most 3 retained Blob URLs. Downloads reserve artifact bytes before dispatch, release the reservation on every completion path, and wait when insufficient budget remains. Jobs have no fixed count cap. Key/file/prompt content is not persisted.",
+      "gates": {
+        "F": "UNKNOWN",
+        "C": "UNKNOWN",
+        "H": "UNKNOWN",
+        "Q": "UNKNOWN"
+      }
+    },
+    {
       "path": "docs/contracts/view-markup.json",
       "module": "F-009",
       "host": "H-F-009",
@@ -993,7 +1041,7 @@
       "host": "H-C-002",
       "question": "各工作区如何组合请求、交付、保存和历史交互卡？",
       "goal": "workbench.compose-scoped-effects-after-hydration",
-      "stateBudget": "会话簿最多200项，每项2个工作区；3个页面。效果归属由稳定工作区身份决定；DOM/网络尚未有限化。",
+      "stateBudget": "会话簿最多200项，每项2个工作区；独立视频任务工作区；4个页面。视频任务数量无固定上限，按资源预算轮询；DOM/网络仍为外部条件。",
       "gates": {
         "F": "UNKNOWN",
         "C": "UNKNOWN",
@@ -1017,4 +1065,3 @@
     }
   ]
 }
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.

@@ -1,5 +1,5 @@
 /** 开发态课题：各工作区如何组合请求、交付、保存和页面生命周期？
- * 状态/边界：每会话2工作区、3页；卡片活跃性由末项推导；DOM/协议/存档未全部有限化。
+ * 状态/边界：每会话2工作区、独立视频工作区、4页；卡片活跃性由末项推导；DOM/协议/存档未全部有限化。
  * 扩展：新增服务通过显式 services 注入，先定义观察/回执与资源归属。
  * 契约：docs/contracts/workbench.json；局部宿主不替代完整 F/C/H/Q。
  */
@@ -36,6 +36,7 @@ import { runConversation as defaultRunConversation } from './agent.js';
 import { getNetworkLogs, clearNetworkLogs, exportNetworkLogs, subscribeNetworkLogs, renderNetworkLogs as defaultRenderNetworkLogs, sanitizeLogValue, setLogSecrets, updateActiveLogSecrets } from './logs.js';
 import { createPageSession } from './session.js';
 import { registerPageSessionTools } from './session-webmcp.js';
+import { createVideoWorkspace } from './video-workspace.js';
 
 /** Composition root. The host supplies DOM/storage/transport; callers await ready and dispose once. */
 export function createWorkbench({document=globalThis.document,window=globalThis.window,services={},clock=globalThis}={}) {
@@ -87,6 +88,12 @@ let journalStorage=null;try{journalStorage=window.localStorage;}catch{}
 const localStore=createStore({journalStorage,decodeSnapshot:migrateConversations,applyJournal:replayConversationJournal,name:`llm-workbench-local-v1:${(window.location?.pathname || '/').replace(/index\.html$/,'')}`,onStatus:setStorageStatus});
 
 let page = 'chat', plusOpen = false, sizeOpen = false, subMenu = '', nextId = 1;
+const video=(services.createVideoWorkspace || createVideoWorkspace)({document,window,clock,
+  ...(services.videoClientFactory?{clientFactory:services.videoClientFactory}:{}),
+  onChange:()=>{if(page==='video'&&!scope.disposed)syncFloatingNavigation();}});
+scope.own(()=>video.dispose());
+// Video owns its jobs independently. Keep the existing conversation archive schema intact.
+const conversationPage=()=>page==='video'?(book.current().page || 'chat'):page;
 let reasoningAnchorId = null;
 const get = () => data[page];
 function syncLogSecrets() { updateActiveLogSecrets(allWorkspaces().map(d => d.api.key)); }
@@ -315,13 +322,13 @@ ${historyMarkup({entries:book.list(historyQuery),activeId:book.activeId,query:hi
   syncFloatingNavigation();
 }
 
-const view = createViewPosition({app,document,getPage:()=>page==='logs'?'logs':`${book.activeId}:${page}`,recordScrollDiagnostic,requestAnimationFrame});
+const view = createViewPosition({app,document,getPage:()=>['logs','video'].includes(page)?page:`${book.activeId}:${page}`,recordScrollDiagnostic,requestAnimationFrame});
 const {viewPositions,captureControlFocus,restoreControlFocus,rememberViewPosition,restoreViewPosition}=view;
 scope.own(()=>view.dispose());
 const storage=createWorkspaceStorage({store:localStore,clock,
   capture:()=>captureArchive(),
-  captureJournal:()=>({...snapshotJournal({data,page,secrets:[...localSecrets]}),conversationId:book.activeId}),
-  getPage:()=>page,beforeCapture:rememberViewPosition,onStatus:setStorageStatus,
+  captureJournal:()=>({...snapshotJournal({data,page:conversationPage(),secrets:[...localSecrets]}),conversationId:book.activeId}),
+  getPage:conversationPage,beforeCapture:rememberViewPosition,onStatus:setStorageStatus,
   restore(saved){
     installArchive(saved);
     localRestored=allWorkspaces().some(d=>d.messages.length||d.draft);
@@ -330,7 +337,7 @@ const storage=createWorkspaceStorage({store:localStore,clock,
 });
 const saveLocal=storage.save;
 scope.own(()=>storage.dispose());
-function captureArchive(){return snapshotConversations({book,page,nextId,views:Object.fromEntries(viewPositions),secrets:[...localSecrets]});}
+function captureArchive(){return snapshotConversations({book,page:conversationPage(),nextId,views:Object.fromEntries([...viewPositions].filter(([key])=>key!=='video')),secrets:[...localSecrets]});}
 function installArchive(saved){
   const restored=restoreConversations(saved,makePage);book.restore(restored);Object.assign(data,book.current().data);
   page=restored.page;nextId=restored.nextId;viewPositions.clear();for(const [key,value] of Object.entries(restored.views))viewPositions.set(key,value);
@@ -376,6 +383,10 @@ function render(scrollEnd = false) {
   const focusIdentity = captureControlFocus();
   const imageMoreOpen=Boolean(app.querySelector('.image-more-ratios')?.open);
   if (page === 'logs') { renderLogsPage(); restoreViewPosition(scrollEnd); restoreControlFocus(focusIdentity); return; }
+  if (page === 'video') {
+    app.innerHTML=video.markup(tabsMarkup(page));video.mount(app);
+    syncFloatingNavigation();restoreViewPosition(scrollEnd);restoreControlFocus(focusIdentity);return;
+  }
   const d = get();
   app.innerHTML = `<main class="main">
 <header class="top">${tabsMarkup(page)}</header>
@@ -568,6 +579,7 @@ listen(app, 'toggle', e => {
 listen(app, 'click', async e => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
+  if(el.dataset.action.startsWith('video-')){await video.handleClick(el);return;}
   if(el.dataset.action.startsWith('conversation-')||el.dataset.action.startsWith('history-')){await historyAction(el.dataset.action,el.dataset.conversation);return;}
   if (el.dataset.action === 'local-storage') { openStoragePanel(); return; }
   const action = el.dataset.action, d = get(), card = getCard(Number(el.dataset.id));
@@ -578,7 +590,7 @@ listen(app, 'click', async e => {
   }
   if ((d?.busy || d?.attachmentReading) && !['tab', 'cancel'].includes(action)) return;
   switch (action) {
-    case 'tab': if(el.dataset.tab === 'logs')freezeScrollReport(); page = el.dataset.tab;if(page!=='logs')book.current().page=page; closeMenus(); render(); break;
+    case 'tab': if(!['chat','image','video','logs'].includes(el.dataset.tab))break;if(el.dataset.tab === 'logs')freezeScrollReport(); page = el.dataset.tab;if(['chat','image'].includes(page))book.current().page=page; closeMenus(); render(); break;
     case 'reasoning-toggle': {
       if(el.dataset.id)break;
       const anchorId=el.dataset.id?Number(el.dataset.id):null;
@@ -683,6 +695,7 @@ async function performCardAction(action,{card,workspace:d,args,commit}) {
 }
 function updateField(e) {
   const t = e.target, d = get();
+  if(t.dataset?.videoField || t.id==='video-draft'){video.handleInput(t);return;}
   resizeSettingField(t);
   if(t.id==='history-query'){
     // The browser owns the editing node, selection and IME session. Replace only results;
@@ -765,8 +778,9 @@ listen(app, 'load', e => {
 },true);
 listen(app, 'input', updateField);
 listen(app, 'compositionend', e => {if(e.target.id==='history-query')updateField(e);});
-listen(app, 'change', e => { updateField(e); if (e.target.dataset?.key === 'key') archiveWorkspaceKey(get()); if (e.target.tagName === 'SELECT') render(); });
+listen(app, 'change', e => { if(e.target.dataset?.videoField || e.target.id==='video-draft'){void video.handleChange(e.target);return;} updateField(e); if (e.target.dataset?.key === 'key') archiveWorkspaceKey(get()); if (e.target.tagName === 'SELECT') render(); });
 listen(document, 'keydown', e => {
+  if(e.target.dataset?.videoField || e.target.id==='video-draft'){video.handleKeydown(e);return;}
   if(['reasoning-quick','reasoning-family'].includes(e.target.dataset?.action) && ['ArrowDown','ArrowUp','Home','End'].includes(e.key)){
     e.preventDefault();const choices=[...app.querySelectorAll('[data-floating-menu="reasoning-toggle"] [role="menuitemradio"]')];
     const index=choices.indexOf(e.target),next=e.key==='Home'?0:e.key==='End'?choices.length-1:(index+(e.key==='ArrowDown'?1:-1)+choices.length)%choices.length;
@@ -930,7 +944,7 @@ listen(document, 'visibilitychange',()=>{if(document.visibilityState==='hidden')
 listen(window, 'pagehide',()=>saveLocal(true));
 
 scope.own(()=>{localSecrets.clear();if(window.llmWorkbench===pageSession)delete window.llmWorkbench;});
-return {ready,session:pageSession,dispose:()=>scope.dispose(),data,addCard,render,isConfigured,matrixSupported,dispatchCardAction,
+return {ready,session:pageSession,dispose:()=>scope.dispose(),data,video,addCard,render,isConfigured,matrixSupported,dispatchCardAction,
   conversations:book,archiveSnapshot:captureArchive,selectConversation,
-  persisted:()=>snapshotWorkspace({data,page,nextId,secrets:[...localSecrets]}),setPage:value=>{page=value;}};
+  persisted:()=>snapshotWorkspace({data,page:conversationPage(),nextId,secrets:[...localSecrets]}),setPage:value=>{page=value;}};
 }

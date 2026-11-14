@@ -30,7 +30,7 @@ async function mount({ confirm = () => true, runConversation, dispatchCommand, l
       for (const match of value.matchAll(/<span id="(api-trust\d+)">(.*?)<\/span>/g)) nodes.set(`#${match[1]}`, { textContent: match[2] });
       for (const match of value.matchAll(/<(?:input|textarea)\b[^>]*\bid="([^"]+)"[^>]*>(?:([^<]*)<\/textarea>)?/g)) {
         const attrs = Object.fromEntries([...match[0].matchAll(/([\w-]+)="([^"]*)"/g)].map(m => [m[1], m[2]]));
-        nodes.set(`#${match[1]}`, { id: match[1], value: attrs.value || match[2] || '', dataset: { card: attrs['data-card'], key: attrs['data-key'] }, selectionStart: 0, selectionEnd: 0 });
+        nodes.set(`#${match[1]}`, { id: match[1], value: attrs.value || match[2] || '', dataset: { card: attrs['data-card'], key: attrs['data-key'], videoField:attrs['data-video-field'] }, style:{},scrollHeight:44,selectionStart: 0, selectionEnd: 0 });
       }
     },
     get renders() { return renders; },
@@ -62,6 +62,21 @@ function configure(ui, page = 'chat') {
   ui.render();
   return { d, card };
 }
+
+test('video navigation preserves chat and image drafts and the existing conversation archive', async()=>{
+  const ui=await mount();
+  ui.data.chat.draft='保留对话';ui.data.image.draft='保留图片';
+  await ui.click({action:'tab',tab:'image'});
+  await ui.click({action:'tab',tab:'video'});
+  assert.match(ui.app.innerHTML,/id="video-draft"/);
+  assert.equal(ui.conversations.current().page,'image');
+  const archived=ui.archiveSnapshot();
+  assert.equal(archived.page,'image');assert.equal(Object.hasOwn(archived.views,'video'),false);
+  assert.doesNotThrow(()=>JSON.stringify(archived));
+  await ui.click({action:'tab',tab:'chat'});
+  assert.equal(ui.data.chat.draft,'保留对话');assert.equal(ui.data.image.draft,'保留图片');
+  assert.match(ui.app.innerHTML,/id="draft"/);
+});
 
 test('live page session preserves unknown completion beside returned workflow status',async()=>{
   const ui=await mount({runConversation:async()=>({text:'synthetic result',history:[],completion:{status:'unknown'}})});

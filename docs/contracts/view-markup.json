@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "module": {
     "id": "F-009",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-30T07:55:11.916Z",
+    "updatedAt": "2026-11-15T03:30:00.000Z",
     "kind": "function",
     "goal": "view.escape-content-and-render-declared-markup",
     "source": "src/view-markup.js",
@@ -12,12 +12,12 @@
   },
   "host": {
     "id": "H-F-009",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "createdAt": "2026-10-29T20:08:58.524Z",
-    "updatedAt": "2026-10-30T07:55:11.916Z",
+    "updatedAt": "2026-11-15T03:30:00.000Z",
     "entry": "development/hosts/view-markup.mjs",
     "moduleId": "F-009",
-    "moduleVersion": "0.1.2",
+    "moduleVersion": "0.2.0",
     "mode": "local"
   },
   "conditions": [
@@ -47,7 +47,8 @@
     "completeFiniteImplementationModel": "NOT_ESTABLISHED"
   },
   "counterexamples": [
-    "内容中的标签不能作为模型生成 HTML 执行"
+    "内容中的标签不能作为模型生成 HTML 执行",
+    "新增视频导航仍保留对话、图片、历史并只有一个选中项"
   ],
   "extensionSeam": "扩展标记保持动态内容边界，静态结构与业务语义分离",
   "proofObligations": [

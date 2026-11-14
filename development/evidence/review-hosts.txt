@@ -1,7 +1,3 @@
-
-> simple-llm-api-web@0.7.0 hosts
-> node scripts/run-hosts.mjs
-
 {
   "status": "PASS",
   "scope": "Independent local hosts; no provider live calls or complete formal proof",
@@ -29,9 +25,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.049Z",
-      "finishedAt": "2026-11-04T10:51:10.054Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.382Z",
+      "finishedAt": "2026-11-14T20:33:47.385Z",
+      "runtime": "v24.22.2",
       "observed": {
         "boundedMenu": true,
         "diagnosticsReleased": true
@@ -68,9 +64,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.163Z",
-      "finishedAt": "2026-11-04T10:51:10.165Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.433Z",
+      "finishedAt": "2026-11-14T20:33:47.435Z",
+      "runtime": "v24.22.2",
       "observed": {
         "staleViewUntouched": true
       },
@@ -105,9 +101,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.289Z",
-      "finishedAt": "2026-11-04T10:51:10.301Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.483Z",
+      "finishedAt": "2026-11-14T20:33:47.501Z",
+      "runtime": "v24.22.2",
       "observed": {
         "boundedFields": true,
         "reportNotDiagnosis": true
@@ -143,9 +139,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.430Z",
-      "finishedAt": "2026-11-04T10:51:10.434Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.550Z",
+      "finishedAt": "2026-11-14T20:33:47.552Z",
+      "runtime": "v24.22.2",
       "observed": {
         "syntheticDecoder": true,
         "dimensionMismatchRetained": true,
@@ -182,9 +178,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.524Z",
-      "finishedAt": "2026-11-04T10:51:10.528Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.603Z",
+      "finishedAt": "2026-11-14T20:33:47.605Z",
+      "runtime": "v24.22.2",
       "observed": {
         "releasedOnce": true,
         "lateRegistrationReleased": true
@@ -220,9 +216,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.615Z",
-      "finishedAt": "2026-11-04T10:51:10.621Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.652Z",
+      "finishedAt": "2026-11-14T20:33:47.655Z",
+      "runtime": "v24.22.2",
       "observed": {
         "businessKeysPreserved": true,
         "inputUnchanged": true,
@@ -260,9 +256,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.708Z",
-      "finishedAt": "2026-11-04T10:51:10.712Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.702Z",
+      "finishedAt": "2026-11-14T20:33:47.705Z",
+      "runtime": "v24.22.2",
       "observed": {
         "declaredPathMatched": true,
         "otherPathUnverified": true,
@@ -300,9 +296,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.791Z",
-      "finishedAt": "2026-11-04T10:51:10.796Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.750Z",
+      "finishedAt": "2026-11-14T20:33:47.753Z",
+      "runtime": "v24.22.2",
       "observed": {
         "timersReleased": true,
         "requestAborted": true
@@ -339,9 +335,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:10.900Z",
-      "finishedAt": "2026-11-04T10:51:10.914Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.799Z",
+      "finishedAt": "2026-11-14T20:33:47.802Z",
+      "runtime": "v24.22.2",
       "observed": {
         "incrementalText": true,
         "readingPreserved": true
@@ -352,7 +348,7 @@
         "docs/contracts/stream-painter.json": "f4262293ae66169a3c5052b698ebd95052e3d8807e9da5b818ca1ddc3d75fff9",
         "src/stream-painter.js": "9d2aad725fce2a7eaf195291cc5ac3188950d9a49cac00eadc92d4fd4f155f64",
         "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -379,9 +375,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:11.032Z",
-      "finishedAt": "2026-11-04T10:51:11.035Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.852Z",
+      "finishedAt": "2026-11-14T20:33:47.854Z",
+      "runtime": "v24.22.2",
       "observed": {
         "functionBoundDeclaration": true,
         "noVerificationPromotion": true
@@ -399,9 +395,9 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "F-009",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-15T03:30:00.000Z",
         "kind": "function",
         "goal": "view.escape-content-and-render-declared-markup",
         "source": "src/view-markup.js",
@@ -409,26 +405,26 @@
       },
       "host": {
         "id": "H-F-009",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
+        "updatedAt": "2026-11-15T03:30:00.000Z",
         "entry": "development/hosts/view-markup.mjs",
         "moduleId": "F-009",
-        "moduleVersion": "0.1.2",
+        "moduleVersion": "0.2.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:11.166Z",
-      "finishedAt": "2026-11-04T10:51:11.173Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.901Z",
+      "finishedAt": "2026-11-14T20:33:47.903Z",
+      "runtime": "v24.22.2",
       "observed": {
         "escapedContent": true,
         "selectedTab": true
       },
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/view-markup.mjs": "f3d91523bf103b05aca2cb256a964f1f6ab94aef62146a78ce11f6016f459164",
-        "docs/contracts/view-markup.json": "9e0afaa97c77859e8cc1062e254a6cf255dff98da1646ee77381c3a2b451f026",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+        "development/hosts/view-markup.mjs": "5b63214213ffe0b512661dd08b1f8847d350ab1338442caeae1715ea200787bd",
+        "docs/contracts/view-markup.json": "866c5aac59afe46cb51794403d1a64f616827470de319f9ec689f7fcfe7ec149",
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -455,9 +451,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:11.268Z",
-      "finishedAt": "2026-11-04T10:51:11.272Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:47.951Z",
+      "finishedAt": "2026-11-14T20:33:47.953Z",
+      "runtime": "v24.22.2",
       "observed": {
         "independentReadingPositions": true
       },
@@ -474,9 +470,9 @@
       "evidenceType": "LOCAL",
       "module": {
         "id": "C-002",
-        "version": "0.4.2",
+        "version": "0.5.0",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-11-04T10:47:40.742Z",
+        "updatedAt": "2026-11-15T03:30:00.000Z",
         "kind": "composition",
         "goal": "workbench.compose-scoped-effects-after-hydration",
         "source": "src/workbench.js",
@@ -484,17 +480,17 @@
       },
       "host": {
         "id": "H-C-002",
-        "version": "0.1.8",
+        "version": "0.2.0",
         "createdAt": "2026-10-29T20:08:58.524Z",
-        "updatedAt": "2026-11-04T10:47:40.742Z",
+        "updatedAt": "2026-11-15T03:30:00.000Z",
         "entry": "development/hosts/workbench.mjs",
         "moduleId": "C-002",
-        "moduleVersion": "0.4.2",
+        "moduleVersion": "0.5.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:11.420Z",
-      "finishedAt": "2026-11-04T10:51:11.472Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.024Z",
+      "finishedAt": "2026-11-14T20:33:48.041Z",
+      "runtime": "v24.22.2",
       "observed": {
         "fullInitialization": true,
         "sessionAfterReady": true,
@@ -502,8 +498,8 @@
       },
       "hashes": {
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
-        "docs/contracts/workbench.json": "d493a4b2ebe9e53185c9dc23fca230d2d133387b5b2e18d40a14832f05afc63e",
+        "development/hosts/workbench.mjs": "93fd99d8c8ab16a95c1453d851a35c16023ef35c08573a240e01a9142ab9d6f1",
+        "docs/contracts/workbench.json": "349bf9f5325597739171ad3eae6c3bca640570ae1198c49d797aeb1a268fad32",
         "src/agent.js": "6d70f74a1f49ba3347c197db7d7e824e0f6b31e969220643e4d4effeb11bf0d1",
         "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
         "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
@@ -546,10 +542,12 @@
         "src/stream.js": "88aed5610b4864fdcb8afbbfbabfc8c1a8b78b30dea109a2d9038b7c9a6833cb",
         "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
         "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893",
+        "src/video-api.js": "06d2391ca1e26c9ee626657010803602b22ead6e4533d481eb076bf019f3bf14",
+        "src/video-workspace.js": "eb89ed1ae8f653f4df65f6ce2b6cda3fcee1a671f6e2f3a125e9e022547813cd",
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca",
         "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
         "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e",
-        "src/workbench.js": "007d1a58f7f022d99bad94d185583560922ee539110d262dd933a7b9750c62fb",
+        "src/workbench.js": "ead8646e138bc1aac6113432c1b35130acc4fdf210f4543d890f46737b7e7448",
         "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
@@ -577,9 +575,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:11.573Z",
-      "finishedAt": "2026-11-04T10:51:11.577Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.091Z",
+      "finishedAt": "2026-11-14T20:33:48.094Z",
+      "runtime": "v24.22.2",
       "observed": {
         "hydrationBeforeWrites": true
       },
@@ -614,9 +612,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:11.704Z",
-      "finishedAt": "2026-11-04T10:51:11.710Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.139Z",
+      "finishedAt": "2026-11-14T20:33:48.141Z",
+      "runtime": "v24.22.2",
       "observed": {
         "futureMarkerUnknown": true,
         "truncationDistinct": true
@@ -652,9 +650,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:11.826Z",
-      "finishedAt": "2026-11-04T10:51:11.843Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.189Z",
+      "finishedAt": "2026-11-14T20:33:48.192Z",
+      "runtime": "v24.22.2",
       "observed": {
         "cases": 680,
         "properties": [
@@ -699,9 +697,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:11.939Z",
-      "finishedAt": "2026-11-04T10:51:11.953Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.237Z",
+      "finishedAt": "2026-11-14T20:33:48.242Z",
+      "runtime": "v24.22.2",
       "observed": {
         "cases": 820,
         "scope": "All 9 decoding/dimension classes for lists of length 0..3 plus a forged receipt. Not a proof for arbitrary inputs or all list lengths.",
@@ -740,9 +738,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:12.036Z",
-      "finishedAt": "2026-11-04T10:51:12.039Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.289Z",
+      "finishedAt": "2026-11-14T20:33:48.291Z",
+      "runtime": "v24.22.2",
       "observed": {
         "workflowAndGoalSeparated": true
       },
@@ -777,9 +775,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:12.123Z",
-      "finishedAt": "2026-11-04T10:51:12.129Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.337Z",
+      "finishedAt": "2026-11-14T20:33:48.340Z",
+      "runtime": "v24.22.2",
       "observed": {
         "normalizationObserved": true,
         "targetChangeRejected": true,
@@ -817,9 +815,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:12.234Z",
-      "finishedAt": "2026-11-04T10:51:12.255Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.390Z",
+      "finishedAt": "2026-11-14T20:33:48.413Z",
+      "runtime": "v24.22.2",
       "observed": {
         "syntheticTransport": true,
         "subscriptionReleased": true,
@@ -864,9 +862,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:12.354Z",
-      "finishedAt": "2026-11-04T10:51:12.360Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.466Z",
+      "finishedAt": "2026-11-14T20:33:48.468Z",
+      "runtime": "v24.22.2",
       "observed": {
         "localIdentityPreserved": true,
         "noRootCauseInvented": true
@@ -876,57 +874,6 @@
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "docs/contracts/app-error.json": "72b01fb2865b1c31fc80ff222edef4610a404c7125ccfcb1b94a46ff4e0f413f",
         "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "R-016",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "kind": "relation",
-        "goal": "cards.admit-actions-only-at-history-tail",
-        "source": "src/interaction-cards.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-R-016",
-        "version": "0.1.0",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T05:30:34.595Z",
-        "entry": "development/hosts/interaction-cards.mjs",
-        "moduleId": "R-016",
-        "moduleVersion": "0.1.0",
-        "mode": "local"
-      },
-      "startedAt": "2026-11-04T10:51:12.465Z",
-      "finishedAt": "2026-11-04T10:51:12.487Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "status": "PASS",
-        "histories": 1555,
-        "queries": 7465,
-        "admissions": 518,
-        "alphabet": [
-          "api",
-          "model",
-          "user",
-          "chatResult",
-          "status",
-          "error"
-        ],
-        "maxLength": 4,
-        "scope": "Finite representative histories; tail/index equivalence and registry admission. No proof of arbitrary histories, DOM or asynchronous external effects."
-      },
-      "hashes": {
-        "development/hosts/interaction-cards.mjs": "a48f4519c278d6d725a9820326798da9827880cfb5ddb016c95224dd3faee1b7",
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/models/card-position-model.mjs": "a8c78215898ea97f5670ace872aa310c529a249934209d944b6ee54c4233ec49",
-        "docs/contracts/interaction-cards.json": "15485040fafb6ccde41a6152e729c2ea9a3e931ceb9e8afda350f9a8938ca643",
-        "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -953,9 +900,9 @@
         "moduleVersion": "0.2.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:12.594Z",
-      "finishedAt": "2026-11-04T10:51:12.604Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.518Z",
+      "finishedAt": "2026-11-14T20:33:48.522Z",
+      "runtime": "v24.22.2",
       "observed": {
         "keyExcluded": true,
         "version": 1,
@@ -998,9 +945,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:12.689Z",
-      "finishedAt": "2026-11-04T10:51:12.694Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.570Z",
+      "finishedAt": "2026-11-14T20:33:48.573Z",
+      "runtime": "v24.22.2",
       "observed": {
         "escaped": true,
         "unknownDistinct": true,
@@ -1011,7 +958,7 @@
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "docs/contracts/card-markup.json": "ea7360c5667a1468f332b973aed913543e04d6ec930a51c064eb93c57d0bfa2f",
         "src/card-markup.js": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -1038,9 +985,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:12.779Z",
-      "finishedAt": "2026-11-04T10:51:12.782Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.623Z",
+      "finishedAt": "2026-11-14T20:33:48.625Z",
+      "runtime": "v24.22.2",
       "observed": {
         "exactlyOnce": true,
         "disposeReleases": true
@@ -1050,61 +997,6 @@
         "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
         "docs/contracts/card-confirmations.json": "9c5f19c1f48fd2288adab7ca08ff73d6ddd40eae26603afbc0271847622a0753",
         "src/card-confirmations.js": "a462d25dbc9d09a77961a7a220bc47f156ca47df7147510822957cf05adc058a"
-      },
-      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
-    },
-    {
-      "status": "PASS",
-      "evidenceType": "LOCAL",
-      "module": {
-        "id": "C-003",
-        "version": "0.1.1",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-10-30T07:55:11.916Z",
-        "kind": "composition",
-        "goal": "cards.compose-type-view-codec-and-actions",
-        "source": "src/workbench-cards.js",
-        "lifecycle": "limited-use"
-      },
-      "host": {
-        "id": "H-C-003",
-        "version": "0.1.4",
-        "createdAt": "2026-10-30T05:30:34.595Z",
-        "updatedAt": "2026-11-04T10:47:40.742Z",
-        "entry": "development/hosts/workbench-cards.mjs",
-        "moduleId": "C-003",
-        "moduleVersion": "0.1.1",
-        "mode": "local"
-      },
-      "startedAt": "2026-11-04T10:51:12.898Z",
-      "finishedAt": "2026-11-04T10:51:12.913Z",
-      "runtime": "v24.22.1",
-      "observed": {
-        "types": [
-          "api",
-          "connection",
-          "model",
-          "chart",
-          "logs",
-          "confirmation"
-        ],
-        "registeredAction": true
-      },
-      "hashes": {
-        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
-        "development/hosts/workbench-cards.mjs": "d818ecf7f55755bee936b73ee55748ec233db63d8e3f69e7cacaf2af8f5106d9",
-        "docs/contracts/workbench-cards.json": "c5c55e231098d9cb29792717d7ccd2ee40d51bc3b01b3f4c8314da82b84a08c8",
-        "src/card-markup.js": "0dc2943ee6ca4af4719685fc6150f4d2a11d39beede25b53d173f05c8d358576",
-        "src/card-types.js": "47c42828c13b0d25cc46916cd0a5654ba43e45bdd02ab68537200fa82cd8268e",
-        "src/gemini-capabilities.js": "cd414cc7ab5dfcc08bd1af289501e481a2a310fd5f32223fbcb3bf992ccd657c",
-        "src/image-capabilities.js": "b32b730e3eed88527e730b3818252bc9b7ad212ce9023ca5c533ff66f1b89181",
-        "src/interaction-cards.js": "abc1208f6a6f3400339c3f3ea20b2730a4d84b2abdf27dbc118efa3a6aff765f",
-        "src/native-json.js": "2bd35a6bce947b7233e47c76cb9dab43d1fca2702275af2986724bbc096ca31b",
-        "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
-        "src/reasoning.js": "cf986cfc1a130426aabaf55b8ca93fe2e2855a70921dc7a5a0968433b596f519",
-        "src/settings-navigation.js": "abcc088e95a35f04cb24f6e1e3b893f3110e1f66e820eb2b77d8e370b446c56e",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893",
-        "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -1131,9 +1023,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.004Z",
-      "finishedAt": "2026-11-04T10:51:13.010Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.674Z",
+      "finishedAt": "2026-11-14T20:33:48.676Z",
+      "runtime": "v24.22.2",
       "observed": {
         "independentDrafts": true,
         "lateEffectOwner": true,
@@ -1172,9 +1064,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.113Z",
-      "finishedAt": "2026-11-04T10:51:13.125Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.731Z",
+      "finishedAt": "2026-11-14T20:33:48.737Z",
+      "runtime": "v24.22.2",
       "observed": {
         "twoConversations": true,
         "credentialsExcluded": true
@@ -1220,9 +1112,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.205Z",
-      "finishedAt": "2026-11-04T10:51:13.208Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.785Z",
+      "finishedAt": "2026-11-14T20:33:48.788Z",
+      "runtime": "v24.22.2",
       "observed": {
         "cases": 25,
         "edges": 4,
@@ -1259,9 +1151,9 @@
         "moduleVersion": "0.2.2",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.294Z",
-      "finishedAt": "2026-11-04T10:51:13.304Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.841Z",
+      "finishedAt": "2026-11-14T20:33:48.846Z",
+      "runtime": "v24.22.2",
       "observed": {
         "escapedFields": true,
         "shallowConnection": true,
@@ -1282,7 +1174,7 @@
         "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
         "src/reasoning.js": "cf986cfc1a130426aabaf55b8ca93fe2e2855a70921dc7a5a0968433b596f519",
         "src/settings-markup.js": "173204074a70a9b6e35557018483ccbcf844c2f824d1e3cd1763a7110bdb6207",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -1309,9 +1201,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.383Z",
-      "finishedAt": "2026-11-04T10:51:13.406Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.896Z",
+      "finishedAt": "2026-11-14T20:33:48.911Z",
+      "runtime": "v24.22.2",
       "observed": {
         "escapedTitle": true,
         "currentIdentity": true,
@@ -1325,7 +1217,7 @@
         "docs/contracts/history-markup.json": "1b926fa070c24826ce7e7c20c7c7b05fc3f10a9eb74c9602666a9e6a1ff67ea2",
         "src/conversation-book.js": "68708829af65db8cdc2f30f6a2159b4b6f45013c6ec4da3e6a42cad11f4e5720",
         "src/history-markup.js": "1bb9bc46f368ec7d9538a8c0aa76eee89b7fbcb1b6f09b587df1f9bf4fa2898f",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -1352,9 +1244,9 @@
         "moduleVersion": "0.1.1",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.505Z",
-      "finishedAt": "2026-11-04T10:51:13.513Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:48.961Z",
+      "finishedAt": "2026-11-14T20:33:48.966Z",
+      "runtime": "v24.22.2",
       "observed": {
         "contractedImageSettings": true,
         "independentDimensions": true,
@@ -1368,7 +1260,7 @@
         "docs/contracts/image-options-markup.json": "dccbb2a4674ca8e4d1bdb0c9a8e45a0264b13c7357f385f73caa8d2bbb4cd43e",
         "src/image-capabilities.js": "b32b730e3eed88527e730b3818252bc9b7ad212ce9023ca5c533ff66f1b89181",
         "src/image-options-markup.js": "e07a7469c92085e734c7388a690f5ceb869af356c0cf783f1d104fe1d157ed95",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -1395,9 +1287,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.580Z",
-      "finishedAt": "2026-11-04T10:51:13.584Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:49.013Z",
+      "finishedAt": "2026-11-14T20:33:49.016Z",
+      "runtime": "v24.22.2",
       "observed": {
         "threeWayCapability": true,
         "endpointBoundMetadata": true,
@@ -1436,9 +1328,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.692Z",
-      "finishedAt": "2026-11-04T10:51:13.702Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:49.066Z",
+      "finishedAt": "2026-11-14T20:33:49.070Z",
+      "runtime": "v24.22.2",
       "observed": {
         "explicitOnly": true,
         "zeroAndFalsePreserved": true,
@@ -1478,9 +1370,9 @@
         "moduleVersion": "0.1.2",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.788Z",
-      "finishedAt": "2026-11-04T10:51:13.793Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:49.123Z",
+      "finishedAt": "2026-11-14T20:33:49.128Z",
+      "runtime": "v24.22.2",
       "observed": {
         "escaped": true,
         "protocolScoped": true,
@@ -1494,7 +1386,7 @@
         "src/gemini-capabilities.js": "cd414cc7ab5dfcc08bd1af289501e481a2a310fd5f32223fbcb3bf992ccd657c",
         "src/gemini-settings-markup.js": "937e20a55094ab4a86feaa80c5177a764528e0d1d3c5a92c75e69ccc3bcc9abe",
         "src/provider-identity.js": "afe4182b1e5e73be91323abac84cbed9cfbfb809af15d0360936c7bc90fa2a85",
-        "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893"
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     },
@@ -1521,9 +1413,9 @@
         "moduleVersion": "0.1.0",
         "mode": "local"
       },
-      "startedAt": "2026-11-04T10:51:13.872Z",
-      "finishedAt": "2026-11-04T10:51:13.875Z",
-      "runtime": "v24.22.1",
+      "startedAt": "2026-11-14T20:33:49.176Z",
+      "finishedAt": "2026-11-14T20:33:49.178Z",
+      "runtime": "v24.22.2",
       "observed": {
         "contractedControls": true,
         "dormantPreferencesPreserved": true,
@@ -1538,7 +1430,102 @@
         "src/image-capabilities.js": "b32b730e3eed88527e730b3818252bc9b7ad212ce9023ca5c533ff66f1b89181"
       },
       "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "R-016",
+        "version": "0.1.0",
+        "createdAt": "2026-11-15T00:00:00.000Z",
+        "updatedAt": "2026-11-15T00:00:00.000Z",
+        "kind": "relation",
+        "goal": "video.transport-authenticated-ref2va-jobs-and-verified-artifacts",
+        "source": "src/video-api.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-R-016",
+        "version": "0.1.0",
+        "createdAt": "2026-11-15T00:00:00.000Z",
+        "updatedAt": "2026-11-15T00:00:00.000Z",
+        "entry": "development/hosts/video-api.mjs",
+        "moduleId": "R-016",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-11-14T20:33:49.230Z",
+      "finishedAt": "2026-11-14T20:33:49.257Z",
+      "runtime": "v24.22.2",
+      "observed": {
+        "syntheticTransport": true,
+        "realNetwork": false,
+        "realGpu": false,
+        "postCount": 2,
+        "getCount": 7,
+        "rangeCount": 5,
+        "queuedBeforeModelReadyObserved": true,
+        "cancelNotAssumedTerminal": true,
+        "artifactBytesVerified": true,
+        "mediaDecoded": false
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/video-api.mjs": "869ba9a19f40f3b994b6f6942cc97fa21658dbef0957ae9d32f435996ad62f3f",
+        "docs/contracts/video-api.json": "d67285b2ebc688af20578d37d9394a3a15013fab93767dbd618e86702bfb4cec",
+        "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
+        "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
+        "src/video-api.js": "06d2391ca1e26c9ee626657010803602b22ead6e4533d481eb076bf019f3bf14"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
+    },
+    {
+      "status": "PASS",
+      "evidenceType": "LOCAL",
+      "module": {
+        "id": "C-003",
+        "version": "0.1.0",
+        "createdAt": "2026-11-15T03:30:00.000Z",
+        "updatedAt": "2026-11-15T03:30:00.000Z",
+        "kind": "composition",
+        "goal": "video.own-reference-job-observation-and-local-media",
+        "source": "src/video-workspace.js",
+        "lifecycle": "limited-use"
+      },
+      "host": {
+        "id": "H-C-003",
+        "version": "0.1.0",
+        "createdAt": "2026-11-15T03:30:00.000Z",
+        "updatedAt": "2026-11-15T03:30:00.000Z",
+        "entry": "development/hosts/video-workspace.mjs",
+        "moduleId": "C-003",
+        "moduleVersion": "0.1.0",
+        "mode": "local"
+      },
+      "startedAt": "2026-11-14T20:33:49.307Z",
+      "finishedAt": "2026-11-14T20:33:49.313Z",
+      "runtime": "v24.22.2",
+      "observed": {
+        "queuedBeforeModelReady": true,
+        "onlyExplicitSubmissions": true,
+        "independentSecretFreeStorage": true,
+        "serverCancellationObserved": true,
+        "mediaOnDemand": true,
+        "disposedResourceReleased": true,
+        "reloadDoesNotResubmit": true
+      },
+      "hashes": {
+        "development/hosts/report.mjs": "ca0320e26df3f16f3b1e8da102403ff3771f7792fd7f01006be95db1af9139a1",
+        "development/hosts/video-workspace.mjs": "cf55b0c9508582984e1b1711a538bf7c6e075fb8d51e957363ea283985d7d1e7",
+        "docs/contracts/video-workspace.json": "3f68f2ddeb58b774e226dd0997d0332c962ab5f369cb9c3dfe897a4c1396f7a9",
+        "src/icons.js": "8500376987291ebfd91fdee3a4dc363d184d1cc036a1765e296217ffb76f1fe3",
+        "src/logs.js": "b929a25d21190da5924d46dd292464d3868b32e78e9d4b6148ae7f22811fbb97",
+        "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
+        "src/video-api.js": "06d2391ca1e26c9ee626657010803602b22ead6e4533d481eb076bf019f3bf14",
+        "src/video-workspace.js": "eb89ed1ae8f653f4df65f6ce2b6cda3fcee1a671f6e2f3a125e9e022547813cd",
+        "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca"
+      },
+      "scope": "Declared host observations only; no real API or complete F/C/H/Q claim."
     }
   ]
 }
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.

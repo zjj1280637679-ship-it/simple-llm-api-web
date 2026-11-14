@@ -1,20 +1,11 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-11-04T10:51:14.904Z",
-  "reviewedBase": "03c7cd681434739e6cc5f70a2fa41c98ee21abc2",
-  "priorReviewCommit": "03c7cd681434739e6cc5f70a2fa41c98ee21abc2",
-  "runtime": "v24.22.1",
-  "baseline": {
-    "tests": 446,
-    "pass": 445,
-    "fail": 0,
-    "cancelled": 0,
-    "skipped": 1,
-    "todo": 0
-  },
+  "recordedAt": "2026-11-14T20:33:49.653Z",
+  "reviewedBase": "04c6787fe4f944d3b6273767b4043a8bca2fc32c",
+  "runtime": "v24.22.2",
   "counts": {
-    "tests": 457,
-    "pass": 456,
+    "tests": 517,
+    "pass": 516,
     "fail": 0,
     "cancelled": 0,
     "skipped": 1,
@@ -22,46 +13,46 @@
   },
   "runs": [
     {
-      "command": "npm test",
+      "command": "node --test",
       "exitCode": 0,
       "output": "development/evidence/review-tests.txt",
-      "outputSha256": "2f821229c022d62ab05857bb11e8c33dd31ab74a33e6c23824ef350723c565ac"
+      "outputSha256": "47e4c3a295d6477b8a0829248197b4172325b8616f2c5323bb9e4754fe48ee1d"
     },
     {
-      "command": "npm run check",
+      "command": "node scripts/check.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-check.txt",
-      "outputSha256": "113b730cadb94fad161dc4d9083f2a0e9c19b37a25d4f9363c13e3c07052e346"
+      "outputSha256": "a7e0880feed5dc2e1e71bfbb5fb3c736c472ef48e1622a32c49be5df22e32da2"
     },
     {
-      "command": "npm run hosts",
+      "command": "node scripts/run-hosts.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-hosts.txt",
-      "outputSha256": "a0eb80deac74074feb704c00faf6558e8f6e455df11db2ef6d9da9ab33c606fb"
+      "outputSha256": "6beee1d1ecefbdb4650e3c8ee7f54e083514b23d5a1c9203c83fede007271d7d"
     },
     {
-      "command": "npm run models",
+      "command": "node development/models/run.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-models.txt",
-      "outputSha256": "b5d82049b87479d563b41a811d8520cc7f7f1fcd688e7d071a0d838301917a81"
+      "outputSha256": "6993af5b358442f3f99e4a838ca7e730c58d538cbb8b80f26e89234dcd5b8655"
     },
     {
-      "command": "npm run build",
+      "command": "node scripts/build.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-build.txt",
-      "outputSha256": "a0ca5c7dd79e70916fcf4419d8f472cd3bc6603b3b03591d64afb8e5e31e6b3c"
+      "outputSha256": "90ad63dd019fcdda50b8e3a05a4039fbef1d601a688e04677f92fea16ee37eb1"
     },
     {
-      "command": "npm run review:health",
+      "command": "node scripts/review-health.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-health.txt",
-      "outputSha256": "55236fe1bb55aea70fc4d7977d26ff2b608c41cce20fe600d3d8f1bad7bcd467"
+      "outputSha256": "153f00d20c55c59796c7b6468def91e3a5eaba4301c9b38c1b41a1acd6781738"
     },
     {
-      "command": "npm run review:sources",
+      "command": "node scripts/review-sources.mjs",
       "exitCode": 0,
       "output": "development/evidence/review-sources.txt",
-      "outputSha256": "7950ee16787d6c31c3a5e361e8e8c2dc1c84ef53481e658c4a59cb57608b43b7"
+      "outputSha256": "631e89c6ee179e3f7fb160eb332798633f3aaee051e912f3eb516e5320009ac5"
     }
   ],
   "inputHashes": {
@@ -104,10 +95,12 @@
     "development/hosts/settings-navigation.mjs": "1f02459d520931081a4fc3e59a7ac009fbc5b2cc6f374da8ad458149726d4b04",
     "development/hosts/stream-painter.mjs": "007cc784f9fd48298493beb35283a0a8949f2000fac2a65af8a925bee453101e",
     "development/hosts/transport-evidence.mjs": "234f5a10d11d4cea6831e92ab0f7709c6fc956cd7474e8b411243c31980f0217",
-    "development/hosts/view-markup.mjs": "f3d91523bf103b05aca2cb256a964f1f6ab94aef62146a78ce11f6016f459164",
+    "development/hosts/video-api.mjs": "869ba9a19f40f3b994b6f6942cc97fa21658dbef0957ae9d32f435996ad62f3f",
+    "development/hosts/video-workspace.mjs": "cf55b0c9508582984e1b1711a538bf7c6e075fb8d51e957363ea283985d7d1e7",
+    "development/hosts/view-markup.mjs": "5b63214213ffe0b512661dd08b1f8847d350ab1338442caeae1715ea200787bd",
     "development/hosts/view-position.mjs": "23ae5f6a1b72057d186f1c29522919c8fbcc9207389b0720c330b50a6cc740ff",
     "development/hosts/workbench-cards.mjs": "d818ecf7f55755bee936b73ee55748ec233db63d8e3f69e7cacaf2af8f5106d9",
-    "development/hosts/workbench.mjs": "f003e44465292ebef9956557d41f0587a6f2930f90180672c739dc2fa715fd15",
+    "development/hosts/workbench.mjs": "93fd99d8c8ab16a95c1453d851a35c16023ef35c08573a240e01a9142ab9d6f1",
     "development/hosts/workspace-storage.mjs": "f607184fc6fd962467f0cfd6cae81a81d5b1f382aa90defc1e75f8bfccac092e",
     "development/models/README.md": "fae6a1d3f5d941867f6f0c7a97501ec26b7a23e0e9835068810d0128849cc7c1",
     "development/models/card-position-model.mjs": "a8c78215898ea97f5670ace872aa310c529a249934209d944b6ee54c4233ec49",
@@ -150,21 +143,23 @@
     "docs/contracts/settings-navigation.json": "57aba09914606f610fc2ddd7c838a86a5aa164237e74c9ae9975872365d9e56f",
     "docs/contracts/stream-painter.json": "f4262293ae66169a3c5052b698ebd95052e3d8807e9da5b818ca1ddc3d75fff9",
     "docs/contracts/transport-evidence.json": "21b35f1422b13e94453ba09675c825a1579ed91bc77e63773c55638e0a68bdb8",
-    "docs/contracts/view-markup.json": "9e0afaa97c77859e8cc1062e254a6cf255dff98da1646ee77381c3a2b451f026",
+    "docs/contracts/video-api.json": "d67285b2ebc688af20578d37d9394a3a15013fab93767dbd618e86702bfb4cec",
+    "docs/contracts/video-workspace.json": "3f68f2ddeb58b774e226dd0997d0332c962ab5f369cb9c3dfe897a4c1396f7a9",
+    "docs/contracts/view-markup.json": "866c5aac59afe46cb51794403d1a64f616827470de319f9ec689f7fcfe7ec149",
     "docs/contracts/view-position.json": "a31973442c90ad4cd4853a1e8c0cd6ac8ed0d24172b0de054fde6c9028e02f7e",
     "docs/contracts/workbench-cards.json": "c5c55e231098d9cb29792717d7ccd2ee40d51bc3b01b3f4c8314da82b84a08c8",
-    "docs/contracts/workbench.json": "d493a4b2ebe9e53185c9dc23fca230d2d133387b5b2e18d40a14832f05afc63e",
+    "docs/contracts/workbench.json": "349bf9f5325597739171ad3eae6c3bca640570ae1198c49d797aeb1a268fad32",
     "docs/contracts/workspace-storage.json": "cec021453a2bdc9fde05bffd3276fd704fa47b8308c5a2a94735752d4edddf15",
     "docs/evidence/source-claims.json": "9964aa34037a3c660ee311e2ea86a7ac3fe9101733df2789e708fc63f282d034",
-    "index.html": "4a9fb06281883f088ecf45737675c77d9c8cb23aaae8132b7674421b9addef36",
-    "module-library/catalog.json": "60ecde26f14f8d519fae33b3c6f2912699c7def6d6c67f2c7f050641a8d56eb4",
-    "package.json": "3fb670e3f0270f475658e3b461dc46e13a318a43a99dbe66bff0826871edc9cc",
-    "scripts/build.mjs": "d341d51f0a23059052ce82605322c98aeec472093cd28c61308e9c0d39ff369b",
-    "scripts/check.mjs": "6d2d3ef588a8f010df7ba229e077ac1a2fd68dad9fd06c2b3b5450b1ac59c230",
+    "index.html": "79594612200f10087ee9a05aa25f4508d60a27122dc4103a4e4c7d78e29d0232",
+    "module-library/catalog.json": "9ec97880802900ad88692c06d68596d8ecb64e1153f57ccd3dc6ad72738f7084",
+    "package.json": "1e8c74bee0a559b3ad4152ab4539aeea6a25ef195786c8360d0f693bc9b95a5f",
+    "scripts/build.mjs": "f0dbf0e5e62d5c25cdaa4250e2dfb5b9ea51e31407b0a8721d52f6254fb8bfbc",
+    "scripts/check.mjs": "8df116237b06c5c15720b97afcf2706d70b733b5bb6dd6be74328b12c6183822",
     "scripts/review-evidence.mjs": "021a86853144586f3a85c7755a77782996d8b7e9e69dca015edfaa946c4921a6",
     "scripts/review-health.mjs": "422f26e50fc0320c2ea791fd4ec6006becce58f7d0bd6dd37c72281596146573",
     "scripts/review-sources.mjs": "024764392d79b50cf1a9d4e65cb656ce008a50a2094506508f232d9f254eb901",
-    "scripts/run-hosts.mjs": "571c47fc42799c582bd1593688a28aa64f4391be8cfd62bfc83d3ace39244ad9",
+    "scripts/run-hosts.mjs": "bf6d65a1a45f1cb7685c5086870b754a3b8e2bc6941e9f42334eb8456f51efcc",
     "src/agent.js": "6d70f74a1f49ba3347c197db7d7e824e0f6b31e969220643e4d4effeb11bf0d1",
     "src/api-target.js": "d3bad14dbe1d1f531107c3a334911a6f7d72bb2b45dee47a91efcf9097074834",
     "src/app-error.js": "eee5cffc863562e1955263172fec5d45ed7c7b3a6c98a8af4eb9a177b1093b4e",
@@ -209,14 +204,17 @@
     "src/styles.css": "c8def18859fe16fc1b49eef40ef1488486c8976f5d65536f6bcee984c0b99a26",
     "src/transport-evidence.js": "8e2986d482f07853a9d3c5caadb672612a4123dabff99d6cd8b7b258abff4491",
     "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
-    "src/view-markup.js": "d3286edd7e5ffe6a2f65b7c54c66721c2836057aa72f7b9c1066d763d9f21893",
+    "src/video-api.js": "06d2391ca1e26c9ee626657010803602b22ead6e4533d481eb076bf019f3bf14",
+    "src/video-workspace.css": "ecebdbb1d761b0b8eecb8c9fd991e84e8fffd3fd718700b71db35a03f84fa8dd",
+    "src/video-workspace.js": "eb89ed1ae8f653f4df65f6ce2b6cda3fcee1a671f6e2f3a125e9e022547813cd",
+    "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca",
     "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
     "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e",
-    "src/workbench.js": "007d1a58f7f022d99bad94d185583560922ee539110d262dd933a7b9750c62fb",
+    "src/workbench.js": "ead8646e138bc1aac6113432c1b35130acc4fdf210f4543d890f46737b7e7448",
     "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d",
     "tests/agent.test.js": "ac35f50e2379bd225768cb0c1ec8a4261650068af6d8f795b5d3c609709ff960",
     "tests/anthropic.test.js": "428989010cc34074b63bf725e2767973780cb292d77ab782d66a21aa7b0d9259",
-    "tests/app-controls.test.js": "f78ade5c9ce8db7892db258f6f805fa779b1a5d68c124f5c685b99c2828ad9fb",
+    "tests/app-controls.test.js": "b6c03dcd6e7f907d89637e101409f86fb90609165358be4862c9b9d232b7187a",
     "tests/app.test.js": "dc687d3ddeba9e60601f18d59f83f18d3117069a49562b99da3f1ba21f97604f",
     "tests/attachments.test.js": "e20dd7cd26078931cdec4b0f465ade6f9f18902a49f662f7c35e69619b321792",
     "tests/browser-syntax.test.js": "72129caa6a2f8406c814217f775c7ad568b038d434d6b841a61784e8e1328010",
@@ -231,7 +229,7 @@
     "tests/browser/safari-canvas.html": "66c8447986739d8836c00b811ab9f0a8fd085fdfcce1018b098d1941fdcb6569",
     "tests/browser/streaming.html": "d4733e029cb7d14a270835320fd4912df24e7ecca1770e92f80c0eb939dc3dd6",
     "tests/browser/usage.html": "ceb0fae26ab96d242f71ecdec47d8b2bede33ac26f2049bc1b0a2ef64ebb9178",
-    "tests/build.test.js": "67d117181a8fb26a9fd82cf6c59bfd19c722c5d5ae16bb1d7bd02e29224f0970",
+    "tests/build.test.js": "5e5c1f0292cbe798e5afc682db3580659b3ad572d27baa81b8dba08d666d9d5f",
     "tests/cli.test.js": "0b36c7e26701ed7dd8274df41b6987c72a7d88eb22dad5ebbeb08c3851742f51",
     "tests/compact-composer.test.js": "46ed0910cfb042a49cb9375e4264351a093187f71846aba6137abec089e6819d",
     "tests/conversations.test.js": "632e8a0c57553c2936b0b14d61c6655e6ef81799298193c78fdcfd9ee8f271d6",
@@ -239,13 +237,13 @@
     "tests/credential-transport.test.js": "babfc08b9cfe83a4e176cb58959323b4d46ecfcd336e1ab23930793f391aa6fa",
     "tests/deepseek-cache.test.js": "8e27a604fc1e78ff2226b2f5bbc404283759ac0c9829491dd9b6aa4ef492c428",
     "tests/deepseek-output.test.js": "de7ff0c7a144e75df29fb42d19709c93c356664e55325641d31fecc669af45ea",
-    "tests/development-hosts.test.js": "777129a8422dee86bc44798ef79aeb518d9178c7883277bb891588532f6f26c4",
+    "tests/development-hosts.test.js": "127629c3ffb65f98ce412f681d1c8ab95a32f15dbbed4866c80f190adce907b3",
     "tests/epistemic-boundaries.test.js": "0bcd4e38b9fc5308156a007b8494baee97b9296852f7ef5ab77f4e7bed4dcd5c",
     "tests/fixtures/attachments/note.txt": "35b774a4631a5666c431d54d8ac76a010d43d4efb7239be7b0467fcb69a401fb",
     "tests/fixtures/attachments/sample.pdf": "70e35fb2837b12e0efe403e062479e95567584d373f5323cfe222810dbb5ebe7",
     "tests/fixtures/attachments/tiny.png.base64": "d43fe7c51200f6c4dbec61a92f1d99acf764ba9edf1584f257b6f20c53607fd8",
     "tests/fixtures/fake-browser-mcp.fixture.mjs": "6c43f4c4a8122f196a31eb4fda4ebac2be29520b0718a62adce786c7e9c0cb46",
-    "tests/floating-menu.test.js": "41e502a609088ba23cfa97c7d57105eecce2cfc5e9fef87351c0f3c5635cf2ee",
+    "tests/floating-menu.test.js": "80042ba3984b24bfdab3be579e603d9246eced5b6c2061e4170ee6b9f70d897a",
     "tests/floating-navigation.test.js": "af764411b6b11f157163430fcdf342faf47cd8cab2e771fa4625a6e14cf54395",
     "tests/focus-intent.test.js": "c5a7514ec3d89f2f495ed6a3fa57c6771c76099062f85b385084e733ff56a65d",
     "tests/gemini-adaptation.test.js": "f9d4e2b69faa66d3fe0d5ab37a3f7c3efbcce29efd732f44600a8fd78268cb78",
@@ -275,7 +273,9 @@
     "tests/stream.test.js": "9ebea1d83f440cb54679c488c9ed60d8b082cfdc34e698aa02f429e0f8b77be3",
     "tests/support/ui-sources.mjs": "651f6e02c5df2e84bc95b0cc7ff1384ca6e54007162d541bd2c29e05bff5deea",
     "tests/usage.test.js": "8ee9bcf050504588f0ca5604e2f746bc756af268958bf1960b7daff89e3e2e08",
+    "tests/video-api.test.js": "98dda5a7acedb911476b6ab82c207166eab68ffb54f3e0c68bfc9c3667cef5f7",
+    "tests/video-workspace.test.js": "4bf5d2a6a7fc42e33838718cdf3d2b66f5966b6c256ba417373dcb5b1887f9c5",
     "tests/view-position.test.js": "b7e98f54c2cfc88ed96dbe3be31e447283214f40c191b7de62647bfebedfcc63"
   },
-  "scope": "Local production imports, synthetic DOM/store/transport, 36 independent hosts and six bounded models. Browser/IME and providers require separate evidence; no complete F/C/H/Q promotion."
+  "scope": "Synthetic transports and CPU hosts; browser observations documented separately. No cloud GPU or paid model calls."
 }

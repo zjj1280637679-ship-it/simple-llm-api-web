@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {readFileSync,readdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
+import {fileURLToPath} from 'node:url';
 
 for (const slug of readdirSync(new URL('../docs/contracts/',import.meta.url)).filter(name=>name.endsWith('.json')).map(name=>name.slice(0,-5))) {
   test(`${slug} host exercises the production module and identifies exact source/host revisions`, () => {
     const root=new URL('../',import.meta.url);
-    const output=execFileSync(process.execPath,[new URL(`development/hosts/${slug}.mjs`,root).pathname],{encoding:'utf8',timeout:10000});
+    const output=execFileSync(process.execPath,[fileURLToPath(new URL(`development/hosts/${slug}.mjs`,root))],{encoding:'utf8',timeout:10000});
     const result=JSON.parse(output);
     assert.equal(result.status,'PASS');
     assert.equal(result.host.moduleVersion,result.module.version);

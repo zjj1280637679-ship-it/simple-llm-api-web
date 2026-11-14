@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "module": {
+    "id": "R-016",
+    "version": "0.1.0",
+    "createdAt": "2026-11-15T00:00:00.000Z",
+    "updatedAt": "2026-11-15T00:00:00.000Z",
+    "kind": "relation",
+    "goal": "video.transport-authenticated-ref2va-jobs-and-verified-artifacts",
+    "source": "src/video-api.js",
+    "lifecycle": "limited-use"
+  },
+  "host": {
+    "id": "H-R-016",
+    "version": "0.1.0",
+    "createdAt": "2026-11-15T00:00:00.000Z",
+    "updatedAt": "2026-11-15T00:00:00.000Z",
+    "entry": "development/hosts/video-api.mjs",
+    "moduleId": "R-016",
+    "moduleVersion": "0.1.0",
+    "mode": "local"
+  },
+  "conditions": [
+    "Browser or Node 20+ with fetch, FormData, Blob, AbortController, streams and Web Crypto SHA-256; ordinary immutable input records and native File/Blob objects",
+    "Self-hosted MiniMax-H3 ref2va API with documented /v1/system and /v1/jobs routes, Bearer authentication, allowlisted CORS and stable instance binding supplied by the UI",
+    "HTTPS service URL, or explicit localhost/127.0.0.1/[::1] HTTP for development; no credentials, query or fragment in the configured URL",
+    "Provider reports, declared transport provenance, accepted submissions and matching artifact hashes do not independently verify live GPU execution or media semantics"
+  ],
+  "observations": [
+    "Multipart submission preserves reference order and separates server acceptance from model readiness and generation completion",
+    "Unknown POST outcomes retain uncertainty and idempotency identity; the module never automatically repeats a POST",
+    "Cancellation returns the server's actual state, including cancel_requested or an already succeeded task",
+    "Artifact transfer constructs only authenticated same-base routes, verifies byte length and SHA-256, and returns caller-owned Blob data",
+    "Bounded Range concurrency retries only failed GET ranges; a server ignoring the initial Range receives one full-file download",
+    "Requests are bounded by deadlines and AbortSignal; diagnostics omit multipart payloads and redact registered credentials"
+  ],
+  "tests": ["tests/video-api.test.js"],
+  "gates": {"F": "UNKNOWN", "C": "UNKNOWN", "H": "UNKNOWN", "Q": "UNKNOWN"},
+  "limits": [
+    "No GPU start/stop, scheduler ownership, polling loop, persistent storage, object URL ownership, media decode validation or task list endpoint",
+    "Local validation covers parameter and file metadata limits; actual codecs, duration, frame rate, image dimensions and audio channels remain server checks",
+    "An upload timeout or abort can occur after server acceptance; without a server-supplied task ID the current API has no read-only idempotency-key lookup",
+    "Server instance binding and changed credential/address decisions belong to the caller; the transport does not infer continuity",
+    "Default verified artifact limit is 256 MiB (configurable up to 512 MiB), and assembling and hashing a Blob requires additional browser memory",
+    "Byte integrity against the server manifest does not prove video decodability, requested content, provenance or A100 BF16 inference",
+    "Local synthetic fixtures do not establish public-tunnel CORS, network reliability, GPU performance or full F/C/H/Q admission"
+  ],
+  "question": "哪些事实已由传输回执与产物校验建立，哪些任务状态仍需服务器查询？",
+  "stateModel": {
+    "budget": "Per JSON response 1 MiB; upload metadata 12 files / 64 MiB; default 30 s request and 120 s upload deadlines; default 3 concurrent 1 MiB ranges and at most 2 retries per failed range; default 256 MiB artifact; no polling or growing task collection in this module",
+    "completeFiniteImplementationModel": "NOT_ESTABLISHED"
+  },
+  "counterexamples": [
+    "A successful 202 response while model_ready=false establishes queued acceptance, not GPU readiness",
+    "A lost POST acknowledgement may hide an accepted job; retrying with a new key may create duplicate work",
+    "cancel_requested and a lost cancel acknowledgement do not establish task cancellation",
+    "A provider-supplied external file URL is not authority to send the API credential to another host",
+    "An intact download matching a provider manifest is not evidence of decoded video content or live model execution"
+  ],
+  "extensionSeam": "Inject fetch and Web Crypto implementations; retain bounded transfer, credential isolation, exact job identity and unknown-outcome semantics when extending the server protocol",
+  "proofObligations": [
+    {"id": "R-016.effect", "statement": "提交、查询、取消与下载分别报告已观察的服务事实；网络失败不能伪造任务终态", "status": "OPEN", "localWitness": "development/hosts/video-api.mjs"},
+    {"id": "R-016.non-inference", "statement": "局部传输及哈希校验不推出GPU准备、媒体内容正确、云资源释放或完整目标达成", "status": "OPEN"}
+  ],
+  "epistemicBoundary": {
+    "observations": ["Synthetic host exercises ordered upload, queued/running observations, cancellation state and byte-verified transfer without real network or GPU"],
+    "assumptions": ["Backend contract and CORS configuration match this module", "Caller pins task identity to the original API address and instance"],
+    "policyReference": "design/DECISIONS.md",
+    "notEstablished": ["Live browser CORS acceptance", "Real model generation", "Video decoding and semantic quality", "Complete implementation proof", "Full F/C/H/Q admission"]
+  }
+}

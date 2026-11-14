@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src https:; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>极简 LLM</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src https: http://localhost:* http://127.0.0.1:* http://[::1]:*; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="application-version" content="0.8.0">
+<title>极简 LLM · v0.8.0</title>
 <link rel="stylesheet" href="./src/styles.css">
+<link rel="stylesheet" href="./src/video-workspace.css">
 </head>
 <body><div class="shell" id="app"></div><script type="module" src="./src/app.js"></script></body>
 </html>

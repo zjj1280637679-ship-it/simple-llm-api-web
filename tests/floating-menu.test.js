@@ -22,7 +22,9 @@ test('menus leave measured composer and support native top layer with portal fal
  assert.match(source,/menu\.setAttribute\('popover', 'manual'\)/);
  assert.match(source,/dismissFloatingMenu\(true\)/);
  assert.match(source,/floatingMenuObserver\?\.disconnect\(\)/);
- const render=source.slice(source.indexOf('function render(scrollEnd'));
+ // This assertion concerns the chat/image composer menus, not the independent video branch.
+ const renderBody=source.slice(source.indexOf('function render(scrollEnd'));
+ const render=renderBody.slice(renderBody.indexOf('const d = get();'));
  assert.ok(render.indexOf('mountFloatingMenu();')<render.indexOf('syncFloatingNavigation();'));
 });
 
