@@ -905,9 +905,11 @@ test('search settings default to DeepSeek, separate key remains memory-only, and
   ui.addCard('model');const card=d.messages.at(-1);
   assert.match(ui.app.innerHTML,/联网搜索 · DeepSeek/);
   assert.match(ui.app.innerHTML,/data-key="searchKey"/);
-  assert.equal((await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'webSearch',value:'deepseek'}},d)).ok,true);
+  await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'webSearch',value:'deepseek'}},d);
+  assert.equal(d.model.webSearch,'deepseek');
   const secret='synthetic-search-only-key-xyz-9123';
-  assert.equal((await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'searchKey',value:secret}},d)).ok,true);
+  await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'searchKey',value:secret}},d);
+  assert.equal(d.model.searchKey,undefined);
   assert.equal(d.model.searchKey,undefined);
   assert.equal(d.model.webSearch,'deepseek');
   assert.doesNotMatch(JSON.stringify(ui.archiveSnapshot()),new RegExp(secret));
@@ -921,6 +923,7 @@ test('official DeepSeek chat can reuse its existing API key for the separate sea
   let observed;
   const ui=await mount({runConversation:async args=>{observed=args;return {text:'done',history:[],completion:{status:'unknown'}};}});
   const {d}=configure(ui);
+  ui.addCard('model'); // freeze the old API input fixture so it cannot overwrite the new synthetic target
   d.api={...d.api,protocol:'openai',url:'https://api.deepseek.com',trustedTarget:'https://api.deepseek.com',key:'synthetic-deepseek-main-key',model:'deepseek-flash'};
   d.model.webSearch='deepseek';
   d.draft='Find current events';
