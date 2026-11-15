@@ -1,10 +1,10 @@
 # 项目快照知识图
 
-知识版本 **1.9.0**；项目版本 **0.9.0**；生成时间 2026-11-15T17:59:33.545Z。源提交 `fb249580734792a4628a541ab649a7bf895fe54c`；314 个项目文件、38 个模块、38 个宿主、494 节点、1442 条关系。
+知识版本 **1.9.1**；项目版本 **0.9.0**；生成时间 2026-11-15T18:03:57.931Z。源提交 `cfbc8cfe807a754cc71775ca2dddc0d43f4cabce`；314 个项目文件、38 个模块、38 个宿主、494 节点、1442 条关系。
 
-**先读 [当前快照导览](snapshots/v0.9.0-fb2495807347/README.md)**。机器入口 [current.json](current.json)，[完整图](snapshots/v0.9.0-fb2495807347/graph.json)，[字段语义](schema.md)。本轮新增「文本模型 → 联网搜索」设置，默认 DeepSeek 搜索供应商，以独立的官方 Search API 和模型函数工具完成搜索，Key 不存入本机历史。
+**先读 [当前快照导览](snapshots/v0.9.0-cfbc8cfe807a/README.md)**。机器入口 [current.json](current.json)，[完整图](snapshots/v0.9.0-cfbc8cfe807a/graph.json)，[字段语义](schema.md)。本轮修正 DeepSeek 搜索工具的 UI 测试夹具，同时保留搜索源、Key 隔离与 Agent 协议实现。
 
-[上一版千问文本预设快照](snapshots/v0.9.0-5a0d7da300f5/README.md)及更早历史记录全部保留。此次离线实现不能推定真实 DeepSeek Search API 的跨域可用性或收费金额。
+[上一版源码快照](snapshots/v0.9.0-fb2495807347/README.md)与历史验证记录继续保留；独立外部服务与实账单未在此次变更中测试。
 
 ## 两种阅读深度
 
