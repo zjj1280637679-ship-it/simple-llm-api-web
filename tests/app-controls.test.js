@@ -352,7 +352,7 @@ test('settings menus replace bottom menus rather than leaving an inline second m
 test('supplier format picker replaces separate protocol and preserves invalidation', async()=>{
  const ui=await mount(),{d,card}=configure(ui);d.history=[{role:'user',content:'old context'}];card.models=[{id:'old'}];
  await ui.click({action:'plus'});await ui.click({action:'supplier',id:String(card.id)});
- assert.match(ui.app.innerHTML,/role="listbox"/);assert.equal((ui.app.innerHTML.match(/role="option"/g)||[]).length,8);
+ assert.match(ui.app.innerHTML,/role="listbox"/);assert.equal((ui.app.innerHTML.match(/role="option"/g)||[]).length,10);
  assert.doesNotMatch(ui.app.innerHTML,/data-action="protocol-menu"|id="protocol-label/);
  assert.doesNotMatch(ui.app.innerHTML,/class="plus-menu"/);
  await ui.click({action:'choose-supplier',id:String(card.id),index:'3'});
