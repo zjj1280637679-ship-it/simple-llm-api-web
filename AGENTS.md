@@ -4,7 +4,7 @@
 
 ## 快速进入
 
-1. 读 [知识图入口](knowledge/README.md) 与 [当前快照导览](knowledge/snapshots/v0.9.0-5a0d7da300f5/README.md)。当前指针以 [current.json](knowledge/current.json) 为准。
+1. 读 [知识图入口](knowledge/README.md) 与 [当前快照导览](knowledge/snapshots/v0.9.0-fb2495807347/README.md)。当前指针以 [current.json](knowledge/current.json) 为准。
 2. 运行 `node knowledge/check.mjs`。MATCH 只表示被记录文件和本地内容一致；DRIFT 列出变化，历史快照仍可参考，当前结论需重读变更来源。
 3. 用 `node knowledge/query.mjs route <主题>` 找到源码、条件文档、宿主及测试。修改某文件前可运行 `node knowledge/query.mjs impact src/persistence.js` 辅助定位消费者；动态注入和事件关系仍需人工检查。
 
