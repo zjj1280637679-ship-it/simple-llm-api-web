@@ -1,5 +1,4 @@
 import {receivedImageSummary,applyImageReceipt} from './image-evidence.js';
-import {WEB_SEARCH_TOOL,searchDeepSeek} from './web-search.js';
 import {
   AppError, canonicalEndpoint, dispatchCommand, generateText, getImageTool, makeToolResult, normalizeImageOptions,
 } from './core.js';
@@ -46,15 +45,14 @@ function imageInvocation(call, imageConfig) {
 }
 
 /**
- * Portable conversation runner. Supported models can invoke image_generate
- * and an explicitly enabled, bounded DeepSeek web_search tool. Neither can
- * execute arbitrary model-generated code, and search calls never auto-retry.
+ * Portable conversation runner. Models may invoke exactly one capability,
+ * image.generate; model output is never evaluated as code or an OS command.
  * onHistory checkpoints preserve a completed chargeable operation if a later
  * text request fails. There are no automatic network retries.
  */
 export async function runConversation({
-  config, imageConfig, imageSettings = {}, messages, settings = {}, search = {}, signal,
-  confirmTool, onToolResult, onSearchResult, onHistory, fetchImpl, onDelta, onReasoningDelta, onResponse, onPhase,
+  config, imageConfig, imageSettings = {}, messages, settings = {}, signal,
+  confirmTool, onToolResult, onHistory, fetchImpl, onDelta, onReasoningDelta, onResponse, onPhase,
 }) {
   const history = messages.map(message => ({ ...message }));
   const toolResults = [];
@@ -66,12 +64,7 @@ export async function runConversation({
   // Plain chat should work with providers/models that do not support tools.
   // Configure and trust the separate image workspace before advertising its tool.
   const imageTool = config.protocol !== 'anthropic' && imageConfig?.key && imageConfig?.trustedTarget ? getImageTool(imageConfig) : null;
-  if(search.enabled && config.protocol==='anthropic') throw agentError('SEARCH_UNSUPPORTED','当前 Anthropic 协议尚未适配函数工具；请关闭搜索或使用已适配的文本协议。');
-  if(search.enabled && (typeof search.key!=='string'||!search.key.trim())) throw agentError('SEARCH_KEY_REQUIRED','联网搜索已开启，请在模型设置填写 DeepSeek 搜索 Key。');
-  const searchTool=search.enabled?WEB_SEARCH_TOOL:null;
-  const tools=[...(imageTool?[imageTool]:[]),...(searchTool?[searchTool]:[])];
-  // Nonstream mode is explicit, never an automatic retry after an SSE failure.
-  const streamText = settings.streamMode !== 'json';
+  const tools = imageTool ? [imageTool] : [];
   const checkpoint = () => onHistory?.(history.map(message => ({ ...message })));
 
   try {
@@ -79,8 +72,8 @@ export async function runConversation({
       stopped(signal);
       const response = await generateText({
         config, messages: history, settings, tools, signal, fetchImpl, onPhase,
-        onDelta: streamText && onDelta ? delta => onDelta(delta, {round}) : undefined,
-        onReasoningDelta: streamText && onReasoningDelta ? delta => onReasoningDelta(delta, {round}) : undefined,
+        onDelta: onDelta ? delta => onDelta(delta, {round}) : undefined,
+        onReasoningDelta: onReasoningDelta ? delta => onReasoningDelta(delta, {round}) : undefined,
       });
       stopped(signal);
       onResponse?.(response, {round});
@@ -101,28 +94,8 @@ export async function runConversation({
       for (const call of calls) {
         stopped(signal);
         let summary;
-        if (call.name==='web_search' && searchTool) {
-          if(toolRounds>MAX_TOOL_ROUNDS)summary={ok:false,code:'TOOL_LIMIT',message:'本轮搜索工具调用已达上限。'};
-          else {
-            const query=call.args?.query;
-            const fingerprint=typeof query==='string'?'search:'+query.trim():null;
-            if(fingerprint&&completed.has(fingerprint))summary={...completed.get(fingerprint),reused:true};
-            else {
-              try {
-                const result=await searchDeepSeek({query,key:search.key,signal,fetchImpl});
-                stopped(signal);
-                summary={ok:true,...result};
-                if(fingerprint)completed.set(fingerprint,summary);
-                onSearchResult?.({query:result.query,count:result.results.length});
-              } catch(error) {
-                if(signal?.aborted||error?.code==='CANCELLED')throw error;
-                summary={ok:false,code:error?.code||'SEARCH_FAILED',message:error?.message||'搜索未完成；本次没有自动重试。'};
-                if(fingerprint)completed.set(fingerprint,summary);
-              }
-            }
-          }
-        } else if (call.name !== 'image_generate') {
-          summary = { ok: false, code: 'UNKNOWN_TOOL', message: '当前会话未注册此工具；命令未执行。' };
+        if (call.name !== 'image_generate') {
+          summary = { ok: false, code: 'UNKNOWN_TOOL', message: '当前会话仅注册 image_generate；此命令尚未接入，未执行。' };
         } else if (toolRounds > MAX_TOOL_ROUNDS) {
           summary = { ok: false, code: 'TOOL_LIMIT', message: '本轮图片工具调用已达上限。请等待用户新指令。' };
         } else {

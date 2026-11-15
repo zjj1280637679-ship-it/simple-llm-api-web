@@ -11,7 +11,6 @@ const files = [
   'h3-queue/index.html', 'h3-queue/style.css', 'h3-queue/api.js', 'h3-queue/app.js',
   'h3-relay/index.html',
   'src/video-api.js', 'src/video-workspace.js', 'src/video-workspace.css',
-  'src/web-search.js',
   'src/conversation-book.js','src/conversation-archive.js','src/gemini-capabilities.js','src/gemini-request.js','src/gemini-settings-markup.js','src/image-options-markup.js','src/settings-markup.js','src/settings-navigation.js','src/history-markup.js',
   'src/workbench-cards.js','src/interaction-cards.js','src/card-types.js','src/card-markup.js','src/card-confirmations.js',
   'src/app-error.js', 'src/api-target.js', 'src/request-transport.js', 'src/completion-evidence.js', 'src/completion-policy.js', 'src/image-evidence.js', 'src/request-outcome.js',
