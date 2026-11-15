@@ -9,6 +9,7 @@ export {AppError} from './app-error.js';
 export {canonicalEndpoint,validateEndpoint} from './api-target.js';
 export {subscribeCredentialUse} from './request-transport.js';
 import { reasoningBody, isDeepSeekChatEndpoint } from './reasoning.js';
+import {identifyProvider} from './provider-identity.js';
 import { attachmentParts, attachmentMetadata } from './attachments.js';
 import { usageFrom, createTextTiming, visibleOutputTokens, replyMetricsSnapshot } from './usage.js';
 import { getImageCapabilities, normalizeImageOptions, getImageTool, GEMINI_CAPABILITY, imageGenerationConfig, imageEffectiveSettings } from './image-capabilities.js';
@@ -46,6 +47,8 @@ function modelId(config) {
 
 export async function listModels({config, signal, fetchImpl, onPhase} = {}) {
   if (config?.protocol === 'ark') fail('MODELS_UNSUPPORTED', '当前未接入火山方舟模型列表接口；请手动填写已开通的模型 ID。');
+  const identity=identifyProvider(config);
+  if (identity.provider==='qwen'&&identity.profileMatched) fail('MODELS_UNSUPPORTED', '百炼的模型列表使用原生 /api/v1/models，而非本页的 /compatible-mode/v1/models；请手填可用模型 ID。');
   // One documented page of up to 1000 Gemini models. Never follow a provider-supplied URL.
   const json = await requestJSON(config, config.protocol === 'gemini' ? '/models?pageSize=1000' : config.protocol === 'anthropic' ? '/models?limit=1000' : '/models', {signal,fetchImpl,onPhase});
   const models = config.protocol === 'gemini' ? json.models : json.data;

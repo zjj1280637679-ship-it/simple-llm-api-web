@@ -26,3 +26,26 @@
 ## 验证层级
 
 新增离线测试：两家下拉项可见、协议/地址正确、跨厂商模型与凭证隔离、同目标重复选择不破坏配置、图片不误报支持、chat 路径仅追加一次。使用合成模型和合成返回值，无真实 Key、无真实 API 请求。浏览器可见性验收由集成候选进行，不把这些测试当作供应商联网验收。
+
+## 千问官方 · 阿里云百炼按量 API（2026-11-15）
+
+文本页面新增两个官方按量计费预设；均使用 OpenAI 兼容 `POST /chat/completions`，不会预填任何 API Key：
+
+| 预设 | 基础 URL |
+|---|---|
+| 千问 · 百炼官方（北京） | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
+| 千问 · 百炼官方（新加坡） | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` |
+
+操作：在对话页的 API 设置中选择地域预设，填写同地域的百炼**按量计费** API Key，再手动输入该账号可用的模型 ID（例如 `qwen3.8-flash` 或 `qwen3.7-plus`）。切换地域会清除旧 Key、地址信任和模型；选择同一地域不会删除当前用户配置。
+
+百炼模型列表使用独立原生 `GET /api/v1/models`，现有 OpenAI 格式的 `/models` 拉取按钮不适用。本预设将按钮置为「手填模型」，不擅自转换受信任请求目标。千问思考能力随具体模型而异，本次未加入未经验证的专有思考档位，也不会将对话兼容推断为图片生成兼容。
+
+普通按量付费、Token Plan 与 Coding Plan 的密钥/网关彼此隔离，不能混用。本页预设是**按量付费**入口；订阅用户需在「连接细节」另行设置正确方案的 URL，并核对计费方式。北京、新加坡区域 Key 也不能混用。阿里云推荐生产使用业务空间专属域名（需要 Workspace ID）；所列共享域名仍可使用。网页能否直接从 GitHub Pages 调用还取决于供应商的 CORS 规则，离线测试不证明实网可用。
+
+官方依据（核对于 2026-11-15）：
+- https://help.aliyun.com/zh/model-studio/base-url
+- https://help.aliyun.com/zh/model-studio/qwen-api-via-openai-chat-completions
+- https://help.aliyun.com/zh/model-studio/list-models
+- https://help.aliyun.com/zh/model-studio/use-chat-client-or-development-tool
+
+本轮以模拟 API 验证了供应商切换、鉴权与路径、手填模型及模型列表拒绝；未产生真实 API 调用，也不声称模型或 GPU 结果已验收。

@@ -37,6 +37,7 @@ import { getNetworkLogs, clearNetworkLogs, exportNetworkLogs, subscribeNetworkLo
 import { createPageSession } from './session.js';
 import { registerPageSessionTools } from './session-webmcp.js';
 import { createVideoWorkspace } from './video-workspace.js';
+import {identifyProvider} from './provider-identity.js';
 
 /** Composition root. The host supplies DOM/storage/transport; callers await ready and dispose once. */
 export function createWorkbench({document=globalThis.document,window=globalThis.window,services={},clock=globalThis}={}) {
@@ -62,7 +63,9 @@ const providers = [
   { name: '火山方舟 · 普通 API', protocol: 'ark', url: ARK_ENDPOINT },
   { name: 'DeepSeek', protocol: 'openai', url: 'https://api.deepseek.com' },
   { name: '智谱 AI · 普通 API', protocol: 'openai', url: 'https://open.bigmodel.cn/api/paas/v4' },
-  { name: '自定义 · Anthropic 格式', protocol: 'anthropic', url: '', custom: true }
+  { name: '自定义 · Anthropic 格式', protocol: 'anthropic', url: '', custom: true },
+  { name: '千问 · 百炼官方（北京）', protocol: 'openai', url: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
+  { name: '千问 · 百炼官方（新加坡）', protocol: 'openai', url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1' }
 ];
 const makePage = type => ({
   api: { protocol: 'gemini', url: providers[0].url, key: '', model: type === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL, supplier: 'Google Gemini', trustedTarget: '' },
@@ -472,6 +475,8 @@ async function pullModels(d,card,commit) {
   closeMenus();
   syncLogSecrets();
   if (d.api.protocol === 'ark') { modelListStatus(d, card, '普通 Ark API 暂无已核实的模型列表接口，请填写官方模型 ID。'); return; }
+  const qwen=identifyProvider(d.api);
+  if(qwen.provider==='qwen'&&qwen.profileMatched) { modelListStatus(d,card,'百炼官方模型列表使用原生 /api/v1/models 接口；本页尚未适配，请手动填写模型 ID。'); return; }
   if (!d.api.key.trim()) { modelListStatus(d, card, '请先填写 API Key；尚未发送模型列表请求。'); return; }
   card.modelListStatus = '';
   if (!applyCurrentTarget(d, text => { card.modelListStatus = text; })) { modelListStatus(d, card, card.modelListStatus || '地址无效，未发送模型列表请求。'); return; }

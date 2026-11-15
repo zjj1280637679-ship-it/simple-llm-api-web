@@ -10,7 +10,9 @@ const profiles = Object.freeze([
   {provider:'ark', protocol:'ark', host:'ark.cn-beijing.volces.com', paths:['/api/v3']},
   {provider:'anthropic', protocol:'anthropic', host:'api.anthropic.com', paths:['/v1']},
   {provider:'deepseek', protocol:'openai', host:'api.deepseek.com', paths:['', '/v1', '/chat/completions', '/v1/chat/completions']},
-  {provider:'zhipu', protocol:'openai', host:'open.bigmodel.cn', paths:['/api/paas/v4', '/api/paas/v4/chat/completions']}
+  {provider:'zhipu', protocol:'openai', host:'open.bigmodel.cn', paths:['/api/paas/v4', '/api/paas/v4/chat/completions']},
+  {provider:'qwen', protocol:'openai', host:'dashscope.aliyuncs.com', paths:['/compatible-mode/v1']},
+  {provider:'qwen', protocol:'openai', host:'dashscope-intl.aliyuncs.com', paths:['/compatible-mode/v1']}
 ]);
 
 export function identifyProvider(config = {}) {

@@ -400,6 +400,50 @@ for (const [index, name, url] of [
   });
 }
 
+
+for (const [index,name,url] of [
+  ['8','千问 · 百炼官方（北京）','https://dashscope.aliyuncs.com/compatible-mode/v1'],
+  ['9','千问 · 百炼官方（新加坡）','https://dashscope-intl.aliyuncs.com/compatible-mode/v1']
+]) {
+  test(name+' text preset uses official paid API, manual model and isolated credentials',async()=>{
+    let attemptedPulls=0;
+    const ui=await mount({listModels:async()=>{attemptedPulls++;return [];}});
+    const {d,card}=configure(ui);
+    const imageBefore={...ui.data.image.api};
+    await ui.click({action:'supplier',id:String(card.id)});
+    assert.ok(ui.app.innerHTML.includes(name));
+    await ui.click({action:'choose-supplier',id:String(card.id),index});
+    assert.equal(d.api.protocol,'openai');
+    assert.equal(d.api.url,url);
+    assert.equal(d.api.model,'');
+    assert.equal(d.api.key,'');
+    assert.equal(d.api.trustedTarget,'');
+    assert.equal(ui.isConfigured(d),false);
+    assert.deepEqual({...ui.data.image.api},imageBefore);
+    assert.match(ui.app.innerHTML,/手填模型/);
+    assert.match(ui.app.innerHTML,/百炼按量 API/);
+    await ui.click({action:'pull-models',id:String(card.id)});
+    assert.match(card.modelListStatus,/原生 \/api\/v1\/models/);
+    assert.equal(attemptedPulls,0);
+    d.api.model='qwen3.8-flash';d.api.key='synthetic-qwen-key';
+    d.api.trustedTarget=url;
+    await ui.click({action:'choose-supplier',id:String(card.id),index});
+    assert.equal(d.api.model,'qwen3.8-flash');
+    assert.equal(d.api.key,'synthetic-qwen-key');
+    const otherIndex=index==='8'?'9':'8';
+    await ui.click({action:'choose-supplier',id:String(card.id),index:otherIndex});
+    assert.equal(d.api.key,'');
+    assert.equal(d.api.model,'');
+    assert.equal(d.api.trustedTarget,'');
+    assert.equal(ui.isConfigured(d),false);
+  });
+  test(name+' does not falsely enable image generation',async()=>{
+    const ui=await mount(),{d,card}=configure(ui,'image');
+    await ui.click({action:'choose-supplier',id:String(card.id),index});
+    assert.equal(ui.matrixSupported(d),false);
+  });
+}
+
 test('pending request shows only accessible spinner and clears it on completion', async()=>{
  let resolve;
  const ui=await mount({runConversation:()=>new Promise(r=>{resolve=r;})}),{d}=configure(ui);
