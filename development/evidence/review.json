@@ -215,7 +215,7 @@
     "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d",
     "tests/agent.test.js": "795d9f206ccf637620189dc78ec7f74a6185cc6ce831a31cd36a630d06a5784e",
     "tests/anthropic.test.js": "428989010cc34074b63bf725e2767973780cb292d77ab782d66a21aa7b0d9259",
-    "tests/app-controls.test.js": "70e632c9ac28f0daa111b2e7160562c7a124ef7800c8e2ac0a216f235f638ef2",
+    "tests/app-controls.test.js": "c9b9c2f972e2887f8b1dde485f65d256a51af25424d78b6e3161844c3b69be60",
     "tests/app.test.js": "dc687d3ddeba9e60601f18d59f83f18d3117069a49562b99da3f1ba21f97604f",
     "tests/attachments.test.js": "e20dd7cd26078931cdec4b0f465ade6f9f18902a49f662f7c35e69619b321792",
     "tests/browser-syntax.test.js": "72129caa6a2f8406c814217f775c7ad568b038d434d6b841a61784e8e1328010",
@@ -282,8 +282,8 @@
     "tests/view-position.test.js": "b7e98f54c2cfc88ed96dbe3be31e447283214f40c191b7de62647bfebedfcc63",
     "tests/web-search.test.js": "7635a4b688d7ba97bff0c7cbf5b349547cc9edbeb6d9dc3e19c34c4f7304431f"
   },
-  "scope": "Input fingerprints updated for DeepSeek Search API search tool, browser model settings, memory-only search credentials, agent tool loop and unit tests. Previously recorded command outputs/test counts remain historical reviewedBase results, NOT rerun verification for this revision; current GitHub Actions CI independently tests. No real DeepSeek key, paid API search, CORS, billing or live provider functionality tested.",
-  "inputFingerprintUpdatedAt": "2026-11-15T17:57:04.209Z",
-  "inputFingerprintSource": "1aa2352100a1090b0123b38e956d558ea2796964",
+  "scope": "Latest search client/agent/persistence implementation and UI test input hashes recorded; earlier archived test output files and test totals remain historical, while current GitHub Actions logs provide fresh independent test evidence. The UI test fixture now freezes old API inputs and asserts model state rather than a void handler result. No live DeepSeek search key, service CORS, paid search or external model response verified.",
+  "inputFingerprintUpdatedAt": "2026-11-15T18:02:57.761Z",
+  "inputFingerprintSource": "66091b2b24ecb73b1e05074d97d88d99333c9687",
   "historicalReviewSource": "84cf1edb3bb5cce4357085190714e019a536f1b4"
 }
