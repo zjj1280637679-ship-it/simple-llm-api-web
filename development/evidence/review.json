@@ -214,7 +214,7 @@
     "src/workspace-storage.js": "67171ee7946a635b81367a2687f691ba43ffa3cb260b19fbfcda6b54fd81cb9d",
     "tests/agent.test.js": "ac35f50e2379bd225768cb0c1ec8a4261650068af6d8f795b5d3c609709ff960",
     "tests/anthropic.test.js": "428989010cc34074b63bf725e2767973780cb292d77ab782d66a21aa7b0d9259",
-    "tests/app-controls.test.js": "f1e8ad763a87aefef7cc4cb711b7e166793395d54528c443c56db42d2e8773b1",
+    "tests/app-controls.test.js": "08f0dd6046ac583fd94eb94dae32b1330cdb04fcda07b051ed74150c0efe1b10",
     "tests/app.test.js": "dc687d3ddeba9e60601f18d59f83f18d3117069a49562b99da3f1ba21f97604f",
     "tests/attachments.test.js": "e20dd7cd26078931cdec4b0f465ade6f9f18902a49f662f7c35e69619b321792",
     "tests/browser-syntax.test.js": "72129caa6a2f8406c814217f775c7ad568b038d434d6b841a61784e8e1328010",
@@ -281,7 +281,7 @@
     "tests/view-position.test.js": "b7e98f54c2cfc88ed96dbe3be31e447283214f40c191b7de62647bfebedfcc63"
   },
   "scope": "Current inputHashes cover the Qwen official pay-as-you-go provider presets and the current UI/API adapter unit tests. Historical stored run outputs and prior 533/534 test counts remain attributed to reviewedBase, not a new run. Current full CI and Pages deployment have independent logs. Source fingerprints do not verify actual DashScope CORS, billing, regional entitlements or real chat replies.",
-  "inputFingerprintUpdatedAt": "2026-11-15T11:31:37.929Z",
-  "inputFingerprintSource": "9b8badc178350ecc4d4f328c9087b8f3e35ceccf",
+  "inputFingerprintUpdatedAt": "2026-11-15T11:38:32.721Z",
+  "inputFingerprintSource": "1c117424f4c2d7b6de1593e8b69184a13b8684c9",
   "historicalReviewSource": "84cf1edb3bb5cce4357085190714e019a536f1b4"
 }
