@@ -69,7 +69,7 @@ const providers = [
 ];
 const makePage = type => ({
   api: { protocol: 'gemini', url: providers[0].url, key: '', model: type === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL, supplier: 'Google Gemini', trustedTarget: '' },
-  model: { output: '', temperature: '', topP: '', inputs: ['text','image','pdf','audio','video'] }, draft: '', attachments: [], attachmentReading: false, attachmentError: '', pendingTextId: null,
+  model: { output: '', temperature: '', topP: '', webSearch: 'off', inputs: ['text','image','pdf','audio','video'] }, draft: '', attachments: [], attachmentReading: false, attachmentError: '', pendingTextId: null,
   aspectRatio: '1:1', imageSize: '1K', messages: [], history: [], busy: false,
   controller: null, lastUsage: null, lastMetrics: null
 });
@@ -99,11 +99,18 @@ scope.own(()=>video.dispose());
 const conversationPage=()=>page==='video'?(book.current().page || 'chat'):page;
 let reasoningAnchorId = null;
 const get = () => data[page];
-function syncLogSecrets() { updateActiveLogSecrets(allWorkspaces().map(d => d.api.key)); }
-function archiveWorkspaceKey(d) { if (d) setLogSecrets([d.api.key]); }
+const searchKeys=new WeakMap(); // Never part of model/card/history/persistence state.
+function searchKeyFor(d) {
+  const separate=searchKeys.get(d)?.trim();
+  if(separate)return separate;
+  const identity=identifyProvider(d.api);
+  return identity.provider==='deepseek'&&identity.profileMatched?d.api.key.trim():'';
+}
+function syncLogSecrets() { updateActiveLogSecrets(allWorkspaces().flatMap(d => [d.api.key,searchKeys.get(d)])); }
+function archiveWorkspaceKey(d) { if (d) setLogSecrets([d.api.key,searchKeys.get(d)]); }
 const activeCardId = d => liveCard(d?.messages)?.id;
 const getCard = id => get()?.messages.find(m => m.id === id && m.type === 'card');
-const settingsViews=createSettingsViews({get,currentPage:()=>page,activeCardId,menuState:()=>subMenu,reasoningAnchor:()=>reasoningAnchorId,providers,providerIdentity,protocolLabel,apiTrustText});
+const settingsViews=createSettingsViews({get,currentPage:()=>page,activeCardId,menuState:()=>subMenu,reasoningAnchor:()=>reasoningAnchorId,getSearchKey:d=>searchKeys.get(d)||'',providers,providerIdentity,protocolLabel,apiTrustText});
 const cardRegistry=createWorkbenchCards({
   apiMarkup:settingsViews.api,connectionMarkup:settingsViews.connection,modelMarkup:settingsViews.model,settingsAction:performCardAction,
   navigate:({workspace,card,args})=>{syncCurrentApiFields(workspace);addCard(args.kind,undefined,workspace);return {ok:true};},
@@ -504,6 +511,12 @@ async function send() {
   saveLocal(true);
   if (!isConfigured(d)) { addCard('api'); return { status: 'needs-configuration' }; }
   if (!applyCurrentTarget(d)) return {status:'not-sent',reason:'invalid-target'};
+  const searchEnabled=requestPage==='chat'&&d.model.webSearch==='deepseek';
+  const searchKey=searchEnabled?searchKeyFor(d):'';
+  // Only record a complete credential when it is actually used, never typing prefixes.
+  if(searchEnabled&&searchKey)localSecrets.add(searchKey);
+  if(searchEnabled&&d.api.protocol==='anthropic') {status(d,'当前 Anthropic 格式尚未适配模型函数工具，请关闭联网搜索或选择 Gemini / OpenAI 兼容 / Ark 文本接口。','error');return {status:'not-sent',reason:'search-unsupported'};}
+  if(searchEnabled&&!searchKey) {status(d,'请在文本模型设置中填写 DeepSeek 搜索 API Key；主模型为官方 DeepSeek 时可直接复用主 Key。','error');return {status:'not-sent',reason:'search-key-required'};}
   if (requestPage === 'image' && !matrixSupported(d)) { status(d, '当前模板未配置此图片模型的参数，请在设置中选择已适配的 Gemini 图片模型或 Seedream 5.0 Flash / Pro。', 'error'); return { status: 'not-sent', reason: 'unsupported-model' }; }
   const imageSettings = { ...d.model };
   const config = { ...d.api }, args = { prompt: text, aspectRatio: d.aspectRatio, imageSize: d.imageSize };
@@ -535,7 +548,7 @@ async function send() {
       d.lastUsage = result.usage; d.lastMetrics = replyMetricsSnapshot(result.usage);
     } else {
       const result = await runConversation({
-        config, imageConfig, imageSettings:{...book.owner(d).data.image.model}, messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, signal: d.controller.signal,
+        config, imageConfig, imageSettings:{...book.owner(d).data.image.model}, messages: [...d.history, { role: 'user', content: text, attachments }], settings: { ...d.model }, search:{enabled:searchEnabled,key:searchKey}, signal: d.controller.signal,
         onPhase:phase=>requestPhase(d,phase),
         onDelta: (delta, {round}) => {
           if (!delta) return;
@@ -553,7 +566,8 @@ async function send() {
         },
         confirmTool: async invocation => approveImage(invocation,d),
         onHistory: history => { d.history = history; checkpointed = true; saveLocal(true); },
-        onToolResult: ({ result, invocation }) => appendImages(d, result, invocation.args, true)
+        onToolResult: ({ result, invocation }) => appendImages(d, result, invocation.args, true),
+        onSearchResult: ({query,count})=>status(d,`DeepSeek 搜索：${query.slice(0,80)} · ${count} 条结果`,'status',false)
       });
       outcome=requestOutcome({kind:'text',completion:result.completion});
       d.history = result.history;
@@ -746,6 +760,14 @@ function applyCardField(d,card,t) {
     if (book.owner(d)?.data.image===d) resetImageOptions(d);
     refreshApiStatus(d, id);
   } else {
+    if(key==='searchKey'){
+      if(book.owner(d)?.data.chat!==d)return {ok:false,reason:'inactive-workspace'};
+      if(typeof t.value!=='string'||/[\r\n]/.test(t.value))return {ok:false,reason:'invalid-key'};
+      searchKeys.set(d,t.value);
+      syncLogSecrets();
+      return {ok:true};
+    }
+    if(key==='webSearch'&&!['off','deepseek'].includes(t.value))return {ok:false,reason:'invalid-search'};
     if(IMAGE_FIELDS.includes(key)&&book.owner(d)?.data.image!==d)return {ok:false,reason:'inactive-workspace'};
     if(GEMINI_FIELDS.includes(key)&&d.api.protocol!=='gemini')return {ok:false,reason:'inactive-protocol'};
     d.model[key] = t.value; card.values[key] = t.value;

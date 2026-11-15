@@ -40,3 +40,16 @@ v0.4.0 把原根目录三个 CLI 文件移入 `cli/`。终端示例按仓库根�
 Gemini 专属参数与能力收缩见 [Gemini 适配](GEMINI_ADAPTATION.md)。
 
 图片页按具体模型收缩与扩展控制见 [图片适配](IMAGE_ADAPTATION.md)。
+
+
+## 文本模型联网搜索 · DeepSeek 官方默认
+
+在「对话 → ＋ → 模型设置 → 更多参数 → 联网搜索」中启用「DeepSeek 官方 · 模型自主搜索」。
+
+- 搜索服务固定为 DeepSeek 官方 `POST https://api.deepseek.com/v1/tools/search`。当前兼容支持函数工具的 Gemini、OpenAI 兼容与 Ark 文本模型；Anthropic 格式的工具调用尚未适配。
+- 当主文本模型是**官方 DeepSeek**，可复用主 API Key；若主模型是千问、GPT、Gemini 或其他供应商，须在这里另填 DeepSeek 搜索 Key。搜索 Key 不会发送到主模型供应商。
+- **默认搜索来源 DeepSeek，但开关默认关闭**，以免产生意外费用。启用后由模型判断是否需要搜索，而不是每次消息都强制搜索。本轮搜索无自动重试，和图片工具合计最多 4 次调用，单次最多返回 5 条结果。
+- 搜索 Key 仅驻留标签页内存，不写入聊天历史、模型卡快照、浏览器存档或 GitHub。模型选择的搜索词会发给 DeepSeek；成功搜索请求可能单独计费。结果作为不可信引用数据交给主模型。
+- 前端不能控制第三方服务的 CORS。此次只有模拟 HTTP 测试，没有真实 DeepSeek Key、额度、搜索或模型联网验收。
+
+官方文档：https://api-docs.deepseek.com/guides/search/ （2026-11-16 核对）。

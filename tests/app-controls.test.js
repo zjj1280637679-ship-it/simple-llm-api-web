@@ -895,3 +895,43 @@ test('session image model change projects omitted axes and permits 512 only on i
  const before=JSON.stringify(d.api);const invalid=await ui.session.execute({command:'settings.update',args:{model:'gemini-2.5-flash-image',imageSize:'512'}});
  assert.equal(invalid.ok,false);assert.equal(JSON.stringify(d.api),before);
 });
+
+
+test('search settings default to DeepSeek, separate key remains memory-only, and model decides whether to search',async()=>{
+  let observed;
+  const ui=await mount({runConversation:async args=>{observed=args;return {text:'done',history:[],completion:{status:'unknown'}};}});
+  const {d}=configure(ui);
+  assert.equal(d.model.webSearch,'off');
+  ui.addCard('model');const card=d.messages.at(-1);
+  assert.match(ui.app.innerHTML,/联网搜索 · DeepSeek/);
+  assert.match(ui.app.innerHTML,/data-key="searchKey"/);
+  assert.equal((await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'webSearch',value:'deepseek'}},d)).ok,true);
+  const secret='synthetic-search-only-key-xyz-9123';
+  assert.equal((await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'searchKey',value:secret}},d)).ok,true);
+  assert.equal(d.model.searchKey,undefined);
+  assert.equal(d.model.webSearch,'deepseek');
+  assert.doesNotMatch(JSON.stringify(ui.archiveSnapshot()),new RegExp(secret));
+  d.draft='What happened today?';
+  await ui.click({action:'send'});
+  assert.deepEqual(observed.search,{enabled:true,key:secret});
+  assert.equal(observed.config.key,'synthetic-control-key');
+  assert.doesNotMatch(JSON.stringify(ui.archiveSnapshot()),new RegExp(secret));
+});
+test('official DeepSeek chat can reuse its existing API key for the separate search function',async()=>{
+  let observed;
+  const ui=await mount({runConversation:async args=>{observed=args;return {text:'done',history:[],completion:{status:'unknown'}};}});
+  const {d}=configure(ui);
+  d.api={...d.api,protocol:'openai',url:'https://api.deepseek.com',trustedTarget:'https://api.deepseek.com',key:'synthetic-deepseek-main-key',model:'deepseek-flash'};
+  d.model.webSearch='deepseek';
+  d.draft='Find current events';
+  await ui.click({action:'send'});
+  assert.equal(observed.search.enabled,true);
+  assert.equal(observed.search.key,'synthetic-deepseek-main-key');
+});
+test('enabling search without a separate key on a non-DeepSeek provider blocks sending rather than silently skipping search',async()=>{
+  let requests=0;const ui=await mount({runConversation:async()=>{requests++;return {text:'no',history:[]};}});
+  const {d}=configure(ui);d.model.webSearch='deepseek';d.draft='Find latest';
+  const result=await ui.click({action:'send'});
+  assert.equal(requests,0);
+  assert.ok(d.messages.some(m=>m.type==='error'&&/DeepSeek 搜索 API Key/.test(m.text)));
+});

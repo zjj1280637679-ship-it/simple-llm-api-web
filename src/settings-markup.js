@@ -23,12 +23,13 @@ export function historicalModelMarkup(card,page) {
     ...geminiSnapshotRows(x).map(([label,value])=>[protocol==='gemini'?label:`${label}（Gemini 偏好，未应用）`,value]),['输出预算 Token',present(x.output,'API 默认')],['温度',present(x.temperature,'API 默认')],['Top P',present(x.topP,'API 默认')],
     ['思考模板',family],['思考强度',x.reasoning?`${present(x.reasoning.template,'未记录模板')} · ${present(x.reasoning.value,'未记录')}`:'未指定'],
     ...(x.reasoningBudget!==undefined?[['模板预算',present(x.reasoningBudget,'未指定')]]:[]),
+    ['联网搜索',x.webSearch==='deepseek'?'DeepSeek 官方（启用）':x.webSearch==='off'?'关闭':'未记录'],
     ['输入模态',Array.isArray(x.inputs)?x.inputs.map(kind=>MODALITIES[kind]||kind).join('、')||'未选择':'未记录']
   ] : imageSnapshotRows(x);
   const note=page==='image'?'历史参数按当时记录显示；未记录项不使用当前连接推断。':known?(protocolNote(protocol)+(x.displayContext?.gemini?.sampling==='unsupported'?' 当时模型不使用温度 / Top P / Top K；保存的偏好未应用。':'')+(x.displayContext?.gemini?.thinking==='unsupported'?' 当时模型回执明确不支持思考；相关偏好未应用。':'')):'历史协议未记录；保留已存参数，不按当前连接推断。';
   return `<div class="card-type">模型设置</div><dl class="settings-snapshot">${rows.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${note?`<p class="model-note">${esc(note)}</p>`:''}`;
 }
-export function createSettingsViews({get,currentPage,activeCardId,menuState,reasoningAnchor,providers,providerIdentity,protocolLabel,apiTrustText}) {
+export function createSettingsViews({get,currentPage,activeCardId,menuState,reasoningAnchor,getSearchKey=()=>'',providers,providerIdentity,protocolLabel,apiTrustText}) {
 function modelListMarkup(m,protocol) {
   if(!m.models?.length)return '<span class="inline-item">上游未返回可用模型</span>';
   const button=model=>`<button class="inline-item" data-action="choose-model" data-id="${m.id}" data-model="${esc(model.id)}">${esc(model.id)}</button>`;
@@ -98,7 +99,16 @@ function modelCard(m) {
 <div class="formfield">
 <label for="context${m.id}">上下文</label>
 <output id="context${m.id}" class="block-value">当前对话上下文</output>
-</div></details>`:''}${geminiSettingsMarkup(m,d.api,x)}${inputSettingsMarkup(m,d,x)}</details>` : imageSettingsMarkup(m,d.api,x,d)}</div><div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${protocolNote(d.api.protocol)}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div><button class="chip" data-action="open-settings-card" data-id="${m.id}" data-kind="api">返回设置</button>
+</div></details>`:''}${geminiSettingsMarkup(m,d.api,x)}<details data-setting-section="web-search"><summary>联网搜索 · DeepSeek</summary>
+<div class="formfield"><label for="webSearch${m.id}">搜索工具</label>
+<select id="webSearch${m.id}" class="block-input" data-card="${m.id}" data-key="webSearch">
+<option value="off" ${x.webSearch!=='deepseek'?'selected':''}>关闭（不产生搜索费用）</option>
+<option value="deepseek" ${x.webSearch==='deepseek'?'selected':''}>DeepSeek 官方 · 模型自主搜索</option>
+</select></div>
+<div class="formfield"><label for="searchKey${m.id}">DeepSeek 搜索 API Key（可单独填写）</label>
+<input id="searchKey${m.id}" class="block-input" data-card="${m.id}" data-key="searchKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="独立搜索 Key · 仅内存" value="${esc(getSearchKey(d))}"></div>
+<p class="model-note">固定调用 https://api.deepseek.com/v1/tools/search。搜索词由当前模型决定，结果返回当前模型；DeepSeek Key 不会发给主模型供应商或存入历史。主模型若是官方 DeepSeek，可留空复用当前对话 Key。每轮最多 4 次工具调用，无自动重试，成功搜索可能按次计费。Anthropic 格式的工具调用目前尚未适配。</p>
+</details>${inputSettingsMarkup(m,d,x)}</details>` : imageSettingsMarkup(m,d.api,x,d)}</div><div class="model-note">${page === 'chat' ? `输入模态控制可添加的附件，不代表当前模型具备相应能力；以供应商响应为准。附件仅在点击发送时提交到 API。图片生成仍通过独立图片工作台。${protocolNote(d.api.protocol)}` : '文本生成图片；比例和分辨率在输入框右下方选择。'}</div><button class="chip" data-action="open-settings-card" data-id="${m.id}" data-kind="api">返回设置</button>
 `;
 }
 return {api:apiCard,connection:connectionCard,model:modelCard};
