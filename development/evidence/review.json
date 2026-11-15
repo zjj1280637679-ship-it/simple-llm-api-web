@@ -154,7 +154,7 @@
     "index.html": "2bf74e82b734e395d21d30e29e11a234a992fa40602ae0d1fbf6909b0446ba60",
     "module-library/catalog.json": "954e0d965882a756c22a6b0e56e76af5c42de291a25f889c7247ab1647bb0e7a",
     "package.json": "c43a8aaba48e243499ec18318630e3fd16dd5e6b1cc4f9e3d60e82490f190da1",
-    "scripts/build.mjs": "f0dbf0e5e62d5c25cdaa4250e2dfb5b9ea51e31407b0a8721d52f6254fb8bfbc",
+    "scripts/build.mjs": "7e388e9706e376bd2b862dd08a528840feb5e1763f06aa118c2dccf9c7801806",
     "scripts/check.mjs": "8df116237b06c5c15720b97afcf2706d70b733b5bb6dd6be74328b12c6183822",
     "scripts/review-evidence.mjs": "021a86853144586f3a85c7755a77782996d8b7e9e69dca015edfaa946c4921a6",
     "scripts/review-health.mjs": "422f26e50fc0320c2ea791fd4ec6006becce58f7d0bd6dd37c72281596146573",
@@ -206,7 +206,7 @@
     "src/usage.js": "af819ec40311e6cfba3f72e951d604bd654c54703a8e5d2f9dbfdaabb27c0d2f",
     "src/video-api.js": "d749ba6d71ff0a94912c8c299cee8158cd71fd03731ec11f7b593c1d2e616654",
     "src/video-workspace.css": "044884616a83ec024543347bfe517997091ad3ba6b79b31627e9e389c3067580",
-    "src/video-workspace.js": "27485260103e9b7610d16e3195684d185c298131bf0cb6d2a0d7634c75106c63",
+    "src/video-workspace.js": "2a6a31233564dac543a67591b09519d6fcd20d44db28b7cd4da3a30628285851",
     "src/view-markup.js": "2de17bc4bee74855a6a315d6fccd0c7174577c9a1edcf632cf677c6a0a59dfca",
     "src/view-position.js": "342a8962786b8642a15e823b34b9eabb81ed3cd1e852309bc3b6422af6026ebd",
     "src/workbench-cards.js": "19919463e83c606579796220429f14807bd094aacea2bdcb5e7e25e6d2bc805e",
@@ -229,7 +229,7 @@
     "tests/browser/safari-canvas.html": "66c8447986739d8836c00b811ab9f0a8fd085fdfcce1018b098d1941fdcb6569",
     "tests/browser/streaming.html": "d4733e029cb7d14a270835320fd4912df24e7ecca1770e92f80c0eb939dc3dd6",
     "tests/browser/usage.html": "ceb0fae26ab96d242f71ecdec47d8b2bede33ac26f2049bc1b0a2ef64ebb9178",
-    "tests/build.test.js": "5e5c1f0292cbe798e5afc682db3580659b3ad572d27baa81b8dba08d666d9d5f",
+    "tests/build.test.js": "2ba5d8512ebe4d5f4c41097e0a9db1e078f64962e209bf1b44c737b401e5cc38",
     "tests/cli.test.js": "0b36c7e26701ed7dd8274df41b6987c72a7d88eb22dad5ebbeb08c3851742f51",
     "tests/compact-composer.test.js": "46ed0910cfb042a49cb9375e4264351a093187f71846aba6137abec089e6819d",
     "tests/conversations.test.js": "632e8a0c57553c2936b0b14d61c6655e6ef81799298193c78fdcfd9ee8f271d6",
@@ -247,6 +247,7 @@
     "tests/floating-navigation.test.js": "af764411b6b11f157163430fcdf342faf47cd8cab2e771fa4625a6e14cf54395",
     "tests/focus-intent.test.js": "c5a7514ec3d89f2f495ed6a3fa57c6771c76099062f85b385084e733ff56a65d",
     "tests/gemini-adaptation.test.js": "f9d4e2b69faa66d3fe0d5ab37a3f7c3efbcce29efd732f44600a8fd78268cb78",
+    "tests/h3-queue-api.test.js": "9608e0b7b48020cf57888232c849be76ffbffc5ad62369fe389a19f2c8c7feae",
     "tests/history-snapshots.test.js": "518688d671f5b3d456fa3decff6d7ecfa77d87f6544d620183c59b6284bb29a2",
     "tests/image-adaptation.test.js": "e0e95506b54cf13b66f2feb0069158cb0751d9a7b67c005edda4484f73bc38c1",
     "tests/image-capabilities.test.js": "3c638a222ee81f8823922f022a6494be1687a07a89967c8eca44e7c8880de0a2",
@@ -277,5 +278,8 @@
     "tests/video-workspace.test.js": "85596f61e4bd9edc99ed364b0a401b4a3e1529ca52e77c2ac3c03734e39f4241",
     "tests/view-position.test.js": "b7e98f54c2cfc88ed96dbe3be31e447283214f40c191b7de62647bfebedfcc63"
   },
-  "scope": "These commands cover synthetic transports and CPU hosts only. Browser, cloud GPU generation and cleanup observations, if any, are recorded separately with their original evidence and limits."
+  "scope": "inputHashes identify the H3 queue frontend source, including newly added API tests; previously recorded seven run outputs and test counts remain historical results tied to reviewedBase, not re-executed evidence for this input version. CI on main separately executes syntax checks, hosts, models, tests and build. Input and output hash correspondence is not a substitute for live browser/GPU verification.",
+  "inputFingerprintUpdatedAt": "2026-11-15T08:02:27.421Z",
+  "inputFingerprintSource": "57c2909275ffb1337b11787432aa3d738acdbeee",
+  "historicalReviewSource": "84cf1edb3bb5cce4357085190714e019a536f1b4"
 }
