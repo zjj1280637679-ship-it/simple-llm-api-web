@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src https: http://localhost:* http://127.0.0.1:* http://[::1]:*; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>H3 队列 · 极简 LLM</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="layout">
+    <header class="masthead">
+      <div class="mast-inner">
+        <div class="brandline"><span class="brandmark" aria-hidden="true">◈</span><div><strong>H3 队列控制台</strong><small>MiniMax · /api/v1</small></div></div>
+        <div class="mast-actions"><span id="connection-state" class="connection muted">尚未连接</span><a href="../" class="back-link">返回极简 LLM</a></div>
+      </div>
+    </header>
+    <main class="content">
+      <div id="message" class="message" data-kind="info" role="status" aria-live="polite">本页面独立兼容 /api/v1/tasks 协议，不改变原视频页的 /v1/jobs 功能。</div>
+      <section class="panel" aria-labelledby="connection-title">
+        <div class="section-head"><div><span class="eyebrow">01 / CONNECTION</span><h1 id="connection-title">连接视频服务</h1></div></div>
+        <div class="fields connection-fields">
+          <label>服务地址<input id="api-url" type="url" autocomplete="url" spellcheck="false" placeholder="https://your-tunnel.trycloudflare.com"></label>
+          <label>API Key<input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="仅在本页内存使用"></label>
+          <button id="connect" class="primary" type="button">连接并检查</button>
+        </div>
+        <p class="hint">填写服务根地址，或以 <code>/api/v1</code> 结尾的地址均可。优先使用 <code>X-API-Key</code> 请求头；不会把密钥放进 URL 或本机存档。服务端必须允许此网页来源通过 CORS。</p>
+      </section>
+      <div class="two-columns">
+        <section class="panel creator" aria-labelledby="create-title">
+          <div class="section-head"><div><span class="eyebrow">02 / CREATE</span><h2 id="create-title">提交生成任务</h2></div><span class="section-note">参考素材按类型独立编号</span></div>
+          <div class="fields">
+            <label>任务名称 <span class="optional">可选</span><input id="task-title" type="text" maxlength="240" placeholder="例如：红色超能力者 · 天台镜头"></label>
+            <label>视频描述<textarea id="prompt" rows="5" maxlength="12000" placeholder="Use <Picture 1> and <Video 1> as references. Describe the camera movement, subject and action..."></textarea></label>
+          </div>
+          <div class="refs">
+            <div class="ref-section"><div class="ref-head"><strong>图片参考</strong><span id="count-images">0/9</span></div>
+              <div id="refs-images" class="ref-list"></div><div class="ref-inputs"><label class="upload-button">＋ 选择图片<input id="files-images" type="file" accept="image/png,image/jpeg,image/webp,image/*" multiple hidden></label><div class="add-url"><input id="url-images" type="text" placeholder="图片 URL / data:image;base64"><button id="add-images" type="button">添加</button></div></div></div>
+            <div class="ref-section"><div class="ref-head"><strong>视频参考</strong><span id="count-videos">0/3</span></div>
+              <div id="refs-videos" class="ref-list"></div><div class="ref-inputs"><label class="upload-button">＋ 选择视频<input id="files-videos" type="file" accept="video/*" multiple hidden></label><div class="add-url"><input id="url-videos" type="url" placeholder="https://.../reference.mp4"><button id="add-videos" type="button">添加</button></div></div></div>
+            <div class="ref-section"><div class="ref-head"><strong>音频参考</strong><span id="count-audios">0/3</span></div>
+              <div id="refs-audios" class="ref-list"></div><div class="ref-inputs"><label class="upload-button">＋ 选择音频<input id="files-audios" type="file" accept="audio/*" multiple hidden></label><div class="add-url"><input id="url-audios" type="url" placeholder="https://.../voice.wav"><button id="add-audios" type="button">添加</button></div></div></div>
+          </div>
+          <details class="advanced" open><summary>生成配置 <span>分辨率 / 时长 / Turbo / 种子</span></summary>
+            <div class="settings-grid">
+              <label>视频尺寸<select id="resolution"><option value="864x480">864 × 480 · 极速</option><option value="1056x608">1056 × 608 · 高清</option><option value="1344x768">1344 × 768 · 768p</option><option value="480x864">480 × 864 · 竖屏</option><option value="custom">自定义</option></select></label>
+              <label>时长（秒）<input id="duration" type="number" value="5" min="0.1" max="600" step="0.5"></label>
+              <label>优先级<input id="priority" type="number" value="10" step="1"></label>
+              <label>种子（-1 随机）<input id="seed" type="number" value="-1" step="1"></label>
+            </div>
+            <div id="custom-size" class="settings-grid" hidden><label>宽度<input id="width" type="number" value="864" min="128" step="32"></label><label>高度<input id="height" type="number" value="480" min="128" step="32"></label></div>
+            <label class="toggle"><input id="turbo" type="checkbox" checked><span>Turbo 快速模式</span></label>
+          </details>
+          <div class="submit-row"><button id="submit-task" class="primary" type="button">提交到队列</button><div class="batch"><label for="batch-count">批量</label><input id="batch-count" type="number" min="1" max="20" value="2"><button id="submit-batch" type="button">批量入队</button></div></div>
+          <p class="hint">文件先通过 <code>/upload</code> 上传，再把服务器返回的文件名按顺序填入 <code>ref_images / ref_videos / ref_audios</code>。批量任务复用同一批引用。</p>
+        </section>
+        <div class="right-column">
+          <section class="panel" aria-labelledby="status-title"><div class="section-head"><div><span class="eyebrow">03 / SERVER</span><h2 id="status-title">运行状态</h2></div><button id="refresh" type="button">刷新</button></div>
+            <p id="server-summary" class="server-summary">连接后显示服务器状态</p>
+            <div class="queue-actions"><button id="queue-pause" type="button">暂停调度</button><button id="queue-resume" type="button">恢复调度</button><button id="queue-clear" class="danger" type="button">清理历史任务</button></div>
+            <details class="status-details"><summary>查看 GPU / 队列原始回执</summary><pre id="status-json">连接后显示服务器返回的状态。</pre></details>
+          </section>
+          <section class="panel task-section" aria-labelledby="tasks-title"><div class="section-head"><div><span class="eyebrow">04 / QUEUE</span><h2 id="tasks-title">任务列表</h2></div><span id="listed-count" class="section-note">0 条已显示</span></div>
+            <div class="task-toolbar"><label>状态<select id="status-filter"><option value="">全部</option><option value="PENDING">排队中</option><option value="RUNNING">生成中</option><option value="COMPLETED">已完成</option><option value="FAILED">失败</option><option value="CANCELLED">已取消</option></select></label><label>数量<select id="list-limit"><option value="20">20</option><option value="50" selected>50</option><option value="100">100</option><option value="200">200</option></select></label></div>
+            <div class="lookup"><input id="task-lookup" type="text" inputmode="numeric" placeholder="根据任务 ID 查询，例如 1"><button id="lookup" type="button">查询 ID</button></div>
+            <p class="hint">每 4.5 秒自动查询一次；切换到后台时停止轮询。刷新不会重新生成。</p>
+            <div id="task-list" class="task-list"></div><p id="empty-tasks" class="empty">暂无可显示的任务。连接服务或查询任务 ID。</p>
+          </section>
+        </div>
+      </div>
+      <footer class="footer">极简 LLM · MiniMax H3 Queue · 静态 BYOK 客户端 · 密钥不会保存在仓库和浏览器存储中</footer>
+    </main>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
