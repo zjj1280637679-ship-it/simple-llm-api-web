@@ -9,6 +9,7 @@ const destination = join(root, 'dist');
 // not deployment inputs. No recursive copy of the repository is ever performed.
 const files = [
   'h3-queue/index.html', 'h3-queue/style.css', 'h3-queue/api.js', 'h3-queue/app.js',
+  'h3-relay/index.html',
   'src/video-api.js', 'src/video-workspace.js', 'src/video-workspace.css',
   'src/conversation-book.js','src/conversation-archive.js','src/gemini-capabilities.js','src/gemini-request.js','src/gemini-settings-markup.js','src/image-options-markup.js','src/settings-markup.js','src/settings-navigation.js','src/history-markup.js',
   'src/workbench-cards.js','src/interaction-cards.js','src/card-types.js','src/card-markup.js','src/card-confirmations.js',
@@ -35,6 +36,9 @@ for (const file of files) {
   let content = sources.get(file);
   if (file.endsWith('.js')) {
     content = content.toString('utf8').replace(/((?:from|import)\s*['"])(\.[^'"]+\.js)(['"])/g,
+      (_, before, reference, after) => before + versionReference(reference) + after);
+  } else if (file === 'h3-relay/index.html') {
+    content = content.toString('utf8').replace(/((?:src|href)=['"])(\.\.\/h3-queue\/(?:app\.js|style\.css))(['"])/g,
       (_, before, reference, after) => before + versionReference(reference) + after);
   } else if (file === 'index.html') {
     content = content.toString('utf8').replace(/((?:src|href)=['"])(\.\/src\/[^'"]+\.(?:js|css))(['"])/g,

@@ -6,7 +6,8 @@ const KINDS = {
   audios: { token: 'Audio', max: 3 }
 };
 const labels = { PENDING: '排队中', RUNNING: '生成中', COMPLETED: '已完成', FAILED: '失败', CANCELLED: '已取消' };
-const STORAGE = 'simple-llm-h3-queue-v1';
+const STORAGE = document.documentElement.dataset.h3Profile === 'relay'
+  ? 'simple-llm-h3-relay-v1' : 'simple-llm-h3-queue-v1';
 const $ = id => document.getElementById(id);
 const el = (name, className = '', content = '') => {
   const node = document.createElement(name);
