@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "snapshotId": "v0.9.0-57c2909275ff",
-  "graph": "snapshots/v0.9.0-57c2909275ff/graph.json",
-  "guide": "snapshots/v0.9.0-57c2909275ff/README.md",
-  "sourceCommit": "57c2909275ffb1337b11787432aa3d738acdbeee",
+  "snapshotId": "v0.9.0-68eac3c85efb",
+  "graph": "snapshots/v0.9.0-68eac3c85efb/graph.json",
+  "guide": "snapshots/v0.9.0-68eac3c85efb/README.md",
+  "sourceCommit": "68eac3c85efbe0e132f83a4090aeca08f651f2b6",
   "projectVersion": "0.9.0",
-  "knowledgeVersion": "1.8.1",
-  "updatedAt": "2026-11-15T07:59:32.332Z"
+  "knowledgeVersion": "1.8.2",
+  "updatedAt": "2026-11-15T08:03:06.039Z"
 }

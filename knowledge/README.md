@@ -1,8 +1,8 @@
 # 项目快照知识图
 
-知识版本 **1.8.1**；项目版本 **0.9.0**；生成时间 2026-11-15T07:59:32.332Z。源提交 `57c2909275ffb1337b11787432aa3d738acdbeee`；309 个项目文件、38 个模块/宿主、486 节点、1411 条关系。
+知识版本 **1.8.2**；项目版本 **0.9.0**；生成时间 2026-11-15T08:03:06.039Z。源提交 `68eac3c85efbe0e132f83a4090aeca08f651f2b6`；309 个项目文件、38 个模块/宿主、486 节点、1411 条关系。
 
-**先读 [当前快照导览](snapshots/v0.9.0-57c2909275ff/README.md)**。机器入口 [current.json](current.json)，[完整图](snapshots/v0.9.0-57c2909275ff/graph.json)，[字段语义](schema.md)。新增 H3 `/api/v1/tasks` 独立网页；原 `/v1/jobs` 视频客户端和历史验收保持独立。
+**先读 [当前快照导览](snapshots/v0.9.0-68eac3c85efb/README.md)**。机器入口 [current.json](current.json)，[完整图](snapshots/v0.9.0-68eac3c85efb/graph.json)，[字段语义](schema.md)。新增 H3 `/api/v1/tasks` 独立网页；原 `/v1/jobs` 视频客户端和历史验收保持独立。
 
 [先前 v0.9.0 快照](snapshots/v0.9.0-5d16d1ee174a/README.md) 继续保留，不改写其中的历史研究记录。
 
