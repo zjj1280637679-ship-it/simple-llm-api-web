@@ -6,18 +6,22 @@
 /** Question: may this host commit/use a response with this completion evidence?
  * This is policy D-08, separate from marker interpretation. Missing JSON markers
  * are currently tolerated for Gemini/Chat compatibility, while staying unknown.
- * SSE requires its framing witness; Anthropic JSON currently requires a known end.
+ * SSE requires a framing witness: [DONE] or clean stream EOF, AND a recognized
+ * completion marker. Abrupt reader failure/abort is not a normal EOF.
+ * Anthropic JSON currently requires a known end.
  * Unknown future markers are held for profile review, not called impossible.
  */
 export function decideCompletion(evidence, {channel='json',terminalObserved=false} = {}) {
   const sse = channel === 'sse';
-  const policyId = sse ? 'completion.sse.v1' : 'completion.json-compat.v1';
+  const policyId = sse ? 'completion.sse.v2' : 'completion.json-compat.v1';
   const hold=(code,reason)=>({admitted:false,code,reason,policyId});
   if (!['json','sse'].includes(channel)) return hold('COMPLETION_POLICY','unknown-channel');
   if (evidence?.markerClass === 'refusal') return hold('BLOCKED','explicit-refusal');
   if (!['gemini','openai','ark','anthropic'].includes(evidence?.protocol)) return hold('COMPLETION_POLICY','unsupported-profile');
-  if (sse && (evidence.markerClass==='missing' || (evidence.protocol!=='gemini' && terminalObserved!==true)))
-    return hold('STREAM_INTERRUPTED','missing-framing-or-ending-witness');
+  if (sse && evidence.markerClass==='missing')
+    return hold('STREAM_INTERRUPTED','missing-completion-marker');
+  if (sse && evidence.protocol!=='gemini' && terminalObserved!==true)
+    return hold('STREAM_INTERRUPTED','missing-framing-witness');
   if (evidence.status==='complete' && evidence.markerClass==='recognized-complete')
     return {admitted:true,code:null,reason:'recognized-protocol-ending',policyId};
   if (!sse && evidence.protocol!=='anthropic' && evidence.status==='unknown' && evidence.markerClass==='missing')
@@ -28,6 +32,7 @@ export function decideCompletion(evidence, {channel='json',terminalObserved=fals
 
 export function completionMessage(decision) {
   if (decision.code==='BLOCKED') return '供应商返回了拒绝标记；未执行工具或提交为完整回复。';
+  if (decision.code==='STREAM_INTERRUPTED' && decision.reason==='missing-completion-marker') return 'SSE 已结束，但供应商未返回完成标记（finish_reason / finishReason）；本次回复未作为完整内容加入上下文。可在模型设置改用完整 JSON 模式。';
   if (decision.code==='STREAM_INTERRUPTED') return '流式回复缺少完整结束证据；部分内容未加入对话上下文。';
   if (decision.reason==='reported-incomplete') return '供应商报告回复未完整结束；未执行工具或提交为完整回复。';
   return '当前结束标记或响应条件未被本地规则覆盖；未执行工具或提交为完整回复。';

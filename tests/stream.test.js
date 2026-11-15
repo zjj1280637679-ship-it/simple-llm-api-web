@@ -50,7 +50,8 @@ test('tool fragments complete by index; confirmation only after finish and DONE'
  assert.equal(confirmed,1);assert.equal(n,2);assert.equal(result.history[1].raw.tool_calls[0].function.arguments,'{"prompt":"cat"}');assert.equal(result.text,'已取消');
 });
 for(const [name,events,code] of [
- ['missing DONE',[o('partial','stop')],'STREAM_INTERRUPTED'],
+ ['missing finish at EOF',[o('partial')],'STREAM_INTERRUPTED'],
+ ['length finish at EOF',[o('partial','length')],'STREAM_INCOMPLETE'],
  ['missing finish',[o('partial'),'[DONE]'],'STREAM_INTERRUPTED'],
  ['length finish',[o('partial','length'),'[DONE]'],'STREAM_INCOMPLETE'],
  ['in-stream error',[o('partial'),{error:{message:'secret'}}],'STREAM_ERROR'],
@@ -131,4 +132,60 @@ test('real transport and agent forward observable header and content phases in o
  const phases=[];
  await runConversation({config:config('ark'),messages,onDelta:()=>{},onPhase:p=>phases.push(p),fetchImpl:async()=>response([o('',null,{reasoning_content:'synthetic summary'}),o('answer','stop'),'[DONE]'])});
  assert.deepEqual(phases,['waiting_headers','headers_received','first_chunk','reasoning','output']);
+});
+
+
+for(const protocol of ['openai','ark'])test(protocol+' clean EOF after recognized finish (without DONE) commits complete response once',async()=>{
+ const seen=[],checkpoints=[];let requests=0;
+ const result=await runConversation({config:config(protocol),messages,onDelta:delta=>seen.push(delta),onHistory:history=>checkpoints.push(history),
+   fetchImpl:async()=>{requests++;return response([o('第一段'),o('第二段','stop')]);}});
+ assert.equal(requests,1);
+ assert.equal(result.text,'第一段第二段');
+ assert.deepEqual(seen,['第一段','第二段']);
+ assert.equal(result.history.at(-1).raw.content,'第一段第二段');
+ assert.equal(checkpoints.length,1);
+ assert.equal(checkpoints[0].at(-1).content,'第一段第二段');
+});
+test('natural EOF with complete tool call allows validated tool execution, not a second POST',async()=>{
+ let n=0,approved=0;
+ const first=[
+  o('',null,{tool_calls:[{index:0,id:'call-1',type:'function',function:{name:'image_generate',arguments:'{"prompt":'}}]}),
+  o('',null,{tool_calls:[{index:0,function:{arguments:'"sunrise"}'}}]}),
+  o('','tool_calls')
+ ];
+ const result=await runConversation({config:config('openai'),imageConfig:{...config('gemini'),model:'gemini-nano-banana-2.1'},
+  messages,onDelta:()=>{},confirmTool:async()=>{approved++;return false;},
+  fetchImpl:async()=>{n++;return n===1?response(first):response([o('未生成','stop'),'[DONE]']);}});
+ assert.equal(n,2);assert.equal(approved,1);assert.equal(result.text,'未生成');
+ assert.equal(JSON.parse(result.history[2].content).code,'USER_DECLINED');
+});
+test('actual reader failure after finish marker stays incomplete and never checkpoints',async()=>{
+ const encoder=new TextEncoder();let checkpointed=false;
+ const badStream=new ReadableStream({start(controller){
+   controller.enqueue(encoder.encode(frame(o('visible','stop'))));
+   queueMicrotask(()=>controller.error(new Error('synthetic connection interrupted')));
+ }});
+ await assert.rejects(runConversation({config:config('openai'),messages,onDelta:()=>{},onHistory:()=>{checkpointed=true},
+   fetchImpl:async()=>new Response(badStream,{headers:{'content-type':'text/event-stream'}})}),{code:'STREAM_INTERRUPTED'});
+ assert.equal(checkpointed,false);
+});
+for(const protocol of ['openai','ark','gemini'])test(protocol+' JSON compatibility mode omits streaming and completes once, with no hidden retry',async()=>{
+ let calls=0,visible=0;
+ const result=await runConversation({config:config(protocol),messages,settings:{streamMode:'json'},onDelta:()=>{visible++;},
+   onReasoningDelta:()=>{visible++;},
+   fetchImpl:async(url,opts)=>{
+     calls++;
+     assert.equal(opts.headers.Accept,'application/json');
+     const body=JSON.parse(opts.body);
+     if(protocol==='gemini'){
+       assert.match(url,/:generateContent$/);
+       assert.equal(body.contents[0].parts[0].text,'hi');
+       return Response.json(g([{text:'一次性结果'}],'STOP'));
+     }
+     assert.equal(body.stream,false);
+     assert.equal(body.stream_options,undefined);
+     return Response.json({choices:[{message:{role:'assistant',content:'一次性结果'},finish_reason:'stop'}]});
+   }});
+ assert.equal(calls,1);assert.equal(visible,0);
+ assert.equal(result.text,'一次性结果');assert.equal(result.history.at(-1).content,'一次性结果');
 });

@@ -20,7 +20,7 @@ export function historicalModelMarkup(card,page) {
   const family=REASONING_FAMILIES.find(f=>f.id===x.reasoningFamily)?.label || (x.reasoningFamily===null?'未指定模板':'未记录模板');
   const rows=page==='chat' ? [
     ...(x.displayContext?.model?[['模型',x.displayContext.model]]:[]),
-    ...geminiSnapshotRows(x).map(([label,value])=>[protocol==='gemini'?label:`${label}（Gemini 偏好，未应用）`,value]),['输出预算 Token',present(x.output,'API 默认')],['温度',present(x.temperature,'API 默认')],['Top P',present(x.topP,'API 默认')],
+    ...geminiSnapshotRows(x).map(([label,value])=>[protocol==='gemini'?label:`${label}（Gemini 偏好，未应用）`,value]),['响应方式',x.streamMode==='json'?'完整 JSON（非流式）':x.streamMode==='sse'?'SSE 实时流式':'未记录'],['输出预算 Token',present(x.output,'API 默认')],['温度',present(x.temperature,'API 默认')],['Top P',present(x.topP,'API 默认')],
     ['思考模板',family],['思考强度',x.reasoning?`${present(x.reasoning.template,'未记录模板')} · ${present(x.reasoning.value,'未记录')}`:'未指定'],
     ...(x.reasoningBudget!==undefined?[['模板预算',present(x.reasoningBudget,'未指定')]]:[]),
     ['联网搜索',x.webSearch==='deepseek'?'DeepSeek 官方（启用）':x.webSearch==='off'?'关闭':'未记录'],
@@ -99,7 +99,13 @@ function modelCard(m) {
 <div class="formfield">
 <label for="context${m.id}">上下文</label>
 <output id="context${m.id}" class="block-value">当前对话上下文</output>
-</div></details>`:''}${geminiSettingsMarkup(m,d.api,x)}<details data-setting-section="web-search"><summary>联网搜索 · DeepSeek</summary>
+</div></details>`:''}${geminiSettingsMarkup(m,d.api,x)}<details data-setting-section="stream-mode"><summary>响应方式 / 流式兼容</summary>
+<div class="formfield"><label for="streamMode${m.id}">模型回复传输方式</label>
+<select id="streamMode${m.id}" class="block-input" data-card="${m.id}" data-key="streamMode">
+<option value="sse" ${x.streamMode!=='json'?'selected':''}>实时流式 SSE（默认）</option>
+<option value="json" ${x.streamMode==='json'?'selected':''}>完整 JSON · 稳定兼容（非流式）</option>
+</select></div>
+<p class="model-note">默认实时显示；收到有效完成标记并且 SSE 正常关闭时，即使中转站未发送 [DONE] 也可确认完整结束。若供应商经常提前断流，可选「完整 JSON」避免 SSE 兼容问题；这不会重试已经发出的请求，完整回答返回前也不会逐字显示。真正中断和 length 等未完成标记仍不会误加入上下文。</p></details><details data-setting-section="web-search"><summary>联网搜索 · DeepSeek</summary>
 <div class="formfield"><label for="webSearch${m.id}">搜索工具</label>
 <select id="webSearch${m.id}" class="block-input" data-card="${m.id}" data-key="webSearch">
 <option value="off" ${x.webSearch!=='deepseek'?'selected':''}>关闭（不产生搜索费用）</option>

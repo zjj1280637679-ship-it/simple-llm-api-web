@@ -70,6 +70,8 @@ export async function runConversation({
   if(search.enabled && (typeof search.key!=='string'||!search.key.trim())) throw agentError('SEARCH_KEY_REQUIRED','联网搜索已开启，请在模型设置填写 DeepSeek 搜索 Key。');
   const searchTool=search.enabled?WEB_SEARCH_TOOL:null;
   const tools=[...(imageTool?[imageTool]:[]),...(searchTool?[searchTool]:[])];
+  // Nonstream mode is explicit, never an automatic retry after an SSE failure.
+  const streamText = settings.streamMode !== 'json';
   const checkpoint = () => onHistory?.(history.map(message => ({ ...message })));
 
   try {
@@ -77,8 +79,8 @@ export async function runConversation({
       stopped(signal);
       const response = await generateText({
         config, messages: history, settings, tools, signal, fetchImpl, onPhase,
-        onDelta: onDelta ? delta => onDelta(delta, {round}) : undefined,
-        onReasoningDelta: onReasoningDelta ? delta => onReasoningDelta(delta, {round}) : undefined,
+        onDelta: streamText && onDelta ? delta => onDelta(delta, {round}) : undefined,
+        onReasoningDelta: streamText && onReasoningDelta ? delta => onReasoningDelta(delta, {round}) : undefined,
       });
       stopped(signal);
       onResponse?.(response, {round});

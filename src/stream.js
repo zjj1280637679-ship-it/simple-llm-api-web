@@ -8,6 +8,7 @@ export async function readSSE(response, { signal, onEvent, error, onPhase }) {
   if (type && !type.toLowerCase().includes('text/event-stream')) throw error('STREAM_UNSUPPORTED', '供应商未返回 SSE 流；未自动切换或重试。');
   const reader = response.body.getReader(), decoder = new TextDecoder();
   let buffer = '', data = [], event = '', done = false, frameBytes = 0, receivedBytes = false;
+  let normalEOF = false; // Distinguish a clean reader close from network rejection/abort or an explicit SSE terminal event.
   const maxFrameBytes = 8 * 1024 * 1024, encoder = new TextEncoder();
   const budget = bytes => { if (bytes > maxFrameBytes) throw error('STREAM_FORMAT','流式数据帧过大。'); };
   const abort = () => { reader.cancel().catch(() => {}); };
@@ -47,7 +48,7 @@ export async function readSSE(response, { signal, onEvent, error, onPhase }) {
       const chunk = await reader.read(); check();
       if (chunk.value?.byteLength && !receivedBytes) { receivedBytes = true; onPhase?.('first_chunk'); }
       buffer += decoder.decode(chunk.value, {stream:!chunk.done}); drain(chunk.done);
-      if (chunk.done) { if (buffer) line(buffer); line(''); break; }
+      if (chunk.done) { if (buffer) line(buffer); line(''); normalEOF = !done; break; }
     }
   } catch (caught) {
     check();
@@ -58,6 +59,9 @@ export async function readSSE(response, { signal, onEvent, error, onPhase }) {
     try { await reader.cancel(); } catch { /* Already closed. */ }
     reader.releaseLock();
   }
+  // An EOF is transport evidence only. The caller must still verify a
+  // protocol-recognized finish_reason before admitting the assistant message.
+  return {normalEOF};
 }
 
 /** Build the same native assistant shape as the nonstream transport. */
@@ -67,7 +71,7 @@ export async function collectTextStream(response, {protocol, signal, onDelta, on
   const parts = [], calls = new Map();
   let text = '', finish = null, usage = null, refusal = '', reasoning = '', encrypted = '', ended = false;
   const metadata = {};
-  await readSSE(response, {signal,error,onPhase,onEvent(data,event) {
+  const framing = await readSSE(response, {signal,error,onPhase,onEvent(data,event) {
     if (event === 'error') throw error('STREAM_ERROR','供应商在流中返回错误；部分回复未完成。');
     if (data.trim() === '[DONE]') { ended = true; return false; }
     let json;
@@ -119,7 +123,7 @@ export async function collectTextStream(response, {protocol, signal, onDelta, on
       }
     }
   }});
-  const admission=decideCompletion(observeCompletion({protocol,reason:finish,refusal:Boolean(refusal)}),{channel:'sse',terminalObserved:ended});
+  const admission=decideCompletion(observeCompletion({protocol,reason:finish,refusal:Boolean(refusal)}),{channel:'sse',terminalObserved:ended || framing.normalEOF});
   if(!admission.admitted)throw error(admission.code,completionMessage(admission));
   if (gemini) return {...metadata,candidates:[{content:{role:'model',parts},finishReason:finish}],usageMetadata:usage};
   const message = {role:'assistant',content:text};

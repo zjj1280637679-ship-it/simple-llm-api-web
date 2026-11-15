@@ -69,7 +69,7 @@ const providers = [
 ];
 const makePage = type => ({
   api: { protocol: 'gemini', url: providers[0].url, key: '', model: type === 'image' ? IMAGE_MODEL : DEFAULT_TEXT_MODEL, supplier: 'Google Gemini', trustedTarget: '' },
-  model: { output: '', temperature: '', topP: '', webSearch: 'off', inputs: ['text','image','pdf','audio','video'] }, draft: '', attachments: [], attachmentReading: false, attachmentError: '', pendingTextId: null,
+  model: { output: '', temperature: '', topP: '', streamMode: 'sse', webSearch: 'off', inputs: ['text','image','pdf','audio','video'] }, draft: '', attachments: [], attachmentReading: false, attachmentError: '', pendingTextId: null,
   aspectRatio: '1:1', imageSize: '1K', messages: [], history: [], busy: false,
   controller: null, lastUsage: null, lastMetrics: null
 });
@@ -768,6 +768,7 @@ function applyCardField(d,card,t) {
       return {ok:true};
     }
     if(key==='webSearch'&&!['off','deepseek'].includes(t.value))return {ok:false,reason:'invalid-search'};
+    if(key==='streamMode'&&!['sse','json'].includes(t.value))return {ok:false,reason:'invalid-stream-mode'};
     if(IMAGE_FIELDS.includes(key)&&book.owner(d)?.data.image!==d)return {ok:false,reason:'inactive-workspace'};
     if(GEMINI_FIELDS.includes(key)&&d.api.protocol!=='gemini')return {ok:false,reason:'inactive-protocol'};
     d.model[key] = t.value; card.values[key] = t.value;

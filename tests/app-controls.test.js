@@ -938,3 +938,24 @@ test('enabling search without a separate key on a non-DeepSeek provider blocks s
   assert.equal(requests,0);
   assert.ok(d.messages.some(m=>m.type==='error'&&/DeepSeek 搜索 API Key/.test(m.text)));
 });
+
+
+test('text model can select JSON compatibility, preserves preference without changing image or main model API settings',async()=>{
+ const ui=await mount(),{d}=configure(ui);
+ const imageBefore=structuredClone(ui.data.image.model);
+ const beforeKey=d.api.key;
+ ui.addCard('model');
+ const card=d.messages.at(-1);
+ assert.match(ui.app.innerHTML,/响应方式 \/ 流式兼容/);
+ assert.match(ui.app.innerHTML,/完整 JSON · 稳定兼容/);
+ await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'streamMode',value:'json'}},d);
+ assert.equal(d.model.streamMode,'json');
+ assert.equal(d.api.key,beforeKey);
+ assert.deepEqual(ui.data.image.model,imageBefore);
+ const archive=JSON.stringify(ui.archiveSnapshot());
+ assert.match(archive,/"streamMode":"json"/);
+ await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'streamMode',value:'invalid'}},d);
+ assert.equal(d.model.streamMode,'json');
+ await ui.dispatchCardAction({id:card.id,action:'field.change',args:{key:'streamMode',value:'sse'}},d);
+ assert.equal(d.model.streamMode,'sse');
+});
